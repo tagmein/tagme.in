@@ -149,9 +149,12 @@ async function displayChannel(channel, hour) {
      channel
     )}/${mostRecentHour}`
    })
-   channelsEl.innerHTML =
+   contentEl.innerHTML =
     '<p>Time travel to read latest messages</p>'
-   channelsEl.appendChild(goButton)
+   const goParagraph =
+    document.createElement('p')
+   goParagraph.appendChild(goButton)
+   contentEl.appendChild(goParagraph)
    return
   }
  } catch (err) {
