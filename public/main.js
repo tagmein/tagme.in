@@ -15,7 +15,9 @@ function describeHourNumber(hourNumber) {
  const date = new Date(
   begin2024.getTime() + hourNumber * 3600e3
  )
- return date.toLocaleString()
+ return date
+  .toLocaleString()
+  .replace(/\:\d\d\:\d\d /, '')
 }
 
 function addBlockquote(
