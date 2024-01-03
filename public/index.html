@@ -33,10 +33,11 @@
     padding: 0;
    }
    body {
-    font-family: dotrice, 'Courier New', Courier,
-     monospace;
+    color: #ffffff;
     display: flex;
     flex-direction: column;
+    font-family: dotrice, 'Courier New', Courier,
+     monospace;
     gap: 2px;
    }
    body,
@@ -44,7 +45,9 @@
    button,
    select,
    textarea {
-    font-size: 20px;
+    color: inherit;
+    font-family: inherit;
+    font-size: 18px;
    }
    fieldset {
     border: none;
@@ -130,14 +133,12 @@
    cite {
     background-color: #808080;
     border-radius: 100%;
-    font-size: 16px;
+    font-size: 12px;
     font-weight: bold;
-    margin-right: -50%;
-    margin-top: -50%;
     padding: 0.25em;
     position: absolute;
-    right: 0;
-    top: 0;
+    right: 0.25em;
+    top: 0.25em;
    }
    #about {
     flex-grow: 0;
