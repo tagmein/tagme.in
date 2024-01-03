@@ -23,6 +23,11 @@ function addBlockquote(
  }
  block.textContent = text
 
+ block.addEventListener('click', () => {
+  messageEl.value = text
+  messageEl.focus()
+ })
+
  const cite = document.createElement('cite')
  cite.textContent = score
  block.appendChild(cite)
@@ -37,6 +42,8 @@ const channelsEl =
  document.getElementById('channels')
 const contentEl =
  document.getElementById('content')
+const messageEl =
+ document.getElementById('message')
 
 // Keep current channel/hour in hash URL route
 function route() {

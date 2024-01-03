@@ -127,9 +127,13 @@
    }
    blockquote {
     border-radius: 0.25em;
+    cursor: pointer;
     margin: 0.5em;
-    padding: 0.5em;
+    padding: calc(2px + 0.5em) 0.5em 0.5em;
     position: relative;
+   }
+   blockquote:hover {
+    background-color: #404040;
    }
    blockquote.new {
     border: 2px solid #ffa000;
@@ -151,8 +155,8 @@
     line-height: 20px;
    }
    a > cite {
-    margin-top: -20px;
-    margin-right: -20px;
+    margin-right: -16px;
+    margin-top: -16px;
    }
    #about {
     flex-grow: 0;
