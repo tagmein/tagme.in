@@ -52,19 +52,22 @@ function addBlockquote(
 ) {
  const block =
   document.createElement('blockquote')
+ const blockContent =
+  document.createElement('div')
  if (isNew) {
   block.classList.add('new')
  }
  const blockText =
   document.createElement('span')
- blockText.textContent = text
+ blockContent.textContent = text
+ block.appendChild(blockContent)
+ blockContent.appendChild(blockText)
  const agreeButton =
   document.createElement('button')
  block.appendChild(agreeButton)
  agreeButton.textContent = 'Agree'
- block.appendChild(blockText)
  try {
-  addYouTubeEmbed(block, text)
+  addYouTubeEmbed(blockContent, text)
  } catch (e) {
   console.error('YouTube embed error', e)
  }

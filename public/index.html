@@ -151,6 +151,16 @@
     margin: 0 0 0.5em;
     padding: calc(2px + 0.5em) 40px 0.5em 0;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: start;
+   }
+   blockquote > div {
+    flex-grow: 1;
+   }
+   blockquote > div > span {
+    display: block;
+    word-wrap: break-word;
    }
    blockquote.new {
     border: 2px solid #ffa000;
@@ -237,6 +247,9 @@
     margin: 0px 0 0 98px;
     max-width: calc(100% - 98px);
    }
+   blockquote > span {
+    display: inline-block;
+   }
   </style>
  </head>
 
@@ -318,7 +331,7 @@
   </div>
   <script
    type="text/javascript"
-   src="main.js?a"
+   src="main.js?b"
   ></script>
  </body>
 </html>
