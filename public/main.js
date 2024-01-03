@@ -24,7 +24,7 @@ function route() {
 
  channelEl.value = channel ?? ''
  displayChannel(
-  channel,
+  channel ?? '',
   hour ?? getHourNumber().toString(10)
  )
 }
