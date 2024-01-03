@@ -10,6 +10,26 @@ function getHourNumber() {
  )
 }
 
+function addBlockquote(
+ parent,
+ text,
+ score,
+ isNew
+) {
+ const block =
+  document.createElement('blockquote')
+ if (isNew) {
+  block.classList.add('new')
+ }
+ block.textContent = text
+
+ const cite = document.createElement('cite')
+ cite.textContent = score
+ block.appendChild(cite)
+
+ parent.appendChild(block)
+}
+
 // Attach to DOM elements
 const channelEl =
  document.getElementById('channel')
@@ -52,54 +72,45 @@ async function displayChannel(channel, hour) {
   const data = await resp.json()
   console.log(data)
 
-  const {
-   channel,
-   hour,
-   topChannels,
-   topMessages,
-   message,
-  } = data
+  const { topChannels, topMessages, message } =
+   data
 
   // Top Channels
   channelsEl.innerHTML = ''
+  const sortedChannels = Object.entries(
+   topChannels
+  ).sort((a, b) => b[1] - a[1])
+  sortedChannels.forEach(([name, votes]) => {
+   const encoded = encodeURIComponent(name)
 
-  Object.entries(topChannels).forEach(
-   ([name, votes]) => {
-    const encoded = encodeURIComponent(name)
-
-    channelsEl.innerHTML += `
+   channelsEl.innerHTML += `
     <a href="/#/${encoded}/${hour}">
       ${name} 
+      <cite>${votes - data.hour}</cite> 
     </a>
   `
-   }
-  )
+  })
 
   // New message
   contentEl.innerHTML = ''
   if (message) {
    const score = message.votes - hour
-   contentEl.innerHTML = `
-    <blockquote class="new">
-      ${message.text}
-      <cite>${score}</cite> 
-    </blockquote>
-  `
+   addBlockquote(
+    contentEl,
+    message.text,
+    score,
+    false
+   )
   }
 
-  // Top messages
-  Object.entries(topMessages).forEach(
-   ([text, votes]) => {
-    const score = votes - hour
-
-    contentEl.innerHTML += `
-    <blockquote>
-      ${text}  
-      <cite>${score}</cite>
-    </blockquote>
-  `
-   }
-  )
+  // Top Messages
+  const sortedMessages = Object.entries(
+   topMessages
+  ).sort((a, b) => b[1] - a[1])
+  sortedMessages.forEach(([text, votes]) => {
+   const score = votes - data.hour
+   addBlockquote(contentEl, text, score)
+  })
  } catch (err) {
   contentEl.textContent =
    err?.message ?? err ?? 'unknown error'
