@@ -14,6 +14,11 @@
   />
   <title>Tag Me In</title>
   <style>
+   @font-face {
+    font-family: dotrice;
+    src: url('/dotrice.regular.otf')
+     format('opentype');
+   }
    html,
    body {
     position: fixed;
@@ -28,7 +33,7 @@
     padding: 0;
    }
    body {
-    font-family: 'Courier New', Courier,
+    font-family: dotrice, 'Courier New', Courier,
      monospace;
     display: flex;
     flex-direction: column;
@@ -39,7 +44,10 @@
    button,
    select,
    textarea {
-    font-size: 24px;
+    font-size: 20px;
+   }
+   fieldset {
+    border: none;
    }
    #radio-top {
     flex-grow: 0;
@@ -63,9 +71,11 @@
     padding: 0.5em;
    }
    #channels > a {
-    background-color: #404040;
+    background-color: #808080;
+    color: inherit;
     display: inline-block;
     padding: 0.5em;
+    text-decoration: none;
    }
    #content {
     display: flex;
@@ -97,6 +107,9 @@
    }
    #send-fields input {
     flex-grow: 1;
+   }
+   #send-fields input[type='submit'] {
+    flex-grow: 0;
    }
    input {
     border: 2px solid #808080;
