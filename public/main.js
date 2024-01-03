@@ -1,13 +1,21 @@
+const begin2024 = new Date(
+ 'January 1, 2024 00:00:00 GMT'
+)
+
 function getHourNumber() {
- const begin2024 = new Date(
-  'January 1, 2024 00:00:00 GMT'
- )
  const now = new Date()
  const msPerHour = 1000 * 60 * 60
  return Math.floor(
   (now.getTime() - begin2024.getTime()) /
    msPerHour
  )
+}
+
+function describeHourNumber(hourNumber) {
+ const date = new Date(
+  begin2024.getTime() + hourNumber * 3600e3
+ )
+ return date.toLocaleString()
 }
 
 function addBlockquote(
@@ -45,6 +53,8 @@ const contentEl =
 const messageEl =
  document.getElementById('message')
 const hourEl = document.getElementById('hour')
+const timeDescriptionEl =
+ document.getElementById('time-description')
 
 function getUrlData() {
  const [_, channel, hour] = window.location.hash
@@ -67,10 +77,11 @@ function route() {
  channelEl.value = channel ?? ''
  hourEl.value =
   hour ?? getHourNumber().toString(10)
- displayChannel(
-  channel ?? '',
+ const trueHour =
   hour ?? getHourNumber().toString(10)
- )
+ timeDescriptionEl.textContent =
+  describeHourNumber(trueHour)
+ displayChannel(channel ?? '', trueHour)
 }
 
 // Load channel content
