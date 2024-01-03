@@ -114,8 +114,9 @@ async function displayChannel(channel, hour) {
    )
   })
  } catch (err) {
-  contentEl.textContent =
+  contentEl.innerHTML = `<p>${
    err?.message ?? err ?? 'unknown error'
+  }</p>`
  }
 }
 
