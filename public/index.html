@@ -135,7 +135,8 @@
    fieldset input {
     flex-grow: 1;
    }
-   fieldset input[type='submit'] {
+   fieldset input[type='submit'],
+   fieldset button {
     flex-grow: 0;
    }
    *:focus {
@@ -279,7 +280,7 @@
       name="hour"
      />
      <span id="time-description"></span>
-     <input id="now" value="Now" />
+     <button id="now">Now</button>
     </fieldset>
    </div>
   </div>
