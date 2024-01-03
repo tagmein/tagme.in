@@ -180,7 +180,7 @@ async function displayChannel(channel, hour) {
     channel,
     text,
     score,
-    text === message
+    text === message?.text
    )
   })
 

@@ -112,8 +112,6 @@
     display: flex;
     flex-direction: column;
     min-height: min-content;
-    overflow-x: hidden;
-    overflow-y: auto;
    }
    .frame {
     background-color: #303030;
@@ -163,8 +161,16 @@
     display: block;
     word-wrap: break-word;
    }
-   blockquote.new {
+   blockquote.new::after {
     border: 2px solid #ffa000;
+    content: '';
+    display: block;
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    bottom: 4px;
+    right: -4px;
+    border-radius: 10px;
    }
    blockquote > button {
     flex-grow: 0;
