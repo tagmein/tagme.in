@@ -85,7 +85,7 @@ async function displayChannel(channel, hour) {
 
    channelsEl.innerHTML += `
     <a href="/#/${encoded}/${hour}">
-      ${name} 
+      ${name.length > 0 ? name : '⌂'} 
       <cite>${votes - data.hour}</cite> 
     </a>
   `
