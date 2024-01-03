@@ -64,7 +64,15 @@
     height: 100px;
    }
    #radio-bottom {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
+    overflow: hidden;
+   }
+   #radio-bottom > div {
+    flex-shrink: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
    }
    #seek {
     display: flex;
