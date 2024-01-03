@@ -8,6 +8,8 @@ import { getHourNumber } from './lib/getHourNumber'
 import { voteForMessage } from './lib/vote'
 
 const RANKED_HISTORY_ITEM_COUNT = 250
+const MAX_CHANNEL_LENGTH = 25
+const MAX_MESSAGE_LENGTH = 75
 
 interface Env {
  TAGMEIN_KV: KVNamespace
@@ -38,17 +40,19 @@ async function validateRequestBody(
     data,
    }
   }
-  if (data.message.length > 25) {
+  if (
+   data.message.length > MAX_MESSAGE_LENGTH
+  ) {
    return {
-    error:
-     'message must be 25 characters or less',
+    error: `message must be ${MAX_MESSAGE_LENGTH} characters or less`,
     data,
    }
   }
-  if (data.channel.length > 25) {
+  if (
+   data.channel.length > MAX_CHANNEL_LENGTH
+  ) {
    return {
-    error:
-     'channel must be 25 characters or less',
+    error: `channel must be ${MAX_CHANNEL_LENGTH} characters or less`,
     data,
    }
   }
