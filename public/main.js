@@ -98,17 +98,7 @@ async function displayChannel(channel, hour) {
   `
   })
 
-  // New message
   contentEl.innerHTML = ''
-  if (message) {
-   const score = message.votes - hour
-   addBlockquote(
-    contentEl,
-    message.text,
-    score,
-    true
-   )
-  }
 
   // Top Messages
   const sortedMessages = Object.entries(
@@ -116,7 +106,12 @@ async function displayChannel(channel, hour) {
   ).sort((a, b) => b[1] - a[1])
   sortedMessages.forEach(([text, votes]) => {
    const score = votes - data.hour
-   addBlockquote(contentEl, text, score, false)
+   addBlockquote(
+    contentEl,
+    text,
+    score,
+    text === message
+   )
   })
  } catch (err) {
   contentEl.textContent =
