@@ -13,6 +13,8 @@ function getHourNumber() {
 // Attach to DOM elements
 const channelEl =
  document.getElementById('channel')
+const channelsEl =
+ document.getElementById('channels')
 const contentEl =
  document.getElementById('content')
 
@@ -49,7 +51,55 @@ async function displayChannel(channel, hour) {
   }
   const data = await resp.json()
   console.log(data)
-  // Display channel data
+
+  const {
+   channel,
+   hour,
+   topChannels,
+   topMessages,
+   message,
+  } = data
+
+  // Top Channels
+  channelsEl.innerHTML = ''
+
+  Object.entries(topChannels).forEach(
+   ([name, votes]) => {
+    const encoded = encodeURIComponent(name)
+
+    channelsEl.innerHTML += `
+    <a href="/#/${encoded}/${hour}">
+      ${name} 
+    </a>
+  `
+   }
+  )
+
+  // New message
+  contentEl.innerHTML = ''
+  if (message) {
+   const score = message.votes - hour
+   contentEl.innerHTML = `
+    <blockquote class="new">
+      ${message.text}
+      <cite>${score}</cite> 
+    </blockquote>
+  `
+  }
+
+  // Top messages
+  Object.entries(topMessages).forEach(
+   ([text, votes]) => {
+    const score = votes - hour
+
+    contentEl.innerHTML += `
+    <blockquote>
+      ${text}  
+      <cite>${score}</cite>
+    </blockquote>
+  `
+   }
+  )
  } catch (err) {
   contentEl.textContent =
    err?.message ?? err ?? 'unknown error'
@@ -112,6 +162,7 @@ sendMessageForm.addEventListener(
    }
 
    sendMessageForm.reset()
+   alert(await resp.text())
    channelEl.focus()
   } catch (err) {
    alert(

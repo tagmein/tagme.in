@@ -54,6 +54,19 @@
    #radio-bottom {
     flex-grow: 1;
    }
+   #seek {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+   }
+   #channels {
+    padding: 0.5em;
+   }
+   #channels > a {
+    background-color: #404040;
+    display: inline-block;
+    padding: 0.5em;
+   }
    #content {
     display: flex;
     flex-direction: column;
@@ -124,7 +137,10 @@
   </div>
   <div id="radio-bottom">
    <div class="frame">
-    <main id="content">Please wait</main>
+    <main id="seek">
+     <div id="channels"></div>
+     <section id="content">Please wait</section>
+    </main>
    </div>
   </div>
   <script

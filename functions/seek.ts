@@ -66,9 +66,13 @@ export const onRequestGet: PagesFunction<
 
  const messageObject = message
   ? {
-     text: decodeURIComponent(message),
+     text: message,
      votes: parseInt(
-      await kv.get(`message_votes#${message}`)
+      await kv.get(
+       `message_votes#${encodeURIComponent(
+        message
+       )}`
+      )
      ),
     }
   : undefined
