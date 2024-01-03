@@ -65,7 +65,7 @@ async function displayChannel(channel, hour) {
    channel
   )} for hour ${hour}`
  )
- contentEl.textContent = 'Seeking...'
+ contentEl.innerHTML = '<p>Seeking...</p>'
 
  try {
   const resp = await fetch(
