@@ -175,6 +175,7 @@ sendMessageForm.addEventListener(
    sendMessageForm.reset()
    alert(await resp.text())
    channelEl.focus()
+   route()
   } catch (err) {
    alert(
     'Error! Please try again: ' +
