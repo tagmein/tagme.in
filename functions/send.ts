@@ -1,12 +1,11 @@
 import {
  KVNamespace,
  PagesFunction,
- Response,
  Request,
+ Response,
 } from '@cloudflare/workers-types'
-
 import { civilMemoryKV } from '@tagmein/civil-memory'
-import { channel } from 'diagnostics_channel'
+
 import { getHourNumber } from './lib/getHourNumber'
 
 interface Env {
@@ -81,105 +80,89 @@ export const onRequestPost: PagesFunction<Env> =
   const channelId = encodeURIComponent(channel)
   const messageId = encodeURIComponent(message)
 
+  const key = {
+   channelVotesCount: `channel_votes#${channelId}`,
+   hourChannelMessage: `hour_channel_message#${hourId}_${channelId}`,
+   hourChannelTopMessages: `hour_channel_top_messages#${hourId}_${channelId}`,
+   hourTopChannels: `hour_top_channels#${hourId}`,
+   messageVotesCount: `message_votes#${messageId}`,
+   messageVotesHour: `message_voted_hour_${hourId}#${messageId}`,
+  }
+
   // Initialize or update message votes
-  const messageVotesCountKey = `message_votes#${messageId}`
-  const messageVotesHourKey = `message_voted_hour_${hourId}#${messageId}`
   const existingVoteHour = await kv.get(
-   messageVotesHourKey
+   key.messageVotesHour
   )
-  // Message was already voted on this hour
+
+  // Message was already voted on this hour, do nothing
   if (existingVoteHour) {
    return new Response('already_voted', {
     status: 409,
    })
   }
+
   // Claim the vote for this message for this hour
-  await kv.set(messageVotesHourKey, '1')
-  const existingMessageVoteCount = await kv.get(
-   messageVotesCountKey
-  )
+  await kv.set(key.messageVotesHour, '1')
+
   // Update the total vote count for the message
+  const existingMessageVoteCount = await kv.get(
+   key.messageVotesCount
+  )
   const newMessageVotesCount =
    typeof existingMessageVoteCount === 'string'
     ? parseInt(existingMessageVoteCount) + 1
     : hour
   await kv.set(
-   messageVotesCountKey,
+   key.messageVotesCount,
    newMessageVotesCount.toString(10)
   )
 
-  // Initialize or update channel vote and message
-  const channelVotesCountKey = `channel_votes#${channelId}`
-  const channelHourMessageKey = `channel_hour_${hour}#${channelId}`
-
-  // Check if channel's message has already been posted this hour
-  const existingChannelHourMessage =
-   await kv.get(channelHourMessageKey)
-
-  const topMessages = `top_messages_${channelId}_${hourId}`
-
-  let topMessageList:
+  // Update the total ranking for the hour channel messages
+  let hourChannelTopMessages:
    | string
    | Record<string, number> =
-   (await kv.get(topMessages)) || '{}'
-  topMessageList = JSON.parse(topMessageList)
+   (await kv.get(key.hourChannelTopMessages)) ||
+   '{}'
+  hourChannelTopMessages = JSON.parse(
+   hourChannelTopMessages
+  )
+  hourChannelTopMessages[messageId] =
+   newMessageVotesCount
 
-  if (!topMessageList[messageId]) {
-   topMessageList[messageId] = 0
-  }
-
-  topMessageList[messageId]++
-
-  if (Object.keys(topMessageList).length > 25) {
+  if (
+   Object.keys(hourChannelTopMessages).length >
+   25
+  ) {
    // Sort and keep top 25
-   topMessageList = Object.entries(
-    topMessageList
+   hourChannelTopMessages = Object.fromEntries(
+    Object.entries(hourChannelTopMessages)
+     .sort((a, b) => b[1] - a[1])
+     .slice(0, 25)
    )
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 25)
-    .reduce(
-     (acc, [message, votes]) => ({
-      ...acc,
-      [message]: votes,
-     }),
-     {}
-    )
   }
 
   await kv.set(
-   topMessages,
-   JSON.stringify(topMessageList)
+   key.hourChannelTopMessages,
+   JSON.stringify(hourChannelTopMessages)
   )
-
-  if (existingChannelHourMessage) {
-   // we voted for the message, but we didn't send it to the channel
-   return new Response('voted')
-  }
-
-  // send the message to the channel for this hour
-  await kv.set(channelHourMessageKey, messageId)
-
   const existingChannelVoteCount = await kv.get(
-   channelVotesCountKey
+   key.channelVotesCount
   )
-
   // Update the total vote count for the channel
   const newChannelVoteCount =
    typeof existingChannelVoteCount === 'string'
     ? parseInt(existingChannelVoteCount) + 1
     : hour
   await kv.set(
-   channelVotesCountKey,
+   key.channelVotesCount,
    newChannelVoteCount.toString(10)
   )
 
   // Re-rank most popular channels this hour
-  const topChannelsHourKey = `top_channels_${hourId}`
-
   let topChannelList:
    | string
    | Record<string, number> =
-   (await kv.get(topChannelsHourKey)) || '{}'
+   (await kv.get(key.hourTopChannels)) || '{}'
   topChannelList = JSON.parse(topChannelList)
 
   if (!topChannelList[channelId]) {
@@ -190,23 +173,30 @@ export const onRequestPost: PagesFunction<Env> =
 
   if (Object.keys(topChannelList).length > 25) {
    // Sort and keep top 25
-   topChannelList = Object.entries(
-    topChannelList
+   topChannelList = Object.fromEntries(
+    Object.entries(topChannelList)
+     .sort((a, b) => b[1] - a[1])
+     .slice(0, 25)
    )
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 25)
-    .reduce(
-     (acc, [channel, votes]) => ({
-      ...acc,
-      [channel]: votes,
-     }),
-     {}
-    )
   }
 
   await kv.set(
-   topChannelsHourKey,
+   key.hourTopChannels,
    JSON.stringify(topChannelList)
+  )
+
+  // Check if channel's message has already been posted this hour
+  const existingChannelHourMessage =
+   await kv.get(key.hourChannelMessage)
+  if (existingChannelHourMessage) {
+   // we voted for the message, but we didn't send it to the channel
+   return new Response('voted')
+  }
+
+  // send the message to the channel for this hour
+  await kv.set(
+   key.hourChannelMessage,
+   messageId
   )
 
   // we voted for the message and sent it to the channel

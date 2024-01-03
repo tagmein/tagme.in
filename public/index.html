@@ -13,9 +13,61 @@
    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///8AAABVwtN+AAAAK0lEQVQI12P4/5/h/0eG/79B6O9thj+zGf5IM/wNZGC9z3AXjO7/R6D//wGWfRuJudGK0QAAAABJRU5ErkJggg=="
   />
   <title>Tag Me In</title>
+  <style>
+   html,
+   body {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 100dvw;
+    min-height: 100%;
+    min-width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+   }
+   #radio-top {
+    flex-grow: 0;
+    flex-shrink: 0;
+    height: 100px;
+   }
+   #radio-bottom {
+    flex-grow: 1;
+   }
+   #content {
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: auto;
+   }
+   .frame {
+    border: 2px solid #404040;
+    padding: 10px;
+   }
+   body {
+    color: #a0a0a0;
+   }
+   input {
+    background-color: #303030;
+    color: inherit;
+   }
+  </style>
  </head>
 
  <body style="background-color: #000">
+  <div id="radio-top">
+   <div class="frame">
+    <input
+     maxlength="25"
+     placeholder="Enter a channel"
+     id="channel"
+    />
+   </div>
+  </div>
+  <div id="radio-bottom" class="frame">
+   <main id="content">Please wait</main>
+  </div>
   <noscript>JavaScript is required</noscript>
   <script
    type="text/javascript"
