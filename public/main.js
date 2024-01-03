@@ -38,6 +38,7 @@ function addBlockquote(
  const agreeButton =
   document.createElement('button')
  block.appendChild(agreeButton)
+ agreeButton.textContent = 'Agree'
  block.appendChild(blockText)
  agreeButton.addEventListener(
   'click',
