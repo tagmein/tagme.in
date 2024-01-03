@@ -92,11 +92,15 @@
    }
    #channels > a {
     background-color: #808080;
+    border-radius: 0.25em;
+    box-sizing: border-box;
     color: inherit;
     display: inline-block;
     margin-right: 0.5em;
+    min-width: 42px;
     padding: 0.5em;
     position: relative;
+    text-align: center;
     text-decoration: none;
    }
    #content {
@@ -150,20 +154,21 @@
     border: 2px solid #ffa000;
    }
    cite {
+    align-items: center;
     background-color: #606060;
     border-radius: 100%;
+    display: grid;
     font-size: 12px;
+    font-variant: normal;
     font-weight: bold;
+    justify-content: center;
+    line-height: 20px;
+    min-height: 20px;
+    min-width: 20px;
     padding: 0.25em;
     position: absolute;
     right: 0.25em;
     top: 0.25em;
-    min-height: 20px;
-    min-width: 20px;
-    display: grid;
-    align-items: center;
-    justify-content: center;
-    line-height: 20px;
    }
    a > cite {
     margin-right: -16px;
