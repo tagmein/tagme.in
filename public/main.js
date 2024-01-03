@@ -278,7 +278,7 @@ sendMessageForm.addEventListener(
   try {
    await sendMessage(channel, message)
    sendMessageForm.reset()
-   channelEl.focus()
+   messageEl.focus()
    const nowChannel = `/#/${encodeURIComponent(
     channel
    )}`
