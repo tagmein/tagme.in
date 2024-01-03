@@ -80,6 +80,7 @@
    }
    #channels {
     box-sizing: border-box;
+    flex-shrink: 0;
     height: 60px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -97,6 +98,7 @@
    #content {
     display: flex;
     flex-direction: column;
+    min-height: min-content;
     overflow-x: hidden;
     overflow-y: auto;
    }
@@ -176,6 +178,7 @@
    }
    label {
     display: block;
+    flex-shrink: 0;
     font-size: 12px;
     padding: 0.25em 0.25em 0.5em;
     text-transform: uppercase;
