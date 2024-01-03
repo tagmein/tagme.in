@@ -132,11 +132,6 @@ function route() {
 
 // Load channel content
 async function displayChannel(channel, hour) {
- console.log(
-  `Load channel ${JSON.stringify(
-   channel
-  )} for hour ${hour}`
- )
  contentEl.innerHTML = '<p>Seeking...</p>'
 
  try {
@@ -149,8 +144,6 @@ async function displayChannel(channel, hour) {
    throw new Error(resp.statusText)
   }
   const data = await resp.json()
-  console.log(data)
-
   const {
    topChannels,
    topMessages,
@@ -283,16 +276,17 @@ sendMessageForm.addEventListener(
   )
 
   try {
-   const response = await sendMessage(
-    channel,
-    message
-   )
+   await sendMessage(channel, message)
    sendMessageForm.reset()
-   alert(response)
    channelEl.focus()
-   window.location.href = `/#/${encodeURIComponent(
+   const nowChannel = `/#/${encodeURIComponent(
     channel
    )}`
+   if (window.location.href !== nowChannel) {
+    window.location.href = nowChannel
+   } else {
+    route()
+   }
   } catch (err) {
    alert(
     'Error! Please try again: ' +
