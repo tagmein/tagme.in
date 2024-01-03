@@ -52,17 +52,23 @@ export const onRequestGet: PagesFunction<
  const channelId = encodeURIComponent(channel)
 
  const key = {
+  channelMostRecentHour: `channel_recent_hour#${channelId}`,
   hourChannelMessage: `hour_channel_message#${hourId}_${channelId}`,
   hourChannelTopMessages: `hour_channel_top_messages#${hourId}_${channelId}`,
   hourTopChannels: `hour_top_channels#${hourId}`,
  }
 
- const [message, topMessages, topChannels] =
-  await Promise.all([
-   kv.get(key.hourChannelMessage),
-   kv.get(key.hourChannelTopMessages),
-   kv.get(key.hourTopChannels),
-  ])
+ const [
+  message,
+  topMessages,
+  topChannels,
+  mostRecentHour,
+ ] = await Promise.all([
+  kv.get(key.hourChannelMessage),
+  kv.get(key.hourChannelTopMessages),
+  kv.get(key.hourTopChannels),
+  kv.get(key.channelMostRecentHour),
+ ])
 
  const messageObject = message
   ? {
@@ -81,6 +87,7 @@ export const onRequestGet: PagesFunction<
   JSON.stringify({
    channel,
    hour,
+   mostRecentHour,
    now: Date.now(),
    message: messageObject,
    topChannels: topChannels

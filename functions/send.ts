@@ -5,6 +5,9 @@ import type {
 import { civilMemoryKV } from '@tagmein/civil-memory'
 
 import { getHourNumber } from './lib/getHourNumber'
+import { voteForMessage } from './lib/vote'
+
+const RANKED_HISTORY_ITEM_COUNT = 250
 
 interface Env {
  TAGMEIN_KV: KVNamespace
@@ -79,41 +82,20 @@ export const onRequestPost: PagesFunction<Env> =
   const messageId = encodeURIComponent(message)
 
   const key = {
+   channelMostRecentHour: `channel_recent_hour#${channelId}`,
    channelVotesCount: `channel_votes#${channelId}`,
    hourChannelMessage: `hour_channel_message#${hourId}_${channelId}`,
    hourChannelTopMessages: `hour_channel_top_messages#${hourId}_${channelId}`,
    hourTopChannels: `hour_top_channels#${hourId}`,
-   messageVotesCount: `message_votes#${messageId}`,
-   messageVotesHour: `message_voted_hour_${hourId}#${messageId}`,
   }
 
-  // Initialize or update message votes
-  const existingVoteHour = await kv.get(
-   key.messageVotesHour
-  )
-
-  // Message was already voted on this hour, do nothing
-  if (existingVoteHour) {
-   return new Response('already_voted', {
-    status: 409,
-   })
-  }
-
-  // Claim the vote for this message for this hour
-  await kv.set(key.messageVotesHour, '1')
-
-  // Update the total vote count for the message
-  const existingMessageVoteCount = await kv.get(
-   key.messageVotesCount
-  )
   const newMessageVotesCount =
-   typeof existingMessageVoteCount === 'string'
-    ? parseInt(existingMessageVoteCount) + 1
-    : hour
-  await kv.set(
-   key.messageVotesCount,
-   newMessageVotesCount.toString(10)
-  )
+   await voteForMessage(
+    kv,
+    messageId,
+    hourId,
+    hour
+   )
 
   // Update the total ranking for the hour channel messages
   let hourChannelTopMessages:
@@ -129,13 +111,13 @@ export const onRequestPost: PagesFunction<Env> =
 
   if (
    Object.keys(hourChannelTopMessages).length >
-   25
+   RANKED_HISTORY_ITEM_COUNT
   ) {
-   // Sort and keep top 25
+   // Sort and keep top RANKED_HISTORY_ITEM_COUNT
    hourChannelTopMessages = Object.fromEntries(
     Object.entries(hourChannelTopMessages)
      .sort((a, b) => b[1] - a[1])
-     .slice(0, 25)
+     .slice(0, RANKED_HISTORY_ITEM_COUNT)
    )
   }
 
@@ -169,18 +151,26 @@ export const onRequestPost: PagesFunction<Env> =
 
   topChannelList[channel]++
 
-  if (Object.keys(topChannelList).length > 25) {
-   // Sort and keep top 25
+  if (
+   Object.keys(topChannelList).length >
+   RANKED_HISTORY_ITEM_COUNT
+  ) {
+   // Sort and keep top RANKED_HISTORY_ITEM_COUNT
    topChannelList = Object.fromEntries(
     Object.entries(topChannelList)
      .sort((a, b) => b[1] - a[1])
-     .slice(0, 25)
+     .slice(0, RANKED_HISTORY_ITEM_COUNT)
    )
   }
 
   await kv.set(
    key.hourTopChannels,
    JSON.stringify(topChannelList)
+  )
+
+  await kv.set(
+   key.channelMostRecentHour,
+   hourId
   )
 
   // Check if channel's message has already been posted this hour
