@@ -101,18 +101,6 @@ async function displayChannel(channel, hour) {
    mostRecentHour,
   } = data
 
-  if (
-   Object.keys(topMessages).length === 0 &&
-   typeof mostRecentHour === 'string'
-  ) {
-   location.href = `/#/${encodeURIComponent(
-    channel
-   )}/${mostRecentHour}`
-   channelsEl.innerHTML = 'Time travel...'
-   await new Promise((r) => setTimeout(r, 1000))
-   return
-  }
-
   // Top Channels
   channelsEl.innerHTML = ''
   const sortedChannels = Object.entries(
@@ -144,6 +132,28 @@ async function displayChannel(channel, hour) {
     text === message
    )
   })
+
+  if (
+   Object.keys(topMessages).length === 0 &&
+   typeof mostRecentHour === 'string'
+  ) {
+   const goButton =
+    document.createElement('button')
+   const diffHours =
+    parseInt(mostRecentHour, 10) - data.hour
+   goButton.textContent = `Go ${
+    diffHours > 0 ? '+' : ''
+   }${diffHours} for content`
+   goButton.addEventListener('click', () => {
+    location.href = `/#/${encodeURIComponent(
+     channel
+    )}/${mostRecentHour}`
+   })
+   channelsEl.innerHTML =
+    '<p>Time travel to read latest messages</p>'
+   channelsEl.appendChild(goButton)
+   return
+  }
  } catch (err) {
   contentEl.innerHTML = `<p>${
    err?.message ?? err ?? 'unknown error'
