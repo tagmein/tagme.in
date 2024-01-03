@@ -1,4 +1,4 @@
-export function getHourNumber() {
+function getHourNumber() {
  const begin2024 = new Date(
   'January 1, 2024 00:00:00 GMT'
  )
