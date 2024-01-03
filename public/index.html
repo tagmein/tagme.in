@@ -97,8 +97,9 @@
     color: inherit;
     display: inline-block;
     margin-right: 0.5em;
-    min-width: 42px;
-    padding: 0.5em;
+    min-width: 40px;
+    padding: 0.5em calc(0.5em + 2px)
+     calc(0.5em - 2px);
     position: relative;
     text-align: center;
     text-decoration: none;
@@ -159,15 +160,16 @@
     border-radius: 100%;
     display: grid;
     font-size: 12px;
-    font-variant: normal;
+    font-style: normal;
     font-weight: bold;
     justify-content: center;
     line-height: 20px;
     min-height: 20px;
     min-width: 20px;
-    padding: 0.25em;
+    padding: calc(2px + 0.25em) 0.25em 0.25em;
     position: absolute;
     right: 0.25em;
+    text-align: center;
     top: 0.25em;
    }
    a > cite {
