@@ -46,7 +46,6 @@ function addBlockquote(
    try {
     await sendMessage(channel, text)
     agreeButton.classList.add('success')
-    route()
    } catch (e) {
     alert(e.message)
    }
