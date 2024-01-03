@@ -74,6 +74,9 @@ route() // Initial load
 const sendMessageForm =
  document.getElementById('send')
 
+const sendMessageFormFields =
+ document.getElementById('send-fields')
+
 sendMessageForm.addEventListener(
  'submit',
  async (event) => {
@@ -87,7 +90,10 @@ sendMessageForm.addEventListener(
    return
   }
 
-  sendMessageForm.send.disabled = true
+  sendMessageFormFields.setAttribute(
+   'disabled',
+   'disabled'
+  )
 
   try {
    const resp = await fetch('/send', {
@@ -113,7 +119,9 @@ sendMessageForm.addEventListener(
      (err.message ?? err ?? 'unknown reason')
    )
   } finally {
-   sendMessageForm.send.disabled = false
+   sendMessageFormFields.removeAttribute(
+    'disabled'
+   )
   }
  }
 )

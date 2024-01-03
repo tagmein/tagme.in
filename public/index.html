@@ -24,10 +24,22 @@
     min-height: 100%;
     min-width: 100%;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
     margin: 0;
     padding: 0;
+   }
+   body {
+    font-family: 'Courier New', Courier,
+     monospace;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+   }
+   body,
+   input,
+   button,
+   select,
+   textarea {
+    font-size: 24px;
    }
    #radio-top {
     flex-grow: 0;
@@ -58,9 +70,27 @@
    body {
     color: #a0a0a0;
    }
-   input {
+   input,
+   button,
+   select,
+   textarea {
     background-color: #303030;
     color: inherit;
+    padding: 0.5em;
+   }
+   #send-fields {
+    display: flex;
+    flex-direction: row;
+   }
+   #send-fields input {
+    flex-grow: 1;
+   }
+   input {
+    border: 2px solid #808080;
+   }
+   *:focus {
+    box-shadow: inset 0 0 0 2px #f0f0f0;
+    outline: none;
    }
   </style>
  </head>
@@ -79,14 +109,16 @@
    <div class="frame">
     <noscript>JavaScript is required</noscript>
     <form id="send">
-     <input
-      required
-      maxlength="25"
-      placeholder="Enter a message"
-      id="message"
-      name="message"
-     />
-     <input type="submit" value="Send" />
+     <fieldset id="send-fields">
+      <input
+       required
+       maxlength="25"
+       placeholder="Enter a message"
+       id="message"
+       name="message"
+      />
+      <input type="submit" value="Send" />
+     </fieldset>
     </form>
    </div>
   </div>
