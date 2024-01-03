@@ -20,6 +20,29 @@ function describeHourNumber(hourNumber) {
   .replace(/\:\d\d\:\d\d /, '')
 }
 
+function addYouTubeEmbed(block, text) {
+ const regExp =
+  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+ const match = text.match(regExp)
+
+ if (match && match[2].length == 11) {
+  const id = match[2]
+  const frame = document.createElement('iframe')
+  frame.setAttribute('width', '560')
+  frame.setAttribute('height', '315')
+  frame.setAttribute('frameborder', '0')
+  frame.setAttribute(
+   'src',
+   `//www.youtube.com/embed/${id}`
+  )
+  frame.setAttribute(
+   'allowfullscreen',
+   'allowfullscreen'
+  )
+  block.appendChild(frame)
+ }
+}
+
 function addBlockquote(
  parent,
  channel,
@@ -40,6 +63,11 @@ function addBlockquote(
  block.appendChild(agreeButton)
  agreeButton.textContent = 'Agree'
  block.appendChild(blockText)
+ try {
+  addYouTubeEmbed(block, text)
+ } catch (e) {
+  console.error('YouTube embed error', e)
+ }
  agreeButton.addEventListener(
   'click',
   async () => {
