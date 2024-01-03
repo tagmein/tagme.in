@@ -157,6 +157,7 @@
    }
    blockquote > div {
     flex-grow: 1;
+    flex-shrink: 1;
    }
    blockquote > div > span {
     display: block;
@@ -166,7 +167,10 @@
     border: 2px solid #ffa000;
    }
    blockquote > button {
-    margin-right: 0.5em;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-right: 10px;
+    margin-top: -10px;
    }
    cite {
     align-items: center;
@@ -243,9 +247,9 @@
     background-color: #070;
     border-color: #353;
    }
-   blockquote > iframe {
-    margin: 0px 0 0 98px;
-    max-width: calc(100% - 98px);
+   blockquote > div > iframe {
+    margin-top: 4px;
+    max-width: 100%;
    }
    blockquote > span {
     display: inline-block;
@@ -331,7 +335,7 @@
   </div>
   <script
    type="text/javascript"
-   src="main.js?b"
+   src="main.js?c"
   ></script>
  </body>
 </html>

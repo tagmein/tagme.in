@@ -60,12 +60,12 @@ function addBlockquote(
  const blockText =
   document.createElement('span')
  blockContent.textContent = text
- block.appendChild(blockContent)
  blockContent.appendChild(blockText)
  const agreeButton =
   document.createElement('button')
- block.appendChild(agreeButton)
  agreeButton.textContent = 'Agree'
+ block.appendChild(agreeButton)
+ block.appendChild(blockContent)
  try {
   addYouTubeEmbed(blockContent, text)
  } catch (e) {
