@@ -1,13 +1,8 @@
 import type {
- Response as CFResponse,
  KVNamespace,
  PagesFunction,
 } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
-
-const Response: typeof CFResponse = (
- globalThis as any
-).Response
 
 import { getHourNumber } from './lib/getHourNumber'
 
