@@ -126,16 +126,16 @@
     position: relative;
     width: 100%;
    }
-   #send-fields {
+   fieldset {
     display: flex;
     flex-direction: row;
     gap: 2px;
     padding: 0;
    }
-   #send-fields input {
+   fieldset input {
     flex-grow: 1;
    }
-   #send-fields input[type='submit'] {
+   fieldset input[type='submit'] {
     flex-grow: 0;
    }
    *:focus {
@@ -216,6 +216,8 @@
     top: 10px;
     z-index: 1;
    }
+   #time-description {
+   }
   </style>
  </head>
 
@@ -232,7 +234,7 @@
     https://www.cloudflare.com/privacypolicy/
     &bull; Terms of service
     https://www.cloudflare.com/terms/ &bull;
-    Illegal content removed &bull; email
+    Illegal content removed &bull; Email
     nate@tagme.in for assistance &bull; Open
     source at
     https://github.com/tagmein/tagme.in
@@ -264,6 +266,21 @@
       <input type="submit" value="Send" />
      </fieldset>
     </form>
+   </div>
+  </div>
+  <div id="radio-middle">
+   <div class="frame">
+    <label>Time travel</label>
+    <fieldset id="time-fields">
+     <input
+      required
+      type="number"
+      id="hour"
+      name="hour"
+     />
+     <span id="time-description"></span>
+     <input id="now" value="Now" />
+    </fieldset>
    </div>
   </div>
   <div id="radio-bottom">

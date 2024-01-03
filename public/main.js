@@ -44,14 +44,29 @@ const contentEl =
  document.getElementById('content')
 const messageEl =
  document.getElementById('message')
+const hourEl = document.getElementById('hour')
+
+function getUrlData() {
+ const [_, channel, hour] = window.location.hash
+  .split('/')
+  .map((x) =>
+   typeof x === 'string'
+    ? decodeURIComponent(x)
+    : undefined
+  )
+ return {
+  channel: channel ?? '',
+  hour: hour ?? getHourNumber().toString(10),
+ }
+}
 
 // Keep current channel/hour in hash URL route
 function route() {
- const [_, channel, hour] = window.location.hash
-  .split('/')
-  .map(decodeURIComponent)
+ const { channel, hour } = getUrlData()
 
  channelEl.value = channel ?? ''
+ hourEl.value =
+  hour ?? getHourNumber().toString(10)
  displayChannel(
   channel ?? '',
   hour ?? getHourNumber().toString(10)
@@ -79,8 +94,24 @@ async function displayChannel(channel, hour) {
   const data = await resp.json()
   console.log(data)
 
-  const { topChannels, topMessages, message } =
-   data
+  const {
+   topChannels,
+   topMessages,
+   message,
+   mostRecentHour,
+  } = data
+
+  if (
+   Object.keys(topMessages).length === 0 &&
+   typeof mostRecentHour === 'string'
+  ) {
+   location.href = `/#/${encodeURIComponent(
+    channel
+   )}/${mostRecentHour}`
+   channelsEl.innerHTML = 'Time travel...'
+   await new Promise((r) => setTimeout(r, 1000))
+   return
+  }
 
   // Top Channels
   channelsEl.innerHTML = ''
@@ -221,3 +252,19 @@ toggleAboutButton.addEventListener(
  toggleAbout
 )
 showAbout()
+
+document
+ .getElementById('now')
+ .addEventListener('click', function () {
+  const { channel } = getUrlData()
+  location.href = `/#/${encodeURIComponent(
+   channel
+  )}/${getHourNumber().toString(10)}`
+ })
+
+hourEl.addEventListener('input', function () {
+ const { channel } = getUrlData()
+ location.href = `/#/${encodeURIComponent(
+  channel
+ )}/${hourEl.value}`
+})
