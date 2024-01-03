@@ -193,3 +193,31 @@ sendMessageForm.addEventListener(
   }
  }
 )
+
+const toggleAboutButton =
+ document.getElementById('toggle-about')
+const about = document.getElementById('about')
+let isAboutVisible =
+ localStorage.getItem('hide-about') !== '1'
+function showAbout() {
+ if (isAboutVisible) {
+  toggleAboutButton.innerHTML = '&times;'
+  about.style.display = 'block'
+ } else {
+  toggleAboutButton.innerHTML = 'Info'
+  about.style.display = 'none'
+ }
+}
+function toggleAbout() {
+ isAboutVisible = !isAboutVisible
+ localStorage.setItem(
+  'hide-about',
+  isAboutVisible ? '0' : '1'
+ )
+ showAbout()
+}
+toggleAboutButton.addEventListener(
+ 'click',
+ toggleAbout
+)
+showAbout()
