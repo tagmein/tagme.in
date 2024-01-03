@@ -70,3 +70,50 @@ channelEl.addEventListener('input', () => {
 
 window.addEventListener('hashchange', route)
 route() // Initial load
+
+const sendMessageForm =
+ document.getElementById('send')
+
+sendMessageForm.addEventListener(
+ 'submit',
+ async (event) => {
+  event.preventDefault()
+
+  const channel = channelEl.value
+  const message = sendMessageForm.message.value
+
+  if (!message) {
+   alert('Message is required')
+   return
+  }
+
+  sendMessageForm.send.disabled = true
+
+  try {
+   const resp = await fetch('/send', {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     channel,
+     message,
+    }),
+   })
+
+   if (!resp.ok) {
+    throw new Error(await resp.text())
+   }
+
+   sendMessageForm.reset()
+   channelEl.focus()
+  } catch (err) {
+   alert(
+    'Error! Please try again: ' +
+     (err.message ?? err ?? 'unknown reason')
+   )
+  } finally {
+   sendMessageForm.send.disabled = false
+  }
+ }
+)
