@@ -154,7 +154,9 @@ async function displayChannel(channel, hour) {
     parseInt(mostRecentHour, 10) - data.hour
    goButton.textContent = `Go ${
     diffHours > 0 ? '+' : ''
-   }${diffHours} for content`
+   }${diffHours} hour${
+    Math.abs(diffHours) === 1 ? '' : 's'
+   } for content`
    goButton.addEventListener('click', () => {
     location.href = `/#/${encodeURIComponent(
      channel
