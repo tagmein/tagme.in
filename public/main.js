@@ -177,7 +177,9 @@ sendMessageForm.addEventListener(
    sendMessageForm.reset()
    alert(await resp.text())
    channelEl.focus()
-   route()
+   window.location.href = `/#/${encodeURIComponent(
+    channel
+   )}`
   } catch (err) {
    alert(
     'Error! Please try again: ' +
