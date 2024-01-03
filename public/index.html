@@ -75,9 +75,6 @@
     left: 0;
     right: 0;
     bottom: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     overflow-x: hidden;
     overflow-y: auto;
    }
@@ -187,6 +184,11 @@
     margin: 0.5em;
     padding: calc(2px + 0.5em) 0.5em 0.5em;
    }
+   .scroll-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+   }
   </style>
  </head>
 
@@ -234,12 +236,14 @@
   <div id="radio-bottom">
    <div class="frame">
     <main id="seek">
-     <label>Popular channels</label>
-     <div id="channels"></div>
-     <label>Channel messages</label>
-     <section id="content">
-      <p>Please wait...</p>
-     </section>
+     <div class="scroll-inner">
+      <label>Popular channels</label>
+      <div id="channels"></div>
+      <label>Channel messages</label>
+      <section id="content">
+       <p>Please wait...</p>
+      </section>
+     </div>
     </main>
    </div>
   </div>
