@@ -1,9 +1,13 @@
-import {
+import type {
  KVNamespace,
  PagesFunction,
- Response,
+ Response as CFResponse,
 } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
+
+const Response: typeof CFResponse = (
+ globalThis as any
+).Response
 
 interface Env {
  TAGMEIN_KV: KVNamespace
