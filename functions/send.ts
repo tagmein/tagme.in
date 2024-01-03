@@ -124,7 +124,7 @@ export const onRequestPost: PagesFunction<Env> =
   hourChannelTopMessages = JSON.parse(
    hourChannelTopMessages
   )
-  hourChannelTopMessages[messageId] =
+  hourChannelTopMessages[message] =
    newMessageVotesCount
 
   if (
@@ -163,11 +163,11 @@ export const onRequestPost: PagesFunction<Env> =
    (await kv.get(key.hourTopChannels)) || '{}'
   topChannelList = JSON.parse(topChannelList)
 
-  if (!topChannelList[channelId]) {
-   topChannelList[channelId] = hour
+  if (!topChannelList[channel]) {
+   topChannelList[channel] = hour
   }
 
-  topChannelList[channelId]++
+  topChannelList[channel]++
 
   if (Object.keys(topChannelList).length > 25) {
    // Sort and keep top 25
@@ -192,10 +192,7 @@ export const onRequestPost: PagesFunction<Env> =
   }
 
   // send the message to the channel for this hour
-  await kv.set(
-   key.hourChannelMessage,
-   messageId
-  )
+  await kv.set(key.hourChannelMessage, message)
 
   // we voted for the message and sent it to the channel
   return new Response('sent')
