@@ -99,7 +99,7 @@ async function displayChannel(channel, hour) {
     contentEl,
     message.text,
     score,
-    false
+    true
    )
   }
 
@@ -109,7 +109,7 @@ async function displayChannel(channel, hour) {
   ).sort((a, b) => b[1] - a[1])
   sortedMessages.forEach(([text, votes]) => {
    const score = votes - data.hour
-   addBlockquote(contentEl, text, score)
+   addBlockquote(contentEl, text, score, false)
   })
  } catch (err) {
   contentEl.textContent =
