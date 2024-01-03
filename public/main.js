@@ -22,6 +22,7 @@ function describeHourNumber(hourNumber) {
 
 function addBlockquote(
  parent,
+ channel,
  text,
  score,
  isNew
@@ -31,13 +32,25 @@ function addBlockquote(
  if (isNew) {
   block.classList.add('new')
  }
- block.textContent = text
-
- block.addEventListener('click', () => {
-  messageEl.value = text
-  messageEl.focus()
- })
-
+ const blockText =
+  document.createElement('span')
+ blockText.textContent = text
+ const agreeButton =
+  document.createElement('button')
+ block.appendChild(agreeButton)
+ block.appendChild(blockText)
+ agreeButton.addEventListener(
+  'click',
+  async () => {
+   try {
+    await sendMessage(channel, text)
+    agreeButton.classList.add('success')
+    route()
+   } catch (e) {
+    alert(e.message)
+   }
+  }
+ )
  const cite = document.createElement('cite')
  cite.textContent = score
  block.appendChild(cite)
@@ -140,6 +153,7 @@ async function displayChannel(channel, hour) {
    const score = votes - data.hour
    addBlockquote(
     contentEl,
+    channel,
     text,
     score,
     text === message
@@ -194,6 +208,25 @@ channelEl.addEventListener('input', () => {
 window.addEventListener('hashchange', route)
 route() // Initial load
 
+async function sendMessage(channel, message) {
+ const resp = await fetch('/send', {
+  method: 'POST',
+  headers: {
+   'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+   channel,
+   message,
+  }),
+ })
+
+ if (!resp.ok) {
+  throw new Error(await resp.text())
+ }
+
+ return await resp.text()
+}
+
 const sendMessageForm =
  document.getElementById('send')
 
@@ -219,23 +252,12 @@ sendMessageForm.addEventListener(
   )
 
   try {
-   const resp = await fetch('/send', {
-    method: 'POST',
-    headers: {
-     'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-     channel,
-     message,
-    }),
-   })
-
-   if (!resp.ok) {
-    throw new Error(await resp.text())
-   }
-
+   const response = await sendMessage(
+    channel,
+    message
+   )
    sendMessageForm.reset()
-   alert(await resp.text())
+   alert(response)
    channelEl.focus()
    window.location.href = `/#/${encodeURIComponent(
     channel
