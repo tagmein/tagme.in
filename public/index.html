@@ -132,7 +132,7 @@
     border: 2px solid #ffa000;
    }
    cite {
-    background-color: #808080;
+    background-color: #606060;
     border-radius: 100%;
     font-size: 12px;
     font-weight: bold;
@@ -145,14 +145,26 @@
     display: grid;
     align-items: center;
     justify-content: center;
+    line-height: 20px;
+   }
+   a > cite {
+    margin-top: -20px;
+    margin-right: -20px;
    }
    #about {
     flex-grow: 0;
     flex-shrink: 0;
     font-size: 12px;
     margin: 0;
-    opacity: 0.5;
     padding: 0.5em;
+   }
+   *::selection {
+    background-color: white;
+    color: black;
+   }
+   label {
+    font-size: 12px;
+    text-transform: uppercase;
    }
   </style>
  </head>
@@ -165,6 +177,7 @@
   </p>
   <div id="radio-top">
    <div class="frame">
+    <label>Channel selection</label>
     <input
      maxlength="25"
      placeholder="Enter a channel"
@@ -175,6 +188,7 @@
   <div id="radio-middle">
    <div class="frame">
     <noscript>JavaScript is required</noscript>
+    <label>Broadcast a message</label>
     <form id="send">
      <fieldset id="send-fields">
       <input
@@ -192,7 +206,9 @@
   <div id="radio-bottom">
    <div class="frame">
     <main id="seek">
+     <label>Popular channels</label>
      <div id="channels"></div>
+     <label>Channel messages</label>
      <section id="content">Please wait</section>
     </main>
    </div>
