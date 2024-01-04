@@ -5,7 +5,8 @@ import type {
 import { civilMemoryKV } from '@tagmein/civil-memory'
 
 import { getHourNumber } from './lib/getHourNumber'
-import { voteForMessage } from './lib/vote'
+import { voteForMessage } from './lib/voteForMessage'
+import { channelActive } from './lib/channelActive'
 
 const RANKED_HISTORY_ITEM_COUNT = 250
 const MAX_CHANNEL_LENGTH = 25
@@ -86,11 +87,8 @@ export const onRequestPost: PagesFunction<Env> =
   const messageId = encodeURIComponent(message)
 
   const key = {
-   channelMostRecentHour: `channel_recent_hour#${channelId}`,
-   channelVotesCount: `channel_votes#${channelId}`,
    hourChannelMessage: `hour_channel_message#${hourId}_${channelId}`,
    hourChannelTopMessages: `hour_channel_top_messages#${hourId}_${channelId}`,
-   hourTopChannels: `hour_top_channels#${hourId}`,
   }
 
   const newMessageVotesCount =
@@ -129,51 +127,12 @@ export const onRequestPost: PagesFunction<Env> =
    key.hourChannelTopMessages,
    JSON.stringify(hourChannelTopMessages)
   )
-  const existingChannelVoteCount = await kv.get(
-   key.channelVotesCount
-  )
-  // Update the total vote count for the channel
-  const newChannelVoteCount =
-   typeof existingChannelVoteCount === 'string'
-    ? parseInt(existingChannelVoteCount) + 1
-    : hour
-  await kv.set(
-   key.channelVotesCount,
-   newChannelVoteCount.toString(10)
-  )
 
-  // Re-rank most popular channels this hour
-  let topChannelList:
-   | string
-   | Record<string, number> =
-   (await kv.get(key.hourTopChannels)) || '{}'
-  topChannelList = JSON.parse(topChannelList)
-
-  if (!topChannelList[channel]) {
-   topChannelList[channel] = hour
-  }
-
-  topChannelList[channel]++
-
-  if (
-   Object.keys(topChannelList).length >
-   RANKED_HISTORY_ITEM_COUNT
-  ) {
-   // Sort and keep top RANKED_HISTORY_ITEM_COUNT
-   topChannelList = Object.fromEntries(
-    Object.entries(topChannelList)
-     .sort((a, b) => b[1] - a[1])
-     .slice(0, RANKED_HISTORY_ITEM_COUNT)
-   )
-  }
-
-  await kv.set(
-   key.hourTopChannels,
-   JSON.stringify(topChannelList)
-  )
-
-  await kv.set(
-   key.channelMostRecentHour,
+  await channelActive(
+   kv,
+   channel,
+   hour,
+   channelId,
    hourId
   )
 
