@@ -22,7 +22,7 @@ export async function channelMessage(
    key.channelMostRecentHour
   )
   if (typeof mostRecentHour === 'string') {
-   const hourChannelTopMessagesKey = `hour_channel_top_messages#${mostRecentHour}`
+   const hourChannelTopMessagesKey = `hour_channel_top_messages#${mostRecentHour}_${channelId}`
    return [
     mostRecentHour,
     JSON.parse(
