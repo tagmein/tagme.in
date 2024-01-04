@@ -10,7 +10,7 @@ import { getHourNumber } from './lib/getHourNumber'
 import { voteForMessage } from './lib/voteForMessage'
 
 const MAX_CHANNEL_LENGTH = 25
-const MAX_MESSAGE_LENGTH = 75
+const MAX_MESSAGE_LENGTH = 125
 
 interface Env {
  TAGMEIN_KV: KVNamespace
