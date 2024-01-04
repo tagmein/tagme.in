@@ -198,6 +198,8 @@ async function displayChannel(channel, hour) {
    Object.keys(topMessages).length === 0 &&
    typeof mostRecentHour === 'string'
   ) {
+   const diffHours =
+    parseInt(mostRecentHour, 10) - data.hour
    contentEl.innerHTML = `<p>Channel has no activity at this time, displaying content from ${Math.abs(
     diffHours
    )} hour${
