@@ -134,13 +134,14 @@ function route() {
 function displayMessages(
  attachToEl,
  channel,
- messages
+ messages,
+ hour
 ) {
  const sortedMessages = Object.entries(
   messages
  ).sort((a, b) => b[1] - a[1])
  sortedMessages.forEach(([text, votes]) => {
-  const score = votes - data.hour
+  const score = votes - hour
   addBlockquote(
    attachToEl,
    channel,
@@ -191,7 +192,8 @@ async function displayChannel(channel, hour) {
   displayMessages(
    contentEl,
    channel,
-   topMessages
+   topMessages,
+   data.hour
   )
 
   if (
@@ -217,7 +219,8 @@ async function displayChannel(channel, hour) {
    displayMessages(
     contentEl,
     channel,
-    dataMR.topMessages
+    dataMR.topMessages,
+    dataMR.hour
    )
   }
  } catch (err) {
