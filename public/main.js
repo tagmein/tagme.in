@@ -130,6 +130,26 @@ function route() {
  displayChannel(channel ?? '', trueHour)
 }
 
+// Top Messages
+function displayMessages(
+ attachToEl,
+ channel,
+ messages
+) {
+ const sortedMessages = Object.entries(
+  messages
+ ).sort((a, b) => b[1] - a[1])
+ sortedMessages.forEach(([text, votes]) => {
+  const score = votes - data.hour
+  addBlockquote(
+   attachToEl,
+   channel,
+   text,
+   score
+  )
+ })
+}
+
 // Load channel content
 async function displayChannel(channel, hour) {
  contentEl.innerHTML = '<p>Seeking...</p>'
@@ -147,7 +167,6 @@ async function displayChannel(channel, hour) {
   const {
    topChannels,
    topMessages,
-   message,
    mostRecentHour,
   } = data
 
@@ -169,46 +188,40 @@ async function displayChannel(channel, hour) {
 
   contentEl.innerHTML = ''
 
-  // Top Messages
-  const sortedMessages = Object.entries(
+  displayMessages(
+   contentEl,
+   channel,
    topMessages
-  ).sort((a, b) => b[1] - a[1])
-  sortedMessages.forEach(([text, votes]) => {
-   const score = votes - data.hour
-   addBlockquote(
-    contentEl,
-    channel,
-    text,
-    score,
-    text === message?.text
-   )
-  })
+  )
 
   if (
    Object.keys(topMessages).length === 0 &&
    typeof mostRecentHour === 'string'
   ) {
-   const goButton =
-    document.createElement('button')
-   const diffHours =
-    parseInt(mostRecentHour, 10) - data.hour
-   goButton.textContent = `Go ${
-    diffHours > 0 ? '+' : ''
-   }${diffHours} hour${
+   contentEl.innerHTML = `<p>Channel has no activity at this time, displaying content from ${Math.abs(
+    diffHours
+   )} hour${
     Math.abs(diffHours) === 1 ? '' : 's'
-   } for content`
-   goButton.addEventListener('click', () => {
-    location.href = `/#/${encodeURIComponent(
-     channel
-    )}/${mostRecentHour}`
-   })
-   contentEl.innerHTML =
-    '<p>Time travel to read latest messages</p>'
+   } ${diffHours > 0 ? 'later' : 'ago'}.</p>`
    const goParagraph =
     document.createElement('p')
    goParagraph.appendChild(goButton)
    contentEl.appendChild(goParagraph)
-   return
+
+   const respMR = await fetch(
+    `/seek?channel=${encodeURIComponent(
+     channel
+    )}&hour=${mostRecentHour}`
+   )
+   if (!respMR.ok) {
+    throw new Error(respMR.statusText)
+   }
+   const dataMR = await respMR.json()
+   displayMessages(
+    contentEl,
+    channel,
+    dataMR.topMessages
+   )
   }
  } catch (err) {
   contentEl.innerHTML = `<p>${
