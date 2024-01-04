@@ -10,7 +10,6 @@ export async function channelActive(
  hourId: string
 ) {
  const key = {
-  channelMostRecentHour: `channel_recent_hour#${channelId}`,
   channelVotesCount: `channel_votes#${channelId}`,
   hourTopChannels: `hour_top_channels#${hourId}`,
   mostRecentTopChannelsHour: `hour_top_channels#latest`,
@@ -84,6 +83,4 @@ export async function channelActive(
   key.hourTopChannels,
   JSON.stringify(topChannelList)
  )
-
- await kv.set(key.channelMostRecentHour, hourId)
 }
