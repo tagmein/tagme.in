@@ -205,11 +205,6 @@ async function displayChannel(channel, hour) {
    )} hour${
     Math.abs(diffHours) === 1 ? '' : 's'
    } ${diffHours > 0 ? 'later' : 'ago'}.</p>`
-   const goParagraph =
-    document.createElement('p')
-   goParagraph.appendChild(goButton)
-   contentEl.appendChild(goParagraph)
-
    const respMR = await fetch(
     `/seek?channel=${encodeURIComponent(
      channel
