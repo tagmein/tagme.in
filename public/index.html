@@ -59,17 +59,17 @@
    fieldset {
     border: none;
    }
-   #radio-top {
+   .radio-top {
     flex-grow: 0;
     flex-shrink: 0;
     height: 100px;
    }
-   #radio-middle {
+   .radio-middle {
     flex-grow: 0;
     flex-shrink: 0;
     height: 100px;
    }
-   #radio-bottom {
+   .radio-bottom {
     flex-grow: 1;
     overflow: hidden;
    }
@@ -132,6 +132,10 @@
    }
    fieldset input {
     flex-grow: 1;
+    flex-shrink: 1;
+   }
+   fieldset input[type='number'] {
+    width: 100px;
    }
    fieldset input[type='submit'],
    fieldset button {
@@ -156,6 +160,7 @@
    blockquote > div {
     flex-grow: 1;
     flex-shrink: 1;
+    overflow-x: auto;
    }
    blockquote > div > span {
     display: block;
@@ -261,11 +266,18 @@
    blockquote > span {
     display: inline-block;
    }
+   #toggle-content-areas {
+    display: flex;
+    flex-direction: row;
+   }
+   #toggle-content-areas > button {
+    flex-grow: 1;
+    flex-shrink: 1;
+   }
   </style>
  </head>
 
  <body style="background-color: #000">
-  <button id="toggle-about">&times;</button>
   <article id="about">
    <h2>Tag Me In</h2>
    <p>The micro social network</p>
@@ -283,7 +295,14 @@
     https://github.com/tagmein/tagme.in
    </p>
   </article>
-  <div id="radio-top">
+  <div id="toggle-content-areas">
+   <button id="toggle-about">About</button>
+  </div>
+  <div
+   class="radio-top"
+   id="content-area-1"
+   data-name="Channel"
+  >
    <div class="frame">
     <label>Channel selection</label>
     <input
@@ -293,7 +312,11 @@
     />
    </div>
   </div>
-  <div id="radio-middle">
+  <div
+   class="radio-middle"
+   id="content-area-2"
+   data-name="Broadcast"
+  >
    <div class="frame">
     <noscript>JavaScript is required</noscript>
     <label>Broadcast a message</label>
@@ -311,7 +334,11 @@
     </form>
    </div>
   </div>
-  <div id="radio-middle">
+  <div
+   class="radio-middle"
+   id="content-area-2"
+   data-name="Time Travel"
+  >
    <div class="frame">
     <label>Time travel</label>
     <fieldset id="time-fields">
@@ -326,7 +353,7 @@
     </fieldset>
    </div>
   </div>
-  <div id="radio-bottom">
+  <div class="radio-bottom">
    <div class="frame">
     <main id="seek">
      <div class="scroll-inner">

@@ -307,10 +307,8 @@ let isAboutVisible =
  localStorage.getItem('hide-about') !== '1'
 function showAbout() {
  if (isAboutVisible) {
-  toggleAboutButton.innerHTML = '&times;'
   about.style.display = 'block'
  } else {
-  toggleAboutButton.innerHTML = 'Info'
   about.style.display = 'none'
  }
 }
@@ -343,3 +341,25 @@ hourEl.addEventListener('input', function () {
   channel
  )}/${hourEl.value}`
 })
+
+const toggleContentAreasEl =
+ document.getElementById('toggle-content-areas')
+for (const x of '1 2 3'.split(' ')) {
+ const id = `content-area-${x}`
+ const contentAreaElement =
+  document.getElementById(id)
+ const toggleButton =
+  document.createElement('button')
+ toggleButton.textContent =
+  contentAreaElement.getAttribute('data-name')
+ toggleContentAreasEl.appendChild(toggleButton)
+ toggleButton.addEventListener(
+  'click',
+  function () {
+   contentAreaElement.style.display =
+    contentAreaElement.style.display !== 'none'
+     ? 'none'
+     : 'block'
+  }
+ )
+}
