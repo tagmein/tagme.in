@@ -74,12 +74,12 @@ function addBlockquote(
  const blockText =
   document.createElement('span')
  addTextWithLinks(text, blockText)
+ blockContent.appendChild(blockText)
  try {
   addYouTubeEmbed(blockContent, text)
  } catch (e) {
   console.error('YouTube embed error', e)
  }
- blockContent.appendChild(blockText)
  const agreeButton =
   document.createElement('button')
  agreeButton.textContent = 'Agree'
