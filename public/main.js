@@ -177,7 +177,7 @@ function displayChannels(topChannels, hour) {
   channelsEl.innerHTML += `
       <a href="/#/${encoded}/${hour}">
         ${name.length > 0 ? name : '⌂'} 
-        <cite>${votes - data.hour}</cite> 
+        <cite>${votes - hour}</cite> 
       </a>
     `
  })
