@@ -203,16 +203,7 @@ async function displayChannel(channel, hour) {
    mostRecentHour,
   } = data
 
-  displayChannels(topChannels, hour)
-
   contentEl.innerHTML = ''
-
-  displayMessages(
-   contentEl,
-   channel,
-   topMessages,
-   data.hour
-  )
 
   if (
    Object.keys(topMessages).length === 0 &&
@@ -241,6 +232,15 @@ async function displayChannel(channel, hour) {
     dataMR.hour
    )
    displayChannels(dataMR.topChannels, hour)
+  } else {
+   displayChannels(topChannels, hour)
+
+   displayMessages(
+    contentEl,
+    channel,
+    topMessages,
+    data.hour
+   )
   }
  } catch (err) {
   contentEl.innerHTML = `<p>${
