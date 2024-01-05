@@ -43,34 +43,48 @@ function addYouTubeEmbed(block, text) {
  }
 }
 
+function addTextWithLinks(text, container) {
+ const parts = text.split(/(https?:\/\/[^\s]+)/)
+
+ parts.forEach((part) => {
+  if (/^https?:\/\//.test(part)) {
+   const a = document.createElement('a')
+   a.setAttribute('target', '_blank')
+   a.setAttribute('href', part)
+   a.textContent = part
+   container.appendChild(a)
+  } else if (part) {
+   container.appendChild(
+    document.createTextNode(part)
+   )
+  }
+ })
+}
+
 function addBlockquote(
  parent,
  channel,
  text,
- score,
- isNew
+ score
 ) {
  const block =
   document.createElement('blockquote')
  const blockContent =
   document.createElement('div')
- if (isNew) {
-  block.classList.add('new')
- }
  const blockText =
   document.createElement('span')
- blockContent.textContent = text
+ addTextWithLinks(text, blockText)
+ try {
+  addYouTubeEmbed(blockContent, text)
+ } catch (e) {
+  console.error('YouTube embed error', e)
+ }
  blockContent.appendChild(blockText)
  const agreeButton =
   document.createElement('button')
  agreeButton.textContent = 'Agree'
  block.appendChild(agreeButton)
  block.appendChild(blockContent)
- try {
-  addYouTubeEmbed(blockContent, text)
- } catch (e) {
-  console.error('YouTube embed error', e)
- }
  agreeButton.addEventListener(
   'click',
   async () => {
