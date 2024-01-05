@@ -165,6 +165,24 @@ function displayMessages(
  })
 }
 
+function displayChannels(topChannels, hour) {
+ // Top Channels
+ channelsEl.innerHTML = ''
+ const sortedChannels = Object.entries(
+  topChannels
+ ).sort((a, b) => b[1] - a[1])
+ sortedChannels.forEach(([name, votes]) => {
+  const encoded = encodeURIComponent(name)
+
+  channelsEl.innerHTML += `
+      <a href="/#/${encoded}/${hour}">
+        ${name.length > 0 ? name : '⌂'} 
+        <cite>${votes - data.hour}</cite> 
+      </a>
+    `
+ })
+}
+
 // Load channel content
 async function displayChannel(channel, hour) {
  contentEl.innerHTML = '<p>Seeking...</p>'
@@ -185,21 +203,7 @@ async function displayChannel(channel, hour) {
    mostRecentHour,
   } = data
 
-  // Top Channels
-  channelsEl.innerHTML = ''
-  const sortedChannels = Object.entries(
-   topChannels
-  ).sort((a, b) => b[1] - a[1])
-  sortedChannels.forEach(([name, votes]) => {
-   const encoded = encodeURIComponent(name)
-
-   channelsEl.innerHTML += `
-    <a href="/#/${encoded}/${hour}">
-      ${name.length > 0 ? name : '⌂'} 
-      <cite>${votes - data.hour}</cite> 
-    </a>
-  `
-  })
+  displayChannels(topChannels, hour)
 
   contentEl.innerHTML = ''
 
@@ -236,6 +240,7 @@ async function displayChannel(channel, hour) {
     dataMR.topMessages,
     dataMR.hour
    )
+   displayChannels(dataMR.topChannels, hour)
   }
  } catch (err) {
   contentEl.innerHTML = `<p>${
