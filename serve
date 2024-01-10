@@ -1,0 +1,2 @@
+python -m http.server -d public 8000
+

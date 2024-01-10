@@ -13,275 +13,20 @@
    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///8AAABVwtN+AAAAK0lEQVQI12P4/5/h/0eG/79B6O9thj+zGf5IM/wNZGC9z3AXjO7/R6D//wGWfRuJudGK0QAAAABJRU5ErkJggg=="
   />
   <title>Tag Me In</title>
-  <style>
-   @font-face {
-    font-family: dotrice;
-    src: url('/dotrice.regular.otf')
-     format('opentype');
-   }
-   html,
-   body {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100dvh;
-    width: 100dvw;
-    min-height: 100%;
-    min-width: 100%;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-   }
-   body {
-    color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    font-family: dotrice, 'Courier New', Courier,
-     monospace;
-    font-size: 18px;
-    gap: 2px;
-    line-height: 24px;
-   }
-   input,
-   button,
-   select,
-   textarea {
-    background-color: #303030;
-    border: 2px solid #808080;
-    box-sizing: border-box;
-    color: inherit;
-    font-family: inherit;
-    font-size: inherit;
-    padding: calc(0.5em + 1px) calc(0.5em - 0px)
-     calc(0.5em - 2px) calc(0.5em + 2px);
-    min-width: 42px;
-   }
-   fieldset {
-    border: none;
-   }
-   .radio-top {
-    flex-grow: 0;
-    flex-shrink: 0;
-    height: 100px;
-   }
-   .radio-middle {
-    flex-grow: 0;
-    flex-shrink: 0;
-    height: 100px;
-   }
-   .radio-bottom {
-    flex-grow: 1;
-    overflow: hidden;
-   }
-   #seek {
-    box-sizing: border-box;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 10px;
-    overflow-x: hidden;
-    overflow-y: auto;
-   }
-   #channels {
-    box-sizing: border-box;
-    flex-shrink: 0;
-    height: 80px;
-    margin-top: -0.5em;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 1em 0.5em 0.5em 0;
-    white-space: nowrap;
-   }
-   #channels > a {
-    background-color: #808080;
-    border-radius: 0.25em;
-    box-sizing: border-box;
-    color: inherit;
-    display: inline-block;
-    margin-right: 0.5em;
-    min-width: 42px;
-    padding: calc(0.5em + 2px) 0.5em
-     calc(0.5em - 2px) calc(0.5em + 2px);
-    position: relative;
-    text-align: center;
-    text-decoration: none;
-   }
-   #content {
-    display: flex;
-    flex-direction: column;
-    min-height: min-content;
-   }
-   .frame {
-    background-color: #303030;
-    border: 2px solid #404040;
-    box-shadow: inset 2px 2px 8px #ffffff40;
-    box-sizing: border-box;
-    height: 100%;
-    overflow: hidden;
-    padding: 10px;
-    position: relative;
-    width: 100%;
-   }
-   fieldset {
-    display: flex;
-    flex-direction: row;
-    gap: 2px;
-    padding: 0;
-   }
-   fieldset input {
-    flex-grow: 1;
-    flex-shrink: 1;
-   }
-   fieldset input[type='number'] {
-    width: 100px;
-   }
-   fieldset input[type='submit'],
-   fieldset button {
-    flex-grow: 0;
-   }
-   *:focus {
-    box-shadow: inset 0 0 0 2px #f0f0f0;
-    outline: none;
-   }
-   button {
-    cursor: pointer;
-   }
-   blockquote {
-    border-radius: 0.25em;
-    margin: 0 0 0.5em;
-    padding: calc(2px + 0.5em) 40px 0.5em 0;
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: start;
-   }
-   blockquote > div {
-    flex-grow: 1;
-    flex-shrink: 1;
-    overflow-x: auto;
-   }
-   blockquote > div > span {
-    display: block;
-    word-wrap: break-word;
-   }
-   blockquote a {
-    color: inherit;
-    cursor: pointer;
-    text-decoration-color: #50a0f0;
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 3px;
-   }
-   blockquote > button {
-    flex-grow: 0;
-    flex-shrink: 0;
-    margin-right: 10px;
-    margin-top: -10px;
-   }
-   cite {
-    align-items: center;
-    background-color: #606060;
-    border-radius: 100%;
-    display: grid;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: bold;
-    justify-content: center;
-    line-height: 20px;
-    min-height: 20px;
-    min-width: 20px;
-    padding: calc(2px + 0.25em) 0.25em 0.25em
-     calc(0.25em + 2px);
-    position: absolute;
-    right: 0.25em;
-    text-align: center;
-    top: 0.25em;
-   }
-   a > cite {
-    margin-right: -16px;
-    margin-top: -16px;
-   }
-   blockquote > cite {
-    margin-right: 5px;
-    margin-top: 5px;
-   }
-   #about {
-    display: none;
-    flex-grow: 0;
-    flex-shrink: 0;
-    font-size: 12px;
-    margin: 0;
-    padding: 0.5em 1.5em;
-   }
-   *::selection {
-    background-color: white;
-    color: black;
-   }
-   label {
-    display: block;
-    flex-shrink: 0;
-    font-size: 12px;
-    padding: 0.25em;
-    text-transform: uppercase;
-   }
-   #content > p {
-    margin: 0 0 0.5em;
-    padding: calc(2px + 0.5em) 0.5em 0.5em;
-   }
-   .scroll-inner {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-   }
-   #time-description {
-    align-items: center;
-    display: grid;
-    flex-grow: 1;
-    justify-content: center;
-    margin-top: 3px;
-    padding: 0 0.5em;
-    white-space: nowrap;
-   }
-   button.success {
-    background-color: #070;
-    border-color: #353;
-   }
-   blockquote > div > iframe {
-    margin-top: 4px;
-    max-width: 100%;
-   }
-   blockquote > span {
-    display: inline-block;
-   }
-   #toggle-content-areas {
-    display: flex;
-    flex-direction: row;
-    flex-shrink: 0;
-   }
-   #toggle-content-areas > button {
-    box-sizing: border-box;
-    flex-grow: 1;
-    flex-shrink: 1;
-    font-size: 12px;
-    margin-right: -2px;
-    width: 25%;
-    word-wrap: nowrap;
-   }
-   #toggle-content-areas > button:last-of-type {
-    margin-right: 0;
-   }
-  </style>
+  <link
+   rel="stylesheet"
+   type="text/css"
+   href="./theme.css"
+  />
  </head>
 
  <body style="background-color: #000">
   <article id="about">
    <h2>Tag Me In</h2>
-   <p>The micro social network</p>
    <p>
-    Built in collaboration with
-    https://claude.ai/ &bull; Dotrice font from
+    The micro social network &bull; Built in
+    collaboration with https://claude.ai/ &bull;
+    Dotrice font from
     https://www.1001fonts.com/dotrice-font.html
     &bull; Privacy policy
     https://www.cloudflare.com/privacypolicy/
@@ -293,45 +38,29 @@
     https://github.com/tagmein/tagme.in
    </p>
   </article>
-  <div id="toggle-content-areas">
-   <button id="toggle-about">About</button>
-  </div>
   <div
    class="radio-top"
    id="content-area-1"
    data-name="Channel"
   >
    <div class="frame">
-    <label>Channel selection</label>
-    <input
-     maxlength="25"
-     placeholder="Enter a channel"
-     id="channel"
-    />
-   </div>
-  </div>
-  <div
-   class="radio-middle"
-   id="content-area-2"
-   data-name="Broadcast"
-  >
-   <div class="frame">
-    <noscript>JavaScript is required</noscript>
-    <label>Broadcast a message</label>
-    <form id="send">
-     <fieldset id="send-fields">
+    <div class="flex-row">
+     <div>
+      <label>Channel selection</label>
       <input
-       required
-       maxlength="125"
-       placeholder="Enter a message (up to 125 characters)"
-       id="message"
-       name="message"
+       maxlength="25"
+       placeholder="Enter a channel"
+       id="channel"
       />
-      <input type="submit" value="Send" />
-     </fieldset>
-    </form>
+     </div>
+     <div class="col-grow">
+      <label>Popular channels</label>
+      <div id="channels"></div>
+     </div>
+    </div>
    </div>
   </div>
+  <noscript>JavaScript is required</noscript>
   <div
    class="radio-middle"
    id="content-area-3"
@@ -353,16 +82,23 @@
   </div>
   <div class="radio-bottom">
    <div class="frame">
-    <main id="seek">
-     <div class="scroll-inner">
-      <label>Popular channels</label>
-      <div id="channels"></div>
-      <label>Channel messages</label>
-      <section id="content">
-       <p>Please wait...</p>
-      </section>
-     </div>
-    </main>
+    <label>Broadcast a message</label>
+    <form id="send">
+     <fieldset id="send-fields">
+      <input
+       required
+       maxlength="125"
+       placeholder="Enter a message (up to 125 characters)"
+       id="message"
+       name="message"
+      />
+      <input type="submit" value="Send" />
+     </fieldset>
+    </form>
+    <label>Channel messages</label>
+    <section id="content">
+     <p>Please wait...</p>
+    </section>
    </div>
   </div>
   <script

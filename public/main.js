@@ -1,3 +1,8 @@
+const rootUrl =
+ location.origin === 'http://localhost:8000'
+  ? 'https://tagme.in'
+  : ''
+
 const begin2024 = new Date(
  'January 1, 2024 00:00:00 GMT'
 )
@@ -189,7 +194,7 @@ async function displayChannel(channel, hour) {
 
  try {
   const resp = await fetch(
-   `/seek?channel=${encodeURIComponent(
+   `${rootUrl}/seek?channel=${encodeURIComponent(
     channel
    )}&hour=${hour}`
   )
@@ -217,7 +222,7 @@ async function displayChannel(channel, hour) {
     Math.abs(diffHours) === 1 ? '' : 's'
    } ${diffHours > 0 ? 'later' : 'ago'}.</p>`
    const respMR = await fetch(
-    `/seek?channel=${encodeURIComponent(
+    `${rootUrl}/seek?channel=${encodeURIComponent(
      channel
     )}&hour=${mostRecentHour}`
    )
@@ -265,7 +270,7 @@ window.addEventListener('hashchange', route)
 route() // Initial load
 
 async function sendMessage(channel, message) {
- const resp = await fetch('/send', {
+ const resp = await fetch(`${rootUrl}/send`, {
   method: 'POST',
   headers: {
    'Content-Type': 'application/json',
@@ -332,32 +337,6 @@ sendMessageForm.addEventListener(
  }
 )
 
-const toggleAboutButton =
- document.getElementById('toggle-about')
-const about = document.getElementById('about')
-let isAboutVisible =
- localStorage.getItem('hide-about') !== '1'
-function showAbout() {
- if (isAboutVisible) {
-  about.style.display = 'block'
- } else {
-  about.style.display = 'none'
- }
-}
-function toggleAbout() {
- isAboutVisible = !isAboutVisible
- localStorage.setItem(
-  'hide-about',
-  isAboutVisible ? '0' : '1'
- )
- showAbout()
-}
-toggleAboutButton.addEventListener(
- 'click',
- toggleAbout
-)
-showAbout()
-
 document
  .getElementById('now')
  .addEventListener('click', function () {
@@ -373,25 +352,3 @@ hourEl.addEventListener('input', function () {
   channel
  )}/${hourEl.value}`
 })
-
-const toggleContentAreasEl =
- document.getElementById('toggle-content-areas')
-for (const x of '1 2 3'.split(' ')) {
- const id = `content-area-${x}`
- const contentAreaElement =
-  document.getElementById(id)
- const toggleButton =
-  document.createElement('button')
- toggleButton.textContent =
-  contentAreaElement.getAttribute('data-name')
- toggleContentAreasEl.appendChild(toggleButton)
- toggleButton.addEventListener(
-  'click',
-  function () {
-   contentAreaElement.style.display =
-    contentAreaElement.style.display !== 'none'
-     ? 'none'
-     : 'block'
-  }
- )
-}
