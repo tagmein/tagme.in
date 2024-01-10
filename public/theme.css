@@ -67,11 +67,16 @@ fieldset {
  text-align: center;
  text-decoration: none;
 }
+#channel {
+ width: 240px;
+}
 #channel,
 #hour {
  max-width: 50vw;
- width: 240px;
  flex-grow: 0;
+}
+#hour {
+ width: 90px;
 }
 #content {
  display: flex;
@@ -110,13 +115,14 @@ button {
  cursor: pointer;
 }
 blockquote {
+ align-items: start;
  border-radius: 0.25em;
- margin: 0 0 10px;
- padding: calc(2px + 0.5em) 40px 0.5em 0;
- position: relative;
  display: flex;
  flex-direction: row;
- align-items: start;
+ margin: 0 0 10px;
+ padding: calc(2px + 0.5em) 60px 0.5em 0;
+ position: relative;
+ transition: opacity 1s linear;
 }
 blockquote > div {
  flex-grow: 1;
@@ -263,4 +269,21 @@ textarea {
 }
 #about-toggle-content {
  display: none;
+}
+button.delete-button {
+ background-color: #500;
+ border-bottom-right-radius: 20px;
+ border-top-right-radius: 20px;
+ box-sizing: border-box;
+ font-size: 24px;
+ height: 41px;
+ margin-left: -12px;
+ padding: 7px 0 2px;
+ opacity: 0.5;
+}
+button.delete-button:active {
+ opacity: 1;
+}
+button.delete-button.success {
+ background-color: #f00;
 }

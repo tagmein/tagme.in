@@ -8,6 +8,7 @@ import { channelActive } from './lib/channelActive'
 import { channelMessage } from './lib/channelMessage'
 import { getHourNumber } from './lib/getHourNumber'
 import { voteForMessage } from './lib/voteForMessage'
+import { deleteMessage } from './lib/deleteMessage'
 
 const MAX_CHANNEL_LENGTH = 25
 const MAX_MESSAGE_LENGTH = 125
@@ -19,6 +20,7 @@ interface Env {
 interface PostBody {
  channel: string
  message: string
+ delete?: true
 }
 
 async function validateRequestBody(
@@ -74,8 +76,13 @@ export const onRequestPost: PagesFunction<Env> =
   })
   const {
    error,
-   data: { message, channel },
+   data: { message, channel, delete: _delete },
   } = await validateRequestBody(context.request)
+
+  if (_delete) {
+   await deleteMessage(kv, message, channel)
+   return new Response('deleted')
+  }
 
   if (error) {
    return new Response(error, { status: 400 })

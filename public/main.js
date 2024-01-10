@@ -86,11 +86,42 @@ function addBlockquote(
  } catch (e) {
   console.error('YouTube embed error', e)
  }
+ const deleteButton =
+  document.createElement('button')
+ deleteButton.classList.add('delete-button')
+ deleteButton.textContent = '×'
  const agreeButton =
   document.createElement('button')
  agreeButton.textContent = 'Agree'
+ block.appendChild(deleteButton)
  block.appendChild(agreeButton)
  block.appendChild(blockContent)
+ deleteButton.addEventListener(
+  'click',
+  async () => {
+   if (
+    !confirm(
+     `Are you sure you want to delete ${JSON.stringify(
+      text
+     )} from channel ${JSON.stringify(
+      channel
+     )}?`
+    )
+   ) {
+    return
+   }
+   try {
+    await deleteMessage(channel, text)
+    deleteButton.classList.add('success')
+    block.style.opacity = '0'
+    setTimeout(() => {
+     block.remove()
+    }, 1000)
+   } catch (e) {
+    alert(e.message)
+   }
+  }
+ )
  agreeButton.addEventListener(
   'click',
   async () => {
@@ -273,6 +304,26 @@ channelEl.addEventListener('input', () => {
 
 window.addEventListener('hashchange', route)
 route() // Initial load
+
+async function deleteMessage(channel, message) {
+ const resp = await fetch(`${rootUrl}/send`, {
+  method: 'POST',
+  headers: {
+   'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+   channel,
+   message,
+   delete: true,
+  }),
+ })
+
+ if (!resp.ok) {
+  throw new Error(await resp.text())
+ }
+
+ return await resp.text()
+}
 
 async function sendMessage(channel, message) {
  const resp = await fetch(`${rootUrl}/send`, {
