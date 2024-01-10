@@ -23,7 +23,7 @@ function describeHourNumber(hourNumber) {
  return date
   .toLocaleString()
   .replace(/\:\d\d\:\d\d /, '')
-  .replace(', ', '\n')
+  .split(', ')
 }
 
 function addYouTubeEmbed(block, text) {
@@ -145,8 +145,12 @@ function route() {
   hour ?? getHourNumber().toString(10)
  const trueHour =
   hour ?? getHourNumber().toString(10)
- timeDescriptionEl.textContent =
-  describeHourNumber(trueHour)
+ timeDescriptionEl.innerHTML = ''
+ for (const x of describeHourNumber(trueHour)) {
+  const div = document.createElement('div')
+  div.textContent = x
+  timeDescriptionEl.appendChild(div)
+ }
  displayChannel(channel ?? '', trueHour)
 }
 
