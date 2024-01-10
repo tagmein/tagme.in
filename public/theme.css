@@ -216,7 +216,7 @@ blockquote > span {
  display: flex;
  flex-direction: row;
  gap: 10px;
- overflow: hidden;
+ overflow: visible;
  padding-left: 10px;
  width: 100%;
 }
@@ -247,9 +247,12 @@ textarea {
  position: absolute;
  right: 10px;
  top: 10px;
+ text-align: center;
+ height: 42px;
+ box-sizing: border-box;
 }
 #about-toggle-button.open {
- padding-top: 3px;
+ text-indent: 8px;
 }
 #time-travel {
  padding: 0 10px;

@@ -363,7 +363,7 @@ function showAbout() {
  aboutToggleButton.classList.remove('open')
 }
 function hideAbout() {
- aboutToggleButton.innerHTML = '🛈'
+ aboutToggleButton.innerHTML = 'i'
  aboutToggleContent.style.display = 'none'
  aboutToggleButton.classList.add('open')
 }
