@@ -67,6 +67,10 @@ fieldset {
  text-align: center;
  text-decoration: none;
 }
+#channel {
+ max-width: 50vw;
+ width: 240px;
+}
 #content {
  display: flex;
  flex-direction: column;
