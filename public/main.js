@@ -352,3 +352,36 @@ hourEl.addEventListener('input', function () {
   channel
  )}/${hourEl.value}`
 })
+
+const aboutToggleButton =
+ document.getElementById('about-toggle-button')
+const aboutToggleContent =
+ document.getElementById('about-toggle-content')
+function showAbout() {
+ aboutToggleButton.innerHTML = '&times;'
+ aboutToggleContent.style.display = 'block'
+ aboutToggleButton.classList.remove('open')
+}
+function hideAbout() {
+ aboutToggleButton.innerHTML = '🛈'
+ aboutToggleContent.style.display = 'none'
+ aboutToggleButton.classList.add('open')
+}
+if (localStorage.getItem('about') !== 'hide') {
+ showAbout()
+}
+function toggleAbout() {
+ const isOpen =
+  localStorage.getItem('about') !== 'hide'
+ if (isOpen) {
+  hideAbout()
+  localStorage.setItem('about', 'hide')
+ } else {
+  showAbout()
+  localStorage.removeItem('about')
+ }
+}
+aboutToggleButton.addEventListener(
+ 'click',
+ toggleAbout
+)

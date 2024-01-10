@@ -23,75 +23,75 @@
  <body style="background-color: #000">
   <article id="about">
    <h2>Tag Me In</h2>
-   <p>
-    The micro social network &bull; Built in
-    collaboration with https://claude.ai/ &bull;
-    Dotrice font from
-    https://www.1001fonts.com/dotrice-font.html
-    &bull; Privacy policy
-    https://www.cloudflare.com/privacypolicy/
-    &bull; Terms of service
-    https://www.cloudflare.com/terms/ &bull;
-    Illegal content removed &bull; Email
-    nate@tagme.in for assistance &bull; Open
-    source at
-    https://github.com/tagmein/tagme.in
-   </p>
+   <button
+    id="about-toggle-button"
+    class="open"
+   >
+    🛈
+   </button>
+   <div id="about-toggle-content">
+    <p>
+     The micro social network &bull; Built in
+     collaboration with https://claude.ai/
+     &bull; Dotrice font from
+     https://www.1001fonts.com/dotrice-font.html
+     &bull; Privacy policy
+     https://www.cloudflare.com/privacypolicy/
+     &bull; Terms of service
+     https://www.cloudflare.com/terms/ &bull;
+     Illegal content removed &bull; Email
+     nate@tagme.in for assistance &bull; Open
+     source at
+     https://github.com/tagmein/tagme.in
+    </p>
+   </div>
   </article>
-  <div
-   class="radio-top"
-   id="content-area-1"
-   data-name="Channel"
-  >
-   <div class="frame">
-    <div class="flex-row">
-     <div>
-      <label>Channel selection</label>
-      <input
-       maxlength="25"
-       placeholder="Enter a channel"
-       id="channel"
-      />
-     </div>
-     <div class="col-grow">
-      <label>Popular channels</label>
-      <div id="channels"></div>
-     </div>
+  <div class="radio-top" data-name="Channel">
+   <div class="flex-row">
+    <div>
+     <label>Channel selection</label>
+     <input
+      maxlength="25"
+      placeholder="Enter a channel"
+      id="channel"
+     />
+    </div>
+    <div class="col-grow">
+     <label>Popular channels</label>
+     <div id="channels"></div>
     </div>
    </div>
   </div>
   <noscript>JavaScript is required</noscript>
   <div
    class="radio-middle"
-   id="content-area-3"
+   id="time-travel"
    data-name="Time Travel"
   >
-   <div class="frame">
-    <label>Time travel</label>
-    <fieldset id="time-fields">
-     <input
-      required
-      type="number"
-      id="hour"
-      name="hour"
-     />
-     <span id="time-description"></span>
-     <button id="now">Now</button>
-    </fieldset>
-   </div>
+   <label>Time travel</label>
+   <fieldset id="time-fields">
+    <input
+     required
+     type="number"
+     id="hour"
+     name="hour"
+    />
+    <span id="time-description"></span>
+    <button id="now">Now</button>
+   </fieldset>
   </div>
   <div class="radio-bottom">
    <div class="frame">
     <label>Broadcast a message</label>
     <form id="send">
      <fieldset id="send-fields">
-      <input
+      <textarea
        required
        maxlength="125"
        placeholder="Enter a message (up to 125 characters)"
        id="message"
        name="message"
-      />
+      ></textarea>
       <input type="submit" value="Send" />
      </fieldset>
     </form>
@@ -103,7 +103,7 @@
   </div>
   <script
    type="text/javascript"
-   src="main.js?h"
+   src="main.js?i"
   ></script>
  </body>
 </html>

@@ -14,6 +14,8 @@ body {
   monospace;
  font-size: 18px;
  line-height: 24px;
+ overflow-x: hidden;
+ overflow-y: scroll;
 }
 input,
 button,
@@ -33,20 +35,23 @@ fieldset {
  border: none;
 }
 .radio-top {
- height: 100px;
+ height: 81px;
 }
 .radio-middle {
- height: 100px;
+ height: 88px;
 }
 #channels {
  box-sizing: border-box;
  flex-shrink: 0;
  height: 80px;
- margin-top: -0.5em;
  overflow-x: auto;
  overflow-y: hidden;
- padding: 1em 0 0;
+ padding: 20px 0 0;
  white-space: nowrap;
+ position: absolute;
+ top: 10px;
+ left: 0;
+ right: 0;
 }
 #channels > a {
  background-color: #808080;
@@ -68,8 +73,6 @@ fieldset {
  min-height: min-content;
 }
 .frame {
- background-color: #303030;
- box-shadow: inset 1px 1px 10px #ffffff40;
  box-sizing: border-box;
  padding: 10px 10px 0;
  position: relative;
@@ -81,7 +84,8 @@ fieldset {
  gap: 2px;
  padding: 0;
 }
-fieldset input {
+fieldset input,
+fieldset textarea {
  flex-grow: 1;
  flex-shrink: 1;
 }
@@ -203,28 +207,49 @@ blockquote > div > iframe {
 blockquote > span {
  display: inline-block;
 }
-#toggle-content-areas {
- display: flex;
- flex-direction: row;
- flex-shrink: 0;
-}
-#toggle-content-areas > button {
- box-sizing: border-box;
- flex-grow: 1;
- flex-shrink: 1;
- font-size: 12px;
- margin-right: -2px;
- width: 25%;
- word-wrap: nowrap;
-}
-#toggle-content-areas > button:last-of-type {
- margin-right: 0;
-}
 .flex-row {
+ box-sizing: border-box;
  display: flex;
  flex-direction: row;
  gap: 10px;
+ overflow: hidden;
+ padding-left: 10px;
+ width: 100%;
 }
 .col-grow {
  flex-grow: 1;
+ position: relative;
+}
+textarea {
+ background-color: #484848;
+ margin-bottom: 0;
+ resize: none;
+ height: 5em;
+}
+#send-fields {
+ margin-bottom: 10px;
+}
+#send-fields > input {
+ margin-top: 1px;
+ background-color: #575;
+ border-top-right-radius: 10px;
+ border-bottom-right-radius: 10px;
+}
+#about-toggle-button {
+ border-radius: 100%;
+ font-size: 24px;
+ opacity: 0.5;
+ padding: 7px 0 3px;
+ position: absolute;
+ right: 10px;
+ top: 10px;
+}
+#about-toggle-button.open {
+ padding-top: 3px;
+}
+#time-travel {
+ padding: 0 10px;
+}
+#about-toggle-content {
+ display: none;
 }
