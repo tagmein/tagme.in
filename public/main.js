@@ -354,6 +354,19 @@ hourEl.addEventListener('input', function () {
  )}/${hourEl.value}`
 })
 
+function goHour(diff) {
+ return function () {
+  const { channel, hour } = getUrlData()
+  const newHour =
+   parseInt(
+    hour ?? getHourNumber().toString(10)
+   ) + diff
+  location.href = `/#/${encodeURIComponent(
+   channel
+  )}/${newHour.toString(10)}`
+ }
+}
+
 const aboutToggleButton =
  document.getElementById('about-toggle-button')
 const aboutToggleContent =
@@ -386,3 +399,9 @@ aboutToggleButton.addEventListener(
  'click',
  toggleAbout
 )
+document
+ .getElementById('hour-back')
+ .addEventListener('click', goHour(-1))
+document
+ .getElementById('hour-next')
+ .addEventListener('click', goHour(1))
