@@ -67,9 +67,11 @@ fieldset {
  text-align: center;
  text-decoration: none;
 }
-#channel {
+#channel,
+#hour {
  max-width: 50vw;
  width: 240px;
+ flex-grow: 0;
 }
 #content {
  display: flex;
