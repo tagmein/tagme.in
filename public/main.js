@@ -23,6 +23,7 @@ function describeHourNumber(hourNumber) {
  return date
   .toLocaleString()
   .replace(/\:\d\d\:\d\d /, '')
+  .replace(', ', '\n')
 }
 
 function addYouTubeEmbed(block, text) {
