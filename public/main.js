@@ -192,13 +192,15 @@ const mainContent = elem({
  tagName: 'main',
 })
 
-document.body.appendChild(mainToolbar)
-document.body.appendChild(compose)
-document.body.appendChild(timeToolbar)
-document.body.appendChild(mainContent)
-document.body.appendChild(
+const body = elem({ classes: ['body'] })
+body.appendChild(mainToolbar)
+body.appendChild(compose)
+body.appendChild(timeToolbar)
+body.appendChild(mainContent)
+body.appendChild(
  document.getElementById('footer')
 )
+document.body.appendChild(body)
 
 async function route() {
  const { channel, hour } = getUrlData()
