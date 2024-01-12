@@ -131,8 +131,8 @@ body {
 
 .time-toolbar button,
 .time-toolbar select {
- background-color: #383400;
- color: #989000;
+ background-color: #383428;
+ color: #989058;
  line-height: 5px;
 }
 
@@ -291,7 +291,7 @@ body.role-moderator-active article {
 }
 
 article > .score {
- background-color: #585800;
+ background-color: #585838;
  border-radius: 7px;
  box-sizing: border-box;
  height: 26px;
@@ -387,7 +387,7 @@ a.channel:hover {
 
 a.channel > span {
  display: inline-block;
- background-color: #383400;
+ background-color: #383828;
  border-radius: 5px;
  padding: 0 3px 1px;
  font-size: 11px;
