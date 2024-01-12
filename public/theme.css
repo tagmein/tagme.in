@@ -1,8 +1,13 @@
 body {
  font-family: 'Noto Serif', 'Liberation Serif',
   serif;
+ height: 100dvh;
+ left: 0;
  overflow-x: hidden;
  overflow-y: auto;
+ position: absolute;
+ top: 0;
+ width: 100%;
 }
 
 .toolbar,
@@ -126,7 +131,7 @@ body {
 
 .toolbar.time-toolbar {
  height: 25px;
- top: 51px;
+ top: 50px;
 }
 
 .time-toolbar button,
