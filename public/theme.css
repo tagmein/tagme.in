@@ -401,3 +401,7 @@ a.channel > span {
 .channel-list {
  padding: 0 7px 7px 7px;
 }
+
+button[title='Toggle full screen'] {
+ padding: 0 2px 4px 5px;
+}

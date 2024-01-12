@@ -20,6 +20,25 @@ const loadingIndicator = elem({
  tagName: 'progress',
 })
 
+const fullScreenButton = elem({
+ attributes: {
+  title: 'Toggle full screen',
+ },
+ events: {
+  click() {
+   if (!document.fullscreenElement) {
+    document.body
+     .requestFullscreen()
+     .catch((e) => console.error(e))
+   } else {
+    document.exitFullscreen()
+   }
+  },
+ },
+ tagName: 'button',
+ textContent: '⛶',
+})
+
 const mainToolbar = elem({
  classes: ['toolbar'],
  children: [
@@ -40,6 +59,7 @@ const mainToolbar = elem({
   }),
   loadingIndicator,
   channelInput,
+  fullScreenButton,
  ],
 })
 
