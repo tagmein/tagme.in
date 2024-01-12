@@ -146,9 +146,16 @@ async function withLoading(promise) {
 
 const composeTextarea = elem({
  attributes: {
+  maxlength: '125',
   placeholder:
    'Write a message (up to 125 characters)',
-  maxlength: '125',
+  required: 'required',
+ },
+ events: {
+  blur() {
+   composeTextarea.value =
+    composeTextarea.value.trim()
+  },
  },
  tagName: 'textarea',
 })
@@ -159,33 +166,37 @@ const compose = elem({
   elem({
    attributes: {
     title: 'Send message now',
+    type: 'submit',
+    value: '➹',
    },
-   events: {
-    async click() {
-     const { channel, hour } = getUrlData()
-     if (
-      (await withLoading(
-       networkMessageSend(
-        channel,
-        composeTextarea.value
-       )
-      )) !== false
-     ) {
-      composeTextarea.value = ''
-      const nowHour = getHourNumber()
-      if (nowHour !== hour) {
-       setHour(nowHour)
-      } else {
-       route()
-      }
-     }
-    },
-   },
-   tagName: 'button',
-   textContent: '➹',
+   tagName: 'input',
   }),
  ],
  classes: ['compose'],
+
+ events: {
+  async submit(e) {
+   e.preventDefault()
+   const { channel, hour } = getUrlData()
+   if (
+    (await withLoading(
+     networkMessageSend(
+      channel,
+      composeTextarea.value
+     )
+    )) !== false
+   ) {
+    composeTextarea.value = ''
+    const nowHour = getHourNumber()
+    if (nowHour !== hour) {
+     setHour(nowHour)
+    } else {
+     route()
+    }
+   }
+  },
+ },
+ tagName: 'form',
 })
 
 const mainContent = elem({

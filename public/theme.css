@@ -254,7 +254,7 @@ body.role-moderator-active
  min-height: 140px;
 }
 
-.compose button {
+.compose input[type='submit'] {
  background-color: #005800;
  border-radius: 7px;
  box-sizing: border-box;
@@ -271,12 +271,12 @@ body.role-moderator-active
  transform: scale(2);
 }
 
-.compose:hover button,
-.compose textarea:focus + button {
+.compose:hover input[type='submit'],
+.compose textarea:focus + input[type='submit'] {
  opacity: 1;
 }
 
-.compose button:hover {
+.compose input[type='submit']:hover {
  background-color: #009800;
 }
 
