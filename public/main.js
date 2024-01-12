@@ -396,6 +396,7 @@ function attachMessages(
   const content = elem()
   addTextWithLinks(content, message.text)
   addYouTubeEmbed(content, message.text)
+  addImageEmbed(content, message.text)
   const agreeButton = elem({
    classes: ['agree'],
    attributes: {

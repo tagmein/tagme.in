@@ -38,6 +38,42 @@ function addYouTubeEmbed(container, text) {
  }
 }
 
+function addImageEmbed(container, text) {
+ const regExp =
+  /https:\/\/\S+\.(gif|jpe?g|png|webp)/
+ const match = text.match(regExp)
+
+ if (match) {
+  const imageContainer = elem({
+   classes: ['image-container'],
+   children: [
+    elem({
+     attributes: {
+      src: match[0],
+     },
+     tagName: 'img',
+    }),
+   ],
+   events: {
+    click() {
+     if (
+      imageContainer.classList.contains(
+       'expanded'
+      )
+     ) {
+      imageContainer.classList.remove(
+       'expanded'
+      )
+     } else {
+      imageContainer.classList.add('expanded')
+     }
+    },
+   },
+  })
+  container.appendChild(imageContainer)
+ }
+}
+
 function begin2024GMT() {
  return new Date('January 1, 2024 00:00:00 GMT')
 }

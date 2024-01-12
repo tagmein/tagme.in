@@ -360,16 +360,45 @@ body.role-moderator-active
 
 article > div > iframe {
  margin-bottom: -18px;
+}
+
+article > div > iframe,
+article > div > .image-container {
+ cursor: zoom-in;
+ height: 25vh;
+ min-height: 125px;
  margin-left: -15px;
  margin-top: 14px;
  width: 100vw;
- max-height: 25vh;
+}
+
+article > div > .image-container.expanded,
+body.role-moderator-active
+ article
+ > div
+ > .image-container.expanded {
+ background-color: #000;
+ cursor: zoom-out;
+ height: 100dvh;
+ left: 0;
+ right: 0;
+ margin: 0 !important;
+ overflow: hidden;
+ padding: 0;
+ position: fixed;
+ top: 0;
+ width: 100dvw;
+ z-index: 10000;
 }
 
 body.role-moderator-active
  article
  > div
- > iframe {
+ > iframe,
+body.role-moderator-active
+ article
+ > div
+ > .image-container {
  margin-left: -34px;
 }
 
@@ -409,4 +438,11 @@ a.channel > span {
 
 button[title='Toggle full screen'] {
  padding: 0 2px 4px 5px;
+}
+
+.image-container img {
+ height: 100%;
+ width: 100%;
+ object-fit: contain;
+ overflow: hidden;
 }
