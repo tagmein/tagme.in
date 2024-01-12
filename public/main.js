@@ -2,6 +2,7 @@ const HOME_CHANNEL_ICON = '⌂'
 
 const channelInput = elem({
  attributes: {
+  maxlength: 25,
   placeholder: 'Enter channel name',
  },
  events: {
@@ -215,7 +216,9 @@ document.body.appendChild(body)
 
 async function route() {
  const { channel, hour } = getUrlData()
- channelInput.value = channel
+ if (channelInput.value.trim() !== channel) {
+  channelInput.value = channel
+ }
  updateDateTime(hour)
  const channelData = await withLoading(
   networkChannelSeek(channel, hour)
