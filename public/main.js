@@ -243,7 +243,7 @@ async function route() {
  } else {
   displayContent(channel, hour)
  }
- window.scrollTo(0, 0)
+ body.scrollTo(0, 0)
 }
 
 window.addEventListener('hashchange', route)
