@@ -377,7 +377,9 @@ function attachChannels(
      children: [
       elem({
        tagName: 'span',
-       textContent: c.score - hour,
+       textContent: (c.score - hour).toString(
+        10
+       ),
       }),
      ],
     })
