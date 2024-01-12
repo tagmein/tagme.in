@@ -11,6 +11,7 @@ import { voteForMessage } from './lib/voteForMessage'
 import { deleteMessage } from './lib/deleteMessage'
 
 const MAX_CHANNEL_LENGTH = 25
+const MIN_MESSAGE_LENGTH = 5
 const MAX_MESSAGE_LENGTH = 125
 
 interface Env {
@@ -31,18 +32,38 @@ async function validateRequestBody(
   if (!data || typeof data !== 'object') {
    throw new Error('missing data')
   }
+
   if (typeof data.message !== 'string') {
    return {
     error: 'message must be a string',
     data,
    }
   }
+
+  if (data.message !== data.message.trim()) {
+   return {
+    error:
+     'message must not start or end with space',
+    data,
+   }
+  }
+
   if (typeof data.channel !== 'string') {
    return {
     error: 'channel must be a string',
     data,
    }
   }
+
+  if (
+   data.message.length < MIN_MESSAGE_LENGTH
+  ) {
+   return {
+    error: `message must be at least ${MIN_MESSAGE_LENGTH} characters long`,
+    data,
+   }
+  }
+
   if (
    data.message.length > MAX_MESSAGE_LENGTH
   ) {
@@ -51,6 +72,7 @@ async function validateRequestBody(
     data,
    }
   }
+
   if (
    data.channel.length > MAX_CHANNEL_LENGTH
   ) {
@@ -59,6 +81,15 @@ async function validateRequestBody(
     data,
    }
   }
+
+  if (data.channel !== data.channel.trim()) {
+   return {
+    error:
+     'channel must not start or end with space',
+    data,
+   }
+  }
+
   return { data }
  } catch (e) {
   return {

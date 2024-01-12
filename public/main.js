@@ -1,462 +1,455 @@
-const rootUrl =
- location.origin === 'http://localhost:8000'
-  ? 'https://tagme.in'
-  : ''
+const HOME_CHANNEL_ICON = '⌂'
 
-const begin2024 = new Date(
- 'January 1, 2024 00:00:00 GMT'
+const channelInput = elem({
+ attributes: {
+  placeholder: 'Enter channel name',
+ },
+ events: {
+  input: debounce(function () {
+   setChannel(channelInput.value.trim())
+  }),
+ },
+ tagName: 'input',
+})
+
+const loadingIndicator = elem({
+ attributes: {
+  inditerminate: 'true',
+ },
+ classes: ['loader'],
+ tagName: 'progress',
+})
+
+const mainToolbar = elem({
+ classes: ['toolbar'],
+ children: [
+  elem({
+   children: [
+    elem({
+     classes: ['h-stretch'],
+     tagName: 'span',
+     textContent: HOME_CHANNEL_ICON,
+    }),
+   ],
+   events: {
+    click() {
+     location.hash = '#'
+    },
+   },
+   tagName: 'button',
+  }),
+  loadingIndicator,
+  channelInput,
+ ],
+})
+
+const [
+ yearSelect,
+ monthSelect,
+ daySelect,
+ hourSelect,
+ updateDateTime,
+] = dateTimeSelector(setHour)
+
+const timeToolbar = elem({
+ classes: ['toolbar', 'time-toolbar'],
+ children: [
+  elem({
+   attributes: {
+    title: 'Go to now',
+   },
+   events: {
+    click() {
+     const { hour } = getUrlData()
+     const nowHour = getHourNumber()
+     if (nowHour !== hour) {
+      setHour(nowHour)
+     } else {
+      route()
+     }
+    },
+   },
+   tagName: 'button',
+   textContent: '⏲',
+  }),
+  elem({
+   attributes: {
+    title: 'Go back 1 hour',
+   },
+   events: {
+    click() {
+     const { hour } = getUrlData()
+     setHour(hour - 1)
+    },
+   },
+   tagName: 'button',
+   textContent: '«',
+  }),
+  yearSelect,
+  monthSelect,
+  daySelect,
+  hourSelect,
+  elem({
+   attributes: {
+    title: 'Go forward 1 hour',
+   },
+   events: {
+    click() {
+     const { hour } = getUrlData()
+     setHour(hour + 1)
+    },
+   },
+   tagName: 'button',
+   textContent: '»',
+  }),
+ ],
+})
+
+let loaderCount = 0
+
+async function withLoading(promise) {
+ loaderCount++
+ loadingIndicator.style.opacity = '1'
+ try {
+  const data = await promise
+  return data
+ } catch (e) {
+  alert(e.message ?? e ?? 'Unknown error')
+  return false
+ } finally {
+  loaderCount--
+  if (loaderCount === 0) {
+   loadingIndicator.style.opacity = '0'
+  }
+ }
+}
+
+const composeTextarea = elem({
+ attributes: {
+  placeholder:
+   'Write a message (up to 125 characters)',
+  maxlength: '125',
+ },
+ tagName: 'textarea',
+})
+
+const compose = elem({
+ children: [
+  composeTextarea,
+  elem({
+   attributes: {
+    title: 'Send message now',
+   },
+   events: {
+    async click() {
+     const { channel, hour } = getUrlData()
+     if (
+      (await withLoading(
+       networkMessageSend(
+        channel,
+        composeTextarea.value
+       )
+      )) !== false
+     ) {
+      composeTextarea.value = ''
+      const nowHour = getHourNumber()
+      if (nowHour !== hour) {
+       setHour(nowHour)
+      } else {
+       route()
+      }
+     }
+    },
+   },
+   tagName: 'button',
+   textContent: '➹',
+  }),
+ ],
+ classes: ['compose'],
+})
+
+const mainContent = elem({
+ tagName: 'main',
+})
+
+document.body.appendChild(mainToolbar)
+document.body.appendChild(compose)
+document.body.appendChild(timeToolbar)
+document.body.appendChild(mainContent)
+document.body.appendChild(
+ document.getElementById('footer')
 )
 
-function getHourNumber() {
- const now = new Date()
- const msPerHour = 1000 * 60 * 60
- return Math.floor(
-  (now.getTime() - begin2024.getTime()) /
-   msPerHour
- )
-}
-
-function describeHourNumber(hourNumber) {
- const date = new Date(
-  begin2024.getTime() + hourNumber * 3600e3
- )
- return date
-  .toLocaleString()
-  .replace(/\:\d\d\:\d\d /, '')
-  .split(', ')
-}
-
-function addYouTubeEmbed(block, text) {
- const regExp =
-  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
- const match = text.match(regExp)
-
- if (match && match[2].length == 11) {
-  const id = match[2]
-  const frame = document.createElement('iframe')
-  frame.setAttribute('width', '560')
-  frame.setAttribute('height', '315')
-  frame.setAttribute('frameborder', '0')
-  frame.setAttribute(
-   'src',
-   `//www.youtube.com/embed/${id}`
-  )
-  frame.setAttribute(
-   'allowfullscreen',
-   'allowfullscreen'
-  )
-  block.appendChild(frame)
- }
-}
-
-function addTextWithLinks(text, container) {
- const parts = text.split(/(https?:\/\/[^\s]+)/)
-
- parts.forEach((part) => {
-  if (/^https?:\/\//.test(part)) {
-   const a = document.createElement('a')
-   a.setAttribute('target', '_blank')
-   a.setAttribute('href', part)
-   a.textContent = part
-   container.appendChild(a)
-  } else if (part) {
-   container.appendChild(
-    document.createTextNode(part)
-   )
-  }
- })
-}
-
-function addBlockquote(
- parent,
- channel,
- text,
- score
-) {
- const block =
-  document.createElement('blockquote')
- const blockContent =
-  document.createElement('div')
- const blockText =
-  document.createElement('span')
- addTextWithLinks(text, blockText)
- blockContent.appendChild(blockText)
- try {
-  addYouTubeEmbed(blockContent, text)
- } catch (e) {
-  console.error('YouTube embed error', e)
- }
- const deleteButton =
-  document.createElement('button')
- deleteButton.classList.add('delete-button')
- deleteButton.textContent = '×'
- const agreeButton =
-  document.createElement('button')
- agreeButton.textContent = 'Agree'
- block.appendChild(deleteButton)
- block.appendChild(agreeButton)
- block.appendChild(blockContent)
- deleteButton.addEventListener(
-  'click',
-  async () => {
-   if (
-    !confirm(
-     `Are you sure you want to delete ${JSON.stringify(
-      text
-     )} from channel ${JSON.stringify(
-      channel
-     )}?`
-    )
-   ) {
-    return
-   }
-   try {
-    await deleteMessage(channel, text)
-    deleteButton.classList.add('success')
-    block.style.opacity = '0'
-    setTimeout(() => {
-     block.remove()
-    }, 1000)
-   } catch (e) {
-    alert(e.message)
-   }
-  }
- )
- agreeButton.addEventListener(
-  'click',
-  async () => {
-   try {
-    await sendMessage(channel, text)
-    agreeButton.classList.add('success')
-   } catch (e) {
-    alert(e.message)
-   }
-  }
- )
- const cite = document.createElement('cite')
- cite.textContent = score
- block.appendChild(cite)
-
- parent.appendChild(block)
-}
-
-// Attach to DOM elements
-const channelEl =
- document.getElementById('channel')
-const channelsEl =
- document.getElementById('channels')
-const contentEl =
- document.getElementById('content')
-const messageEl =
- document.getElementById('message')
-const hourEl = document.getElementById('hour')
-const timeDescriptionEl =
- document.getElementById('time-description')
-
-function getUrlData() {
- const [_, channel, hour] = window.location.hash
-  .split('/')
-  .map((x) =>
-   typeof x === 'string'
-    ? decodeURIComponent(x)
-    : undefined
-  )
- return {
-  channel: channel ?? '',
-  hour: hour ?? getHourNumber().toString(10),
- }
-}
-
-// Keep current channel/hour in hash URL route
-function route() {
+async function route() {
  const { channel, hour } = getUrlData()
-
- channelEl.value = channel ?? ''
- hourEl.value =
-  hour ?? getHourNumber().toString(10)
- const trueHour =
-  hour ?? getHourNumber().toString(10)
- timeDescriptionEl.innerHTML = ''
- for (const x of describeHourNumber(trueHour)) {
-  const div = document.createElement('div')
-  div.textContent = x
-  timeDescriptionEl.appendChild(div)
- }
- displayChannel(channel ?? '', trueHour)
-}
-
-// Top Messages
-function displayMessages(
- attachToEl,
- channel,
- messages,
- hour
-) {
- const sortedMessages = Object.entries(
-  messages
- ).sort((a, b) => b[1] - a[1])
- sortedMessages.forEach(([text, votes]) => {
-  const score = votes - hour
-  addBlockquote(
-   attachToEl,
+ channelInput.value = channel
+ updateDateTime(hour)
+ const channelData = await withLoading(
+  networkChannelSeek(channel, hour)
+ )
+ const hasMessages =
+  Object.keys(channelData.topMessages).length >
+  0
+ if (hasMessages) {
+  displayContent(channel, hour, channelData)
+ } else if (
+  channelData.mostRecentHour !== null
+ ) {
+  const archivedChannelData = await withLoading(
+   networkChannelSeek(
+    channel,
+    channelData.mostRecentHour
+   )
+  )
+  displayContent(
    channel,
-   text,
-   score
+   channelData.mostRecentHour,
+   channelData,
+   archivedChannelData
   )
- })
-}
-
-function displayChannels(topChannels, hour) {
- // Top Channels
- channelsEl.innerHTML = ''
- const sortedChannels = Object.entries(
-  topChannels
- ).sort((a, b) => b[1] - a[1])
- sortedChannels.forEach(([name, votes]) => {
-  const encoded = encodeURIComponent(name)
-
-  channelsEl.innerHTML += `
-      <a href="/#/${encoded}/${hour}">
-        ${name.length > 0 ? name : '⌂'} 
-        <cite>${votes - hour}</cite> 
-      </a>
-    `
- })
-}
-
-// Load channel content
-async function displayChannel(channel, hour) {
- contentEl.innerHTML = '<p>Seeking...</p>'
-
- try {
-  const resp = await fetch(
-   `${rootUrl}/seek?channel=${encodeURIComponent(
-    channel
-   )}&hour=${hour}`
-  )
-  if (!resp.ok) {
-   throw new Error(resp.statusText)
-  }
-  const data = await resp.json()
-  const {
-   topChannels,
-   topMessages,
-   mostRecentHour,
-  } = data
-
-  contentEl.innerHTML = ''
-
-  if (
-   Object.keys(topMessages).length === 0 &&
-   typeof mostRecentHour === 'string'
-  ) {
-   const diffHours =
-    parseInt(mostRecentHour, 10) - data.hour
-   contentEl.innerHTML = `<p>Channel has no activity at this time, displaying content from ${Math.abs(
-    diffHours
-   )} hour${
-    Math.abs(diffHours) === 1 ? '' : 's'
-   } ${diffHours > 0 ? 'later' : 'ago'}.</p>`
-   const respMR = await fetch(
-    `${rootUrl}/seek?channel=${encodeURIComponent(
-     channel
-    )}&hour=${mostRecentHour}`
-   )
-   if (!respMR.ok) {
-    throw new Error(respMR.statusText)
-   }
-   const dataMR = await respMR.json()
-   displayMessages(
-    contentEl,
-    channel,
-    dataMR.topMessages,
-    dataMR.hour
-   )
-   displayChannels(dataMR.topChannels, hour)
-  } else {
-   displayChannels(topChannels, hour)
-
-   displayMessages(
-    contentEl,
-    channel,
-    topMessages,
-    data.hour
-   )
-  }
- } catch (err) {
-  contentEl.innerHTML = `<p>${
-   err?.message ?? err ?? 'unknown error'
-  }</p>`
+ } else {
+  displayContent(channel, hour)
  }
+ window.scrollTo(0, 0)
 }
-
-// Load channel when input changes
-let channelTimer
-channelEl.addEventListener('input', () => {
- clearTimeout(channelTimer)
- channelTimer = setTimeout(() => {
-  const channel = channelEl.value
-  window.location.hash = `#/${encodeURIComponent(
-   channel
-  )}/${getHourNumber().toString(10)}`
- }, 250)
-})
 
 window.addEventListener('hashchange', route)
-route() // Initial load
+route().catch((e) => console.error(e))
 
-async function deleteMessage(channel, message) {
- const resp = await fetch(`${rootUrl}/send`, {
-  method: 'POST',
-  headers: {
-   'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-   channel,
-   message,
-   delete: true,
-  }),
- })
-
- if (!resp.ok) {
-  throw new Error(await resp.text())
+function displayContent(
+ channel,
+ hour,
+ content,
+ archive
+) {
+ mainContent.innerHTML = ''
+ if (!content && !archive) {
+  mainContent.appendChild(
+   elem({
+    tagName: 'p',
+    textContent: 'This channel has no content.',
+   })
+  )
+  return
  }
-
- return await resp.text()
+ if (archive) {
+  mainContent.appendChild(
+   elem({
+    tagName: 'p',
+    textContent: `Channel has no content at this time, here is an archive from ${describeHourNumber(
+     content.mostRecentHour
+    ).join(' ')}.`,
+   })
+  )
+  attachMessages(
+   channel,
+   mainContent,
+   formatMessageData(archive.topMessages)
+  )
+  attachChannels(
+   hour,
+   mainContent,
+   formatChannelData(archive.topChannels)
+  )
+ } else {
+  attachMessages(
+   channel,
+   mainContent,
+   formatMessageData(content.topMessages)
+  )
+  attachChannels(
+   hour,
+   mainContent,
+   formatChannelData(content.topChannels)
+  )
+ }
 }
 
-async function sendMessage(channel, message) {
- const resp = await fetch(`${rootUrl}/send`, {
-  method: 'POST',
-  headers: {
-   'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-   channel,
-   message,
-  }),
- })
-
- if (!resp.ok) {
-  throw new Error(await resp.text())
- }
-
- return await resp.text()
-}
-
-const sendMessageForm =
- document.getElementById('send')
-
-const sendMessageFormFields =
- document.getElementById('send-fields')
-
-sendMessageForm.addEventListener(
- 'submit',
- async (event) => {
-  event.preventDefault()
-
-  const channel = channelEl.value
-  const message = sendMessageForm.message.value
-
-  if (!message) {
-   alert('Message is required')
+function becomeModerator(silent) {
+ if (silent !== 'silent') {
+  if (
+   prompt(
+    'I hereby confirm that I would like to apply for the role of content moderator on Tag Me In. To continue, type the word "apply":'
+   ) !== 'apply'
+  ) {
    return
   }
-
-  sendMessageFormFields.setAttribute(
-   'disabled',
-   'disabled'
+  alert(
+   'Hello friend,\n\nYour application to become a content moderator on Tag Me In has been approved, and you are now a content moderator.\n\nAs a moderator, you will notice new controls that are visible next to each post. Please remove all distasteful, unhelpful, meaningless, harmful, or illegal content.\n\nThank you for providing this valuable service to the Tag Me In community. Your contributions are noticed and appreciated by the spirit of kindness.\n\nSincerely,\n\nNate'
   )
-
-  try {
-   await sendMessage(channel, message)
-   sendMessageForm.reset()
-   messageEl.focus()
-   const nowChannel = `/#/${encodeURIComponent(
-    channel
-   )}`
-   if (window.location.href !== nowChannel) {
-    window.location.href = nowChannel
-   } else {
-    route()
-   }
-  } catch (err) {
-   alert(
-    'Error! Please try again: ' +
-     (err.message ?? err ?? 'unknown reason')
-   )
-  } finally {
-   sendMessageFormFields.removeAttribute(
-    'disabled'
-   )
-  }
  }
-)
+ localStorage.setItem('role:moderator', 'yes')
+ document.body.classList.add(
+  'role-moderator-active'
+ )
+}
 
-document
- .getElementById('now')
- .addEventListener('click', function () {
-  const { channel } = getUrlData()
-  location.href = `/#/${encodeURIComponent(
-   channel
-  )}/${getHourNumber().toString(10)}`
- })
+function resignAsModerator() {
+ if (
+  !confirm(
+   'I am done being a content moderator on Tag Me In, please accept my resignation'
+  )
+ ) {
+  return
+ }
+ localStorage.removeItem('role:moderator')
+ document.body.classList.remove(
+  'role-moderator-active'
+ )
+}
 
-hourEl.addEventListener('input', function () {
- const { channel } = getUrlData()
- location.href = `/#/${encodeURIComponent(
-  channel
- )}/${hourEl.value}`
-})
+if (
+ localStorage.getItem('role:moderator') ===
+ 'yes'
+) {
+ becomeModerator('silent')
+}
 
-function goHour(diff) {
- return function () {
-  const { channel, hour } = getUrlData()
-  const newHour =
-   parseInt(
-    hour ?? getHourNumber().toString(10)
-   ) + diff
-  location.href = `/#/${encodeURIComponent(
-   channel
-  )}/${newHour.toString(10)}`
+function formatChannelData(channels) {
+ return Object.entries(channels)
+  .map(function ([name, score]) {
+   return { score, name }
+  })
+  .sort(function (a, b) {
+   return b.score - a.score
+  })
+}
+
+function formatMessageData(messages) {
+ return Object.entries(messages)
+  .map(function ([text, score]) {
+   return { score, text }
+  })
+  .sort(function (a, b) {
+   return b.score - a.score
+  })
+}
+
+function attachChannels(
+ hour,
+ container,
+ channels
+) {
+ container.appendChild(
+  elem({
+   tagName: 'p',
+   textContent: 'Popular channels',
+  })
+ )
+ container.appendChild(
+  elem({
+   classes: ['channel-list'],
+   children: channels.map((c) =>
+    elem({
+     attributes: {
+      href: `/#/${encodeURIComponent(
+       c.name
+      )}/${hour}`,
+     },
+     classes: ['channel'],
+     tagName: 'a',
+     textContent:
+      c.name === ''
+       ? HOME_CHANNEL_ICON
+       : c.name,
+     children: [
+      elem({
+       tagName: 'span',
+       textContent: c.score - hour,
+      }),
+     ],
+    })
+   ),
+  })
+ )
+}
+
+function attachMessages(
+ channel,
+ container,
+ messages
+) {
+ const nowHour = getHourNumber()
+ for (const message of messages) {
+  const content = elem()
+  addTextWithLinks(content, message.text)
+  addYouTubeEmbed(content, message.text)
+  const agreeButton = elem({
+   classes: ['agree'],
+   attributes: {
+    title: 'I agree with this',
+   },
+   events: {
+    async click() {
+     if (
+      (await withLoading(
+       networkMessageSend(channel, message.text)
+      )) !== false
+     ) {
+      agreeButton.classList.add('agreed')
+     }
+    },
+   },
+   tagName: 'button',
+   textContent: '✔',
+  })
+  const deleteButton = elem({
+   classes: ['delete'],
+   attributes: {
+    title: 'Remove message',
+   },
+   events: {
+    async click() {
+     if (
+      !confirm(
+       `Dear content moderator,\n\nAre you sure you would like to remove the following message from the channel ${JSON.stringify(
+        channel.length === 0
+         ? HOME_CHANNEL_ICON
+         : channel
+       )}?\n\n"${message.text}"`
+      )
+     ) {
+      return
+     }
+     if (
+      (await withLoading(
+       networkMessageDelete(
+        channel,
+        message.text
+       )
+      )) !== false
+     ) {
+      deleteButton.classList.add('deleted')
+      article.style.opacity = '0'
+      await new Promise((r) =>
+       setTimeout(r, 1e3)
+      )
+      article.remove()
+     }
+    },
+   },
+   tagName: 'button',
+   textContent: '♻',
+  })
+  const score = elem({
+   children: [
+    elem({
+     textContent: (
+      message.score - nowHour
+     ).toString(10),
+    }),
+   ],
+   classes: ['score'],
+  })
+  const article = elem({
+   children: [
+    content,
+    agreeButton,
+    deleteButton,
+    score,
+   ],
+   tagName: 'article',
+  })
+  container.appendChild(article)
  }
 }
-
-const aboutToggleButton =
- document.getElementById('about-toggle-button')
-const aboutToggleContent =
- document.getElementById('about-toggle-content')
-function showAbout() {
- aboutToggleButton.innerHTML = '&times;'
- aboutToggleContent.style.display = 'block'
- aboutToggleButton.classList.remove('open')
-}
-function hideAbout() {
- aboutToggleButton.innerHTML = 'i'
- aboutToggleContent.style.display = 'none'
- aboutToggleButton.classList.add('open')
-}
-if (localStorage.getItem('about') !== 'hide') {
- showAbout()
-}
-function toggleAbout() {
- const isOpen =
-  localStorage.getItem('about') !== 'hide'
- if (isOpen) {
-  hideAbout()
-  localStorage.setItem('about', 'hide')
- } else {
-  showAbout()
-  localStorage.removeItem('about')
- }
-}
-aboutToggleButton.addEventListener(
- 'click',
- toggleAbout
-)
-document
- .getElementById('hour-back')
- .addEventListener('click', goHour(-1))
-document
- .getElementById('hour-next')
- .addEventListener('click', goHour(1))

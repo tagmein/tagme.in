@@ -1,6 +1,6 @@
-import type {
- KVNamespace,
- PagesFunction,
+import {
+ type KVNamespace,
+ type PagesFunction,
 } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
 
@@ -29,6 +29,13 @@ export const onRequestGet: PagesFunction<
  if (channel.length > 25) {
   return new Response(
    'channel parameter must be 25 characters or less',
+   { status: 400 }
+  )
+ }
+
+ if (channel !== channel.trim()) {
+  return new Response(
+   'channel parameter must not start or end with space',
    { status: 400 }
   )
  }
