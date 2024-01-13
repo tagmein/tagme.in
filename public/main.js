@@ -410,7 +410,7 @@ function attachMessages(
  const nowHour = getHourNumber()
  for (const message of messages) {
   const content = elem()
-  addTextWithLinks(content, message.text)
+  addTextWithCodeBlocks(content, message.text)
   addYouTubeEmbed(content, message.text)
   addImageEmbed(content, message.text)
   const agreeButton = elem({

@@ -258,17 +258,17 @@ body.role-moderator-active
  background-color: #005800;
  border-radius: 7px;
  box-sizing: border-box;
- line-height: 22px;
  height: 24px;
- width: 24px;
- text-align: center;
+ line-height: 22px;
  opacity: 0.5;
  position: absolute;
  right: 15px;
+ text-align: center;
  top: 15px;
  transform-origin: top right;
- transition: 0.5s opacity ease;
  transform: scale(2);
+ transition: 0.5s opacity ease;
+ width: 24px;
 }
 
 .compose:hover input[type='submit'],
@@ -389,6 +389,14 @@ body.role-moderator-active
  top: 0;
  width: 100dvw;
  z-index: 10000;
+}
+
+article > div code {
+ background-color: #000;
+ border-radius: 2px;
+ font-family: 'Noto Sans Mono', monospace;
+ font-size: 15px;
+ padding: 0 4px;
 }
 
 body.role-moderator-active

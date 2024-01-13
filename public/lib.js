@@ -15,6 +15,70 @@ function addTextWithLinks(container, text) {
  })
 }
 
+function addTextWithCodeBlocks(
+ container,
+ text
+) {
+ let codeBlock = false
+ let codeContent = ''
+ let isEscape = false
+ let textContent = ''
+
+ for (let i = 0; i < text.length; i++) {
+  const char = text[i]
+
+  if (!isEscape && char === '\\') {
+   isEscape = true
+  } else if (!isEscape && char === '`') {
+   if (codeBlock) {
+    flushCodeBlock()
+    codeBlock = false
+   } else {
+    openCodeBlock()
+   }
+  } else {
+   if (codeBlock) {
+    codeContent += char
+   } else {
+    textContent += char
+   }
+   if (isEscape) {
+    isEscape = false
+   }
+  }
+ }
+
+ flushRemainingContent()
+
+ function flushCodeBlock() {
+  const code = document.createElement('code')
+  addTextWithLinks(code, codeContent)
+  container.appendChild(code)
+  codeContent = ''
+ }
+
+ function openCodeBlock() {
+  flushText()
+  codeBlock = true
+ }
+
+ function flushText() {
+  if (textContent) {
+   const span = document.createElement('span')
+   addTextWithLinks(span, textContent)
+   container.appendChild(span)
+   textContent = ''
+  }
+ }
+
+ function flushRemainingContent() {
+  if (codeContent) {
+   flushCodeBlock()
+  }
+  flushText()
+ }
+}
+
 function addYouTubeEmbed(container, text) {
  const regExp =
   /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
