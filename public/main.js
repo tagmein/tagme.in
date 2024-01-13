@@ -149,9 +149,9 @@ async function withLoading(promise) {
 
 const composeTextarea = elem({
  attributes: {
-  maxlength: '125',
+  maxlength: '150',
   placeholder:
-   'Write a message (up to 125 characters)',
+   'Write a message (up to 150 characters)',
   required: 'required',
  },
  events: {

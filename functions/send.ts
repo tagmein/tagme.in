@@ -12,7 +12,7 @@ import { deleteMessage } from './lib/deleteMessage'
 
 const MAX_CHANNEL_LENGTH = 25
 const MIN_MESSAGE_LENGTH = 5
-const MAX_MESSAGE_LENGTH = 125
+const MAX_MESSAGE_LENGTH = 150
 
 interface Env {
  TAGMEIN_KV: KVNamespace
