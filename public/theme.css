@@ -396,7 +396,7 @@ article > div code {
  border-radius: 2px;
  font-family: 'Noto Sans Mono', monospace;
  font-size: 15px;
- padding: 0 4px;
+ padding: 0 2px;
 }
 
 body.role-moderator-active

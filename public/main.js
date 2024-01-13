@@ -157,6 +157,36 @@ const composeTextarea = elem({
    composeTextarea.value =
     composeTextarea.value.trim()
   },
+  input() {
+   const parametersToRemove = ['si']
+   const text = composeTextarea.value
+   const urls =
+    text.match(/\bhttps?:\/\/\S+/gi) || []
+   composeTextarea.value = urls.reduce(
+    (acc, url) => {
+     try {
+      let removed = false
+      const urlObj = new URL(url)
+      const searchParams = new URLSearchParams(
+       urlObj.search
+      )
+      parametersToRemove.forEach((param) => {
+       if (searchParams.has(param)) {
+        searchParams.delete(param)
+        removed = true
+       }
+      })
+      urlObj.search = searchParams.toString()
+      return removed
+       ? acc.replace(url, urlObj.toString())
+       : acc
+     } catch {
+      return acc
+     }
+    },
+    text
+   )
+  },
  },
  tagName: 'textarea',
 })
