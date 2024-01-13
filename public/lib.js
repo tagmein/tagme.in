@@ -5,7 +5,7 @@ function addTextWithLinks(container, text) {
    const a = document.createElement('a')
    a.setAttribute('target', '_blank')
    a.setAttribute('href', part)
-   a.textContent = part
+   a.textContent = decodeURI(part)
    container.appendChild(a)
   } else if (part) {
    addHashTagLinks(container, part)
