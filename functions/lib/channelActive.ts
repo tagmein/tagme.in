@@ -28,11 +28,22 @@ export async function channelActive(
   newChannelVoteCount.toString(10)
  )
 
+ const namespace = channel.includes(':')
+  ? channel.substring(0, channel.indexOf(':'))
+  : undefined
+
+ const namespaceKeyPrefix = namespace
+  ? `[${encodeURIComponent(namespace)}]`
+  : ''
+
  async function getTopChannelList(): Promise<
   [string | null, Record<string, number>]
  > {
   const mostRecentTopChannelsHour =
-   await kv.get(key.mostRecentTopChannelsHour)
+   await kv.get(
+    namespaceKeyPrefix +
+     key.mostRecentTopChannelsHour
+   )
   if (
    typeof mostRecentTopChannelsHour === 'string'
   ) {
@@ -40,8 +51,10 @@ export async function channelActive(
    return [
     mostRecentTopChannelsHour,
     JSON.parse(
-     (await kv.get(recentHourTopChannelsKey)) ??
-      '{}'
+     (await kv.get(
+      namespaceKeyPrefix +
+       recentHourTopChannelsKey
+     )) ?? '{}'
     ),
    ]
   }
@@ -62,7 +75,8 @@ export async function channelActive(
 
  if (mostRecentTopChannelsHour !== hourId) {
   await kv.set(
-   key.mostRecentTopChannelsHour,
+   namespaceKeyPrefix +
+    key.mostRecentTopChannelsHour,
    hourId
   )
  }
@@ -80,7 +94,7 @@ export async function channelActive(
  }
 
  await kv.set(
-  key.hourTopChannels,
+  namespaceKeyPrefix + key.hourTopChannels,
   JSON.stringify(topChannelList)
  )
 }

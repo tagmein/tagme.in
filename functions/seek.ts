@@ -65,6 +65,14 @@ export const onRequestGet: PagesFunction<
   hourTopChannels: `hour_top_channels#${hourId}`,
  }
 
+ const namespace = channel.includes(':')
+  ? channel.substring(0, channel.indexOf(':'))
+  : undefined
+
+ const namespaceKeyPrefix = namespace
+  ? `[${encodeURIComponent(namespace)}]`
+  : ''
+
  const [
   message,
   topMessages,
@@ -73,7 +81,9 @@ export const onRequestGet: PagesFunction<
  ] = await Promise.all([
   kv.get(key.hourChannelMessage),
   kv.get(key.hourChannelTopMessages),
-  kv.get(key.hourTopChannels),
+  kv.get(
+   namespaceKeyPrefix + key.hourTopChannels
+  ),
   kv.get(key.channelMostRecentHour),
  ])
 
