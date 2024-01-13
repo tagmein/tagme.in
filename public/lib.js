@@ -8,6 +8,25 @@ function addTextWithLinks(container, text) {
    a.textContent = part
    container.appendChild(a)
   } else if (part) {
+   addHashTagLinks(container, part)
+  }
+ })
+}
+
+function addHashTagLinks(container, text) {
+ const { hour } = getUrlData()
+ const parts = text.split(/(#\S*)/)
+
+ parts.forEach((part) => {
+  if (part[0] === '#') {
+   const channel = part.slice(1)
+   const a = document.createElement('a')
+   a.href = `/#/${encodeURIComponent(
+    channel
+   )}/${hour}`
+   a.textContent = part
+   container.appendChild(a)
+  } else if (part) {
    container.appendChild(
     document.createTextNode(part)
    )
