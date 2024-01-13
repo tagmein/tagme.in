@@ -1,5 +1,7 @@
 const HOME_CHANNEL_ICON = '⌂'
 
+let focusOnMessage = undefined
+
 const channelInput = elem({
  attributes: {
   maxlength: 25,
@@ -217,6 +219,7 @@ const compose = elem({
      )
     )) !== false
    ) {
+    focusOnMessage = composeTextarea.value
     composeTextarea.value = ''
     const nowHour = getHourNumber()
     if (nowHour !== hour) {
@@ -520,5 +523,12 @@ function attachMessages(
    tagName: 'article',
   })
   container.appendChild(article)
+  if (focusOnMessage === message.text) {
+   article.scrollIntoView({
+    behavior: 'smooth',
+   })
+   article.classList.add('highlight')
+   focusOnMessage = undefined
+  }
  }
 }
