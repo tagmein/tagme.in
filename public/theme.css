@@ -358,6 +358,10 @@ body.role-moderator-active
  display: block;
 }
 
+article > div > span {
+ white-space: pre-wrap;
+}
+
 article > div > iframe {
  margin-bottom: -18px;
 }
