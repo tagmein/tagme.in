@@ -42,6 +42,43 @@ const fullScreenButton = elem({
  textContent: '⛶',
 })
 
+function setLightMode(lightMode) {
+ if (lightMode) {
+  document.body.classList.add('light-mode')
+  localStorage.setItem('light-mode', '1')
+ } else {
+  document.body.classList.remove('light-mode')
+  localStorage.removeItem('light-mode', '1')
+ }
+}
+
+if (
+ localStorage.getItem('light-mode') === '1'
+) {
+ setLightMode(true)
+}
+
+const lightDarkModeButton = elem({
+ attributes: {
+  title: 'Switch between light and dark mode',
+ },
+ events: {
+  click() {
+   if (
+    document.body.classList.contains(
+     'light-mode'
+    )
+   ) {
+    setLightMode(false)
+   } else {
+    setLightMode(true)
+   }
+  },
+ },
+ tagName: 'button',
+ textContent: '☼',
+})
+
 const mainToolbar = elem({
  classes: ['toolbar'],
  children: [
@@ -62,6 +99,7 @@ const mainToolbar = elem({
   }),
   loadingIndicator,
   channelInput,
+  lightDarkModeButton,
   fullScreenButton,
  ],
 })
@@ -296,20 +334,15 @@ function displayContent(
   mainContent.appendChild(
    elem({
     tagName: 'p',
-    textContent: 'This channel has no content.',
+    textContent:
+     'This channel has no content. Be the first to write a message!',
    })
   )
   return
  }
+ const hasNewChannels =
+  Object.keys(content.topChannels).length > 0
  if (archive) {
-  mainContent.appendChild(
-   elem({
-    tagName: 'p',
-    textContent: `Channel has no content at this time, here is an archive from ${describeHourNumber(
-     content.mostRecentHour
-    ).join(' ')}.`,
-   })
-  )
   attachMessages(
    channel,
    mainContent,
@@ -318,7 +351,11 @@ function displayContent(
   attachChannels(
    hour,
    mainContent,
-   formatChannelData(archive.topChannels)
+   formatChannelData(
+    hasNewChannels
+     ? content.topChannels
+     : archive.topChannels
+   )
   )
  } else {
   attachMessages(
