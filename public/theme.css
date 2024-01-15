@@ -676,7 +676,7 @@ body.light-mode.role-moderator-active
 }
 
 body.light-mode article > div code {
- background-color: #000;
+ background-color: #c8c8c8;
 }
 
 body.light-mode a.channel {
