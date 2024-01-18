@@ -12,8 +12,7 @@
 
 .toolbar,
 footer,
-#moderator-resign,
-article > .score,
+.article-tools .score,
 a.channel {
  font-family: 'Avenir Next', sans-serif;
 }
@@ -170,32 +169,6 @@ footer > p {
  padding: 7px 0;
 }
 
-#moderator-resign {
- display: none;
-}
-
-body.role-moderator-active #moderator-resign {
- border-top-left-radius: 7px;
- border-top-right-radius: 7px;
- bottom: -1px;
- cursor: default;
- display: block;
- display: inline-block;
- left: 50%;
- font-size: 12px;
- opacity: 0.2;
- padding: 4px 7px;
- position: fixed;
- transform: translateX(-50%);
- transition: opacity 0.5s ease;
- z-index: 2;
-}
-
-body.role-moderator-active
- #moderator-resign:hover {
- opacity: 1;
-}
-
 .h-stretch {
  display: inline-block;
  transform-origin: center;
@@ -245,66 +218,46 @@ body.role-moderator-active
 article {
  box-sizing: border-box;
  min-height: 50px;
- padding: 11px 105px 11px 15px;
+ padding: 11px 115px 11px 15px;
  position: relative;
  transition: opacity 1s ease;
  width: 100%;
 }
 
-body.role-moderator-active article {
- padding-left: 34px;
+.article-tools {
+ display: flex;
+ flex-direction: row;
+ position: absolute;
+ right: -11px;
+ top: 11px;
+ gap: 2px;
 }
 
-article > .score {
+.article-tools .score {
  border-radius: 7px;
  box-sizing: border-box;
+ font-size: 14px;
  height: 26px;
  line-height: 22px;
  min-width: 28px;
  padding: 2px 7px;
- position: absolute;
- right: 28px;
  text-align: center;
- top: 11px;
 }
 
-article > button.agree {
+.article-tools > button.agree {
+ border-radius: 7px;
+ box-sizing: border-box;
+ height: 26px;
+ line-height: 22px;
+ padding: 2px 6px 2px 7px;
+}
+
+.article-tools > button.disagree {
  border-radius: 7px;
  box-sizing: border-box;
  height: 26px;
  line-height: 22px;
  padding: 2px 15px 2px 7px;
- position: absolute;
- right: -12px;
- top: 11px;
-}
-
-article > button.delete {
- border-radius: 7px;
- box-sizing: border-box;
- display: none;
- height: 26px;
- left: -12px;
- line-height: 18px;
- opacity: 0.2;
- padding: 0 5px 2px 15px;
- position: absolute;
- top: 11px;
- transition: opacity 0.5s ease;
-}
-
-article:hover > button.delete {
- opacity: 0.5;
-}
-
-article > button.delete:hover {
- opacity: 1;
-}
-
-body.role-moderator-active
- article
- > button.delete {
- display: block;
 }
 
 article > div > span {
@@ -325,11 +278,7 @@ article > div > .image-container {
  width: 100vw;
 }
 
-article > div > .image-container.expanded,
-body.role-moderator-active
- article
- > div
- > .image-container.expanded {
+article > div > .image-container.expanded {
  cursor: zoom-out;
  height: 100dvh;
  left: 0;
@@ -348,17 +297,6 @@ article > div code {
  font-family: 'Noto Sans Mono', monospace;
  font-size: 15px;
  padding: 0 2px;
-}
-
-body.role-moderator-active
- article
- > div
- > iframe,
-body.role-moderator-active
- article
- > div
- > .image-container {
- margin-left: -34px;
 }
 
 a.channel {
@@ -478,11 +416,6 @@ footer {
  border-top: 1px solid #585858;
 }
 
-body.role-moderator-active #moderator-resign {
- background-color: #980000;
- border: 1px solid #989000;
-}
-
 .compose textarea {
  background-color: #003800;
  border-bottom: 1px solid #585858;
@@ -501,31 +434,24 @@ article {
  border-bottom: 1px solid #585858;
 }
 
-article > .score {
+.article-tools > .score {
  background-color: #585838;
 }
 
-article > button.agree {
+.article-tools > button.agree,
+.article-tools > button.disagree {
  background-color: #585858;
 }
 
-article > button.agree.agreed {
+.article-tools > button.agree.agreed {
  background-color: #009800;
 }
 
-article > button.delete {
- background-color: #985858;
-}
-
-article > button.delete.deleted {
+.article-tools > button.disagree.disagreed {
  background-color: #980000;
 }
 
-article > div > .image-container.expanded,
-body.role-moderator-active
- article
- > div
- > .image-container.expanded {
+article > div > .image-container.expanded {
  background-color: #000;
 }
 
@@ -616,12 +542,6 @@ body.light-mode footer {
  border-top: 1px solid #c8c8c8;
 }
 
-body.light-mode.role-moderator-active
- #moderator-resign {
- background-color: #dc6e6e;
- border: 1px solid #989000;
-}
-
 body.light-mode .compose textarea {
  background-color: #d3e9f1;
  border-bottom: 1px solid #c8c8c8;
@@ -646,29 +566,21 @@ body.light-mode article > .score {
  background-color: #e0e0b3;
 }
 
-body.light-mode article > button.agree {
+body.light-mode article > button.agree,
+body.light-mode article > button.disagree {
  background-color: #c8c8c8;
 }
 
 body.light-mode article > button.agree.agreed {
  background-color: #00ef00;
 }
-
-body.light-mode article > button.delete {
- background-color: #dc6e6e;
-}
-
 body.light-mode
  article
- > button.delete.deleted {
+ > button.disagree.disagreed {
  background-color: #ea0000;
 }
 
 body.light-mode
- article
- > div
- > .image-container.expanded,
-body.light-mode.role-moderator-active
  article
  > div
  > .image-container.expanded {

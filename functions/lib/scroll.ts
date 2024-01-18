@@ -208,8 +208,27 @@ export function scroll(kv: CivilMemoryKV) {
     key.channelMessages
    )
    return messagesString
-    ? JSON.parse(messagesString)
+    ? excludeNegativeMessages(
+       JSON.parse(messagesString)
+      )
     : {}
+  }
+
+  function excludeNegativeMessages(messages: {
+   [key: string]: MessageData
+  }) {
+   return Object.fromEntries(
+    Object.entries(messages).filter(
+     ([_, messageData]) => {
+      const score =
+       messageData.position +
+       ((messageData.timestamp - timestamp) *
+        messageData.velocity) /
+        ONE_HOUR_MS
+      return score > 0
+     }
+    )
+   )
   }
 
   async function seekChannels() {

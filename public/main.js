@@ -1,4 +1,5 @@
 const HOME_CHANNEL_ICON = '⌂'
+const ONE_HOUR_MS = 60 * 60 * 1000
 
 let focusOnMessage = undefined
 
@@ -191,18 +192,14 @@ const compose = elem({
     (await withLoading(
      networkMessageSend(
       channel,
-      composeTextarea.value
+      composeTextarea.value,
+      1
      )
     )) !== false
    ) {
     focusOnMessage = composeTextarea.value
     composeTextarea.value = ''
-    const nowHour = getHourNumber()
-    if (nowHour !== hour) {
-     setHour(nowHour)
-    } else {
-     route()
-    }
+    route()
    }
   },
  },
@@ -231,24 +228,10 @@ async function route() {
   networkChannelSeek(channel, getHourNumber())
  )
  const hasMessages =
-  Object.keys(channelData.topMessages).length >
-  0
+  Object.keys(channelData.response.messages)
+   .length > 0
  if (hasMessages) {
   displayContent(channel, channelData)
- } else if (
-  channelData.mostRecentHour !== null
- ) {
-  const archivedChannelData = await withLoading(
-   networkChannelSeek(
-    channel,
-    channelData.mostRecentHour
-   )
-  )
-  displayContent(
-   channel,
-   channelData,
-   archivedChannelData
-  )
  } else {
   displayContent(channel)
  }
@@ -275,30 +258,31 @@ function displayContent(
   return
  }
  const hasNewChannels =
-  Object.keys(content.topChannels).length > 0
+  Object.keys(content.response.channels)
+   .length > 0
  if (archive) {
   attachMessages(
    channel,
    mainContent,
-   formatMessageData(archive.topMessages)
+   formatMessageData(archive.response.messages)
   )
   attachChannels(
    mainContent,
    formatChannelData(
     hasNewChannels
-     ? content.topChannels
-     : archive.topChannels
+     ? content.response.channels
+     : archive.response.channels
    )
   )
  } else {
   attachMessages(
    channel,
    mainContent,
-   formatMessageData(content.topMessages)
+   formatMessageData(content.response.messages)
   )
   attachChannels(
    mainContent,
-   formatChannelData(content.topChannels)
+   formatChannelData(content.response.channels)
   )
  }
 }
@@ -314,9 +298,15 @@ function formatChannelData(channels) {
 }
 
 function formatMessageData(messages) {
+ const now = Date.now()
  return Object.entries(messages)
-  .map(function ([text, score]) {
-   return { score, text }
+  .map(function ([text, data]) {
+   const score =
+    data.position +
+    (data.velocity * (now - data.timestamp)) /
+     ONE_HOUR_MS
+   console.log({ data, score, text })
+   return { data, score, text }
   })
   .sort(function (a, b) {
    return b.score - a.score
@@ -347,7 +337,9 @@ function attachChannels(container, channels) {
      children: [
       elem({
        tagName: 'span',
-       textContent: c.score.toString(10),
+       textContent: Math.round(
+        c.score
+       ).toString(10),
       }),
      ],
     })
@@ -374,30 +366,92 @@ function attachMessages(
    },
    events: {
     async click() {
+     message.data.velocity = Math.min(
+      message.data.velocity + 1,
+      10
+     )
      if (
       (await withLoading(
-       networkMessageSend(channel, message.text)
+       networkMessageSend(
+        channel,
+        message.text,
+        message.data.velocity
+       )
       )) !== false
      ) {
       agreeButton.classList.add('agreed')
+      disagreeButton.classList.remove(
+       'disagreed'
+      )
+      renderScore()
      }
     },
    },
    tagName: 'button',
    textContent: '✔',
   })
-  const score = elem({
-   children: [
+  const disagreeButton = elem({
+   classes: ['disagree'],
+   attributes: {
+    title: 'I disagree with this',
+   },
+   events: {
+    async click() {
+     message.data.velocity = Math.max(
+      message.data.velocity - 1,
+      -10
+     )
+     if (
+      (await withLoading(
+       networkMessageSend(
+        channel,
+        message.text,
+        message.data.velocity
+       )
+      )) !== false
+     ) {
+      agreeButton.classList.remove('agreed')
+      disagreeButton.classList.add('disagreed')
+      renderScore()
+     }
+    },
+   },
+   tagName: 'button',
+   textContent: '✘',
+  })
+  function renderScore() {
+   const velocityText =
+    message.data.velocity !== 0
+     ? ` ${
+        message.data.velocity < 0 ? '' : '+'
+       }${message.data.velocity.toString(
+        10
+       )}/hr`
+     : ''
+   score.innerHTML = ''
+   score.appendChild(
     elem({
-     textContent: (
-      message.score - nowHour
-     ).toString(10),
-    }),
-   ],
+     textContent: `${Math.round(
+      message.score
+     ).toString(10)}${velocityText}`,
+    })
+   )
+  }
+
+  const score = elem({
    classes: ['score'],
   })
+  renderScore()
+  const articleTools = elem({
+   classes: ['article-tools'],
+   children: [
+    score,
+    agreeButton,
+    disagreeButton,
+   ],
+  })
   const article = elem({
-   children: [content, agreeButton, score],
+   children: [content, articleTools],
    tagName: 'article',
   })
   container.appendChild(article)
