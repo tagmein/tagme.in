@@ -227,64 +227,24 @@ async function route() {
  const channelData = await withLoading(
   networkChannelSeek(channel, getHourNumber())
  )
- const hasMessages =
-  Object.keys(channelData.response.messages)
-   .length > 0
- if (hasMessages) {
-  displayContent(channel, channelData)
- } else {
-  displayContent(channel)
- }
+ displayContent(channel, channelData)
  body.scrollTo(0, 0)
 }
 
 window.addEventListener('hashchange', route)
 route().catch((e) => console.error(e))
 
-function displayContent(
- channel,
- content,
- archive
-) {
+function displayContent(channel, content) {
  mainContent.innerHTML = ''
- if (!content && !archive) {
-  mainContent.appendChild(
-   elem({
-    tagName: 'p',
-    textContent:
-     'This channel has no content. Be the first to write a message!',
-   })
-  )
-  return
- }
- const hasNewChannels =
-  Object.keys(content.response.channels)
-   .length > 0
- if (archive) {
-  attachMessages(
-   channel,
-   mainContent,
-   formatMessageData(archive.response.messages)
-  )
-  attachChannels(
-   mainContent,
-   formatChannelData(
-    hasNewChannels
-     ? content.response.channels
-     : archive.response.channels
-   )
-  )
- } else {
-  attachMessages(
-   channel,
-   mainContent,
-   formatMessageData(content.response.messages)
-  )
-  attachChannels(
-   mainContent,
-   formatChannelData(content.response.channels)
-  )
- }
+ attachMessages(
+  channel,
+  mainContent,
+  formatMessageData(content.response.messages)
+ )
+ attachChannels(
+  mainContent,
+  formatChannelData(content.response.channels)
+ )
 }
 
 function formatChannelData(channels) {
@@ -353,7 +313,15 @@ function attachMessages(
  container,
  messages
 ) {
- const nowHour = getHourNumber()
+ if (messages.length === 0) {
+  mainContent.appendChild(
+   elem({
+    tagName: 'p',
+    textContent:
+     'This channel has no content. Be the first to write a message!',
+   })
+  )
+ }
  for (const message of messages) {
   const content = elem()
   addTextWithCodeBlocks(content, message.text)
