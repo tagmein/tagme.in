@@ -222,7 +222,7 @@ export function scroll(kv: CivilMemoryKV) {
      ([_, messageData]) => {
       const score =
        messageData.position +
-       ((messageData.timestamp - timestamp) *
+       ((timestamp - messageData.timestamp) *
         messageData.velocity) /
         ONE_HOUR_MS
       return score > 0
