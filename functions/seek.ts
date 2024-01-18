@@ -101,9 +101,18 @@ export const onRequestGet: PagesFunction<
     }
   : undefined
 
- const response = await scroll(kv)
-  .channel(channel)
-  .seek()
+ async function scrollSeek() {
+  try {
+   const data = await scroll(kv)
+    .channel(channel)
+    .seek()
+   return data
+  } catch (e) {
+   return {
+    error: e.message ?? 'unknown error',
+   }
+  }
+ }
 
  return new Response(
   JSON.stringify({
@@ -112,7 +121,7 @@ export const onRequestGet: PagesFunction<
    mostRecentHour,
    now: Date.now(),
    message: messageObject,
-   response,
+   response: await scrollSeek(),
    topChannels: topChannels
     ? JSON.parse(topChannels)
     : {},
