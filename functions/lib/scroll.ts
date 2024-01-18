@@ -20,12 +20,12 @@ export function scroll(kv: CivilMemoryKV) {
   const channelId =
    encodeURIComponent(channelName)
   const key = {
-   channelActivityKH: `scroll.channel.activity.kh:${channel}#${kHour}`,
-   channelActivityMH: `scroll.channel.activity.mh:${channel}#${mHour}`,
-   channelMessages: `scroll.channel.messages:${channel}#now`,
-   channelMessagesHour: `scroll.channel.messages.hour:${channel}#${hour}`,
-   channelRank: `scroll.channel.rank:${channel}#now`,
-   channelRankHour: `scroll.channel.rank.hour:${channel}#${hour}`,
+   channelActivityKH: `scroll.channel.activity.kh:${channelName}#${kHour}`,
+   channelActivityMH: `scroll.channel.activity.mh:${channelName}#${mHour}`,
+   channelMessages: `scroll.channel.messages:${channelName}#now`,
+   channelMessagesHour: `scroll.channel.messages.hour:${channelName}#${hour}`,
+   channelRank: `scroll.channel.rank:${channelName}#now`,
+   channelRankHour: `scroll.channel.rank.hour:${channelName}#${hour}`,
   }
   async function storeChannelRank(
    channelScore: number
@@ -210,7 +210,6 @@ export function scroll(kv: CivilMemoryKV) {
   }
 
   async function seek() {
-   return key
    const [messages, channels] =
     await Promise.all([
      seekMessages(),
