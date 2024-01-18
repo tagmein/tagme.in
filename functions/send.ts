@@ -3,12 +3,7 @@ import type {
  PagesFunction,
 } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
-
-import { channelActive } from './lib/channelActive'
-import { channelMessage } from './lib/channelMessage'
-import { getHourNumber } from './lib/getHourNumber'
-import { voteForMessage } from './lib/voteForMessage'
-import { deleteMessage } from './lib/deleteMessage'
+import { scroll } from './lib/scroll'
 
 const MAX_CHANNEL_LENGTH = 25
 const MIN_MESSAGE_LENGTH = 5
@@ -21,7 +16,7 @@ interface Env {
 interface PostBody {
  channel: string
  message: string
- delete?: true
+ velocity: number
 }
 
 async function validateRequestBody(
@@ -90,12 +85,35 @@ async function validateRequestBody(
    }
   }
 
+  if (typeof data.velocity !== 'number') {
+   return {
+    error: 'velocity must be a number',
+    data,
+   }
+  }
+
+  if (
+   isNaN(data.velocity) ||
+   data.velocity < -10 ||
+   data.velocity > 10
+  ) {
+   return {
+    error:
+     'velocity must be in the range -10..10',
+    data,
+   }
+  }
+
   return { data }
  } catch (e) {
   return {
    error:
     'unable to parse incoming JSON post body',
-   data: { channel: '', message: '' },
+   data: {
+    channel: '',
+    message: '',
+    velocity: 0,
+   },
   }
  }
 }
@@ -107,47 +125,16 @@ export const onRequestPost: PagesFunction<Env> =
   })
   const {
    error,
-   data: { message, channel, delete: _delete },
+   data: { message, channel, velocity },
   } = await validateRequestBody(context.request)
-
-  if (_delete) {
-   await deleteMessage(kv, message, channel)
-   return new Response('deleted')
-  }
 
   if (error) {
    return new Response(error, { status: 400 })
   }
 
-  const hour = getHourNumber()
-  const hourId = hour.toString(10)
-  const channelId = encodeURIComponent(channel)
-  const messageId = encodeURIComponent(message)
-
-  const newMessageVotesCount =
-   await voteForMessage(
-    kv,
-    messageId,
-    hourId,
-    hour
-   )
-
-  await Promise.all([
-   channelActive(
-    kv,
-    channel,
-    hour,
-    channelId,
-    hourId
-   ),
-   channelMessage(
-    kv,
-    channelId,
-    hourId,
-    message,
-    newMessageVotesCount
-   ),
-  ])
+  await scroll(kv)
+   .channel(channel)
+   .send(message, velocity)
 
   // we voted for the message and sent it to the channel
   return new Response('sent')

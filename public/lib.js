@@ -14,16 +14,13 @@ function addTextWithLinks(container, text) {
 }
 
 function addHashTagLinks(container, text) {
- const { hour } = getUrlData()
  const parts = text.split(/(#\S*)/)
 
  parts.forEach((part) => {
   if (part[0] === '#') {
    const channel = part.slice(1)
    const a = document.createElement('a')
-   a.href = `/#/${encodeURIComponent(
-    channel
-   )}/${hour}`
+   a.href = `/#/${encodeURIComponent(channel)}`
    a.textContent = part
    container.appendChild(a)
   } else if (part) {
@@ -161,170 +158,12 @@ function begin2024GMT() {
  return new Date('January 1, 2024 00:00:00 GMT')
 }
 
-function dateTimeSelector(setHour) {
- const yearSelect = elem({
-  events: {
-   input() {
-    resetDayOptions()
-    modify()
-   },
-  },
-  tagName: 'select',
- })
-
- const monthSelect = elem({
-  events: {
-   input() {
-    resetDayOptions()
-    modify()
-   },
-  },
-  tagName: 'select',
- })
-
- const daySelect = elem({
-  events: {
-   input() {
-    modify()
-   },
-  },
-  tagName: 'select',
- })
-
- const hourSelect = elem({
-  children: 'aaaaaaaaaaaapppppppppppp'
-   .split('')
-   .map((ap, i) =>
-    elem({
-     attributes: {
-      value: i,
-     },
-     tagName: 'option',
-     textContent: `${
-      ap === 'a'
-       ? i === 0
-         ? 12
-         : i
-       : i === 12
-       ? 12
-       : i - 12
-     }${ap}m`,
-    })
-   ),
-  events: {
-   input() {
-    modify()
-   },
-  },
-  tagName: 'select',
- })
-
- for (let year = 2024; year < 2049; year++) {
-  yearSelect.appendChild(
-   elem({
-    attributes: {
-     value: year,
-    },
-    tagName: 'option',
-    textContent: year.toString(10),
-   })
-  )
- }
-
- const monthNames =
-  'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(
-   ' '
-  )
- for (let month = 0; month < 12; month++) {
-  monthSelect.appendChild(
-   elem({
-    attributes: {
-     value: month,
-    },
-    tagName: 'option',
-    textContent: monthNames[month],
-   })
-  )
- }
-
- function resetDayOptions() {
-  const currentDayValue = parseInt(
-   daySelect.value,
-   10
-  )
-  const daysInMonth = getDaysInMonth(
-   parseInt(yearSelect.value, 10),
-   parseInt(monthSelect.value, 10)
-  )
-  daySelect.innerHTML = ''
-  for (let day = 0; day < daysInMonth; day++) {
-   daySelect.appendChild(
-    elem({
-     attributes: {
-      value: day,
-     },
-     tagName: 'option',
-     textContent: (day + 1).toString(10),
-    })
-   )
-  }
-  daySelect.value = isNaN(currentDayValue)
-   ? '0'
-   : Math.min(
-      daysInMonth - 1,
-      currentDayValue
-     ).toString(10)
- }
-
- resetDayOptions()
-
- function update(hourNumber) {
-  const [y, m, d, h] = getDateTime(hourNumber)
-  yearSelect.value = y.toString(10)
-  monthSelect.value = m.toString(10)
-  resetDayOptions()
-  daySelect.value = d.toString(10)
-  hourSelect.value = h.toString(10)
- }
-
- function modify() {
-  setHour(
-   hoursSinceStartOf2024(
-    ...[
-     yearSelect,
-     monthSelect,
-     daySelect,
-     hourSelect,
-    ].map((s) => parseInt(s.value, 10))
-   )
-  )
- }
-
- return [
-  yearSelect,
-  monthSelect,
-  daySelect,
-  hourSelect,
-  update,
- ]
-}
-
 function debounce(fn, delay = 500) {
  let timeout
  return function () {
   clearTimeout(timeout)
   timeout = setTimeout(fn, delay)
  }
-}
-
-function describeHourNumber(hourNumber) {
- const date = new Date(
-  begin2024GMT().getTime() + hourNumber * 3600e3
- )
- return date
-  .toLocaleString()
-  .replace(/\:\d\d\:\d\d /, '')
-  .split(', ')
 }
 
 function elem({
@@ -407,7 +246,7 @@ function getHourNumber() {
 }
 
 function getUrlData() {
- const [_, channel, hour] = window.location.hash
+ const [_, channel] = window.location.hash
   .split('/')
   .map((x) =>
    typeof x === 'string'
@@ -416,10 +255,6 @@ function getUrlData() {
   )
  return {
   channel: channel ?? '',
-  hour:
-   typeof hour === 'string'
-    ? parseInt(hour, 10)
-    : getHourNumber(),
  }
 }
 
@@ -462,47 +297,25 @@ async function networkChannelSeek(
  return response.json()
 }
 
-async function networkMessageDelete(
- channel,
- message
-) {
- const resp = await fetch(
-  `${networkRootUrl()}/send`,
-  {
-   method: 'POST',
-   headers: {
-    'Content-Type': 'application/json',
-   },
-   body: JSON.stringify({
-    channel,
-    message,
-    delete: true,
-   }),
-  }
- )
-
- if (!resp.ok) {
-  throw new Error(await resp.text())
- }
-
- return await resp.text()
-}
-
 async function networkMessageSend(
  channel,
- message
+ message,
+ velocity = 0
 ) {
+ const body = JSON.stringify({
+  channel,
+  message,
+  velocity,
+ })
  const resp = await fetch(
   `${networkRootUrl()}/send`,
   {
    method: 'POST',
    headers: {
+    'Content-Length': body.length,
     'Content-Type': 'application/json',
    },
-   body: JSON.stringify({
-    channel,
-    message,
-   }),
+   body,
   }
  )
 
@@ -521,15 +334,7 @@ function networkRootUrl() {
 }
 
 function setChannel(channel) {
- const { hour } = getUrlData()
  location.hash = `#/${encodeURIComponent(
   channel
- )}/${hour}`
-}
-
-function setHour(hour) {
- const { channel } = getUrlData()
- location.hash = `#/${encodeURIComponent(
-  channel
- )}/${Math.max(0, hour)}`
+ )}`
 }

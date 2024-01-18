@@ -3,6 +3,7 @@ import {
  type PagesFunction,
 } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
+import { scroll } from './lib/scroll'
 
 interface Env {
  TAGMEIN_KV: KVNamespace
@@ -100,6 +101,10 @@ export const onRequestGet: PagesFunction<
     }
   : undefined
 
+ const response = await scroll(kv)
+  .channel(channel)
+  .seek()
+
  return new Response(
   JSON.stringify({
    channel,
@@ -107,6 +112,7 @@ export const onRequestGet: PagesFunction<
    mostRecentHour,
    now: Date.now(),
    message: messageObject,
+   response,
    topChannels: topChannels
     ? JSON.parse(topChannels)
     : {},
