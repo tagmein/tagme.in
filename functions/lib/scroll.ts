@@ -210,6 +210,7 @@ export function scroll(kv: CivilMemoryKV) {
   }
 
   async function seek() {
+   return key
    const [messages, channels] =
     await Promise.all([
      seekMessages(),
