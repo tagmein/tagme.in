@@ -18,13 +18,26 @@ export function scroll(kv: CivilMemoryKV) {
  function channel(channelName: string) {
   const channelId =
    encodeURIComponent(channelName)
+  const namespace = channelName.includes(':')
+   ? channelName.split(':', 2)[0]
+   : undefined
+  const namespaceId =
+   typeof namespace === 'string'
+    ? encodeURIComponent(namespace)
+    : undefined
   const key = {
-   channelActivityKH: `scroll.channel.activity.kh:${channelName}#${kHour}`,
-   channelActivityMH: `scroll.channel.activity.mh:${channelName}#${mHour}`,
-   channelMessages: `scroll.channel.messages:${channelName}#now`,
-   channelMessagesHour: `scroll.channel.messages.hour:${channelName}#${hour}`,
-   channelRank: `scroll.channel.rank:${channelName}#now`,
-   channelRankHour: `scroll.channel.rank.hour:${channelName}#${hour}`,
+   channelActivityKH: `scroll.channel.activity.kh:${channelId}#${kHour}`,
+   channelActivityMH: `scroll.channel.activity.mh:${channelId}#${mHour}`,
+   channelMessages: `scroll.channel.messages:${channelId}#now`,
+   channelMessagesHour: `scroll.channel.messages.hour:${channelId}#${hour}`,
+   channelRank:
+    typeof namespaceId === 'string'
+     ? `scroll.channel.rank@${namespaceId}#now`
+     : `scroll.channel.rank#now`,
+   channelRankHour:
+    typeof namespaceId === 'string'
+     ? `scroll.channel.rank.hour@${namespaceId}#${hour}`
+     : `scroll.channel.rank.hour#${hour}`,
   }
   async function storeChannelRank(
    channelScore: number
