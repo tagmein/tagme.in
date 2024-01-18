@@ -5,7 +5,6 @@ const RANKED_HISTORY_ITEM_COUNT = 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 interface MessageData {
- message: string
  position: number
  timestamp: number
  velocity: number
@@ -99,6 +98,7 @@ export function scroll(kv: CivilMemoryKV) {
    await Promise.all([activeKH(), activeMH()])
   }
   async function rankMessage(
+   message: string,
    messageData: MessageData
   ) {
    const existingChannelRankString =
@@ -109,8 +109,7 @@ export function scroll(kv: CivilMemoryKV) {
     ? JSON.parse(existingChannelRankString)
     : {}
 
-   channelMessageRank[messageData.message] =
-    messageData
+   channelMessageRank[message] = messageData
 
    if (
     Object.keys(channelMessageRank).length >
@@ -187,7 +186,7 @@ export function scroll(kv: CivilMemoryKV) {
      key.messagePosition,
      JSON.stringify(newMessageData)
     ),
-    rankMessage({ message, ...newMessageData }),
+    rankMessage(message, newMessageData),
    ])
   }
 
