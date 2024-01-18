@@ -1,6 +1,7 @@
 import { CivilMemoryKV } from '@tagmein/civil-memory'
 import { getHourNumber } from './getHourNumber'
 
+const MESSAGE_NEGATIVE_THRESHOLD = -10
 const RANKED_HISTORY_ITEM_COUNT = 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
 
@@ -208,13 +209,13 @@ export function scroll(kv: CivilMemoryKV) {
     key.channelMessages
    )
    return messagesString
-    ? excludeNegativeMessages(
+    ? excludeOverlyNegativeMessages(
        JSON.parse(messagesString)
       )
     : {}
   }
 
-  function excludeNegativeMessages(messages: {
+  function excludeOverlyNegativeMessages(messages: {
    [key: string]: MessageData
   }) {
    return Object.fromEntries(
@@ -225,7 +226,7 @@ export function scroll(kv: CivilMemoryKV) {
        ((timestamp - messageData.timestamp) *
         messageData.velocity) /
         ONE_HOUR_MS
-      return score > 0
+      return score > MESSAGE_NEGATIVE_THRESHOLD
      }
     )
    )
