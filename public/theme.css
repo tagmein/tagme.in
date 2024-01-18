@@ -218,7 +218,7 @@ footer > p {
 article {
  box-sizing: border-box;
  min-height: 50px;
- padding: 11px 115px 11px 15px;
+ padding: 11px 125px 11px 15px;
  position: relative;
  transition: opacity 1s ease;
  width: 100%;
@@ -562,20 +562,24 @@ body.light-mode article {
  border-bottom: 1px solid #c8c8c8;
 }
 
-body.light-mode article > .score {
+body.light-mode .article-tools > .score {
  background-color: #e0e0b3;
 }
 
-body.light-mode article > button.agree,
-body.light-mode article > button.disagree {
+body.light-mode .article-tools > button.agree,
+body.light-mode
+ .article-tools
+ > button.disagree {
  background-color: #c8c8c8;
 }
 
-body.light-mode article > button.agree.agreed {
+body.light-mode
+ .article-tools
+ > button.agree.agreed {
  background-color: #00ef00;
 }
 body.light-mode
- article
+ .article-tools
  > button.disagree.disagreed {
  background-color: #ea0000;
 }
