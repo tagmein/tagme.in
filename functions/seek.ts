@@ -57,50 +57,6 @@ export const onRequestGet: PagesFunction<
   )
  }
 
- const channelId = encodeURIComponent(channel)
-
- const key = {
-  channelMostRecentHour: `channel_recent_hour#${channelId}`,
-  hourChannelMessage: `hour_channel_message#${hourId}_${channelId}`,
-  hourChannelTopMessages: `hour_channel_top_messages#${hourId}_${channelId}`,
-  hourTopChannels: `hour_top_channels#${hourId}`,
- }
-
- const namespace = channel.includes(':')
-  ? channel.substring(0, channel.indexOf(':'))
-  : undefined
-
- const namespaceKeyPrefix = namespace
-  ? `[${encodeURIComponent(namespace)}]`
-  : ''
-
- const [
-  message,
-  topMessages,
-  topChannels,
-  mostRecentHour,
- ] = await Promise.all([
-  kv.get(key.hourChannelMessage),
-  kv.get(key.hourChannelTopMessages),
-  kv.get(
-   namespaceKeyPrefix + key.hourTopChannels
-  ),
-  kv.get(key.channelMostRecentHour),
- ])
-
- const messageObject = message
-  ? {
-     text: message,
-     votes: parseInt(
-      await kv.get(
-       `message_votes#${encodeURIComponent(
-        message
-       )}`
-      )
-     ),
-    }
-  : undefined
-
  async function scrollSeek() {
   try {
    const data = await scroll(kv)
@@ -116,18 +72,7 @@ export const onRequestGet: PagesFunction<
 
  return new Response(
   JSON.stringify({
-   channel,
-   hour,
-   mostRecentHour,
-   now: Date.now(),
-   message: messageObject,
    response: await scrollSeek(),
-   topChannels: topChannels
-    ? JSON.parse(topChannels)
-    : {},
-   topMessages: topMessages
-    ? JSON.parse(topMessages)
-    : {},
   }),
   {
    headers: {

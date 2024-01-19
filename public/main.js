@@ -265,7 +265,6 @@ function formatMessageData(messages) {
     data.position +
     (data.velocity * (now - data.timestamp)) /
      ONE_HOUR_MS
-   console.log({ data, score, text })
    return { data, score, text }
   })
   .sort(function (a, b) {
@@ -424,9 +423,12 @@ function attachMessages(
   })
   container.appendChild(article)
   if (focusOnMessage === message.text) {
-   article.scrollIntoView({
-    behavior: 'smooth',
-   })
+   setTimeout(function () {
+    article.scrollIntoView({
+     behavior: 'smooth',
+     block: 'nearest',
+    })
+   }, 50)
    article.classList.add('highlight')
    focusOnMessage = undefined
   }
