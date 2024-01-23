@@ -14,14 +14,17 @@ function addTextWithLinks(container, text) {
 }
 
 function addHashTagLinks(container, text) {
- const parts = text.split(/(#\S*)/)
+ const parts = text.split(/(#[^,.\s]*)/)
 
  parts.forEach((part) => {
   if (part[0] === '#') {
    const channel = part.slice(1)
    const a = document.createElement('a')
    a.href = `/#/${encodeURIComponent(channel)}`
-   a.textContent = part
+   a.textContent =
+    part === '#'
+     ? `#${HOME_CHANNEL_ICON}`
+     : part
    container.appendChild(a)
   } else if (part) {
    container.appendChild(
@@ -268,9 +271,30 @@ function getUrlData() {
   channel.length > 25
  ) {
   alert('channel must be 25 characters or less')
-  throw new Error(
-   'channel must be 25 characters or less'
+  return { channel: '', messageChannel: '' }
+ }
+ if (
+  typeof channel === 'string' &&
+  channel.includes('.')
+ ) {
+  alert('channel must not include "."')
+  return { channel: '', messageChannel: '' }
+ }
+ if (
+  typeof channel === 'string' &&
+  channel.includes(',')
+ ) {
+  alert('channel must not include ","')
+  return { channel: '', messageChannel: '' }
+ }
+ if (
+  typeof channel === 'string' &&
+  channel.includes('  ')
+ ) {
+  alert(
+   'channel must not include two spaces in a row'
   )
+  return { channel: '', messageChannel: '' }
  }
  const message =
   typeof messageEncoded === 'string' &&
