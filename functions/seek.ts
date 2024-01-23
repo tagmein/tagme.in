@@ -27,9 +27,9 @@ export const onRequestGet: PagesFunction<
   )
  }
 
- if (channel.length > 25) {
+ if (channel.length > 250) {
   return new Response(
-   'channel parameter must be 25 characters or less',
+   'channel parameter must be 250 characters or less',
    { status: 400 }
   )
  }

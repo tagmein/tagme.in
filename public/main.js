@@ -206,12 +206,17 @@ const compose = elem({
  tagName: 'form',
 })
 
+const messageContent = elem({
+ classes: ['message-content'],
+})
+
 const mainContent = elem({
  tagName: 'main',
 })
 
 const body = elem({ classes: ['body'] })
 body.appendChild(mainToolbar)
+body.appendChild(messageContent)
 body.appendChild(compose)
 body.appendChild(mainContent)
 body.appendChild(
@@ -220,31 +225,193 @@ body.appendChild(
 document.body.appendChild(body)
 
 async function route() {
- const { channel } = getUrlData()
+ const { channel, message: messageText } =
+  getUrlData()
  if (channelInput.value.trim() !== channel) {
   channelInput.value = channel
  }
  const channelData = await withLoading(
   networkChannelSeek(channel, getHourNumber())
  )
- displayContent(channel, channelData)
+ const formattedMessageData = formatMessageData(
+  channelData.response.messages
+ )
+ if (typeof messageText === 'string') {
+  displayChannelMessage(
+   channel,
+   formattedMessageData,
+   messageText
+  )
+  displayChannelMessageReplies(
+   channel,
+   formattedMessageData,
+   messageText
+  ).catch((e) => console.error(e))
+ } else {
+  displayChannelHome(
+   channel,
+   formattedMessageData,
+   formatChannelData(
+    channelData.response.channels
+   )
+  )
+ }
  body.scrollTo(0, 0)
 }
 
 window.addEventListener('hashchange', route)
 route().catch((e) => console.error(e))
 
-function displayContent(channel, content) {
+function messageReplyChannel(
+ channel,
+ messageText
+) {
+ return `replies@${encodeURIComponent(
+  channel
+ )}:${encodeURIComponent(messageText)}`
+}
+
+async function displayChannelMessageReplies(
+ channel,
+ formattedChannelMessageData,
+ messageText
+) {
  mainContent.innerHTML = ''
+ const message =
+  formattedChannelMessageData.find(
+   (x) => x.text === messageText
+  )
+ if (!message) {
+  mainContent.innerHTML = 'Not found'
+  return
+ }
+ const replyChannelData = await withLoading(
+  networkChannelSeek(
+   messageReplyChannel(channel, messageText),
+   getHourNumber()
+  )
+ )
+
+ const formattedReplyMessageData =
+  formatMessageData(
+   replyChannelData.response.messages
+  )
+
  attachMessages(
   channel,
   mainContent,
-  formatMessageData(content.response.messages)
+  formattedReplyMessageData,
+  false
+ )
+}
+
+function displayChannelHome(
+ channel,
+ formattedMessageData,
+ formattedChannelData
+) {
+ messageContent.innerHTML = ''
+ mainContent.innerHTML = ''
+ messageContent.appendChild(
+  elem({
+   children: [
+    elem({
+     tagName: 'span',
+     textContent: 'Channel ',
+    }),
+    elem({
+     attributes: {
+      href: `/#/${encodeURIComponent(channel)}`,
+     },
+     tagName: 'a',
+     textContent: `#${
+      channel.length > 0
+       ? channel
+       : HOME_CHANNEL_ICON
+     }`,
+    }),
+    elem({
+     tagName: 'span',
+     textContent: ` has ${
+      formattedMessageData.length === 1
+       ? 'one'
+       : formattedMessageData.length
+     } message${
+      formattedMessageData.length === 1
+       ? ''
+       : 's'
+     }`,
+    }),
+   ],
+  })
+ )
+ attachMessages(
+  channel,
+  mainContent,
+  formattedMessageData
  )
  attachChannels(
   mainContent,
-  formatChannelData(content.response.channels)
+  formattedChannelData
  )
+}
+
+function displayChannelMessage(
+ channel,
+ formattedMessageData,
+ messageText
+) {
+ const message = formattedMessageData.find(
+  (x) => x.text === messageText
+ )
+ messageContent.innerHTML = ''
+ if (message) {
+  messageContent.appendChild(
+   elem({
+    children: [
+     ...(formattedMessageData.length === 1
+      ? [
+         elem({
+          tagName: 'span',
+          textContent:
+           'Viewing the only message on channel ',
+         }),
+        ]
+      : [
+         elem({
+          tagName: 'span',
+          textContent: 'Viewing one of ',
+         }),
+         elem({
+          tagName: 'span',
+          textContent: ` ${formattedMessageData.length} messages on channel `,
+         }),
+        ]),
+
+     elem({
+      attributes: {
+       href: `/#/${encodeURIComponent(
+        channel
+       )}`,
+      },
+      tagName: 'a',
+      textContent: `#${
+       channel.length > 0
+        ? channel
+        : HOME_CHANNEL_ICON
+      }`,
+     }),
+    ],
+   })
+  )
+  attachMessage(
+   channel,
+   messageContent,
+   message
+  )
+ } else {
+  messageContent.innerText = 'Not found'
+ }
 }
 
 function formatChannelData(channels) {
@@ -310,7 +477,8 @@ function attachChannels(container, channels) {
 function attachMessages(
  channel,
  container,
- messages
+ messages,
+ includeFooter = true
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -322,115 +490,174 @@ function attachMessages(
   )
  }
  for (const message of messages) {
-  const content = elem()
-  addTextWithCodeBlocks(content, message.text)
-  addYouTubeEmbed(content, message.text)
-  addImageEmbed(content, message.text)
-  const agreeButton = elem({
-   classes: ['agree'],
-   attributes: {
-    title: 'I agree with this',
-   },
-   events: {
-    async click() {
-     message.data.velocity = Math.min(
-      message.data.velocity + 1,
-      10
-     )
-     if (
-      (await withLoading(
-       networkMessageSend(
-        channel,
-        message.text,
-        message.data.velocity
-       )
-      )) !== false
-     ) {
-      agreeButton.classList.add('agreed')
-      disagreeButton.classList.remove(
-       'disagreed'
+  attachMessage(
+   channel,
+   container,
+   message,
+   includeFooter
+  )
+ }
+}
+
+function attachMessage(
+ channel,
+ container,
+ message,
+ includeFooter
+) {
+ const content = elem()
+ addTextWithCodeBlocks(content, message.text)
+ addYouTubeEmbed(content, message.text)
+ addImageEmbed(content, message.text)
+ const agreeButton = elem({
+  classes: ['agree'],
+  attributes: {
+   title: 'I agree with this',
+  },
+  events: {
+   async click() {
+    message.data.velocity = Math.min(
+     message.data.velocity + 1,
+     10
+    )
+    if (
+     (await withLoading(
+      networkMessageSend(
+       channel,
+       message.text,
+       message.data.velocity
       )
-      renderScore()
-     }
-    },
-   },
-   tagName: 'button',
-   textContent: '✔',
-  })
-  const disagreeButton = elem({
-   classes: ['disagree'],
-   attributes: {
-    title: 'I disagree with this',
-   },
-   events: {
-    async click() {
-     message.data.velocity = Math.max(
-      message.data.velocity - 1,
-      -10
+     )) !== false
+    ) {
+     agreeButton.classList.add('agreed')
+     disagreeButton.classList.remove(
+      'disagreed'
      )
-     if (
-      (await withLoading(
-       networkMessageSend(
-        channel,
-        message.text,
-        message.data.velocity
-       )
-      )) !== false
-     ) {
-      agreeButton.classList.remove('agreed')
-      disagreeButton.classList.add('disagreed')
-      renderScore()
-     }
-    },
+     renderScore()
+    }
    },
-   tagName: 'button',
-   textContent: '✘',
+  },
+  tagName: 'button',
+  textContent: '✔',
+ })
+ const disagreeButton = elem({
+  classes: ['disagree'],
+  attributes: {
+   title: 'I disagree with this',
+  },
+  events: {
+   async click() {
+    message.data.velocity = Math.max(
+     message.data.velocity - 1,
+     -10
+    )
+    if (
+     (await withLoading(
+      networkMessageSend(
+       channel,
+       message.text,
+       message.data.velocity
+      )
+     )) !== false
+    ) {
+     agreeButton.classList.remove('agreed')
+     disagreeButton.classList.add('disagreed')
+     renderScore()
+    }
+   },
+  },
+  tagName: 'button',
+  textContent: '✘',
+ })
+ function renderScore() {
+  const velocityText =
+   message.data.velocity !== 0
+    ? ` ${
+       message.data.velocity < 0 ? '' : '+'
+      }${message.data.velocity.toString(10)}/hr`
+    : ''
+  score.innerHTML = ''
+  score.appendChild(
+   elem({
+    textContent: `${Math.round(
+     message.score
+    ).toString(10)}${velocityText}`,
+   })
+  )
+ }
+ if (includeFooter) {
+  const messageFooter = elem({
+   classes: ['message-footer'],
   })
-  function renderScore() {
-   const velocityText =
-    message.data.velocity !== 0
-     ? ` ${
-        message.data.velocity < 0 ? '' : '+'
-       }${message.data.velocity.toString(
-        10
-       )}/hr`
-     : ''
-   score.innerHTML = ''
-   score.appendChild(
+  content.appendChild(messageFooter)
+  async function renderFooter() {
+   messageFooter.innerHTML = ''
+   const href = `/#/${encodeURIComponent(
+    channel
+   )}/${btoa(encodeURIComponent(message.text))}`
+   const repliesLink = elem({
+    attributes: {
+     href,
+    },
+    tagName: 'a',
+    textContent: 'View message',
+   })
+   messageFooter.appendChild(repliesLink)
+   messageFooter.appendChild(
     elem({
-     textContent: `${Math.round(
-      message.score
-     ).toString(10)}${velocityText}`,
+     tagName: 'span',
+     textContent: ' • ',
     })
    )
+   const copyRepliesLink = elem({
+    attributes: {
+     href,
+    },
+    events: {
+     click(e) {
+      e.preventDefault()
+      navigator.clipboard.writeText(
+       `${location.origin}${href}`
+      )
+      copyRepliesLink.textContent =
+       '✔ link copied'
+      setTimeout(function () {
+       copyRepliesLink.textContent = 'copy link'
+      }, 2e3)
+     },
+    },
+    tagName: 'a',
+    textContent: 'copy link',
+   })
+   messageFooter.appendChild(copyRepliesLink)
   }
-
-  const score = elem({
-   classes: ['score'],
-  })
-  renderScore()
-  const articleTools = elem({
-   classes: ['article-tools'],
-   children: [
-    score,
-    agreeButton,
-    disagreeButton,
-   ],
-  })
-  const article = elem({
-   children: [content, articleTools],
-   tagName: 'article',
-  })
-  container.appendChild(article)
-  if (focusOnMessage === message.text) {
-   setTimeout(function () {
-    article.scrollIntoView({
-     behavior: 'smooth',
-     block: 'nearest',
-    })
-   }, 50)
-   article.classList.add('highlight')
-   focusOnMessage = undefined
-  }
+  renderFooter()
+ }
+ const score = elem({
+  classes: ['score'],
+ })
+ renderScore()
+ const articleTools = elem({
+  classes: ['article-tools'],
+  children: [
+   score,
+   agreeButton,
+   disagreeButton,
+  ],
+ })
+ const article = elem({
+  children: [content, articleTools],
+  tagName: 'article',
+ })
+ container.appendChild(article)
+ if (focusOnMessage === message.text) {
+  setTimeout(function () {
+   article.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+   })
+  }, 50)
+  article.classList.add('highlight')
+  focusOnMessage = undefined
  }
 }

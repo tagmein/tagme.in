@@ -246,15 +246,21 @@ function getHourNumber() {
 }
 
 function getUrlData() {
- const [_, channel] = window.location.hash
-  .split('/')
-  .map((x) =>
-   typeof x === 'string'
-    ? decodeURIComponent(x)
-    : undefined
-  )
+ const [_, channel, message] =
+  window.location.hash
+   .split('/')
+   .map((x) =>
+    typeof x === 'string'
+     ? decodeURIComponent(x)
+     : undefined
+   )
  return {
   channel: channel ?? '',
+  message:
+   typeof message === 'string' &&
+   message.length > 1
+    ? decodeURIComponent(atob(message))
+    : undefined,
  }
 }
 
