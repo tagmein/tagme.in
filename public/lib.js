@@ -245,8 +245,17 @@ function getHourNumber() {
  )
 }
 
+function messageReplyChannel(
+ channel,
+ messageText
+) {
+ return `replies@${encodeURIComponent(
+  channel
+ )}:${encodeURIComponent(messageText)}`
+}
+
 function getUrlData() {
- const [_, channel, message] =
+ const [_, channel, messageEncoded] =
   window.location.hash
    .split('/')
    .map((x) =>
@@ -263,13 +272,19 @@ function getUrlData() {
    'channel must be 25 characters or less'
   )
  }
+ const message =
+  typeof messageEncoded === 'string' &&
+  messageEncoded.length > 1
+   ? decodeURIComponent(atob(messageEncoded))
+   : undefined
+ const messageChannel =
+  typeof message === 'string'
+   ? messageReplyChannel(channel, message)
+   : channel
  return {
   channel: channel ?? '',
-  message:
-   typeof message === 'string' &&
-   message.length > 1
-    ? decodeURIComponent(atob(message))
-    : undefined,
+  messageChannel,
+  message,
  }
 }
 

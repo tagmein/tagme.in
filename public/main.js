@@ -1,4 +1,5 @@
 const HOME_CHANNEL_ICON = '⌂'
+const BACK_ICON = '⏴'
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 let focusOnMessage = undefined
@@ -86,14 +87,29 @@ const mainToolbar = elem({
   elem({
    children: [
     elem({
-     classes: ['h-stretch'],
+     classes: [
+      'h-stretch',
+      'display-on-channel',
+     ],
      tagName: 'span',
      textContent: HOME_CHANNEL_ICON,
+    }),
+    elem({
+     classes: [
+      'h-stretch',
+      'display-on-message',
+     ],
+     tagName: 'span',
+     textContent: BACK_ICON,
     }),
    ],
    events: {
     click() {
-     location.hash = '#'
+     const { channel, message } = getUrlData()
+     location.hash =
+      typeof message === 'string'
+       ? `#/${encodeURIComponent(channel)}`
+       : '#'
     },
    },
    tagName: 'button',
@@ -187,15 +203,11 @@ const compose = elem({
  events: {
   async submit(e) {
    e.preventDefault()
-   const { channel, message } = getUrlData()
-   const composeChannel =
-    typeof message === 'string'
-     ? messageReplyChannel(channel, message)
-     : channel
+   const { messageChannel } = getUrlData()
    if (
     (await withLoading(
      networkMessageSend(
-      composeChannel,
+      messageChannel,
       composeTextarea.value,
       1
      )
@@ -229,8 +241,18 @@ body.appendChild(
 document.body.appendChild(body)
 
 async function route() {
- const { channel, message: messageText } =
-  getUrlData()
+ const {
+  channel,
+  messageChannel,
+  message: messageText,
+ } = getUrlData()
+ if (typeof messageText === 'string') {
+  document.body.classList.remove('on-channel')
+  document.body.classList.add('on-message')
+ } else {
+  document.body.classList.remove('on-message')
+  document.body.classList.add('on-channel')
+ }
  if (channelInput.value.trim() !== channel) {
   channelInput.value = channel
  }
@@ -247,7 +269,7 @@ async function route() {
    messageText
   )
   displayChannelMessageReplies(
-   channel,
+   messageChannel,
    formattedMessageData,
    messageText
   ).catch((e) => console.error(e))
@@ -266,17 +288,8 @@ async function route() {
 window.addEventListener('hashchange', route)
 route().catch((e) => console.error(e))
 
-function messageReplyChannel(
- channel,
- messageText
-) {
- return `replies@${encodeURIComponent(
-  channel
- )}:${encodeURIComponent(messageText)}`
-}
-
 async function displayChannelMessageReplies(
- channel,
+ messageChannel,
  formattedChannelMessageData,
  messageText
 ) {
@@ -291,7 +304,7 @@ async function displayChannelMessageReplies(
  }
  const replyChannelData = await withLoading(
   networkChannelSeek(
-   messageReplyChannel(channel, messageText),
+   messageChannel,
    getHourNumber()
   )
  )
@@ -302,7 +315,7 @@ async function displayChannelMessageReplies(
   )
 
  attachMessages(
-  channel,
+  messageChannel,
   mainContent,
   formattedReplyMessageData,
   false,
