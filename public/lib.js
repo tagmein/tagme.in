@@ -254,6 +254,15 @@ function getUrlData() {
      ? decodeURIComponent(x)
      : undefined
    )
+ if (
+  typeof channel === 'string' &&
+  channel.length > 25
+ ) {
+  alert('channel must be 25 characters or less')
+  throw new Error(
+   'channel must be 25 characters or less'
+  )
+ }
  return {
   channel: channel ?? '',
   message:

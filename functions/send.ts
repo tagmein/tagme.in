@@ -5,7 +5,7 @@ import type {
 import { civilMemoryKV } from '@tagmein/civil-memory'
 import { scroll } from './lib/scroll'
 
-const MAX_CHANNEL_LENGTH = 25
+const MAX_CHANNEL_LENGTH = 250
 const MIN_MESSAGE_LENGTH = 5
 const MAX_MESSAGE_LENGTH = 150
 

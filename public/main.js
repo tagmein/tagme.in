@@ -187,11 +187,15 @@ const compose = elem({
  events: {
   async submit(e) {
    e.preventDefault()
-   const { channel } = getUrlData()
+   const { channel, message } = getUrlData()
+   const composeChannel =
+    typeof message === 'string'
+     ? messageReplyChannel(channel, message)
+     : channel
    if (
     (await withLoading(
      networkMessageSend(
-      channel,
+      composeChannel,
       composeTextarea.value,
       1
      )
@@ -301,7 +305,8 @@ async function displayChannelMessageReplies(
   channel,
   mainContent,
   formattedReplyMessageData,
-  false
+  false,
+  'No replies. Be the first to write a reply!'
  )
 }
 
@@ -478,13 +483,15 @@ function attachMessages(
  channel,
  container,
  messages,
- includeFooter = true
+ includeFooter = true,
+ emptyMessage = undefined
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
    elem({
     tagName: 'p',
     textContent:
+     emptyMessage ??
      'This channel has no content. Be the first to write a message!',
    })
   )
