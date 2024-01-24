@@ -5,7 +5,7 @@ const LINKEDIN_ACCESS_TOKEN_URL =
  'https://www.linkedin.com/oauth/v2/accessToken'
 
 const LINKEDIN_PROFILE_URL =
- 'https://api.linkedin.com/v2/me'
+ 'https://api.linkedin.com/v2/userinfo'
 
 const TAGMEIN_LINKEDIN_REDIRECT_URI =
  'https://tagme.in/auth-linkedin'

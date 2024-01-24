@@ -9,7 +9,6 @@ const TAGMEIN_LINKEDIN_REDIRECT_URI =
 
 const LINKEDIN_SCOPES: string[] = [
  'email',
- 'openid',
  'profile',
 ]
 
