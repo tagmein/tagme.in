@@ -4,4 +4,6 @@ export interface Env {
  TAGMEIN_KV: KVNamespace
  TAGMEIN_AUTH_KV: KVNamespace
  TAGMEIN_PRIVATE_KV: KVNamespace
+ TAGMEIN_AUTH_LINKEDIN_CLIENT_ID: string
+ TAGMEIN_AUTH_LINKEDIN_CLIENT_SECRET: string
 }
