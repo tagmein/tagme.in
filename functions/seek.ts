@@ -1,13 +1,7 @@
-import {
- type KVNamespace,
- type PagesFunction,
-} from '@cloudflare/workers-types'
+import { type PagesFunction } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
 import { scroll } from './lib/scroll'
-
-interface Env {
- TAGMEIN_KV: KVNamespace
-}
+import { Env } from './lib/env'
 
 export const onRequestGet: PagesFunction<
  Env
