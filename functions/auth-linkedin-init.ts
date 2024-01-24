@@ -11,13 +11,17 @@ const LINKEDIN_SCOPES: string[] = ['email']
 
 export const onRequestGet: PagesFunction<
  Env
-> = async ({ env }) => {
+> = async ({ env, request }) => {
+ const url = new URL(request.url)
+ const state =
+  url.searchParams.get('state') ?? ''
+
  const params: Record<string, string> = {
   response_type: 'code',
   client_id:
    env.TAGMEIN_AUTH_LINKEDIN_CLIENT_ID,
   redirect_uri: TAGMEIN_LINKEDIN_REDIRECT_URI,
-  state: '',
+  state,
   scope: encodeURIComponent(
    LINKEDIN_SCOPES.join(' ')
   ),
