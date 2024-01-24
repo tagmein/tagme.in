@@ -4,8 +4,8 @@ import { Env } from './lib/env'
 const LINKEDIN_ACCESS_TOKEN_URL =
  'https://www.linkedin.com/oauth/v2/accessToken'
 
-const LINKEDIN_EMAIL_URL =
- 'https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))'
+const LINKEDIN_PROFILE_URL =
+ 'https://api.linkedin.com/v2/me'
 
 const TAGMEIN_LINKEDIN_REDIRECT_URI =
  'https://tagme.in/auth-linkedin'
@@ -65,7 +65,7 @@ export const onRequestGet: PagesFunction<
  }
 
  const linkedInProfileResponse = await fetch(
-  LINKEDIN_EMAIL_URL,
+  LINKEDIN_PROFILE_URL,
   {
    headers: {
     Authorization: `Bearer ${linkedIn.access_token}`,
