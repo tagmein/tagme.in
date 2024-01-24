@@ -1,7 +1,4 @@
-import {
- Response,
- type PagesFunction,
-} from '@cloudflare/workers-types'
+import { type PagesFunction } from '@cloudflare/workers-types'
 import { Env } from './lib/env'
 
 const LINKEDIN_ACCESS_TOKEN_URL =
