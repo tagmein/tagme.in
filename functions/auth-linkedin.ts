@@ -1,8 +1,14 @@
-import { type PagesFunction } from '@cloudflare/workers-types'
+import {
+ Response,
+ type PagesFunction,
+} from '@cloudflare/workers-types'
 import { Env } from './lib/env'
 
 const LINKEDIN_ACCESS_TOKEN_URL =
  'https://www.linkedin.com/oauth/v2/accessToken'
+
+const LINKEDIN_PROFILE_URL =
+ 'https://api.linkedin.com/v2/me'
 
 const TAGMEIN_LINKEDIN_REDIRECT_URI =
  'https://tagme.in/auth-linkedin'
@@ -32,6 +38,15 @@ export const onRequestGet: PagesFunction<
   redirect_uri: TAGMEIN_LINKEDIN_REDIRECT_URI,
  }
 
+ if (error !== null) {
+  return new Response(
+   JSON.stringify({
+    error,
+    errorDescription,
+   })
+  )
+ }
+
  const response = await fetch(
   LINKEDIN_ACCESS_TOKEN_URL,
   {
@@ -46,14 +61,27 @@ export const onRequestGet: PagesFunction<
   }
  )
 
- const linkedIn = await response.json()
+ const linkedIn = (await response.json()) as {
+  access_token: string
+  expires_in: number
+  scope: string
+ }
+
+ const linkedInProfileResponse = await fetch(
+  LINKEDIN_PROFILE_URL,
+  {
+   headers: {
+    Authorization: `Bearer ${linkedIn.access_token}`,
+   },
+  }
+ )
+
+ const linkedInProfile =
+  await linkedInProfileResponse.json()
 
  return new Response(
   JSON.stringify({
-   code,
-   error,
-   errorDescription,
-   linkedIn,
+   linkedInProfile,
    state,
   })
  )
