@@ -7,10 +7,7 @@ const LINKEDIN_AUTH_URL =
 const TAGMEIN_LINKEDIN_REDIRECT_URI =
  'https://tagme.in/auth-linkedin'
 
-const LINKEDIN_SCOPES: string[] = [
- 'email',
- 'profile',
-]
+const LINKEDIN_SCOPES: string[] = ['email']
 
 export const onRequestGet: PagesFunction<
  Env
