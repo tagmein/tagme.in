@@ -245,10 +245,23 @@ footer > p {
 article {
  box-sizing: border-box;
  min-height: 45px;
- padding: 11px 150px 11px 15px;
+ padding: 6px 150px 6px 15px;
  position: relative;
  transition: opacity 1s ease;
  width: 100%;
+}
+
+article blockquote,
+article p {
+ margin: 5px 0;
+}
+
+article blockquote {
+ background-color: #80808040;
+ border-left: 5px solid #80808080;
+ border-radius: 5px;
+ padding: 5px 10px;
+ white-space: pre-wrap;
 }
 
 .message-content > div:first-child {
@@ -299,7 +312,7 @@ article {
  padding: 2px 15px 2px 7px;
 }
 
-article > div > span {
+article > div span {
  white-space: pre-wrap;
 }
 
@@ -669,7 +682,7 @@ body.light-mode article.highlight::after {
  opacity: 0.65;
  overflow: hidden;
  transition: opacity 0.5s ease;
- margin-top: 4px;
+ margin-bottom: 4px;
 }
 
 .image-container + .message-footer {

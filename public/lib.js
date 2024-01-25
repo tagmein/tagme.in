@@ -13,6 +13,50 @@ function addTextWithLinks(container, text) {
  })
 }
 
+function addTextBlocks(container, text) {
+ const lines = text.split('\n')
+ let currentQuote = null
+ lines.forEach((line) => {
+  if (line.trimStart().startsWith('>')) {
+   const formattedLine = line.replace(
+    /^> ?/,
+    ''
+   )
+   if (currentQuote === null) {
+    // Start a new quote
+    currentQuote = formattedLine
+   } else {
+    // Add the line without '>' to the current quote
+    currentQuote += '\n' + formattedLine
+   }
+  } else {
+   if (currentQuote) {
+    const quoteElement =
+     document.createElement('blockquote')
+    addTextWithCodeBlocks(
+     quoteElement,
+     currentQuote
+    )
+    container.appendChild(quoteElement)
+   }
+   // Regular line, reset current quote
+   currentQuote = null
+   const p = document.createElement('p')
+   addTextWithCodeBlocks(p, line)
+   container.appendChild(p)
+  }
+ })
+ if (currentQuote) {
+  const quoteElement =
+   document.createElement('blockquote')
+  addTextWithCodeBlocks(
+   quoteElement,
+   currentQuote
+  )
+  container.appendChild(quoteElement)
+ }
+}
+
 function addHashTagLinks(container, text) {
  const parts = text.split(/(#[^,.\s]*)/)
 
@@ -206,6 +250,31 @@ function elem({
  return e
 }
 
+function formatChannelData(channels) {
+ return Object.entries(channels)
+  .map(function ([name, score]) {
+   return { score, name }
+  })
+  .sort(function (a, b) {
+   return b.score - a.score
+  })
+}
+
+function formatMessageData(messages) {
+ const now = Date.now()
+ return Object.entries(messages)
+  .map(function ([text, data]) {
+   const score =
+    data.position +
+    (data.velocity * (now - data.timestamp)) /
+     ONE_HOUR_MS
+   return { data, score, text }
+  })
+  .sort(function (a, b) {
+   return b.score - a.score
+  })
+}
+
 function getDateTime(hoursSince2024) {
  const resultDate = new Date(
   begin2024GMT().getTime() +
@@ -253,7 +322,7 @@ function messageReplyChannel(
  messageText
 ) {
  return `replies@${encodeURIComponent(
-  channel
+  channel ?? ''
  )}:${encodeURIComponent(messageText)}`
 }
 
@@ -304,7 +373,7 @@ function getUrlData() {
  const messageChannel =
   typeof message === 'string'
    ? messageReplyChannel(channel, message)
-   : channel
+   : channel ?? ''
  return {
   channel: channel ?? '',
   messageChannel,
