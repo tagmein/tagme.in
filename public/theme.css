@@ -46,16 +46,41 @@ body {
  border-right: 1px solid transparent;
 }
 
-.toolbar {
+.app-header {
  display: flex;
- flex-direction: row;
- height: 50px;
+ flex-direction: column;
+ height: 94px;
  left: 0;
  overflow: visible;
  position: sticky;
  right: 0;
  top: 0;
  z-index: 1;
+}
+
+.realm {
+ border-right: 1px solid #585858;
+ cursor: pointer;
+ filter: grayscale(1);
+ padding: 10px 10px 0;
+}
+
+.realm.active {
+ background-color: #202020;
+}
+
+.app-accounts {
+ background-color: #383828;
+ border-bottom: 1px solid #585858;
+ display: flex;
+ flex-direction: row;
+ height: 44px;
+}
+
+.toolbar {
+ display: flex;
+ flex-direction: row;
+ height: 50px;
 }
 
 .toolbar button {
@@ -503,6 +528,19 @@ body.light-mode button,
 body.light-mode input,
 body.light-mode select,
 body.light-mode textarea {
+ background-color: #efefef;
+}
+
+body.light-mode .app-accounts {
+ background-color: #e9e9f1;
+ border-bottom: 1px solid #c8c8c8;
+}
+
+body.light-mode .realm {
+ border-right: 1px solid #c8c8c8;
+}
+
+body.light-mode .realm.active {
  background-color: #efefef;
 }
 

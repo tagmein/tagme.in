@@ -81,43 +81,60 @@ const lightDarkModeButton = elem({
  textContent: '☼',
 })
 
-const mainToolbar = elem({
- classes: ['toolbar'],
+const globalRealm = elem({
+ classes: ['realm', 'active'],
+ textContent: '🌍 Public',
+})
+
+const appAccounts = elem({
+ classes: ['app-accounts'],
+ children: [globalRealm],
+})
+
+const appHeader = elem({
+ classes: ['app-header'],
  children: [
+  appAccounts,
   elem({
+   classes: ['toolbar'],
    children: [
     elem({
-     classes: [
-      'h-stretch',
-      'display-on-channel',
+     children: [
+      elem({
+       classes: [
+        'h-stretch',
+        'display-on-channel',
+       ],
+       tagName: 'span',
+       textContent: HOME_CHANNEL_ICON,
+      }),
+      elem({
+       classes: [
+        'h-stretch',
+        'display-on-message',
+       ],
+       tagName: 'span',
+       textContent: BACK_ICON,
+      }),
      ],
-     tagName: 'span',
-     textContent: HOME_CHANNEL_ICON,
+     events: {
+      click() {
+       const { channel, message } = getUrlData()
+       location.hash =
+        typeof message === 'string'
+         ? `#/${encodeURIComponent(channel)}`
+         : '#'
+       body.scrollTo(0, 0)
+      },
+     },
+     tagName: 'button',
     }),
-    elem({
-     classes: [
-      'h-stretch',
-      'display-on-message',
-     ],
-     tagName: 'span',
-     textContent: BACK_ICON,
-    }),
+    loadingIndicator,
+    channelInput,
+    lightDarkModeButton,
+    fullScreenButton,
    ],
-   events: {
-    click() {
-     const { channel, message } = getUrlData()
-     location.hash =
-      typeof message === 'string'
-       ? `#/${encodeURIComponent(channel)}`
-       : '#'
-    },
-   },
-   tagName: 'button',
   }),
-  loadingIndicator,
-  channelInput,
-  lightDarkModeButton,
-  fullScreenButton,
  ],
 })
 
@@ -231,7 +248,7 @@ const mainContent = elem({
 })
 
 const body = elem({ classes: ['body'] })
-body.appendChild(mainToolbar)
+body.appendChild(appHeader)
 body.appendChild(messageContent)
 body.appendChild(compose)
 body.appendChild(mainContent)
