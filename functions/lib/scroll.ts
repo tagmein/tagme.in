@@ -147,9 +147,13 @@ export function scroll(kv: CivilMemoryKV) {
    ).reduce(
     (a: number, b) =>
      a +
-     b.position +
-     ((timestamp - b.timestamp) * b.velocity) /
-      ONE_HOUR_MS,
+     Math.max(
+      0,
+      b.position +
+       ((timestamp - b.timestamp) *
+        b.velocity) /
+        ONE_HOUR_MS
+     ),
     0
    )
 
