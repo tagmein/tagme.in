@@ -257,9 +257,21 @@ document.body.appendChild(body)
 async function route() {
  const {
   channel,
+  control,
   messageChannel,
   message: messageText,
  } = getUrlData()
+ const activeSessionId = getActiveSessionId()
+ if (activeSessionId !== PUBLIC_SESSION_ID) {
+  if (
+   await registerSession(
+    activeSessionId,
+    control
+   )
+  ) {
+   return
+  }
+ }
  if (typeof messageText === 'string') {
   document.body.classList.remove('on-channel')
   document.body.classList.add('on-message')
@@ -309,9 +321,3 @@ async function route() {
 
 window.addEventListener('hashchange', route)
 route().catch((e) => console.error(e))
-
-const activeSessionId = getActiveSessionId()
-
-if (activeSessionId !== PUBLIC_SESSION_ID) {
- registerSession(activeSessionId)
-}

@@ -327,7 +327,7 @@ function messageReplyChannel(
 }
 
 function getUrlData() {
- const [_, channel, messageEncoded] =
+ const [control, channel, messageEncoded] =
   window.location.hash
    .split('/')
    .map((x) =>
@@ -375,6 +375,7 @@ function getUrlData() {
    ? messageReplyChannel(channel, message)
    : channel ?? ''
  return {
+  control,
   channel: channel ?? '',
   messageChannel,
   message,
@@ -546,14 +547,45 @@ function createSession() {
    hash,
   },
  ])
+ setActiveSessionId(id)
  location.href = `https://tagme.in/auth-linkedin-init?state=${encodeURIComponent(
   JSON.stringify({ id, origin })
  )}`
 }
 
-async function registerSession(sessionId) {
+async function registerSession(
+ sessionId,
+ control
+) {
  const session = readSession(sessionId)
- if (session && !session.accessToken) {
+ if (!control.startsWith('key=')) {
+  console.warn(
+   'control did not include key',
+   control
+  )
   location.hash = session.hash
+  return true
+ }
+ if (session && !session.accessToken) {
+  const response = await fetch(
+   'https://tagme.in/auth-init',
+   {
+    method: 'POST',
+    body: JSON.stringify({
+     id: sessionId,
+     key: control.substring('key='.length),
+    }),
+    headers: {
+     'Content-Type': 'application/json',
+    },
+   }
+  )
+  const data = await response.json()
+  writeSession(sessionId, {
+   ...session,
+   ...data,
+  })
+  location.hash = session.hash
+  return true
  }
 }

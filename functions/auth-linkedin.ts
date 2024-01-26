@@ -1,5 +1,6 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
 import { Env } from './lib/env'
+import { civilMemoryKV } from '@tagmein/civil-memory'
 
 const LINKEDIN_ACCESS_TOKEN_URL =
  'https://www.linkedin.com/oauth/v2/accessToken'
@@ -21,7 +22,23 @@ export const onRequestGet: PagesFunction<
  )
  const state = JSON.parse(
   url.searchParams.get('state') ?? '{}'
- )
+ ) as { id: string; origin: string }
+
+ if (typeof state?.id !== 'string') {
+  return new Response(
+   JSON.stringify({
+    error: 'missing state.id',
+   })
+  )
+ }
+
+ if (typeof state?.origin !== 'string') {
+  return new Response(
+   JSON.stringify({
+    error: 'missing state.origin',
+   })
+  )
+ }
 
  const accessTokenRequestData: Record<
   string,
@@ -95,10 +112,52 @@ export const onRequestGet: PagesFunction<
       status: number
      }
 
+ if ('status' in linkedInProfile) {
+  return new Response(
+   JSON.stringify(linkedInProfile)
+  )
+ }
+
+ if (!linkedInProfile.email_verified) {
+  return new Response(
+   JSON.stringify({
+    error:
+     'please verify your email address on LinkedIn',
+   })
+  )
+ }
+
+ const authKV = civilMemoryKV.cloudflare({
+  binding: env.TAGMEIN_AUTH_KV,
+ })
+
+ const key = randomId()
+
+ await authKV.set(
+  `init#${key}-${state.id}`,
+  JSON.stringify({
+   created: Date.now(),
+   email: linkedInProfile.email,
+   linkedInProfile,
+  })
+ )
+
  return new Response('', {
   headers: {
-   Location: state.origin,
+   Location: `${state.origin}/#key=${key}`,
   },
   status: 302,
  })
+}
+
+function randomId() {
+ return '12345678'
+  .split('')
+  .map(() =>
+   (Math.random() * 1e6)
+    .toString(36)
+    .replace('.', '')
+    .slice(0, 4)
+  )
+  .join('')
 }
