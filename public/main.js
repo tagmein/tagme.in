@@ -86,7 +86,6 @@ const appAccounts = displayAppAccounts()
 const appHeader = elem({
  classes: ['app-header'],
  children: [
-  appAccounts.element,
   elem({
    classes: ['toolbar'],
    children: [
@@ -127,6 +126,7 @@ const appHeader = elem({
     fullScreenButton,
    ],
   }),
+  appAccounts.element,
  ],
 })
 

@@ -290,7 +290,7 @@ article blockquote {
  display: flex;
  flex-direction: row;
  position: absolute;
- right: -11px;
+ right: 15px;
  top: 11px;
  gap: 2px;
 }
@@ -323,7 +323,7 @@ article blockquote {
  box-sizing: border-box;
  height: 26px;
  line-height: 22px;
- padding: 2px 15px 2px 7px;
+ padding: 2px 7px;
 }
 
 article > div span {
