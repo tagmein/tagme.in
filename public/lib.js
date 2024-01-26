@@ -520,7 +520,5 @@ function createSession() {
    hash,
   },
  ])
- location.replace(
-  `/auth-linkedin-init?state=${id}`
- )
+ location.href = `/auth-linkedin-init?state=${id}`
 }
