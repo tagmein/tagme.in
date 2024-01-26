@@ -501,6 +501,7 @@ const PUBLIC_SESSION_ID = 'public'
 
 function setActiveSessionId(id) {
  write('tmi:active-session', id)
+ route()
 }
 
 function getActiveSessionId() {
@@ -512,7 +513,7 @@ function getActiveSessionId() {
 
 function createSession() {
  const id = randomId()
- const { hash } = location
+ const { hash, origin } = location
  writeSessions([
   ...listSessions(),
   {
@@ -520,5 +521,7 @@ function createSession() {
    hash,
   },
  ])
- location.href = `/auth-linkedin-init?state=${id}`
+ location.href = `https://tagme.in/auth-linkedin-init?origin=${encodeURIComponent(
+  origin
+ )}&state=${id}`
 }
