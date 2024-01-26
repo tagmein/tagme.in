@@ -286,6 +286,9 @@ function attachChannels(container, channels) {
    textContent: 'Popular channels',
   })
  )
+ if (channels.length === 0) {
+  channels.push({ name: '', score: 0 })
+ }
  container.appendChild(
   elem({
    classes: ['channel-list'],
