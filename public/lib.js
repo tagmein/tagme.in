@@ -558,7 +558,7 @@ async function registerSession(
  control
 ) {
  const session = readSession(sessionId)
- if (!control.startsWith('key=')) {
+ if (!control.startsWith('#key=')) {
   console.warn(
    'control did not include key',
    control
@@ -573,7 +573,7 @@ async function registerSession(
     method: 'POST',
     body: JSON.stringify({
      id: sessionId,
-     key: control.substring('key='.length),
+     key: control.substring('#key='.length),
     }),
     headers: {
      'Content-Type': 'application/json',

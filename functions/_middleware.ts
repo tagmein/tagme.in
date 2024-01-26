@@ -6,7 +6,7 @@ export const onRequestOptions: PagesFunction =
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': '*',
     'Access-Control-Allow-Methods':
-     'GET, OPTIONS',
+     'GET, OPTIONS, POST',
     'Access-Control-Max-Age': '86400',
    },
   })
