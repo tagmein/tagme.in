@@ -406,10 +406,17 @@ async function networkChannelSeek(
  channel,
  hour
 ) {
+ const headers = {}
+ const activeSession = getActiveSession()
+ if (activeSession) {
+  headers.Authorization =
+   activeSession.accessToken
+ }
  const response = await fetch(
   `${networkRootUrl()}/seek?channel=${encodeURIComponent(
    channel
-  )}&hour=${hour}`
+  )}&hour=${hour}`,
+  { headers }
  )
  if (!response.ok) {
   throw new Error(
@@ -431,14 +438,20 @@ async function networkMessageSend(
   message,
   velocity,
  })
+ const headers = {
+  'Content-Length': body.length,
+  'Content-Type': 'application/json',
+ }
+ const activeSession = getActiveSession()
+ if (activeSession) {
+  headers.Authorization =
+   activeSession.accessToken
+ }
  const resp = await fetch(
   `${networkRootUrl()}/send`,
   {
    method: 'POST',
-   headers: {
-    'Content-Length': body.length,
-    'Content-Type': 'application/json',
-   },
+   headers,
    body,
   }
  )
@@ -512,6 +525,14 @@ function readSession(sessionId) {
  )
 }
 
+function getActiveSession() {
+ const sessionId = getActiveSessionId()
+ if (sessionId === PUBLIC_SESSION_ID) {
+  return
+ }
+ return readSession(sessionId)
+}
+
 function writeSession(
  sessionId,
  newSessionData
@@ -525,16 +546,22 @@ function writeSession(
 
 const PUBLIC_SESSION_ID = 'public'
 
+let localActiveSessionId
+
 function setActiveSessionId(id) {
+ localActiveSessionId = id
  write('tmi:active-session', id)
  route()
 }
 
 function getActiveSessionId() {
- return read(
-  'tmi:active-session',
-  PUBLIC_SESSION_ID
- )
+ if (typeof localActiveSessionId !== 'string') {
+  localActiveSessionId = read(
+   'tmi:active-session',
+   PUBLIC_SESSION_ID
+  )
+ }
+ return localActiveSessionId
 }
 
 function createSession() {
@@ -558,15 +585,15 @@ async function registerSession(
  control
 ) {
  const session = readSession(sessionId)
- if (!control.startsWith('#key=')) {
-  console.warn(
-   'control did not include key',
-   control
-  )
-  location.hash = session.hash
-  return true
- }
  if (session && !session.accessToken) {
+  if (!control.startsWith('#key=')) {
+   console.warn(
+    'control did not include key',
+    control
+   )
+   location.hash = session.hash
+   return true
+  }
   const response = await fetch(
    'https://tagme.in/auth-init',
    {
@@ -581,10 +608,16 @@ async function registerSession(
    }
   )
   const data = await response.json()
-  writeSession(sessionId, {
+  const newSession = {
    ...session,
    ...data,
-  })
+  }
+  writeSession(sessionId, newSession)
+  const realm = realms.find(
+   (x) => x.session.id === sessionId
+  )
+  realm.realmTabLabel.textContent =
+   newSession.email
   location.hash = session.hash
   return true
  }

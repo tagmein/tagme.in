@@ -1,3 +1,5 @@
+let realms = []
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -18,6 +20,10 @@ function displayAppAccounts() {
  })
 
  function addAccount(session) {
+  const realmTabLabel = elem({
+   tagName: 'span',
+   textContent: session.email ?? '···',
+  })
   const realmTab = elem({
    classes: ['realm'],
    children: [
@@ -26,10 +32,7 @@ function displayAppAccounts() {
      tagName: 'span',
      textContent: '🛖',
     }),
-    elem({
-     tagName: 'span',
-     textContent: ` ${session.email ?? '···'}`,
-    }),
+    realmTabLabel,
     elem({
      classes: ['close', 'invert-icon'],
      tagName: 'span',
@@ -90,7 +93,7 @@ function displayAppAccounts() {
    },
   })
   element.insertBefore(realmTab, addRealm)
-  return { session, realmTab }
+  return { session, realmTab, realmTabLabel }
  }
 
  const addRealm = elem({
@@ -116,7 +119,7 @@ function displayAppAccounts() {
   children: [globalRealmTab, addRealm],
  })
 
- const realms = listSessions().map((session) =>
+ realms = listSessions().map((session) =>
   addAccount(session)
  )
 

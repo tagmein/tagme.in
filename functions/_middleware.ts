@@ -4,7 +4,8 @@ export const onRequestOptions: PagesFunction =
    status: 204,
    headers: {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': '*',
+    'Access-Control-Allow-Headers':
+     '*, Authorization',
     'Access-Control-Allow-Methods':
      'GET, OPTIONS, POST',
     'Access-Control-Max-Age': '86400',

@@ -76,6 +76,10 @@ body {
  box-shadow: inset 0 5px 0 #80808080;
 }
 
+.realm .invert-icon.hut {
+ margin-right: 5px;
+}
+
 .app-accounts {
  background-color: #202020;
  border-bottom: 1px solid #585858;
