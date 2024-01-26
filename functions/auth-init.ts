@@ -72,14 +72,12 @@ export const onRequestPost: PagesFunction<Env> =
   const initString = await authKV.get(initKey)
 
   if (!initString) {
-   if (error) {
-    return new Response(
-     JSON.stringify({
-      error: 'not found',
-     }),
-     { status: 404 }
-    )
-   }
+   return new Response(
+    JSON.stringify({
+     error: 'not found',
+    }),
+    { status: 404 }
+   )
   }
 
   const init = JSON.parse(initString) as {
