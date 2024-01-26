@@ -2,20 +2,14 @@ import { type PagesFunction } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
 import { Env } from './lib/env'
 import { randomId } from './lib/randomId'
-
-// expire sessions at  days   hr  min  sec    ms
-const SESSION_EXPIRE_MS = 7 * 24 * 60 * 60 * 1e3
+import {
+ SessionData,
+ sessionIsExpired,
+} from './lib/session'
 
 interface PostBody {
  id: string
  key: string
-}
-
-interface SessionData {
- accessToken: string
- created: number
- email: string
- id: string
 }
 
 async function validateRequestBody(
@@ -92,7 +86,6 @@ export const onRequestPost: PagesFunction<Env> =
    .map(randomId)
    .join('')
 
-  const sessionKey = `session.accessToken#${accessToken}`
   const sessionsByEmailKey = `sessions.email#${encodeURIComponent(
    init.email
   )}`
@@ -105,11 +98,7 @@ export const onRequestPost: PagesFunction<Env> =
     ? JSON.parse(existingSessionsString)
     : []
   ).filter((session: SessionData) => {
-   if (
-    session &&
-    session.created <
-     Date.now() - SESSION_EXPIRE_MS
-   ) {
+   if (sessionIsExpired(session)) {
     expiredSessionList.push(session)
     return false // discard the session
    }
@@ -137,6 +126,7 @@ export const onRequestPost: PagesFunction<Env> =
    JSON.stringify(existingSessionList)
   )
 
+  const sessionKey = `session.accessToken#${accessToken}`
   await authKV.set(
    sessionKey,
    JSON.stringify(newSessionData)

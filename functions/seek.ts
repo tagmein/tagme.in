@@ -1,15 +1,11 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
-import { civilMemoryKV } from '@tagmein/civil-memory'
-import { scroll } from './lib/scroll'
 import { Env } from './lib/env'
+import { getKV } from './lib/getKV'
+import { scroll } from './lib/scroll'
 
 export const onRequestGet: PagesFunction<
  Env
 > = async (context) => {
- const kv = civilMemoryKV.cloudflare({
-  binding: context.env.TAGMEIN_KV,
- })
-
  const url = new URL(context.request.url)
  const channel = url.searchParams.get('channel')
  const hourId = url.searchParams.get('hour')
@@ -48,6 +44,22 @@ export const onRequestGet: PagesFunction<
   return new Response(
    'hour parameter must be a non-negative integer',
    { status: 400 }
+  )
+ }
+
+ const kv = await getKV(context)
+
+ if (!kv) {
+  return new Response(
+   JSON.stringify({
+    error: 'not authorized',
+   }),
+   {
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    status: 401,
+   }
   )
  }
 

@@ -1,7 +1,7 @@
 import type { PagesFunction } from '@cloudflare/workers-types'
-import { civilMemoryKV } from '@tagmein/civil-memory'
-import { scroll } from './lib/scroll'
 import { Env } from './lib/env'
+import { getKV } from './lib/getKV'
+import { scroll } from './lib/scroll'
 
 const MAX_CHANNEL_LENGTH = 250
 const MIN_MESSAGE_LENGTH = 5
@@ -114,9 +114,6 @@ async function validateRequestBody(
 
 export const onRequestPost: PagesFunction<Env> =
  async function (context) {
-  const kv = civilMemoryKV.cloudflare({
-   binding: context.env.TAGMEIN_KV,
-  })
   const {
    error,
    data: { message, channel, velocity },
@@ -124,6 +121,22 @@ export const onRequestPost: PagesFunction<Env> =
 
   if (error) {
    return new Response(error, { status: 400 })
+  }
+
+  const kv = await getKV(context)
+
+  if (!kv) {
+   return new Response(
+    JSON.stringify({
+     error: 'not authorized',
+    }),
+    {
+     headers: {
+      'Content-Type': 'application/json',
+     },
+     status: 401,
+    }
+   )
   }
 
   await scroll(kv)
