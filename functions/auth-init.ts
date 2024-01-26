@@ -1,10 +1,21 @@
-import type { PagesFunction } from '@cloudflare/workers-types'
+import { type PagesFunction } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
 import { Env } from './lib/env'
+import { randomId } from './lib/randomId'
+
+// expire sessions at  days   hr  min  sec    ms
+const SESSION_EXPIRE_MS = 7 * 24 * 60 * 60 * 1e3
 
 interface PostBody {
  id: string
  key: string
+}
+
+interface SessionData {
+ accessToken: string
+ created: number
+ email: string
+ id: string
 }
 
 async function validateRequestBody(
@@ -57,9 +68,8 @@ export const onRequestPost: PagesFunction<Env> =
    })
   }
 
-  const initString = await authKV.get(
-   `init#${key}-${id}`
-  )
+  const initKey = `init#${key}-${id}`
+  const initString = await authKV.get(initKey)
 
   if (!initString) {
    if (error) {
@@ -77,5 +87,69 @@ export const onRequestPost: PagesFunction<Env> =
    email: string
   }
 
-  // to do
+  await authKV.delete(initKey)
+
+  const accessToken = '1234'
+   .split('')
+   .map(randomId)
+   .join('')
+
+  const sessionKey = `session.accessToken#${accessToken}`
+  const sessionsByEmailKey = `sessions.email#${encodeURIComponent(
+   init.email
+  )}`
+
+  const existingSessionsString =
+   await authKV.get(sessionsByEmailKey)
+  const expiredSessionList: SessionData[] = []
+  const existingSessionList = (
+   existingSessionsString
+    ? JSON.parse(existingSessionsString)
+    : []
+  ).filter((session: SessionData) => {
+   if (
+    session &&
+    session.created <
+     Date.now() - SESSION_EXPIRE_MS
+   ) {
+    expiredSessionList.push(session)
+    return false // discard the session
+   }
+   return true // keep the session
+  })
+
+  for (const session of expiredSessionList) {
+   // delete the expired session
+   await authKV.delete(
+    `session.accessToken#${session.accessToken}`
+   )
+  }
+
+  const newSessionData: SessionData = {
+   accessToken,
+   created: init.created,
+   email: init.email,
+   id,
+  }
+
+  existingSessionList.push(newSessionData)
+
+  await authKV.set(
+   sessionsByEmailKey,
+   JSON.stringify(existingSessionList)
+  )
+
+  await authKV.set(
+   sessionKey,
+   JSON.stringify(newSessionData)
+  )
+
+  return new Response(
+   JSON.stringify(newSessionData),
+   {
+    headers: {
+     'Content-Type': 'application/json',
+    },
+   }
+  )
  }

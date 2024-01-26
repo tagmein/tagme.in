@@ -1,6 +1,7 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
-import { Env } from './lib/env'
 import { civilMemoryKV } from '@tagmein/civil-memory'
+import { Env } from './lib/env'
+import { randomId } from './lib/randomId'
 
 const LINKEDIN_ACCESS_TOKEN_URL =
  'https://www.linkedin.com/oauth/v2/accessToken'
@@ -137,7 +138,7 @@ export const onRequestGet: PagesFunction<
   `init#${key}-${state.id}`,
   JSON.stringify({
    created: Date.now(),
-   email: linkedInProfile.email,
+   email: linkedInProfile.email.toLowerCase(),
    linkedInProfile,
   })
  )
@@ -148,16 +149,4 @@ export const onRequestGet: PagesFunction<
   },
   status: 302,
  })
-}
-
-function randomId() {
- return '12345678'
-  .split('')
-  .map(() =>
-   (Math.random() * 1e6)
-    .toString(36)
-    .replace('.', '')
-    .slice(0, 4)
-  )
-  .join('')
 }
