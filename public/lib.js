@@ -520,5 +520,7 @@ function createSession() {
    hash,
   },
  ])
- location.pathname = `/auth-linkedin-init?state=${id}`
+ location.replace(
+  `/auth-linkedin-init?state=${id}`
+ )
 }
