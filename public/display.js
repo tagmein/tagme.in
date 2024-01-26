@@ -1,13 +1,137 @@
 function displayAppAccounts() {
- const globalRealm = elem({
-  classes: ['realm', 'active'],
+ const globalRealmTab = elem({
+  classes: ['realm'],
   textContent: '🌍 Public',
+  events: {
+   click() {
+    const sessionId = getActiveSessionId()
+    const activeRealm = realms.find(
+     (r) => sessionId === r.session.id
+    )
+    const activeRealmTab =
+     activeRealm?.realmTab ?? globalRealmTab
+    activeRealmTab.classList.remove('active')
+    setActiveSessionId(PUBLIC_SESSION_ID)
+    globalRealmTab.classList.add('active')
+   },
+  },
+ })
+
+ function addAccount(session) {
+  const realmTab = elem({
+   classes: ['realm'],
+   children: [
+    elem({
+     classes: ['hut', 'invert-icon'],
+     tagName: 'span',
+     textContent: '🛖',
+    }),
+    elem({
+     tagName: 'span',
+     textContent: ` ${session.email ?? '···'}`,
+    }),
+    elem({
+     classes: ['close', 'invert-icon'],
+     tagName: 'span',
+     textContent: '❌',
+     events: {
+      click(e) {
+       e.stopPropagation()
+       realmTab.remove()
+       const sessions = listSessions()
+       const activeSessionId =
+        getActiveSessionId()
+       writeSessions(
+        sessions.filter(
+         (x) => x.id !== session.id
+        )
+       )
+       if (activeSessionId === session.id) {
+        const index = sessions.findIndex(
+         (x) => x.id === session.id
+        )
+        const switchToSessionId =
+         sessions[index - 1]?.id ??
+         sessions[index + 1]?.id
+        const activeRealm =
+         typeof switchToSessionId === 'string'
+          ? realms.find(
+             (r) =>
+              switchToSessionId === r.session.id
+            )
+          : undefined
+        const activeRealmTab =
+         activeRealm?.realmTab ?? globalRealmTab
+        activeRealmTab.classList.add('active')
+        setActiveSessionId(
+         activeRealm?.session?.id ??
+          PUBLIC_SESSION_ID
+        )
+       }
+      },
+     },
+    }),
+   ],
+   events: {
+    click() {
+     const sessionId = getActiveSessionId()
+     const activeRealm = realms.find(
+      (r) => sessionId === r.session.id
+     )
+     const activeRealmTab =
+      activeRealm?.realmTab ?? globalRealmTab
+     activeRealmTab.classList.remove('active')
+     const switchToRealm = realms.find(
+      (r) => session.id === r.session.id
+     )
+     if (switchToRealm) {
+      setActiveSessionId(session.id)
+      switchToRealm.realmTab.classList.add(
+       'active'
+      )
+     }
+    },
+   },
+  })
+  element.insertBefore(realmTab, addRealm)
+  return { session, realmTab }
+ }
+
+ const addRealm = elem({
+  classes: ['realm'],
+  children: [
+   elem({
+    classes: ['invert-icon'],
+    tagName: 'span',
+    textContent: '➕',
+   }),
+   elem({
+    tagName: 'span',
+    textContent: ' realm',
+   }),
+  ],
+  events: {
+   click: createSession,
+  },
  })
 
  const element = elem({
   classes: ['app-accounts'],
-  children: [globalRealm],
+  children: [globalRealmTab, addRealm],
  })
+
+ const realms = listSessions().map((session) =>
+  addAccount(session)
+ )
+
+ const sessionId = getActiveSessionId()
+ const activeRealm = realms.find(
+  (r) => sessionId === r.session.id
+ )
+
+ const activeRealmTab =
+  activeRealm?.realmTab ?? globalRealmTab
+ activeRealmTab.classList.add('active')
 
  return { element }
 }

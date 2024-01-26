@@ -63,18 +63,28 @@ body {
  cursor: pointer;
  filter: grayscale(1);
  padding: 10px 10px 0;
+ user-select: none;
+ white-space: pre;
+}
+
+.realm:hover {
+ filter: grayscale(0.15);
 }
 
 .realm.active {
- background-color: #202020;
+ background-color: #383828;
+ box-shadow: inset 0 5px 0 #80808080;
 }
 
 .app-accounts {
- background-color: #383828;
+ background-color: #202020;
  border-bottom: 1px solid #585858;
  display: flex;
  flex-direction: row;
- height: 44px;
+ height: 65px;
+ box-shadow: inset 0 -13px 0px #585858;
+ overflow-x: scroll;
+ overflow-y: hidden;
 }
 
 .toolbar {
@@ -545,8 +555,9 @@ body.light-mode textarea {
 }
 
 body.light-mode .app-accounts {
- background-color: #e9e9f1;
+ background-color: #f8f8f8;
  border-bottom: 1px solid #c8c8c8;
+ box-shadow: inset 0 -13px 0px #c8c8c8;
 }
 
 body.light-mode .realm {
@@ -554,7 +565,7 @@ body.light-mode .realm {
 }
 
 body.light-mode .realm.active {
- background-color: #efefef;
+ background-color: #e9e9f1;
 }
 
 body.light-mode button:active {
@@ -701,4 +712,35 @@ article:hover .message-footer {
 body.on-message .display-on-channel,
 body.on-channel .display-on-message {
  display: none;
+}
+
+.invert-icon {
+ filter: invert(1) brightness(0.85);
+}
+
+body.light-mode .invert-icon {
+ filter: brightness(2);
+}
+
+.invert-icon.hut {
+ position: relative;
+ top: -2px;
+}
+
+.invert-icon.hut {
+ filter: brightness(0.95);
+}
+
+body.light-mode .invert-icon.hut {
+ filter: brightness(1.25) contrast(0.5);
+}
+
+.close {
+ margin-left: 10px;
+ opacity: 0.5;
+}
+
+.close:hover {
+ margin-left: 10px;
+ opacity: 1;
 }

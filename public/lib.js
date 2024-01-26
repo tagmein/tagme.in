@@ -461,3 +461,64 @@ function setChannel(channel) {
   channel
  )}`
 }
+
+function randomId() {
+ return '12345678'
+  .split('')
+  .map(() =>
+   (Math.random() * 1e6)
+    .toString(36)
+    .replace('.', '')
+    .slice(0, 4)
+  )
+  .join('')
+}
+
+function read(key, defaultValue) {
+ const data = localStorage.getItem(key)
+ if (typeof data === 'string') {
+  return JSON.parse(data)
+ }
+ return defaultValue
+}
+
+function write(key, value) {
+ localStorage.setItem(
+  key,
+  JSON.stringify(value)
+ )
+}
+
+function listSessions() {
+ return read('tmi:sessions', [])
+}
+
+function writeSessions(data) {
+ write('tmi:sessions', data)
+}
+
+const PUBLIC_SESSION_ID = 'public'
+
+function setActiveSessionId(id) {
+ write('tmi:active-session', id)
+}
+
+function getActiveSessionId() {
+ return read(
+  'tmi:active-session',
+  PUBLIC_SESSION_ID
+ )
+}
+
+function createSession() {
+ const id = randomId()
+ const { hash } = location
+ writeSessions([
+  ...listSessions(),
+  {
+   id,
+   hash,
+  },
+ ])
+ location.pathname = `/auth-linkedin-init?state=${id}`
+}
