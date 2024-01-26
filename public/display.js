@@ -1,5 +1,7 @@
 let realms = []
 
+let secondMostRecentRealm
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -10,6 +12,13 @@ function displayAppAccounts() {
     const activeRealm = realms.find(
      (r) => sessionId === r.session.id
     )
+    if (
+     activeRealm.session.id !==
+     PUBLIC_SESSION_ID
+    ) {
+     secondMostRecentRealm =
+      activeRealm.session.id
+    }
     const activeRealmTab =
      activeRealm?.realmTab ?? globalRealmTab
     activeRealmTab.classList.remove('active')
@@ -62,6 +71,7 @@ function displayAppAccounts() {
         const activeRealmTab =
          activeRealm?.realmTab ?? globalRealmTab
         activeRealmTab.classList.add('active')
+        secondMostRecentRealm = undefined
         setActiveSessionId(
          activeRealm?.session?.id ??
           PUBLIC_SESSION_ID
@@ -84,6 +94,9 @@ function displayAppAccounts() {
       (r) => session.id === r.session.id
      )
      if (switchToRealm) {
+      secondMostRecentRealm =
+       activeRealm?.session?.id ??
+       PUBLIC_SESSION_ID
       setActiveSessionId(session.id)
       switchToRealm.realmTab.classList.add(
        'active'
@@ -210,10 +223,18 @@ function displayChannelHome(
    ],
   })
  )
+ const sendToRealm = secondMostRecentRealm
+  ? secondMostRecentRealm === PUBLIC_SESSION_ID
+    ? PUBLIC_SESSION_ID
+    : readSession(secondMostRecentRealm)
+  : undefined
  attachMessages(
   channel,
   mainContent,
-  formattedMessageData
+  formattedMessageData,
+  true,
+  undefined,
+  sendToRealm
  )
  attachChannels(
   mainContent,
@@ -322,7 +343,8 @@ function attachMessages(
  container,
  messages,
  includeFooter = true,
- emptyMessage = undefined
+ emptyMessage = undefined,
+ sendToRealm = undefined
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -339,7 +361,8 @@ function attachMessages(
    channel,
    container,
    message,
-   includeFooter
+   includeFooter,
+   sendToRealm
   )
  }
 }
@@ -348,7 +371,8 @@ function attachMessage(
  channel,
  container,
  message,
- includeFooter
+ includeFooter,
+ sendToRealm
 ) {
  const content = elem()
  addTextBlocks(content, message.text)
@@ -491,6 +515,43 @@ function attachMessage(
     textContent: 'copy link',
    })
    messageFooter.appendChild(copyRepliesLink)
+   if (sendToRealm) {
+    const label =
+     sendToRealm === PUBLIC_SESSION_ID
+      ? 'public'
+      : sendToRealm.email
+    const sendToLabel = `send to ${label}`
+    const sendToLink = elem({
+     attributes: {
+      href,
+     },
+     events: {
+      async click(e) {
+       e.preventDefault()
+       await withLoading(
+        networkMessageSend(
+         channel,
+         message.text,
+         Math.max(1, message.data.velocity),
+         sendToRealm === PUBLIC_SESSION_ID
+          ? PUBLIC_SESSION_ID
+          : sendToRealm.id
+        )
+       )
+       sendToLink.textContent = `✔ sent to ${label}`
+      },
+     },
+     tagName: 'a',
+     textContent: sendToLabel,
+    })
+    messageFooter.appendChild(
+     elem({
+      tagName: 'span',
+      textContent: ' • ',
+     })
+    )
+    messageFooter.appendChild(sendToLink)
+   }
   }
   renderFooter()
  }

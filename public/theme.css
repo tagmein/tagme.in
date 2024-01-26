@@ -693,9 +693,8 @@ body.light-mode article.highlight::after {
 }
 
 .message-footer {
- height: 23px;
+ min-height: 23px;
  opacity: 0.65;
- overflow: hidden;
  transition: opacity 0.5s ease;
  margin-bottom: 8px;
 }
@@ -707,6 +706,16 @@ body.light-mode article.highlight::after {
 .message-footer a {
  color: inherit;
  text-decoration-color: inherit;
+}
+
+.message-footer a:hover {
+ color: #a0e0f8;
+ text-decoration-color: #a0e0f8;
+}
+
+body.light-mode .message-footer a:hover {
+ color: #003800;
+ text-decoration-color: #003800;
 }
 
 article:hover .message-footer {

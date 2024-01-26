@@ -431,7 +431,8 @@ async function networkChannelSeek(
 async function networkMessageSend(
  channel,
  message,
- velocity = 0
+ velocity = 0,
+ sessionId
 ) {
  const body = JSON.stringify({
   channel,
@@ -442,7 +443,11 @@ async function networkMessageSend(
   'Content-Length': body.length,
   'Content-Type': 'application/json',
  }
- const activeSession = getActiveSession()
+ const activeSession = sessionId
+  ? sessionId === PUBLIC_SESSION_ID
+    ? undefined
+    : readSession(sessionId)
+  : getActiveSession()
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
