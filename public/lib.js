@@ -497,6 +497,31 @@ function writeSessions(data) {
  write('tmi:sessions', data)
 }
 
+function removeSession(sessionId) {
+ writeSessions(
+  listSessions().filter(
+   (x) => x.id !== sessionId
+  )
+ )
+}
+
+function readSession(sessionId) {
+ return read('tmi:sessions', []).find(
+  (x) => x.id === sessionId
+ )
+}
+
+function writeSession(
+ sessionId,
+ newSessionData
+) {
+ return writeSessions(
+  listSessions().map((x) =>
+   x.id === sessionId ? newSessionData : x
+  )
+ )
+}
+
 const PUBLIC_SESSION_ID = 'public'
 
 function setActiveSessionId(id) {
@@ -521,7 +546,14 @@ function createSession() {
    hash,
   },
  ])
- location.href = `https://tagme.in/auth-linkedin-init?origin=${encodeURIComponent(
-  origin
- )}&state=${id}`
+ location.href = `https://tagme.in/auth-linkedin-init?state=${encodeURIComponent(
+  JSON.stringify({ id, origin })
+ )}`
+}
+
+async function registerSession(sessionId) {
+ const session = readSession(sessionId)
+ if (session && !session.accessToken) {
+  location.hash = session.hash
+ }
 }

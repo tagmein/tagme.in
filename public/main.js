@@ -309,3 +309,9 @@ async function route() {
 
 window.addEventListener('hashchange', route)
 route().catch((e) => console.error(e))
+
+const activeSessionId = getActiveSessionId()
+
+if (activeSessionId !== PUBLIC_SESSION_ID) {
+ registerSession(activeSessionId)
+}

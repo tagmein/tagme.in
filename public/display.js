@@ -41,11 +41,7 @@ function displayAppAccounts() {
        const sessions = listSessions()
        const activeSessionId =
         getActiveSessionId()
-       writeSessions(
-        sessions.filter(
-         (x) => x.id !== session.id
-        )
-       )
+       removeSession(session.id)
        if (activeSessionId === session.id) {
         const index = sessions.findIndex(
          (x) => x.id === session.id

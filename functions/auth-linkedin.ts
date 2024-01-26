@@ -19,8 +19,9 @@ export const onRequestGet: PagesFunction<
  const errorDescription = url.searchParams.get(
   'error_description'
  )
- const state =
-  url.searchParams.get('state') ?? ''
+ const state = JSON.parse(
+  url.searchParams.get('state') ?? '{}'
+ )
 
  const accessTokenRequestData: Record<
   string,
@@ -94,10 +95,10 @@ export const onRequestGet: PagesFunction<
       status: number
      }
 
- return new Response(
-  JSON.stringify({
-   linkedInProfile,
-   state,
-  })
- )
+ return new Response('', {
+  headers: {
+   Location: state.origin,
+  },
+  status: 302,
+ })
 }
