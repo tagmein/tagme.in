@@ -818,3 +818,36 @@ body.light-mode .channel-history a:hover {
  right: 15px;
  top: 4px;
 }
+
+.channel-history a.small {
+ font-size: 16px;
+}
+
+body.light-mode .channel-history a span.score {
+ background-color: #efefef;
+}
+
+.channel-history a span.score {
+ background-color: #383828;
+ border-radius: 5px;
+ color: inherit;
+ display: inline-block;
+ font-size: 11px;
+ font-weight: bold;
+ opacity: 0.8;
+ padding: 0 3px 1px;
+ position: absolute;
+ right: 15px;
+ top: 7px;
+}
+
+.channel-history a:hover span.score {
+ background-color: #c8c8c8;
+}
+
+body.light-mode
+ .channel-history
+ a:hover
+ span.score {
+ background-color: #585858;
+}

@@ -302,7 +302,10 @@ function displayChannelMessage(
  }
 }
 
+let lastAttachedChannels
+
 function attachChannels(container, channels) {
+ lastAttachedChannels = channels
  container.appendChild(
   elem({
    tagName: 'p',
@@ -699,6 +702,39 @@ function displayAutocompleteChannels(
     historyEntry,
    ])
   }
+  lastAttachedChannels?.forEach?.(
+   ({ name: channel, score }) => {
+    const historyEntry = elem({
+     tagName: 'a',
+     attributes: {
+      href: `#/${encodeURIComponent(channel)}`,
+     },
+     classes: ['small'],
+     children: [
+      elem({
+       tagName: 'span',
+       textContent:
+        channel === ''
+         ? HOME_CHANNEL_ICON
+         : channel,
+      }),
+      elem({
+       classes: ['score'],
+       tagName: 'span',
+       textContent:
+        Math.floor(score).toString(10),
+      }),
+     ],
+    })
+    channelHistoryListElement.appendChild(
+     historyEntry
+    )
+    historyEntries.push([
+     channel.toLowerCase(),
+     historyEntry,
+    ])
+   }
+  )
   document.body.appendChild(historyElement)
   isOpen = true
  }
