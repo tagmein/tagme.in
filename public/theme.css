@@ -757,3 +757,64 @@ body.light-mode .invert-icon.hut {
  margin-left: 10px;
  opacity: 1;
 }
+
+.channel-history-shade {
+ background-color: #80808080;
+ bottom: 0;
+ left: 0;
+ overflow: hidden;
+ position: fixed;
+ right: 0;
+ top: 42px;
+ z-index: 2;
+}
+
+.channel-history {
+ background-color: #000;
+ max-height: calc(100dvh - 62px);
+ box-shadow: 0 0 10px #00000080;
+ left: 50px;
+ overflow-x: hidden;
+ overflow-y: scroll;
+ padding: 4px 0;
+ position: fixed;
+ right: 50px;
+ top: 42px;
+ z-index: 3;
+}
+
+body.light-mode .channel-history {
+ background-color: #fff;
+}
+
+.channel-history a {
+ color: #fff;
+ display: block;
+ font-family: sans-serif;
+ font-size: 20px;
+ padding: 4px 15px;
+ position: relative;
+ text-decoration: none;
+ white-space: pre-wrap;
+}
+
+.channel-history a:hover {
+ background-color: #fff;
+ color: #000;
+}
+
+body.light-mode .channel-history a {
+ color: #000;
+}
+
+body.light-mode .channel-history a:hover {
+ background-color: #000;
+ color: #fff;
+}
+
+.channel-history a span.remove {
+ filter: grayscale(1);
+ position: absolute;
+ right: 15px;
+ top: 4px;
+}

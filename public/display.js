@@ -9,21 +9,23 @@ function displayAppAccounts() {
   events: {
    click() {
     const sessionId = getActiveSessionId()
-    const activeRealm = realms.find(
-     (r) => sessionId === r.session.id
-    )
-    if (
-     activeRealm.session.id !==
-     PUBLIC_SESSION_ID
-    ) {
-     secondMostRecentRealm =
-      activeRealm.session.id
+    if (sessionId !== PUBLIC_SESSION_ID) {
+     const activeRealm = realms.find(
+      (r) => sessionId === r.session.id
+     )
+     if (
+      activeRealm?.session.id !==
+      PUBLIC_SESSION_ID
+     ) {
+      secondMostRecentRealm =
+       activeRealm.session.id
+     }
+     const activeRealmTab =
+      activeRealm?.realmTab ?? globalRealmTab
+     activeRealmTab.classList.remove('active')
+     globalRealmTab.classList.add('active')
     }
-    const activeRealmTab =
-     activeRealm?.realmTab ?? globalRealmTab
-    activeRealmTab.classList.remove('active')
     setActiveSessionId(PUBLIC_SESSION_ID)
-    globalRealmTab.classList.add('active')
    },
   },
  })
@@ -565,5 +567,148 @@ function attachMessage(
   }, 50)
   article.classList.add('highlight')
   focusOnMessage = undefined
+ }
+}
+
+function displayAutocompleteChannels(
+ channelInput
+) {
+ let channelHistory
+ function readChannelHistory() {
+  if (!channelHistory) {
+   channelHistory = read(
+    'tmi:channel-history',
+    {}
+   )
+  }
+  return channelHistory
+ }
+ function writeChannelHistory(history) {
+  channelHistory = history
+  write('tmi:channel-history', history)
+ }
+ let closeTimeout
+ let openTimeout
+ let canClose
+ const channelHistoryListElement = elem({
+  classes: ['channel-history'],
+  events: {
+   mousedown() {
+    canClose = false
+   },
+   mouseup() {
+    canClose = true
+    clearTimeout(closeTimeout)
+    openTimeout = setTimeout(
+     () => channelInput.focus(),
+     250
+    )
+   },
+  },
+ })
+ let isOpen = false
+ const historyElement = elem({
+  children: [
+   elem({
+    classes: ['channel-history-shade'],
+   }),
+   channelHistoryListElement,
+  ],
+ })
+ function close() {
+  closeTimeout = setTimeout(closeNow, 250)
+ }
+ function closeNow() {
+  clearTimeout(closeTimeout)
+  clearTimeout(openTimeout)
+  if (!isOpen || !canClose) {
+   return
+  }
+  document.body.removeChild(historyElement)
+  isOpen = false
+ }
+ function filter(text) {
+  const terms = text.toLowerCase().split(/\s+/)
+  for (const [
+   historyChannel,
+   historyEntry,
+  ] of historyEntries) {
+   historyEntry.style.display = terms.every(
+    (term) => historyChannel.includes(term)
+   )
+    ? 'block'
+    : 'none'
+  }
+ }
+ let historyEntries = []
+ function open() {
+  canClose = true
+  clearTimeout(closeTimeout)
+  if (isOpen) {
+   return
+  }
+  channelHistoryListElement.innerHTML = ''
+  historyEntries = []
+  for (const [channel] of Object.entries(
+   readChannelHistory()
+  ).sort(function ([, a], [, b]) {
+   return b - a
+  })) {
+   const historyEntry = elem({
+    tagName: 'a',
+    attributes: {
+     href: `#/${encodeURIComponent(channel)}`,
+    },
+    children: [
+     elem({
+      tagName: 'span',
+      textContent:
+       channel === ''
+        ? HOME_CHANNEL_ICON
+        : channel,
+     }),
+     elem({
+      classes: ['remove'],
+      tagName: 'span',
+      textContent: '❌',
+      events: {
+       click(e) {
+        e.preventDefault()
+        e.stopPropagation()
+        historyEntry.remove()
+        const history = readChannelHistory()
+        delete history[channel]
+        writeChannelHistory(history)
+       },
+      },
+     }),
+    ],
+   })
+   channelHistoryListElement.appendChild(
+    historyEntry
+   )
+   historyEntries.push([
+    channel.toLowerCase(),
+    historyEntry,
+   ])
+  }
+  document.body.appendChild(historyElement)
+  isOpen = true
+ }
+ function visit(channel) {
+  channelInput.blur()
+  closeNow()
+  const history = readChannelHistory()
+  if (!(channel in history)) {
+   history[channel] = 0
+  }
+  history[channel]++
+  writeChannelHistory(history)
+ }
+ return {
+  close,
+  filter,
+  open,
+  visit,
  }
 }

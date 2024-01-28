@@ -3,18 +3,50 @@ const BACK_ICON = '⏴'
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 let focusOnMessage = undefined
-
+let lastKnownChannelInput
+let channelInputFocused = false
 const channelInput = elem({
  attributes: {
   maxlength: 25,
-  placeholder: 'Enter channel name',
+  placeholder: 'Tag Me In',
  },
  events: {
-  input: debounce(function () {
+  blur() {
+   channelInputFocused = false
+   autocompleteChannels.close()
    setChannel(channelInput.value.trim())
-  }),
+  },
+  focus() {
+   lastKnownChannelInput = channelInput.value
+   channelInputFocused = true
+   autocompleteChannels.open()
+  },
+  input() {
+   autocompleteChannels.filter(
+    channelInput.value.trim()
+   )
+  },
+  keydown({ key }) {
+   if (key === 'Enter') {
+    channelInput.blur()
+   }
+  },
  },
  tagName: 'input',
+})
+
+const autocompleteChannels =
+ displayAutocompleteChannels(channelInput)
+
+addEventListener('keydown', ({ key }) => {
+ if (key === 'Escape') {
+  if (channelInputFocused) {
+   channelInput.value = lastKnownChannelInput
+   channelInput.blur()
+  } else {
+   channelInput.focus()
+  }
+ }
 })
 
 const loadingIndicator = elem({
@@ -261,6 +293,7 @@ async function route() {
   messageChannel,
   message: messageText,
  } = getUrlData()
+ autocompleteChannels.visit(channel)
  const activeSessionId = getActiveSessionId()
  if (activeSessionId !== PUBLIC_SESSION_ID) {
   if (
