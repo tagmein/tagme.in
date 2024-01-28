@@ -35,13 +35,20 @@ const channelInput = elem({
  tagName: 'input',
 })
 
+function cancelChannelInput() {
+ channelInput.value = lastKnownChannelInput
+}
+
 const autocompleteChannels =
- displayAutocompleteChannels(channelInput)
+ displayAutocompleteChannels(
+  channelInput,
+  cancelChannelInput
+ )
 
 addEventListener('keydown', ({ key }) => {
  if (key === 'Escape') {
   if (channelInputFocused) {
-   channelInput.value = lastKnownChannelInput
+   cancelChannelInput()
    channelInput.blur()
   } else {
    channelInput.focus()

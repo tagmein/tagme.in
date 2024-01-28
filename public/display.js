@@ -571,7 +571,8 @@ function attachMessage(
 }
 
 function displayAutocompleteChannels(
- channelInput
+ channelInput,
+ cancelChannelInput
 ) {
  let channelHistory
  function readChannelHistory() {
@@ -595,6 +596,7 @@ function displayAutocompleteChannels(
   events: {
    mousedown() {
     canClose = false
+    cancelChannelInput()
    },
    mouseup() {
     canClose = true
@@ -611,6 +613,11 @@ function displayAutocompleteChannels(
   children: [
    elem({
     classes: ['channel-history-shade'],
+    events: {
+     mousedown() {
+      cancelChannelInput()
+     },
+    },
    }),
    channelHistoryListElement,
   ],
