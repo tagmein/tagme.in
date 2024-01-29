@@ -1,3 +1,14 @@
+function insertAfter(child, node) {
+ if (child.nextElementSibling) {
+  child.parentElement.insertBefore(
+   node,
+   child.nextElementSibling
+  )
+ } else {
+  child.parentElement.appendChild(node)
+ }
+}
+
 function addTextWithLinks(container, text) {
  const parts = text.split(/(https?:\/\/[^\s]+)/)
  parts.forEach((part) => {
@@ -115,7 +126,11 @@ function addTextWithCodeBlocks(
 
  function flushCodeBlock() {
   const code = document.createElement('code')
-  addTextWithLinks(code, codeContent)
+  if (codeContent.startsWith('=')) {
+   formula(code, codeContent)
+  } else {
+   addTextWithLinks(code, codeContent)
+  }
   container.appendChild(code)
   codeContent = ''
  }
