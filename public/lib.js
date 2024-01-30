@@ -9,6 +9,13 @@ function insertAfter(child, node) {
  }
 }
 
+function safeDecodeURI(uri) {
+ try {
+  return decodeURI(uri)
+ } catch (e) {}
+ return uri
+}
+
 function addTextWithLinks(container, text) {
  const parts = text.split(/(https?:\/\/[^\s]+)/)
  parts.forEach((part) => {
@@ -16,7 +23,7 @@ function addTextWithLinks(container, text) {
    const a = document.createElement('a')
    a.setAttribute('target', '_blank')
    a.setAttribute('href', part)
-   a.textContent = decodeURI(part)
+   a.textContent = safeDecodeURI(part)
    container.appendChild(a)
   } else if (part) {
    addHashTagLinks(container, part)
