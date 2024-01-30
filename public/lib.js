@@ -80,7 +80,9 @@ function addHashTagLinks(container, text) {
 
  parts.forEach((part) => {
   if (part[0] === '#') {
-   const channel = part.slice(1)
+   const channel = decodeURIComponent(
+    part.slice(1)
+   )
    const a = document.createElement('a')
    a.href = `/#/${encodeURIComponent(channel)}`
    a.textContent =
