@@ -395,6 +395,15 @@ button[title='Toggle full screen'] {
  overflow: hidden;
 }
 
+.image-container.image-screenshot img {
+ object-fit: cover;
+ object-position: 50% 0;
+}
+
+.image-container.expanded.image-screenshot img {
+ object-fit: contain;
+}
+
 article.highlight::after {
  animation: fadeOut 5s ease-out forwards;
  bottom: 0;

@@ -166,10 +166,11 @@ function addTextWithCodeBlocks(
  }
 }
 
+const isYouTubeUrl =
+ /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+
 function addYouTubeEmbed(container, text) {
- const regExp =
-  /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
- const match = text.match(regExp)
+ const match = text.match(isYouTubeUrl)
 
  if (match && match[2].length == 11) {
   const id = match[2]
@@ -188,41 +189,63 @@ function addYouTubeEmbed(container, text) {
   container.appendChild(frame)
  }
 }
+const isUrl = /https?:\/\/\S+/
+
+const isImageUrl =
+ /https?:\/\/\S+\.(gif|jpe?g|png|webp)/
 
 function addImageEmbed(container, text) {
- const regExp =
-  /https:\/\/\S+\.(gif|jpe?g|png|webp)/
- const match = text.match(regExp)
+ const urlMatch = text.match(isUrl)
 
- if (match) {
-  const imageContainer = elem({
-   classes: ['image-container'],
-   children: [
-    elem({
-     attributes: {
-      src: match[0],
-     },
-     tagName: 'img',
-    }),
-   ],
-   events: {
-    click() {
-     if (
-      imageContainer.classList.contains(
-       'expanded'
-      )
-     ) {
-      imageContainer.classList.remove(
-       'expanded'
-      )
-     } else {
-      imageContainer.classList.add('expanded')
-     }
-    },
-   },
-  })
-  container.appendChild(imageContainer)
+ if (
+  !urlMatch ||
+  urlMatch[0].match(isYouTubeUrl)
+ ) {
+  return
  }
+
+ const imageUrlMatch =
+  urlMatch[0].match(isImageUrl)
+
+ const imgSrc = imageUrlMatch
+  ? imageUrlMatch[0]
+  : 'https://dropkeep.app/screenshot?' +
+    new URLSearchParams({
+     url: urlMatch[0],
+     width: 720,
+     height: 720,
+    }).toString()
+
+ const imageContainer = elem({
+  classes: [
+   'image-container',
+   imageUrlMatch
+    ? 'image-direct'
+    : 'image-screenshot',
+  ],
+  children: [
+   elem({
+    attributes: {
+     src: imgSrc,
+    },
+    tagName: 'img',
+   }),
+  ],
+  events: {
+   click() {
+    if (
+     imageContainer.classList.contains(
+      'expanded'
+     )
+    ) {
+     imageContainer.classList.remove('expanded')
+    } else {
+     imageContainer.classList.add('expanded')
+    }
+   },
+  },
+ })
+ container.appendChild(imageContainer)
 }
 
 function begin2024GMT() {
