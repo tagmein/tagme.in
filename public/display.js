@@ -331,10 +331,11 @@ function attachChannels(container, channels) {
        : c.name,
      children: [
       elem({
+       attributes: {
+        title: Math.round(c.score).toString(10),
+       },
        tagName: 'span',
-       textContent: Math.round(
-        c.score
-       ).toString(10),
+       textContent: niceNumber(c.score),
       }),
      ],
     })
@@ -453,9 +454,14 @@ function attachMessage(
   score.innerHTML = ''
   score.appendChild(
    elem({
-    textContent: `${Math.round(
+    attributes: {
+     title: Math.round(message.score).toString(
+      10
+     ),
+    },
+    textContent: `${niceNumber(
      message.score
-    ).toString(10)}${velocityText}`,
+    )}${velocityText}`,
    })
   )
  }
@@ -721,8 +727,7 @@ function displayAutocompleteChannels(
       elem({
        classes: ['score'],
        tagName: 'span',
-       textContent:
-        Math.floor(score).toString(10),
+       textContent: niceNumber(score),
       }),
      ],
     })

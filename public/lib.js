@@ -1,3 +1,19 @@
+function niceNumber(value) {
+ if (value > 1e12) {
+  return (value / 1e12).toFixed(1) + 'T'
+ }
+ if (value > 1e9) {
+  return (value / 1e9).toFixed(1) + 'B'
+ }
+ if (value > 1e6) {
+  return (value / 1e6).toFixed(1) + 'M'
+ }
+ if (value > 1e3) {
+  return (value / 1e3).toFixed(1) + 'k'
+ }
+ return Math.round(value).toString(10)
+}
+
 function insertAfter(child, node) {
  if (child.nextElementSibling) {
   child.parentElement.insertBefore(
@@ -206,6 +222,10 @@ function addImageEmbed(container, text) {
 
  const imageUrlMatch =
   urlMatch[0].match(isImageUrl)
+
+ if (!imageUrlMatch) {
+  return
+ }
 
  const imgSrc = imageUrlMatch
   ? imageUrlMatch[0]
