@@ -68,19 +68,27 @@ const fullScreenButton = elem({
  attributes: {
   title: 'Toggle full screen',
  },
+ children: [icon('in')],
  events: {
   click() {
    if (!document.fullscreenElement) {
     document.body
      .requestFullscreen()
+     .then(() => {
+      document.body.classList.add(
+       'is-fullscreen'
+      )
+     })
      .catch((e) => console.error(e))
    } else {
     document.exitFullscreen()
+    document.body.classList.remove(
+     'is-fullscreen'
+    )
    }
   },
  },
  tagName: 'button',
- textContent: '⛶',
 })
 
 function setLightMode(lightMode) {
@@ -103,6 +111,7 @@ const lightDarkModeButton = elem({
  attributes: {
   title: 'Switch between light and dark mode',
  },
+ children: [icon('sun')],
  events: {
   click() {
    if (
@@ -117,7 +126,6 @@ const lightDarkModeButton = elem({
   },
  },
  tagName: 'button',
- textContent: '☼',
 })
 
 const appAccounts = displayAppAccounts()
@@ -132,11 +140,11 @@ const appHeader = elem({
      children: [
       elem({
        classes: [
-        'h-stretch',
+        'icon',
+        'icon-home',
         'display-on-channel',
        ],
        tagName: 'span',
-       textContent: HOME_CHANNEL_ICON,
       }),
       elem({
        classes: [
@@ -245,10 +253,10 @@ const compose = elem({
   elem({
    attributes: {
     title: 'Send message now',
-    type: 'submit',
-    value: '➹',
    },
-   tagName: 'input',
+   children: [icon('plane')],
+   classes: ['submit'],
+   tagName: 'button',
   }),
  ],
  classes: ['compose'],

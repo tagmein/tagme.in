@@ -246,6 +246,7 @@ function addImageEmbed(container, text) {
   children: [
    elem({
     attributes: {
+     loading: 'lazy',
      src: imgSrc,
     },
     tagName: 'img',

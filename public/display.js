@@ -2,10 +2,26 @@ let realms = []
 
 let secondMostRecentRealm
 
+function icon(...names) {
+ return elem({
+  classes: [
+   'icon',
+   ...names.map((name) => `icon-${name}`),
+  ],
+  tagName: 'span',
+ })
+}
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
-  textContent: '🌍 Public',
+  children: [
+   icon('globe', 'sm'),
+   elem({
+    tagName: 'span',
+    textContent: 'Public',
+   }),
+  ],
   events: {
    click() {
     const sessionId = getActiveSessionId()
@@ -38,16 +54,12 @@ function displayAppAccounts() {
   const realmTab = elem({
    classes: ['realm'],
    children: [
-    elem({
-     classes: ['hut', 'invert-icon'],
-     tagName: 'span',
-     textContent: '🛖',
-    }),
+    icon('hut', 'sm'),
     realmTabLabel,
     elem({
-     classes: ['close', 'invert-icon'],
+     classes: ['close'],
+     children: [icon('close', 'sm')],
      tagName: 'span',
-     textContent: '❌',
      events: {
       click(e) {
        e.stopPropagation()
@@ -112,13 +124,9 @@ function displayAppAccounts() {
  }
 
  const addRealm = elem({
-  classes: ['realm'],
+  classes: ['realm', 'realm-add'],
   children: [
-   elem({
-    classes: ['invert-icon'],
-    tagName: 'span',
-    textContent: '➕',
-   }),
+   icon('plus', 'sm'),
    elem({
     tagName: 'span',
     textContent: ' realm',
@@ -386,6 +394,7 @@ function attachMessage(
  addImageEmbed(content, message.text)
  const agreeButton = elem({
   classes: ['agree'],
+  children: [icon('yes')],
   attributes: {
    title: 'I agree with this',
   },
@@ -413,10 +422,10 @@ function attachMessage(
    },
   },
   tagName: 'button',
-  textContent: '✔',
  })
  const disagreeButton = elem({
   classes: ['disagree'],
+  children: [icon('no')],
   attributes: {
    title: 'I disagree with this',
   },
@@ -442,7 +451,6 @@ function attachMessage(
    },
   },
   tagName: 'button',
-  textContent: '✘',
  })
  function renderScore() {
   const velocityText =
@@ -459,9 +467,13 @@ function attachMessage(
       10
      ),
     },
-    textContent: `${niceNumber(
-     message.score
-    )}${velocityText}`,
+    textContent: `${niceNumber(message.score)}`,
+   })
+  )
+  score.appendChild(
+   elem({
+    classes: ['velocity'],
+    textContent: velocityText,
    })
   )
  }
@@ -469,13 +481,13 @@ function attachMessage(
   classes: ['score'],
  })
  renderScore()
+ const articleToolButtons = elem({
+  classes: ['article-tool-buttons'],
+  children: [agreeButton, disagreeButton],
+ })
  const articleTools = elem({
   classes: ['article-tools'],
-  children: [
-   score,
-   agreeButton,
-   disagreeButton,
-  ],
+  children: [score, articleToolButtons],
  })
  const article = elem({
   children: [content, articleTools],

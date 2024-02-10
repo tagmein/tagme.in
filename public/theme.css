@@ -49,7 +49,7 @@ body {
 .app-header {
  display: flex;
  flex-direction: column;
- height: 94px;
+ height: 108px;
  left: 0;
  overflow: visible;
  position: sticky;
@@ -61,32 +61,49 @@ body {
 .realm {
  border-right: 1px solid #585858;
  cursor: pointer;
- filter: grayscale(1);
- padding: 10px 10px 0;
+ font-size: 20px;
+ padding: 8px 10px 0;
  user-select: none;
  white-space: pre;
 }
 
+.realm-add {
+ opacity: 0.65;
+}
+
+.realm-add:hover {
+ opacity: 1;
+}
+
 .realm:hover {
- filter: grayscale(0.15);
+ background-color: #585838;
+}
+
+.realm .icon {
+ vertical-align: -4px;
+ margin-right: 5px;
+}
+
+.realm .icon.icon-plus {
+ margin-right: 0;
+}
+
+.realm .icon:last-child {
+ margin-right: 0;
 }
 
 .realm.active {
  background-color: #383828;
- box-shadow: inset 0 5px 0 #80808080;
-}
-
-.realm .invert-icon.hut {
- margin-right: 5px;
+ box-shadow: inset 0 2px 0 #80808080;
 }
 
 .app-accounts {
  background-color: #202020;
  border-bottom: 1px solid #585858;
+ box-shadow: inset 0 -13px 0px #585858;
  display: flex;
  flex-direction: row;
- height: 65px;
- box-shadow: inset 0 -13px 0px #585858;
+ height: 72px;
  overflow-x: scroll;
  overflow-y: hidden;
 }
@@ -94,6 +111,7 @@ body {
 .toolbar {
  display: flex;
  flex-direction: row;
+ flex-shrink: 0;
  height: 50px;
 }
 
@@ -148,30 +166,13 @@ body {
  outline: none;
 }
 
-.toolbar.time-toolbar {
- height: 25px;
- top: 50px;
-}
-
-.time-toolbar button,
-.time-toolbar select {
- line-height: 5px;
-}
-
-.time-toolbar button {
- padding-bottom: 5px;
-}
-
-.toolbar.time-toolbar select {
- padding: 0;
-}
-
 .loader {
+ bottom: -8px;
  left: 0;
  opacity: 0;
+ pointer-events: none;
  position: absolute;
  right: 0;
- bottom: -8px;
  transition: opacity 0.5s ease;
  width: 100%;
 }
@@ -230,24 +231,24 @@ footer > p {
  width: 100%;
 }
 
-.compose input[type='submit'] {
+.compose button.submit {
  border-radius: 7px;
  box-sizing: border-box;
- height: 24px;
+ cursor: pointer;
+ height: 48px;
  line-height: 22px;
  opacity: 0.5;
+ padding: 4px 0 0;
  position: absolute;
  right: 15px;
  text-align: center;
  top: 15px;
- transform-origin: top right;
- transform: scale(2);
  transition: 0.5s opacity ease;
- width: 24px;
+ width: 48px;
 }
 
-.compose:hover input[type='submit'],
-.compose textarea:focus + input[type='submit'] {
+.compose:hover button.submit,
+.compose textarea:focus + button.submit {
  opacity: 1;
 }
 
@@ -281,13 +282,19 @@ article blockquote {
  font-size: 18px;
 }
 
-.article-tools {
+.article-tool-buttons {
  display: flex;
  flex-direction: row;
+ gap: 2px;
+}
+
+.article-tools {
+ display: flex;
+ flex-direction: column;
+ gap: 2px;
  position: absolute;
  right: 15px;
- top: 11px;
- gap: 2px;
+ top: 5px;
 }
 
 .article-tools .score,
@@ -298,27 +305,42 @@ article blockquote {
 .article-tools .score {
  border-radius: 7px;
  box-sizing: border-box;
+ display: flex;
+ flex-direction: row;
  height: 26px;
  line-height: 22px;
  min-width: 28px;
- padding: 2px 7px;
+ padding: 0 7px;
  text-align: center;
+ font-size: 16px;
+ justify-content: space-evenly;
 }
 
-.article-tools > button.agree {
- border-radius: 7px;
- box-sizing: border-box;
- height: 26px;
- line-height: 22px;
- padding: 2px 6px 2px 7px;
+.article-tools .score .velocity {
+ font-size: 13px;
 }
 
-.article-tools > button.disagree {
- border-radius: 7px;
+.article-tool-buttons > button {
+ align-items: center;
+ display: grid;
+ flex-grow: 0;
+ flex-shrink: 0;
+ justify-content: center;
+ width: 50%;
+}
+
+.article-tool-buttons > button.agree {
+ border-radius: 4px;
  box-sizing: border-box;
- height: 26px;
  line-height: 22px;
- padding: 2px 7px;
+ padding: 2px;
+}
+
+.article-tool-buttons > button.disagree {
+ border-radius: 4px;
+ box-sizing: border-box;
+ line-height: 22px;
+ padding: 2px;
 }
 
 article > div span {
@@ -384,10 +406,6 @@ a.channel > span {
  padding: 0 7px 7px 7px;
 }
 
-button[title='Toggle full screen'] {
- padding: 0 2px 4px 5px;
-}
-
 .image-container img {
  height: 100%;
  width: 100%;
@@ -402,6 +420,7 @@ button[title='Toggle full screen'] {
 
 .image-container.expanded.image-screenshot img {
  object-fit: contain;
+ object-position: 50% 50%;
 }
 
 article.highlight::after {
@@ -488,11 +507,11 @@ footer {
  border-bottom: 1px solid #585858;
 }
 
-.compose input[type='submit'] {
+.compose button.submit {
  background-color: #005800;
 }
 
-.compose input[type='submit']:hover {
+.compose button.submit:hover {
  background-color: #009800;
 }
 
@@ -501,20 +520,17 @@ article {
  border-bottom: 1px solid #585858;
 }
 
-.article-tools > .score {
- background-color: #585838;
-}
-
-.article-tools > button.agree,
-.article-tools > button.disagree {
+.article-tool-buttons > button.agree,
+.article-tool-buttons > button.disagree {
  background-color: #585858;
 }
 
-.article-tools > button.agree.agreed {
+.article-tool-buttons > button.agree.agreed {
  background-color: #009800;
 }
 
-.article-tools > button.disagree.disagreed {
+.article-tool-buttons
+ > button.disagree.disagreed {
  background-color: #980000;
 }
 
@@ -573,6 +589,10 @@ body.light-mode .realm {
  border-right: 1px solid #c8c8c8;
 }
 
+body.light-mode .realm:hover {
+ background-color: #e0e0b3;
+}
+
 body.light-mode .realm.active {
  background-color: #e9e9f1;
 }
@@ -628,13 +648,11 @@ body.light-mode .compose textarea {
  border-bottom: 1px solid #c8c8c8;
 }
 
-body.light-mode .compose input[type='submit'] {
+body.light-mode .compose button.submit {
  background-color: #4e954e;
 }
 
-body.light-mode
- .compose
- input[type='submit']:hover {
+body.light-mode .compose button.submit:hover {
  background-color: #41cd41;
 }
 
@@ -643,24 +661,22 @@ body.light-mode article {
  border-bottom: 1px solid #c8c8c8;
 }
 
-body.light-mode .article-tools > .score {
- background-color: #e0e0b3;
-}
-
-body.light-mode .article-tools > button.agree,
 body.light-mode
- .article-tools
+ .article-tool-buttons
+ > button.agree,
+body.light-mode
+ .article-tool-buttons
  > button.disagree {
  background-color: #c8c8c8;
 }
 
 body.light-mode
- .article-tools
+ .article-tool-buttons
  > button.agree.agreed {
  background-color: #00ef00;
 }
 body.light-mode
- .article-tools
+ .article-tool-buttons
  > button.disagree.disagreed {
  background-color: #ea0000;
 }
@@ -732,34 +748,16 @@ body.on-channel .display-on-message {
  display: none;
 }
 
-.invert-icon {
- filter: invert(1) brightness(0.85);
-}
-
-body.light-mode .invert-icon {
- filter: brightness(2);
-}
-
-.invert-icon.hut {
- position: relative;
- top: -2px;
-}
-
-.invert-icon.hut {
- filter: brightness(0.95);
-}
-
-body.light-mode .invert-icon.hut {
- filter: brightness(1.25) contrast(0.5);
-}
-
 .close {
- margin-left: 10px;
+ height: 24px;
+ margin-left: 5px;
  opacity: 0.5;
+ position: relative;
+ top: -1px;
+ width: 24px;
 }
 
 .close:hover {
- margin-left: 10px;
  opacity: 1;
 }
 
@@ -770,7 +768,7 @@ body.light-mode .invert-icon.hut {
  overflow: hidden;
  position: fixed;
  right: 0;
- top: 42px;
+ top: 52px;
  z-index: 2;
 }
 
@@ -784,7 +782,7 @@ body.light-mode .invert-icon.hut {
  padding: 4px 0;
  position: fixed;
  right: 50px;
- top: 42px;
+ top: 52px;
  z-index: 3;
 }
 
@@ -905,4 +903,107 @@ body.light-mode article > div code.formula {
  100% {
   background-position: 0 0;
  }
+}
+
+.icon {
+ background-color: #fff;
+ background-size: 100%;
+ display: inline-block;
+ height: 32px;
+ width: 32px;
+}
+
+.icon.icon-sm {
+ height: 24px;
+ width: 24px;
+}
+
+body.light-mode .icon {
+ background-color: #282828;
+}
+
+.icon-globe {
+ mask-image: url(./icons/globe.svg);
+}
+
+.icon-home {
+ mask-image: url(./icons/home.svg);
+}
+
+.icon-hut {
+ mask-image: url(./icons/hut.svg);
+}
+
+.icon-in {
+ mask-image: url(./icons/in.svg);
+}
+
+.icon-no {
+ mask-image: url(./icons/no.svg);
+}
+
+body.is-fullscreen .icon-in {
+ mask-image: url(./icons/out.svg);
+}
+
+.icon-plane {
+ mask-image: url(./icons/plane.svg);
+}
+
+.icon-sun {
+ mask-image: url(./icons/sun.svg);
+}
+
+.icon-yes {
+ mask-image: url(./icons/yes.svg);
+}
+
+.icon.icon-close,
+body.light-mode .icon.icon-close {
+ background-color: transparent;
+ position: relative;
+}
+
+.icon.icon-close::before,
+.icon.icon-close::after {
+ background-color: currentColor;
+ border-radius: 2px;
+ content: '';
+ display: block;
+ height: 75%;
+ left: 11px;
+ position: absolute;
+ top: 2px;
+ width: 2px;
+}
+
+.icon.icon-close::before {
+ transform: rotate(45deg);
+}
+
+.icon.icon-close::after {
+ transform: rotate(-45deg);
+}
+
+.icon.icon-plus,
+body.light-mode .icon.icon-plus {
+ background-color: transparent;
+ position: relative;
+}
+
+.icon.icon-plus::before,
+.icon.icon-plus::after {
+ background-color: currentColor;
+ border-radius: 2px;
+ content: '';
+ display: block;
+ height: 65%;
+ left: 11px;
+ position: absolute;
+ top: 2px;
+ width: 2px;
+}
+
+.icon.icon-plus::after {
+ transform: rotate(90deg);
 }
