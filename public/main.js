@@ -8,7 +8,7 @@ let channelInputFocused = false
 const channelInput = elem({
  attributes: {
   maxlength: 25,
-  placeholder: 'Tag Me In',
+  placeholder: 'Search channels',
  },
  events: {
   blur() {
@@ -74,17 +74,9 @@ const fullScreenButton = elem({
    if (!document.fullscreenElement) {
     document.body
      .requestFullscreen()
-     .then(() => {
-      document.body.classList.add(
-       'is-fullscreen'
-      )
-     })
      .catch((e) => console.error(e))
    } else {
     document.exitFullscreen()
-    document.body.classList.remove(
-     'is-fullscreen'
-    )
    }
   },
  },
@@ -137,6 +129,19 @@ const appHeader = elem({
    classes: ['toolbar'],
    children: [
     elem({
+     classes: ['brand', 'grow'],
+     tagName: 'span',
+     textContent: 'Tag Me In',
+    }),
+    lightDarkModeButton,
+    fullScreenButton,
+   ],
+  }),
+  appAccounts.element,
+  elem({
+   classes: ['toolbar'],
+   children: [
+    elem({
      children: [
       elem({
        classes: [
@@ -169,11 +174,8 @@ const appHeader = elem({
     }),
     loadingIndicator,
     channelInput,
-    lightDarkModeButton,
-    fullScreenButton,
    ],
   }),
-  appAccounts.element,
  ],
 })
 

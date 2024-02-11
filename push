@@ -1,0 +1,6 @@
+NOW=`date '+%F %H:%M:%S'`
+./stats
+git add -A
+git commit -am "auto commit $NOW"
+git pull --rebase
+git push
