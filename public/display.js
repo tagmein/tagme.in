@@ -801,8 +801,79 @@ function displayActivity() {
 
  async function load() {
   const news = await getNews()
-  console.log({ news })
+  element.innerHTML = ''
+  for (const newsMessage of news.data) {
+   attachNewsMessage(element, newsMessage)
+  }
  }
 
  return { element, show, hide, toggle }
+}
+
+function localDateTime(dt) {
+ const nowDate = new Date().toLocaleDateString()
+ const dateString = dt.toLocaleDateString()
+ if (dateString === nowDate) {
+  return dt.toLocaleTimeString()
+ }
+ return dateString
+}
+
+function attachNewsMessage(
+ container,
+ { message, channel, seen }
+) {
+ const content = elem()
+ addTextBlocks(content, message)
+ addYouTubeEmbed(content, message)
+ addImageEmbed(content, message)
+ const dateContainer = elem({
+  attributes: {
+   href: `#/${encodeURIComponent(channel)}`,
+   title: new Date(seen).toString(),
+  },
+  classes: ['news-date'],
+  events: {
+   click() {
+    const { channel: currentChannel } =
+     getUrlData()
+    focusOnMessage = message
+    if (channel === currentChannel) {
+     route()
+    }
+   },
+  },
+  tagName: 'a',
+  textContent: localDateTime(new Date(seen)),
+ })
+ const channelContainer = elem({
+  attributes: {
+   href: `#/${encodeURIComponent(channel)}`,
+  },
+  classes: ['news-channel'],
+  events: {
+   click() {
+    const { channel: currentChannel } =
+     getUrlData()
+    focusOnMessage = message
+    if (channel === currentChannel) {
+     route()
+    }
+   },
+  },
+  tagName: 'a',
+  textContent: `#${
+   channel === '' ? HOME_CHANNEL_ICON : channel
+  }`,
+ })
+ const article = elem({
+  children: [
+   dateContainer,
+   channelContainer,
+   content,
+  ],
+  classes: ['news'],
+  tagName: 'article',
+ })
+ container.appendChild(article)
 }

@@ -1033,3 +1033,22 @@ body.light-mode .activity-container {
  height: calc(100dvh - 160px);
  opacity: 1;
 }
+
+article.news {
+ padding: 3px 15px;
+}
+
+.news-channel {
+ float: left;
+ margin-right: 4px;
+}
+
+.news-date {
+ float: right;
+ margin-left: 4px;
+}
+
+.news-channel,
+.news-date {
+ margin-top: 8px;
+}
