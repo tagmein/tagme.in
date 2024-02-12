@@ -543,6 +543,18 @@ function networkRootUrl() {
   : ''
 }
 
+async function getNews(chunk) {
+ const response = await fetch(
+  `${networkRootUrl()}/news${
+   typeof chunk === 'number'
+    ? `?chunk=${chunk.toString(10)}`
+    : ''
+  }`
+ )
+ const news = await response.json()
+ return news
+}
+
 function setChannel(channel) {
  location.hash = `#/${encodeURIComponent(
   channel

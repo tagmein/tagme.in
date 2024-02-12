@@ -347,7 +347,7 @@ export function scroll(kv: CivilMemoryKV) {
    data: 'DATA',
   })
   return template.replace(
-   'DATA',
+   '"DATA"',
    (await kv.get(chunkKey)) ?? '[]'
   )
  }

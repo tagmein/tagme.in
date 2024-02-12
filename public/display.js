@@ -800,8 +800,8 @@ function displayActivity() {
  }
 
  async function load() {
-  const response = await fetch('/news')
-  const news = await response.json()
+  const news = await getNews()
+  console.log({ news })
  }
 
  return { element, show, hide, toggle }
