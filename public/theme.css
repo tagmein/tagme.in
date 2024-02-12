@@ -1052,3 +1052,30 @@ article.news {
 .news-date {
  margin-top: 8px;
 }
+
+.reply {
+ margin-left: 40px;
+ position: relative;
+}
+
+.reply::before {
+ background-color: #484848;
+ border-radius: 20px;
+ border: 2px solid #808080;
+ color: #808080;
+ content: '⮳';
+ display: block;
+ font-size: 42px;
+ height: 36px;
+ left: -36px;
+ line-height: 33px;
+ overflow: hidden;
+ position: absolute;
+ text-indent: -2px;
+ top: 4px;
+ width: 36px;
+}
+
+body.light-mode .reply::before {
+ background-color: #c8c8c8;
+}
