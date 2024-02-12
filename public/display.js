@@ -807,7 +807,12 @@ function displayActivity() {
   }
  }
 
- return { element, show, hide, toggle }
+ function clear() {
+  element.innerHTML = ''
+  hide()
+ }
+
+ return { clear, element, show, hide, toggle }
 }
 
 function localDateTime(dt) {

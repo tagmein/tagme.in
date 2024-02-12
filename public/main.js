@@ -328,7 +328,7 @@ async function route() {
   message: messageText,
  } = getUrlData()
  autocompleteChannels.visit(channel)
- activityContainer.hide()
+ activityContainer.clear()
  const activeSessionId = getActiveSessionId()
  if (activeSessionId !== PUBLIC_SESSION_ID) {
   if (
