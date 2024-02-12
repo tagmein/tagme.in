@@ -3,6 +3,7 @@ import { getHourNumber } from './getHourNumber'
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
 const RANKED_HISTORY_ITEM_COUNT = 1000
+const NEWS_ITEMS_PER_CHUNK = 100
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 interface MessageData {
@@ -16,6 +17,53 @@ export function scroll(kv: CivilMemoryKV) {
  const hour = getHourNumber()
  const kHour = Math.floor(hour / 1e3)
  const mHour = Math.floor(kHour / 1e3)
+
+ const newsKey = {
+  newsChunkId: `news.chunk#id`,
+  newsChunkById: (id: number) =>
+   `news.chunk.id#${id.toString(36)}`,
+ }
+
+ async function getLatestNewsChunkId() {
+  const latestChunkString = await kv.get(
+   newsKey.newsChunkId
+  )
+  return typeof latestChunkString === 'string'
+   ? parseInt(latestChunkString, 36)
+   : 0
+ }
+
+ async function getPublishChunk() {
+  const chunkId = await getLatestNewsChunkId()
+  const chunkKey =
+   newsKey.newsChunkById(chunkId)
+  const chunkString = await kv.get(chunkKey)
+  const chunkData =
+   typeof chunkString === 'string'
+    ? JSON.parse(chunkString)
+    : []
+  if (
+   chunkData.length >= NEWS_ITEMS_PER_CHUNK
+  ) {
+   const newChunkId = chunkId + 1
+   await kv.set(
+    newsKey.newsChunkId,
+    newChunkId.toString(36)
+   )
+   const newChunkKey =
+    newsKey.newsChunkById(newChunkId)
+   const newChunkString = await kv.get(
+    newChunkKey
+   )
+   const newChunkData =
+    typeof newChunkString === 'string'
+     ? JSON.parse(newChunkString)
+     : []
+   return [newChunkKey, newChunkData]
+  }
+  return [chunkKey, chunkData]
+ }
+
  function channel(channelName: string) {
   const channelId =
    encodeURIComponent(channelName)
@@ -111,6 +159,25 @@ export function scroll(kv: CivilMemoryKV) {
   async function active() {
    await Promise.all([activeKH(), activeMH()])
   }
+
+  async function publishMessageActivity(
+   message: string,
+   seen: number
+  ) {
+   const [chunkKey, chunkData] =
+    await getPublishChunk()
+   const messageActivity = {
+    channel: channelName,
+    message,
+    seen,
+   }
+   chunkData.unshift(messageActivity)
+   await kv.set(
+    chunkKey,
+    JSON.stringify(chunkData)
+   )
+  }
+
   async function rankMessage(
    message: string,
    messageData: MessageData
@@ -196,6 +263,7 @@ export function scroll(kv: CivilMemoryKV) {
    const newMessageData = {
     position:
      messageData.position + positionDelta,
+    seen: messageData.seen ?? Date.now(),
     timestamp,
     velocity,
    }
@@ -205,6 +273,14 @@ export function scroll(kv: CivilMemoryKV) {
      JSON.stringify(newMessageData)
     ),
     rankMessage(message, newMessageData),
+    ...(newMessageData.seen !== messageData.seen
+     ? [
+        publishMessageActivity(
+         message,
+         newMessageData.seen
+        ),
+       ]
+     : []),
    ])
   }
 
@@ -257,5 +333,24 @@ export function scroll(kv: CivilMemoryKV) {
   return { send, seek }
  }
 
- return { channel }
+ async function news(
+  chunk: number | null
+ ): Promise<string> {
+  const chunkId =
+   typeof chunk === 'number'
+    ? chunk
+    : await getLatestNewsChunkId()
+  const chunkKey =
+   newsKey.newsChunkById(chunkId)
+  const template = JSON.stringify({
+   chunkId,
+   data: 'DATA',
+  })
+  return template.replace(
+   'DATA',
+   (await kv.get(chunkKey)) ?? '[]'
+  )
+ }
+
+ return { channel, news }
 }

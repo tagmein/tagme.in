@@ -122,6 +122,8 @@ const lightDarkModeButton = elem({
 
 const appAccounts = displayAppAccounts()
 
+const activityContainer = displayActivity()
+
 const appHeader = elem({
  classes: ['app-header'],
  children: [
@@ -141,6 +143,20 @@ const appHeader = elem({
   elem({
    classes: ['toolbar'],
    children: [
+    elem({
+     children: [
+      elem({
+       classes: ['icon', 'icon-news'],
+       tagName: 'span',
+      }),
+     ],
+     events: {
+      click() {
+       activityContainer.toggle()
+      },
+     },
+     tagName: 'button',
+    }),
     elem({
      children: [
       elem({
@@ -295,6 +311,7 @@ const mainContent = elem({
 
 const body = elem({ classes: ['body'] })
 body.appendChild(appHeader)
+body.appendChild(activityContainer.element)
 body.appendChild(messageContent)
 body.appendChild(compose)
 body.appendChild(mainContent)

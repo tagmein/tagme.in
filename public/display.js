@@ -772,3 +772,37 @@ function displayAutocompleteChannels(
   visit,
  }
 }
+
+function displayActivity() {
+ const element = elem({
+  classes: ['activity-container'],
+ })
+
+ let isVisible = false
+
+ function toggle() {
+  if (isVisible) {
+   hide()
+  } else {
+   show()
+  }
+ }
+
+ function show() {
+  isVisible = true
+  element.classList.add('visible')
+  load()
+ }
+
+ function hide() {
+  isVisible = false
+  element.classList.remove('visible')
+ }
+
+ async function load() {
+  const response = await fetch('/news')
+  const news = await response.json()
+ }
+
+ return { element, show, hide, toggle }
+}

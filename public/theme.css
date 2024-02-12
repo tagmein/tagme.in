@@ -928,6 +928,11 @@ body.light-mode .icon {
  mask-image: url(./icons/in.svg);
 }
 
+.icon-news {
+ mask-image: url(./icons/out.svg);
+ transform: scaleY(-0.25);
+}
+
 .icon-no {
  mask-image: url(./icons/no.svg);
 }
@@ -1002,4 +1007,29 @@ body.light-mode .icon.icon-plus {
  line-height: 44px;
  padding: 0 10px;
  text-align: left;
+}
+
+.activity-container {
+ background-color: #202020;
+ box-shadow: 0 0 20px #000;
+ height: 0;
+ left: 0;
+ opacity: 0;
+ overflow-x: hidden;
+ overflow-y: scroll;
+ position: fixed;
+ right: 1px;
+ top: 160px;
+ transition: opacity 0.5s ease;
+ z-index: 2;
+}
+
+body.light-mode .activity-container {
+ background-color: #efefef;
+ box-shadow: 0 0 20px #707070;
+}
+
+.activity-container.visible {
+ height: calc(100dvh - 160px);
+ opacity: 1;
 }
