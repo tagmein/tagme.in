@@ -544,12 +544,19 @@ function networkRootUrl() {
 }
 
 async function getNews(chunk) {
+ const headers = {}
+ const activeSession = getActiveSession()
+ if (activeSession) {
+  headers.Authorization =
+   activeSession.accessToken
+ }
  const response = await fetch(
   `${networkRootUrl()}/news${
    typeof chunk === 'number'
     ? `?chunk=${chunk.toString(10)}`
     : ''
-  }`
+  }`,
+  { headers }
  )
  const news = await response.json()
  return news
