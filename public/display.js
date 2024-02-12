@@ -814,7 +814,9 @@ function localDateTime(dt) {
  const nowDate = new Date().toLocaleDateString()
  const dateString = dt.toLocaleDateString()
  if (dateString === nowDate) {
-  return dt.toLocaleTimeString()
+  return dt
+   .toLocaleTimeString()
+   .replace(/(:\d\d):\d\d/, (_, a) => a)
  }
  return dateString
 }
