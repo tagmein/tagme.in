@@ -1,6 +1,7 @@
 import { type KVNamespace } from '@cloudflare/workers-types'
 
 export interface Env {
+ AI: any
  TAGMEIN_KV: KVNamespace
  TAGMEIN_AUTH_KV: KVNamespace
  TAGMEIN_PRIVATE_KV: KVNamespace

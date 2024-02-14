@@ -139,9 +139,15 @@ export const onRequestPost: PagesFunction<Env> =
    )
   }
 
-  await scroll(kv)
-   .channel(channel)
-   .send(message, velocity)
+  try {
+   await scroll(kv, context.env.AI)
+    .channel(channel)
+    .send(message, velocity)
+  } catch (error) {
+   return new Response(error.message, {
+    status: 400,
+   })
+  }
 
   // we voted for the message and sent it to the channel
   return new Response('sent')

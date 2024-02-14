@@ -65,7 +65,7 @@ export const onRequestGet: PagesFunction<
 
  async function scrollSeek() {
   try {
-   const data = await scroll(kv)
+   const data = await scroll(kv, context.env.AI)
     .channel(channel)
     .seek()
    return data

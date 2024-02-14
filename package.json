@@ -1,9 +1,11 @@
 {
  "dependencies": {
+  "@cloudflare/ai": "^1.0.50",
   "@tagmein/civil-memory": "^0.0.13"
  },
  "devDependencies": {
   "@cloudflare/workers-types": "^4.20231218.0",
   "@types/node": "^20.10.6"
- }
+ },
+ "type": "module"
 }

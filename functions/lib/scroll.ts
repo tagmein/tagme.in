@@ -1,5 +1,6 @@
 import { CivilMemoryKV } from '@tagmein/civil-memory'
 import { getHourNumber } from './getHourNumber'
+import { safetyScan } from './safetyScan'
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
 const RANKED_HISTORY_ITEM_COUNT = 1000
@@ -12,7 +13,10 @@ interface MessageData {
  velocity: number
 }
 
-export function scroll(kv: CivilMemoryKV) {
+export function scroll(
+ kv: CivilMemoryKV,
+ ai: any
+) {
  const timestamp = Date.now()
  const hour = getHourNumber()
  const kHour = Math.floor(hour / 1e3)
@@ -255,6 +259,16 @@ export function scroll(kv: CivilMemoryKV) {
        timestamp,
        velocity: 0,
       }
+   if (!('seen' in messageData)) {
+    // this is a new message
+    const safetyScanResult = await safetyScan(
+     ai,
+     message
+    )
+    if (typeof safetyScanResult === 'string') {
+     throw new Error(safetyScanResult)
+    }
+   }
    const timeDelta =
     timestamp - messageData.timestamp
    const positionDelta =

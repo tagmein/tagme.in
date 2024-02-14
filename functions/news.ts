@@ -42,7 +42,10 @@ export const onRequestGet: PagesFunction<
 
  async function scrollNews() {
   try {
-   const data = await scroll(kv).news(chunk)
+   const data = await scroll(
+    kv,
+    context.env.AI
+   ).news(chunk)
    return data
   } catch (e) {
    return JSON.stringify({

@@ -1,9 +1,10 @@
 {
  "compilerOptions": {
-  "target": "esnext",
-  "module": "Node16",
-  "moduleResolution": "Node16",
+  "esModuleInterop": true,
   "lib": ["esnext"],
+  "module": "CommonJS",
+  "moduleResolution": "Node10",
+  "target": "esnext",
   "types": ["@cloudflare/workers-types", "node"]
  }
 }
