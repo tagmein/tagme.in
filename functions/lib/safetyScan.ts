@@ -17,8 +17,8 @@ The rest of the text after this line is the message to scan:
 $MESSAGE`
 
 export async function safetyScan(
- message: string,
- workersAIApiToken: string
+ workersAIApiToken: string,
+ message: string
 ): Promise<string | undefined> {
  async function runAI(
   model: string,

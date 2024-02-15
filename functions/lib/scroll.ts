@@ -15,7 +15,7 @@ interface MessageData {
 
 export function scroll(
  kv: CivilMemoryKV,
- ai: any
+ workersAIApiToken: string
 ) {
  const timestamp = Date.now()
  const hour = getHourNumber()
@@ -262,7 +262,7 @@ export function scroll(
    if (!('seen' in messageData)) {
     // this is a new message
     const safetyScanResult = await safetyScan(
-     ai,
+     workersAIApiToken,
      message
     )
     if (typeof safetyScanResult === 'string') {
