@@ -34,9 +34,9 @@ export async function safetyScan(
     body: JSON.stringify(input),
    }
   )
-  const result = await response.json()
-  return result as {
-   response: string
+  const responseBody = await response.json()
+  return responseBody as {
+   result: { response: string }
    success: boolean
   }
  }
@@ -58,32 +58,31 @@ export async function safetyScan(
   ],
  }
 
- const result = await runAI(
+ const aiResult = await runAI(
   '@cf/mistral/mistral-7b-instruct-v0.1',
   inputs
  )
 
- console.log(JSON.stringify(result))
-
- if (result.success !== true) {
-  return (
-   JSON.stringify(result) +
-   typeof workersAIApiToken +
-   workersAIApiToken?.slice?.(0, 10)
-  )
+ if (aiResult.success !== true) {
+  return JSON.stringify(aiResult)
  }
 
- if (!result.response) {
+ if (!aiResult.result.response) {
   return 'Auto moderation error.'
  }
 
- if (result.response === 'No issues found.') {
+ if (
+  aiResult.result.response ===
+  'No issues found.'
+ ) {
   return
  }
 
- if (result.response.split(' ').length > 4) {
+ if (
+  aiResult.result.response.split(' ').length > 4
+ ) {
   return 'Auto moderation error.'
  }
 
- return result.response
+ return aiResult.result.response
 }
