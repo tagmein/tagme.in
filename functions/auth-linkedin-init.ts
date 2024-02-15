@@ -1,5 +1,5 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
-import { Env } from './lib/env'
+import { Env } from './lib/env.js'
 
 const LINKEDIN_AUTH_URL =
  'https://www.linkedin.com/oauth/v2/authorization'

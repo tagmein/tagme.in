@@ -1,7 +1,7 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
-import { Env } from './lib/env'
-import { randomId } from './lib/randomId'
+import { Env } from './lib/env.js'
+import { randomId } from './lib/randomId.js'
 
 const LINKEDIN_ACCESS_TOKEN_URL =
  'https://www.linkedin.com/oauth/v2/accessToken'

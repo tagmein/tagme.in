@@ -1,6 +1,6 @@
 import { CivilMemoryKV } from '@tagmein/civil-memory'
-import { getHourNumber } from './getHourNumber'
-import { safetyScan } from './safetyScan'
+import { getHourNumber } from './getHourNumber.js'
+import { safetyScan } from './safetyScan.js'
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
 const RANKED_HISTORY_ITEM_COUNT = 1000

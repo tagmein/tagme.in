@@ -1,6 +1,5 @@
 {
  "dependencies": {
-  "@cloudflare/ai": "^1.0.50",
   "@tagmein/civil-memory": "^0.0.13"
  },
  "devDependencies": {

@@ -1,11 +1,11 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
-import { Env } from './lib/env'
-import { randomId } from './lib/randomId'
+import { Env } from './lib/env.js'
+import { randomId } from './lib/randomId.js'
 import {
  SessionData,
  sessionIsExpired,
-} from './lib/session'
+} from './lib/session.js'
 
 interface PostBody {
  id: string

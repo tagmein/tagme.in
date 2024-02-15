@@ -3,8 +3,8 @@ import {
  CivilMemoryKV,
  civilMemoryKV,
 } from '@tagmein/civil-memory'
-import { Env } from './env'
-import { sessionIsExpired } from './session'
+import { Env } from './env.js'
+import { sessionIsExpired } from './session.js'
 
 export async function getKV({
  env,
