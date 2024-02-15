@@ -36,7 +36,11 @@ export async function safetyScan(
   inputs
  )
 
- if (result.response !== 'No issues found.') {
-  return result.response
+ if (result.response === 'No issues found.') {
+  return
  }
+ if (result.split(' ').length > 4) {
+  return 'Auto moderation error.'
+ }
+ return result.response
 }
