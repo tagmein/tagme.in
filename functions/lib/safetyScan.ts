@@ -35,7 +35,10 @@ export async function safetyScan(
    }
   )
   const result = await response.json()
-  return result as { response: string }
+  return result as {
+   response: string
+   success: boolean
+  }
  }
 
  const inputs = {
@@ -61,6 +64,14 @@ export async function safetyScan(
  )
 
  console.log(JSON.stringify(result))
+
+ if (result.success !== true) {
+  return (
+   JSON.stringify(result) +
+   typeof workersAIApiToken +
+   workersAIApiToken?.slice?.(0, 10)
+  )
+ }
 
  if (!result.response) {
   return 'Auto moderation error.'
