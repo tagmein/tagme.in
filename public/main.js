@@ -165,7 +165,7 @@ const appHeader = elem({
         typeof message === 'string'
          ? `#/${encodeURIComponent(channel)}`
          : '#'
-       body.scrollTo(0, 0)
+       scrollToTop()
       },
      },
      tagName: 'button',
@@ -310,7 +310,7 @@ const mainContent = elem({
  tagName: 'main',
 })
 
-const body = elem({ classes: ['body'] })
+const { body } = document
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
 body.appendChild(messageContent)
@@ -319,7 +319,21 @@ body.appendChild(mainContent)
 body.appendChild(
  document.getElementById('footer')
 )
-document.body.appendChild(body)
+
+let lastScrollY = 0
+addEventListener('scroll', () => {
+ if (scrollY < lastScrollY) {
+  body.classList.add('scroll-up')
+ } else {
+  body.classList.remove('scroll-up')
+ }
+ lastScrollY = scrollY
+ if (scrollY > 0) {
+  document.body.classList.remove('scroll-zero')
+ } else {
+  document.body.classList.add('scroll-zero')
+ }
+})
 
 async function route() {
  const {
@@ -385,7 +399,7 @@ async function route() {
    )
   )
  }
- body.scrollTo(0, 0)
+ scrollToTop()
 }
 
 window.addEventListener('hashchange', route)

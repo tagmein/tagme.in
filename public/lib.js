@@ -714,3 +714,9 @@ async function registerSession(
   return true
  }
 }
+
+function scrollToTop() {
+ scrollTo(0, 0)
+ document.body.classList.remove('scroll-up')
+ document.body.classList.add('scroll-zero')
+}
