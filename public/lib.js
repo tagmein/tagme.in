@@ -308,7 +308,7 @@ async function addOpenGraphLink(
    container.appendChild(
     elem({
      tagName: 'h1',
-     textContent: tags.title,
+     textContent: htmlEntities(tags.title),
     })
    )
   }
@@ -316,7 +316,9 @@ async function addOpenGraphLink(
    container.appendChild(
     elem({
      tagName: 'p',
-     textContent: tags.description,
+     textContent: htmlEntities(
+      tags.description
+     ),
     })
    )
   }
@@ -330,15 +332,24 @@ async function addOpenGraphLink(
     tagName: 'a',
     textContent: `Open ${
      tags.type ?? 'page'
-    } on ${
+    } on ${htmlEntities(
      tags.site_name ?? urlMatch[0].split('/')[2]
-    }`,
+    )}`,
    })
   )
   console.log(tags)
  } catch (e) {
   console.warn(e)
  }
+}
+
+function htmlEntities(text) {
+ const parser = new DOMParser()
+ const doc = parser.parseFromString(
+  text,
+  'text/html'
+ )
+ return doc.body.textContent
 }
 
 function begin2024GMT() {
