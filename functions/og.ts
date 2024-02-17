@@ -1,7 +1,4 @@
-import {
- Response,
- type PagesFunction,
-} from '@cloudflare/workers-types'
+import { type PagesFunction } from '@cloudflare/workers-types'
 import { Env } from './lib/env.js'
 import { extractTags } from './lib/extractTags.js'
 import { getKV } from './lib/getKV.js'
