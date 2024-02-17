@@ -263,6 +263,7 @@ footer > p {
 
 article {
  box-sizing: border-box;
+ line-height: 1.5;
  min-height: 80px;
  padding: 3px 150px 3px 15px;
  position: relative;
