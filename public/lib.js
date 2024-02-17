@@ -322,6 +322,9 @@ async function addOpenGraphLink(
     })
    )
   }
+  const siteName = htmlEntities(
+   tags.site_name ?? urlMatch[0].split('/')[2]
+  )
   container.appendChild(
    elem({
     attributes: {
@@ -330,14 +333,14 @@ async function addOpenGraphLink(
     },
     classes: ['external-link'],
     tagName: 'a',
-    textContent: `Open ${
-     tags.type ?? 'page'
-    } on ${htmlEntities(
-     tags.site_name ?? urlMatch[0].split('/')[2]
-    )}`,
+    textContent:
+     tags.type === 'website'
+      ? siteName
+      : `Open ${
+         tags.type ?? 'page'
+        } on ${siteName}`,
    })
   )
-  console.log(tags)
  } catch (e) {
   console.warn(e)
  }
