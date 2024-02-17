@@ -1,5 +1,4 @@
 const HOME_CHANNEL_ICON = '⌂'
-const BACK_ICON = '⏴'
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 let focusOnMessage = undefined
@@ -146,20 +145,6 @@ const appHeader = elem({
     elem({
      children: [
       elem({
-       classes: ['icon', 'icon-news'],
-       tagName: 'span',
-      }),
-     ],
-     events: {
-      click() {
-       activityContainer.toggle()
-      },
-     },
-     tagName: 'button',
-    }),
-    elem({
-     children: [
-      elem({
        classes: [
         'icon',
         'icon-home',
@@ -168,12 +153,9 @@ const appHeader = elem({
        tagName: 'span',
       }),
       elem({
-       classes: [
-        'h-stretch',
-        'display-on-message',
-       ],
+       classes: ['display-on-message'],
+       children: [icon('back')],
        tagName: 'span',
-       textContent: BACK_ICON,
       }),
      ],
      events: {
@@ -190,6 +172,25 @@ const appHeader = elem({
     }),
     loadingIndicator,
     channelInput,
+    elem({
+     classes: ['input-icon'],
+     children: [icon('search')],
+     tagName: 'button',
+    }),
+    elem({
+     children: [
+      elem({
+       classes: ['icon', 'icon-news'],
+       tagName: 'span',
+      }),
+     ],
+     events: {
+      click() {
+       activityContainer.toggle()
+      },
+     },
+     tagName: 'button',
+    }),
    ],
   }),
  ],

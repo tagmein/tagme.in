@@ -151,6 +151,10 @@ body {
  width: 50px;
 }
 
+.toolbar input[placeholder='Search channels'] {
+ padding-right: 50px;
+}
+
 .toolbar input:last-child {
  border-right: none;
 }
@@ -743,7 +747,7 @@ body.on-channel .display-on-message {
  margin-left: 5px;
  opacity: 0.5;
  position: relative;
- top: -1px;
+ top: 2px;
  width: 24px;
 }
 
@@ -772,7 +776,7 @@ body.on-channel .display-on-message {
  padding: 4px 0;
  position: fixed;
  right: 50px;
- top: 158px;
+ top: 160px;
  z-index: 3;
 }
 
@@ -912,6 +916,10 @@ body.light-mode .icon {
  background-color: #282828;
 }
 
+.icon-back {
+ mask-image: url(./icons/back.svg);
+}
+
 .icon-globe {
  mask-image: url(./icons/globe.svg);
 }
@@ -929,12 +937,15 @@ body.light-mode .icon {
 }
 
 .icon-news {
- mask-image: url(./icons/out.svg);
- transform: scaleY(-0.25);
+ mask-image: url(./icons/news.svg);
 }
 
 .icon-no {
  mask-image: url(./icons/no.svg);
+}
+
+.icon-search {
+ mask-image: url(./icons/search.svg);
 }
 
 body:fullscreen .icon-in {
@@ -1004,9 +1015,10 @@ body.light-mode .icon.icon-plus {
 }
 
 .toolbar span.brand {
- line-height: 44px;
+ align-content: center;
+ display: grid;
+ justify-content: left;
  padding: 0 10px;
- text-align: left;
 }
 
 .activity-container {
@@ -1078,4 +1090,13 @@ article.news {
 
 body.light-mode .reply::before {
  background-color: #c8c8c8;
+}
+
+body button.input-icon {
+ background-color: transparent;
+ bottom: 10px;
+ opacity: 0.65;
+ pointer-events: none;
+ position: absolute;
+ right: 50px;
 }
