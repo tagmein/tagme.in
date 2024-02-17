@@ -367,7 +367,10 @@ article > div > .image-container {
  width: 100vw;
 }
 
-article > div > .image-container.expanded {
+article > div > .image-container.expanded,
+article
+ > div
+ > .image-container.image-article.expanded {
  cursor: zoom-out;
  height: 100dvh;
  left: 0;
@@ -423,14 +426,25 @@ a.channel > span {
  overflow: hidden;
 }
 
-.image-container.image-screenshot img {
- object-fit: cover;
- object-position: 50% 0;
+article > div > .image-container.image-article {
+ height: 125px;
+ min-height: 0;
 }
 
-.image-container.expanded.image-screenshot img {
+.image-container.image-article img {
+ object-fit: cover;
+}
+
+article
+ > div
+ > .image-container.image-article.expanded
+ img {
  object-fit: contain;
- object-position: 50% 50%;
+}
+
+article > div > h1 {
+ line-height: 1.25;
+ margin: 10px 0;
 }
 
 article.highlight::after {
@@ -1128,4 +1142,21 @@ body button.input-icon {
  pointer-events: none;
  position: absolute;
  right: 50px;
+}
+
+a.external-link {
+ display: inline-block;
+ margin: 0 0 10px;
+}
+
+a.external-link::after {
+ content: '⇱';
+ display: inline-block;
+ font-size: 165%;
+ height: 12px;
+ line-height: 20px;
+ margin-left: 4px;
+ overflow: hidden;
+ transform: scaleX(-1);
+ width: 12px;
 }

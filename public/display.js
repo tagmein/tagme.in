@@ -392,6 +392,7 @@ function attachMessage(
  addTextBlocks(content, message.text)
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
+ addOpenGraphLink(content, message.text)
  const agreeButton = elem({
   classes: ['agree'],
   children: [icon('yes')],
@@ -834,6 +835,7 @@ function attachNewsMessage(
  addTextBlocks(content, message)
  addYouTubeEmbed(content, message)
  addImageEmbed(content, message)
+ addOpenGraphLink(content, message)
  const isReply = channel.startsWith('replies@')
  if (isReply) {
   const [parentChannel, parentMessage] = channel
@@ -873,6 +875,7 @@ function attachNewsMessage(
   addTextBlocks(parentContent, parentMessage)
   addYouTubeEmbed(parentContent, parentMessage)
   addImageEmbed(parentContent, parentMessage)
+  addOpenGraphLink(parentContent, parentMessage)
   const dateContainer = elem({
    attributes: {
     href: messageLink,

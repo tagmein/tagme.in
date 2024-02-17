@@ -236,13 +236,16 @@ function addImageEmbed(container, text) {
      height: 720,
     }).toString()
 
+ addImageByUrl(container, imgSrc)
+}
+
+function addImageByUrl(
+ container,
+ imgSrc,
+ classes = []
+) {
  const imageContainer = elem({
-  classes: [
-   'image-container',
-   imageUrlMatch
-    ? 'image-direct'
-    : 'image-screenshot',
-  ],
+  classes: ['image-container', ...classes],
   children: [
    elem({
     attributes: {
@@ -267,6 +270,75 @@ function addImageEmbed(container, text) {
   },
  })
  container.appendChild(imageContainer)
+}
+
+async function addOpenGraphLink(
+ container,
+ text
+) {
+ const urlMatch = text.match(isUrl)
+
+ if (!urlMatch) {
+  return // it's not a URL
+ }
+
+ if (
+  urlMatch[0].match(isYouTubeUrl) ||
+  urlMatch[0].match(isImageUrl)
+ ) {
+  return // it's YouTube or an image
+ }
+
+ try {
+  const tagResponse = await fetch(
+   `${networkRootUrl()}/og?url=${encodeURIComponent(
+    urlMatch[0]
+   )}`
+  )
+  if (!tagResponse.ok) {
+   throw new Error(tagResponse.statusText)
+  }
+  const tags = await tagResponse.json()
+  if (tags.image) {
+   addImageByUrl(container, tags.image, [
+    'image-article',
+   ])
+  }
+  if (tags.title) {
+   container.appendChild(
+    elem({
+     tagName: 'h1',
+     textContent: tags.title,
+    })
+   )
+  }
+  if (tags.description) {
+   container.appendChild(
+    elem({
+     tagName: 'p',
+     textContent: tags.description,
+    })
+   )
+  }
+  container.appendChild(
+   elem({
+    attributes: {
+     href: tags.url ?? urlMatch[0],
+     target: '_blank',
+    },
+    classes: ['external-link'],
+    tagName: 'a',
+    textContent: `Open ${
+     tags.type ?? 'page'
+    } on ${
+     tags.site_name ?? urlMatch[0].split('/')[2]
+    }`,
+   })
+  )
+  console.log(tags)
+ } catch (e) {
+  console.warn(e)
+ }
 }
 
 function begin2024GMT() {
