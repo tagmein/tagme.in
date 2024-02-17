@@ -11,7 +11,7 @@ export async function extractTags(
    /<meta\s+property="og:([^"]+)"\s+content="([^"]*)"\s*\/?>/gi
   let match: null | string[]
   while ((match = tagRegex.exec(html))) {
-   tags[match[1].substring(3)] = match[2]
+   tags[match[1]] = match[2]
   }
  } catch (e) {
   tags.title = `Error: ${e.message}`
