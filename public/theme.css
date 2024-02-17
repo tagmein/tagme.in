@@ -86,6 +86,7 @@ body {
 
 .realm .icon.icon-plus {
  margin-right: 0;
+ top: 3px;
 }
 
 .realm .icon:last-child {
