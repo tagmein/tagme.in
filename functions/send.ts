@@ -1,7 +1,7 @@
 import type { PagesFunction } from '@cloudflare/workers-types'
-import { Env } from './lib/env'
-import { getKV } from './lib/getKV'
-import { scroll } from './lib/scroll'
+import { Env } from './lib/env.js'
+import { getKV } from './lib/getKV.js'
+import { scroll } from './lib/scroll.js'
 
 const MAX_CHANNEL_LENGTH = 250
 const MIN_MESSAGE_LENGTH = 5
