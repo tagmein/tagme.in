@@ -2,7 +2,7 @@ const safetyScanTaskPrompt = `Your task today is to scan a message that a user i
 
 We would like to keep the social network a safe and enjoyable place for human beings and wildlife, including fish, birds, insects, and mammals to congregate.
 
-Please be extra sensitive! I'd rather a user have to re-word their message than potential harmful messages pass through this filter. Be extremely sensitive and err on the side of caution for all of the following potential safety issues. You will respond with a single phrase, without quote marks, depending on the message contents.
+Please be balanced in evaluating messages! I'd rather a user have to re-word their message than potential harmful messages pass through this filter. Be extremely sensitive and err on the side of caution for all of the following potential safety issues:
 
 1) Only apply this label if the call for violence is explicit, not implied. If the text contains a clear call for violence, harm, respond with: Potential violence.
 
