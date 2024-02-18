@@ -4,31 +4,41 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
-Do not come up with any creative interpretations, simply respond according to the following logic:
+IF
+ The message contains an explicit call for violence or harm towards people.
 
-IF The message contains an explicit call for violence or harm towards people.
+THEN
+ Respond with: \`violence.
 
-THEN Respond with the literal text (with no quote marks): violence.
+ELSE IF
+ The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
 
-ELSE IF The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
+THEN
+ Respond with: \`discrimination.
 
-THEN Respond with the literal text (with no quote marks): discrimination.
-
-ELSE IF The text mentions animal ingredients in food.
- OR The text mentions hunting, trapping, killing, or eating fish such as tuna, salmon, or any other fish, birds, mammals, or any other animal.
+ELSE IF
+ The text mentions animal ingredients in food, respond with: harm to animals.
+ OR The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
  OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
  OR The text contains a reference to any foods made with or from animals.
 
-THEN Respond with the literal text (with no quote marks): harm to animals.
+THEN
+ Respond with: \`harm to animals.
 
 ELSE
- Respond with the literal text (with no quote marks): No issues found.
+ Respond with: \`No issues found.
+
+Additionally,
 
 IF there was an issue found THEN add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
 
 IF there was an issue found THEN quote the part of the message that is the reason for the issue, using double quotes as appropriate.
 
 IF there was an issue found THEN write a detailed explanation of why this is harmful, and be extremely clear and specific.`
+
+const messagePrompt = `Evaluate this message:
+
+$MESSAGE`
 
 export async function safetyScan(
  workersAIApiToken: string,
@@ -63,7 +73,10 @@ export async function safetyScan(
    },
    {
     role: 'user',
-    content: `The message to evaluate is: ${message}`,
+    content: messagePrompt.replace(
+     '$MESSAGE',
+     JSON.stringify(message)
+    ),
    },
   ],
  }
@@ -83,10 +96,14 @@ export async function safetyScan(
 
  if (
   aiResult.result.response.startsWith(
-   'No issues found.'
+   '`No issues'
   )
  ) {
   return
+ }
+
+ if (aiResult.result.response[0] !== '`') {
+  return `Moderation error: ${aiResult.result.response}`
  }
 
  return 'Potential ' + aiResult.result.response
