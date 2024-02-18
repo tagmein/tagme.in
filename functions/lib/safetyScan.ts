@@ -4,33 +4,25 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
-Do not come up with any creative interpretations, simply respond according to the following logic.
+Do not come up with any creative interpretations, simply respond according to the following logic:
 
-IF
- The message contains an explicit call for violence or harm towards people.
+IF The message contains an explicit call for violence or harm towards people.
 
-THEN
- Respond with the literal text with no quote marks: violence.
+THEN Respond with the literal text (with no quote marks): violence.
 
-ELSE IF
- The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
+ELSE IF The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
 
-THEN
- Respond with the literal text with no quote marks: discrimination.
+THEN Respond with the literal text (with no quote marks): discrimination.
 
-ELSE IF
- The text mentions animal ingredients in food.
+ELSE IF The text mentions animal ingredients in food.
  OR The text mentions hunting, trapping, killing, or eating fish such as tuna, salmon, or any other fish, birds, mammals, or any other animal.
  OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
  OR The text contains a reference to any foods made with or from animals.
 
-THEN
- Respond with the literal text with no quote marks: harm to animals.
+THEN Respond with the literal text (with no quote marks): harm to animals.
 
 ELSE
- Respond with the literal text with no quote marks: No issues found.
-
-Additionally,
+ Respond with the literal text (with no quote marks): No issues found.
 
 IF there was an issue found THEN add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
 
@@ -71,7 +63,7 @@ export async function safetyScan(
    },
    {
     role: 'user',
-    content: message,
+    content: `The message to evaluate is: ${message}`,
    },
   ],
  }
