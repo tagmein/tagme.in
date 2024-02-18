@@ -8,22 +8,22 @@ IF
  The message contains an explicit call for violence or harm towards people.
 
 THEN
- Respond with: Potential violence.
+ Respond with: violence.
 
 ELSE IF
  The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
 
 THEN
- Respond with: Potential discrimination.
+ Respond with: discrimination.
 
 ELSE IF
- The text mentions animal ingredients in food, respond with: Potential harm to animals.
+ The text mentions animal ingredients in food, respond with: harm to animals.
  OR The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
  OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
  OR The text contains a reference to any foods made with or from animals.
 
 THEN
- Respond with: Potential harm to animals.
+ Respond with: harm to animals.
 
 ELSE
  Respond with: No issues found.
@@ -102,5 +102,5 @@ export async function safetyScan(
   return
  }
 
- return aiResult.result.response
+ return 'Potential ' + aiResult.result.response
 }
