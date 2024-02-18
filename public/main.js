@@ -435,6 +435,8 @@ Part of the beauty of life is diversity, and Tag Me In aims to stand out as a ne
 
 If you believe in a world where every animal is seen as part of the sacred beauty of life, you've found a like-minded corner of the internet.
 
+You can change your mind at any time in the future and remove consent: look for a link in the footer to remove previously-granted consent.
+
 To get started, consider the following statements:`,
    'Agree and continue to Tag Me In',
    [
