@@ -6,11 +6,11 @@ You will be given a message that a user is sending on a social network for all l
 
 Evaluate the message text for the following potential issues 1 - 5:
 
-1) Only apply this label if the call for violence is explicit, not implied, and if the text contains a clear call for violence, harm, respond with: Potential violence.
+1) If there is an explicit call for violence or harm towards people, respond with: Potential violence.
 
 2) If the message is about people, and if the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another, respond with: Potential discrimination.
 
-3) If the text references animals, or food made with animal products, and animal ingredients are mentioned explicitly, and if the text contains a reference to eating fish, birds, mammals, harm against animals, fishing, hunting, or other activity that causes hurt to animal cells, including any foods made with animal products, respond with: Potential harm to animals. 
+3) If the text references animals, or food made with animal products, and animal ingredients are mentioned explicitly, or if there is a reference to hunting, trapping, killing, or eating fish, birds, mammals, or any other animal, or causes hurt to animal cells, including any foods made with animal products, respond with: Potential harm to animals. 
 
 4) If the text contains a reference to any foods made with or from animals, respond with: Animal ingredients in food.
 
