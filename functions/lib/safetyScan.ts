@@ -114,10 +114,10 @@ export async function safetyScan(
  const response =
   aiResult.result.response.replace(
    /^<([^>]+)>/,
-   (_, x) => x
+   (_, x) => x.toLowerCase()
   )
 
- if (response.startsWith('No issues')) {
+ if (response.startsWith('no issues')) {
   return
  }
 
