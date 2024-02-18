@@ -4,8 +4,6 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
-The responses in the following instructions are enclosed in < and > but those characters must not be included in your response. Those characters are simply used to denote the exact text you should reply with.
-
 Here are the criteria to evaluate messages:
 
 IF
@@ -113,13 +111,15 @@ export async function safetyScan(
   return 'Auto moderation error.'
  }
 
- if (
-  aiResult.result.response.startsWith(
-   'No issues'
+ const response =
+  aiResult.result.response.replace(
+   /^<([^>]+)>/,
+   (_, x) => x
   )
- ) {
+
+ if (response.startsWith('No issues')) {
   return
  }
 
- return 'Potential ' + aiResult.result.response
+ return 'Potential ' + response
 }
