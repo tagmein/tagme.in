@@ -4,38 +4,29 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
-Use the following pseudocode to respond to the message:
-
-IF {
+IF
  The message contains an explicit call for violence or harm towards people.
-}
 
-THEN {
+THEN
  Respond with: Potential violence.
-}
 
-ELSE IF {
+ELSE IF
  The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
-}
 
-THEN {
+THEN
  Respond with: Potential discrimination.
-}
 
-ELSE IF {
+ELSE IF
  The text mentions animal ingredients in food, respond with: Potential harm to animals.
  OR The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
  OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
  OR The text contains a reference to any foods made with or from animals.
-}
 
-THEN {
+THEN
  Respond with: Potential harm to animals.
-}
 
-ELSE {
+ELSE
  Respond with: No issues found.
-}
 
 Additionally,
 
