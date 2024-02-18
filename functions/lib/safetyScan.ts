@@ -1,8 +1,10 @@
 const safetyScanTaskPrompt = `Your job is a content moderator for a general purpose social network that also prioritizes the well-being of every individual human being and animal on planet Earth.
 
-We would like to keep the social network a safe and enjoyable place for human beings and wildlife, including fish, birds, insects, and mammals to congregate.`
+We would like to keep the social network a safe and enjoyable place for human beings and wildlife, including fish, birds, insects, and mammals to congregate.
 
-const messagePrompt = `You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
+You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
+
+Do not come up with any creative interpretations, simply respond according to the following logic.
 
 IF
  The message contains an explicit call for violence or harm towards people.
@@ -34,11 +36,7 @@ IF there was an issue found THEN add a second line or paragraph explaining the r
 
 IF there was an issue found THEN quote the part of the message that is the reason for the issue, using double quotes as appropriate.
 
-IF there was an issue found THEN write a detailed explanation of why this is harmful, and be extremely clear and specific.
-
-Here is the message:
-
-$MESSAGE`
+IF there was an issue found THEN write a detailed explanation of why this is harmful, and be extremely clear and specific.`
 
 export async function safetyScan(
  workersAIApiToken: string,
@@ -73,10 +71,7 @@ export async function safetyScan(
    },
    {
     role: 'user',
-    content: messagePrompt.replace(
-     '$MESSAGE',
-     JSON.stringify(message)
-    ),
+    content: message,
    },
   ],
  }
