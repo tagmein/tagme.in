@@ -4,29 +4,46 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
+Respond with at most one of the following:
+
 IF
  The message contains an explicit call for violence or harm towards people.
 
 THEN
- Respond with: \`violence.
+ Respond with: \`violence.\`
 
 ELSE IF
  The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
 
 THEN
- Respond with: \`discrimination.
+ Respond with: \`discrimination.\`
 
 ELSE IF
  The text mentions animal ingredients in food, respond with: harm to animals.
- OR The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
- OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
- OR The text contains a reference to any foods made with or from animals.
 
 THEN
- Respond with: \`harm to animals.
+  Respond with: \`harm to animals.\`
+
+ELSE IF
+ The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
+
+THEN
+  Respond with: \`harm to animals.\`
+
+ELSE IF
+ The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
+
+THEN
+  Respond with: \`harm to animals.\`
+
+ELSE IF
+ The text contains a reference to any foods made with or from animals.
+
+THEN
+ Respond with: \`harm to animals.\`
 
 ELSE
- Respond with: \`No issues found.
+ Respond with: \`No issues found.\`
 
 Additionally,
 
@@ -106,5 +123,11 @@ export async function safetyScan(
   return `Moderation error: ${aiResult.result.response}`
  }
 
- return 'Potential ' + aiResult.result.response
+ return (
+  'Potential ' +
+  aiResult.result.response.replace(
+   /^`([^`]+)`/,
+   (_, x) => x
+  )
+ )
 }
