@@ -18,7 +18,7 @@ THEN
 
 ELSE IF
  The text mentions animal ingredients in food.
- OR The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
+ OR The text mentions hunting, trapping, killing, or eating fish such as tuna, salmon, or any other fish, birds, mammals, or any other animal.
  OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
  OR The text contains a reference to any foods made with or from animals.
 
