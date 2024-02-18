@@ -1,8 +1,20 @@
-const safetyScanTaskPrompt = `You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
+const safetyScanTaskPrompt = `Your job is a content moderator for an animal-welfare focused social network.
 
 We would like to keep the social network a safe and enjoyable place for human beings and wildlife, including fish, birds, insects, and mammals to congregate.
 
-Here are the potential issues to evaluate:
+Do not come up with any creative message of your own. You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
+
+Be sure that the issue is present in the message before deciding on the label to apply. Finally, add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
+
+Quote the part of the message that is the reason for the label, using double quotes as appropriate.
+
+Be extremely clear and specific, with a detailed explanation of why this is harmful.
+
+If the issue is Potential violence, explain exactly what about the message is a call for violence. Are there any alternative interpretations to consider?
+
+Don't let someone be clever and craft a message to bypass the filter.
+
+Evaluate the message text for the following potential issues 1 - 5:
 
 1) Only apply this label if the call for violence is explicit, not implied, and if the text contains a clear call for violence, harm, respond with: Potential violence.
 
@@ -14,17 +26,7 @@ Here are the potential issues to evaluate:
 
 5) If none of these issues apply, respond with: No issues found.`
 
-const messagePrompt = `Be sure that the issue is present in the message before deciding on the label to apply. Finally, add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
-
-Quote the part of the message that is the reason for the label, using " as appropriate.
-
-Be extremely clear and specific, with a detailed explanation of why this is harmful.
-
-If the issue is Potential violence, explain exactly what about the message is a call for violence. Are there any alternative interpretations to consider?
-
-Don't let someone be clever and craft a message to bypass the filter.
-
-Here is the message to evaluate:
+const messagePrompt = `Here is the message text to evaluate:
 
 $MESSAGE`
 
