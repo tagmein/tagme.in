@@ -4,7 +4,7 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
-Respond with at most one of the following:
+Respond with at most one of the following, and when responding, do not include the backticks:
 
 IF
  The message contains an explicit call for violence or harm towards people.
@@ -119,15 +119,5 @@ export async function safetyScan(
   return
  }
 
- if (aiResult.result.response[0] !== '`') {
-  return `Moderation error: ${aiResult.result.response}`
- }
-
- return (
-  'Potential ' +
-  aiResult.result.response.replace(
-   /^`([^`]+)`/,
-   (_, x) => x
-  )
- )
+ return 'Potential ' + aiResult.result.response
 }
