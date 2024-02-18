@@ -4,27 +4,48 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
-If the message contains an explicit call for violence or harm towards people, respond with: Potential violence.
+Use the following pseudocode to respond to the message:
 
-If the message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another, respond with: Potential discrimination.
+IF {
+ The message contains an explicit call for violence or harm towards people.
+}
 
-If the text mentions animal ingredients in food, respond with: Potential harm to animals.
+THEN {
+ Respond with: Potential violence.
+}
 
-If the text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal, respond with: Potential harm to animals.
+ELSE IF {
+ The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
+}
 
-If the text mentions any activity that causes hurt to animal cells, including any foods made with animal products, respond with: Potential harm to animals.
+THEN {
+ Respond with: Potential discrimination.
+}
 
-If the text contains a reference to any foods made with or from animals, respond with: Potential harm to animals.
+ELSE IF {
+ The text mentions animal ingredients in food, respond with: Potential harm to animals.
+ OR The text mentions hunting, trapping, killing, or eating fish, birds, mammals, or any other animal.
+ OR The text mentions any activity that causes hurt to animal cells, including any foods made with animal products.
+ OR The text contains a reference to any foods made with or from animals.
+}
 
-If none of these issues apply, respond with: No issues found.
+THEN {
+ Respond with: Potential harm to animals.
+}
 
-If there was an issue found, add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
+ELSE {
+ Respond with: No issues found.
+}
 
-If there was an issue found, quote the part of the message that is the reason for the issue, using double quotes as appropriate.
+Additionally,
 
-If there was an issue found, be extremely clear and specific, with a detailed explanation of why this is harmful.`
+IF there was an issue found THEN add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
 
-const messagePrompt = `Here is the message text to evaluate:
+IF there was an issue found THEN quote the part of the message that is the reason for the issue, using double quotes as appropriate.
+
+IF there was an issue found THEN write a detailed explanation of why this is harmful, and be extremely clear and specific.`
+
+const messagePrompt = `Evaluate this message:
 
 $MESSAGE`
 
