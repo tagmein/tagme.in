@@ -8,13 +8,13 @@ IF
  The message contains an explicit call for violence or harm towards people.
 
 THEN
- Respond with the literal text: \`violence.\`
+ Respond with the literal text: violence.
 
 ELSE IF
  The message is about people, and the text contains racism, sexism, gender-based discrimination, or other preferential treatment of one group over another.
 
 THEN
- Respond with the literal text: \`discrimination.\`
+ Respond with the literal text: discrimination.
 
 ELSE IF
  The text mentions animal ingredients in food.
@@ -23,10 +23,10 @@ ELSE IF
  OR The text contains a reference to any foods made with or from animals.
 
 THEN
- Respond with the literal text: \`harm to animals.\`
+ Respond with the literal text: harm to animals.
 
 ELSE
- Respond with the literal text: \`No issues found.\`
+ Respond with the literal text: No issues found.
 
 Additionally,
 
