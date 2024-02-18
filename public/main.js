@@ -429,7 +429,7 @@ By interacting with Tag Me In, you consent for your messages to be sent to an ar
  • Discrimination based on group characteristics
  • Causing harm to animals
 
-We hope you'll join us on this journey. But at the same time, we know it's not for everyone. And that's ok. There's no shortage of social websites that allow posting content that contributes to the demise of individual animals.
+We hope you'll join us on this journey. But at the same time, we know it's not for everyone. And that's ok. There's no shortage of social websites that permit posting content that contributes to the demise of individual animals.
 
 Part of the beauty of life is diversity, and Tag Me In aims to stand out as a network that has a stated goal of being inclusive and respectful towards every individual animal on Earth.
 

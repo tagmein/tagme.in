@@ -78,8 +78,9 @@ export async function safetyScan(
  }
 
  if (
-  aiResult.result.response ===
-  'No issues found.'
+  aiResult.result.response.startsWith(
+   'No issues found.'
+  )
  ) {
   return
  }
