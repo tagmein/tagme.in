@@ -480,9 +480,46 @@ function messageReplyChannel(
  )}:${encodeURIComponent(messageText)}`
 }
 
-async function politeAlert(message) {
+async function politeAlert(
+ message,
+ actionText,
+ requiredConsent
+) {
  let alertBox
- await new Promise((click) => {
+ const consentForm = requiredConsent
+  ? [
+     elem({
+      tagName: 'form',
+      children: requiredConsent.map((text) => {
+       const checkbox = elem({
+        attributes: {
+         type: 'checkbox',
+        },
+        events: {
+         click() {
+          if (checkbox.checked) {
+           label.classList.remove('required')
+          }
+         },
+        },
+        tagName: 'input',
+       })
+       const label = elem({
+        children: [
+         checkbox,
+         elem({
+          tagName: 'div',
+          textContent: text,
+         }),
+        ],
+        tagName: 'label',
+       })
+       return label
+      }),
+     }),
+    ]
+  : []
+ await new Promise((agree) => {
   alertBox = elem({
    classes: ['alert-shade'],
    children: [
@@ -492,10 +529,27 @@ async function politeAlert(message) {
       elem({
        textContent: message,
       }),
+      ...consentForm,
       elem({
-       events: { click },
+       events: {
+        click() {
+         if (consentForm[0]) {
+          const missingCheckbox =
+           consentForm[0].querySelector(
+            'input:not(:checked)'
+           )
+          if (missingCheckbox) {
+           missingCheckbox.parentElement.classList.add(
+            'required'
+           )
+           return
+          }
+         }
+         agree()
+        },
+       },
        tagName: 'button',
-       textContent: 'OK',
+       textContent: actionText ?? 'OK',
       }),
      ],
     }),

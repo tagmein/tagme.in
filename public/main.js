@@ -406,3 +406,53 @@ async function route() {
 
 window.addEventListener('hashchange', route)
 route().catch((e) => console.error(e))
+
+const consentKey = 'consent:ai-moderator'
+
+async function gainConsent() {
+ const consented =
+  localStorage.getItem(consentKey) === 'consent'
+
+ if (!consented) {
+  await politeAlert(
+   `Greetings, Earthling, and welcome to Tag Me In!
+
+Researchers are currently developing techniques to communicate with animals using artificial intelligence.
+
+Tag Me In intends to be the first social network to welcome our animal brothers and sisters to the internet as soon as the technology is ready for them to interact with the internet.
+
+To support this mission, Tag Me In is run as a social experiment that asks: what if we came together with the highest imaginable ethical guidelines to collaborate on a vision for a brighter future for animals on Earth?
+
+By interacting with Tag Me In, you consent for your messages to be sent to an artificial intelligence system for evaluation on the following criteria:
+
+ • Violence or harmful language
+ • Discrimination based on group characteristics
+ • Causing harm to animals
+
+We hope you'll join us on this journey. But at the same time, we know it's not for everyone. And that's ok. There's no shortage of social websites that allow posting content that contributes to the demise of individual animals.
+
+Part of the beauty of life is diversity, and Tag Me In aims to stand out as a network that has a stated goal of being inclusive and respectful towards every individual animal on Earth.
+
+If you believe in a world where every animal is seen as part of the sacred beauty of life, you've found a like-minded corner of the internet.
+
+To get started, consider the following statements:`,
+   'Agree and continue to Tag Me In',
+   [
+    'I consent to having everything I type into Tag Me In be judged exactingly by artificial intelligence in support of creating a safe(r) space for animals on the internet.',
+    'I welcome animal-human communication with open arms.',
+    'I would like to co-create a future where humans and animals coexist in peace and mutual respect.',
+   ]
+  )
+  localStorage.setItem(consentKey, 'consent')
+ }
+}
+
+gainConsent().catch((e) => console.error(e))
+
+document
+ .getElementById('remove-consent')
+ .addEventListener('click', (e) => {
+  e.preventDefault()
+  localStorage.removeItem(consentKey)
+  location.reload()
+ })
