@@ -2,8 +2,6 @@ const safetyScanTaskPrompt = `You will be given a message that a user is sending
 
 We would like to keep the social network a safe and enjoyable place for human beings and wildlife, including fish, birds, insects, and mammals to congregate.
 
-Please be balanced in evaluating messages! I'd rather a user have to re-word their message than potential harmful messages pass through this filter.
-
 Here are the potential issues to evaluate:
 
 1) Only apply this label if the call for violence is explicit, not implied, and if the text contains a clear call for violence, harm, respond with: Potential violence.
