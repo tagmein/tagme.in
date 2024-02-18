@@ -480,6 +480,32 @@ function messageReplyChannel(
  )}:${encodeURIComponent(messageText)}`
 }
 
+async function politeAlert(message) {
+ let alertBox
+ await new Promise((click) => {
+  alertBox = elem({
+   classes: ['alert-shade'],
+   children: [
+    elem({
+     classes: ['alert-container'],
+     children: [
+      elem({
+       textContent: message,
+      }),
+      elem({
+       events: { click },
+       tagName: 'button',
+       textContent: 'OK',
+      }),
+     ],
+    }),
+   ],
+  })
+  document.body.appendChild(alertBox)
+ })
+ document.body.removeChild(alertBox)
+}
+
 function getUrlData() {
  const [control, channel, messageEncoded] =
   window.location.hash
@@ -493,28 +519,30 @@ function getUrlData() {
   typeof channel === 'string' &&
   channel.length > 25
  ) {
-  alert('channel must be 25 characters or less')
+  politeAlert(
+   'channel must be 25 characters or less'
+  )
   return { channel: '', messageChannel: '' }
  }
  if (
   typeof channel === 'string' &&
   channel.includes('.')
  ) {
-  alert('channel must not include "."')
+  politeAlert('channel must not include "."')
   return { channel: '', messageChannel: '' }
  }
  if (
   typeof channel === 'string' &&
   channel.includes(',')
  ) {
-  alert('channel must not include ","')
+  politeAlert('channel must not include ","')
   return { channel: '', messageChannel: '' }
  }
  if (
   typeof channel === 'string' &&
   channel.includes('  ')
  ) {
-  alert(
+  politeAlert(
    'channel must not include two spaces in a row'
   )
   return { channel: '', messageChannel: '' }

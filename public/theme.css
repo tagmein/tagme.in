@@ -1161,3 +1161,51 @@ a.external-link::after {
  transform: scaleX(-1);
  width: 12px;
 }
+
+.alert-shade {
+ align-items: center;
+ background-color: #80808080;
+ bottom: 0;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ left: 0;
+ overflow: hidden;
+ position: fixed;
+ right: 0;
+ top: 0;
+ z-index: 2000;
+}
+
+.alert-container {
+ background-color: #282828;
+ border-radius: 2px;
+ box-shadow: 0 0 10px #00000080;
+ box-sizing: border-box;
+ max-height: 80vh;
+ max-width: 80vw;
+ min-height: 120px;
+ overflow-x: hidden;
+ overflow-y: scroll;
+ padding: 30px;
+ white-space: pre-wrap;
+ width: 480px;
+}
+
+body.light-mode .alert-container {
+ color: #282828;
+ background-color: #f8f8f8;
+}
+
+.alert-container button {
+ background-color: #585838;
+ border: 1px solid #989898;
+ border-radius: 2px;
+ cursor: pointer;
+ margin-top: 15px;
+ padding: 10px 15px;
+}
+
+body.light-mode .alert-container button {
+ background-color: #e9e9f1;
+}

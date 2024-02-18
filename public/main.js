@@ -205,7 +205,9 @@ async function withLoading(promise) {
   const data = await promise
   return data
  } catch (e) {
-  alert(e.message ?? e ?? 'Unknown error')
+  await politeAlert(
+   e.message ?? e ?? 'Unknown error'
+  )
   return false
  } finally {
   loaderCount--
