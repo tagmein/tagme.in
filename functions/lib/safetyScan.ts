@@ -82,11 +82,5 @@ export async function safetyScan(
   return
  }
 
- if (
-  aiResult.result.response.split(' ').length > 4
- ) {
-  return 'Auto moderation error.'
- }
-
  return aiResult.result.response
 }
