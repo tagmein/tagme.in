@@ -934,7 +934,6 @@ body.light-mode article > div code.formula {
 }
 
 .icon {
- background-color: #fff;
  background-size: 100%;
  display: inline-block;
  height: 32px;
@@ -946,56 +945,108 @@ body.light-mode article > div code.formula {
  width: 24px;
 }
 
-body.light-mode .icon {
- background-color: #282828;
-}
-
 .icon-back {
- mask-image: url(./icons/back.svg);
+ background-image: url(./icons/back.svg);
 }
 
 .icon-globe {
- mask-image: url(./icons/globe.svg);
+ background-image: url(./icons/globe.svg);
 }
 
 .icon-home {
- mask-image: url(./icons/home.svg);
+ background-image: url(./icons/home.svg);
 }
 
 .icon-hut {
- mask-image: url(./icons/hut.svg);
+ background-image: url(./icons/hut.svg);
 }
 
 .icon-in {
- mask-image: url(./icons/in.svg);
+ background-image: url(./icons/in.svg);
 }
 
 .icon-news {
- mask-image: url(./icons/news.svg);
+ background-image: url(./icons/news.svg);
 }
 
 .icon-no {
- mask-image: url(./icons/no.svg);
+ background-image: url(./icons/no.svg);
+}
+
+.icon-reply {
+ background-image: url(./icons/reply.svg);
 }
 
 .icon-search {
- mask-image: url(./icons/search.svg);
+ background-image: url(./icons/search.svg);
 }
 
 body:fullscreen .icon-in {
- mask-image: url(./icons/out.svg);
+ background-image: url(./icons/out.svg);
 }
 
 .icon-plane {
- mask-image: url(./icons/plane.svg);
+ background-image: url(./icons/plane.svg);
 }
 
 .icon-sun {
- mask-image: url(./icons/sun.svg);
+ background-image: url(./icons/sun.svg);
 }
 
 .icon-yes {
- mask-image: url(./icons/yes.svg);
+ background-image: url(./icons/yes.svg);
+}
+
+body.light-mode .icon-back {
+ background-image: url(./icons/back-light.svg);
+}
+
+body.light-mode .icon-globe {
+ background-image: url(./icons/globe-light.svg);
+}
+
+body.light-mode .icon-home {
+ background-image: url(./icons/home-light.svg);
+}
+
+body.light-mode .icon-hut {
+ background-image: url(./icons/hut-light.svg);
+}
+
+body.light-mode .icon-in {
+ background-image: url(./icons/in-light.svg);
+}
+
+body.light-mode .icon-news {
+ background-image: url(./icons/news-light.svg);
+}
+
+body.light-mode .icon-no {
+ background-image: url(./icons/no-light.svg);
+}
+
+body.light-mode .icon-reply {
+ background-image: url(./icons/reply-light.svg);
+}
+
+body.light-mode .icon-search {
+ background-image: url(./icons/search-light.svg);
+}
+
+body.light-mode:fullscreen .icon-in {
+ background-image: url(./icons/out-light.svg);
+}
+
+body.light-mode .icon-plane {
+ background-image: url(./icons/plane-light.svg);
+}
+
+body.light-mode .icon-sun {
+ background-image: url(./icons/sun-light.svg);
+}
+
+body.light-mode .icon-yes {
+ background-image: url(./icons/yes-light.svg);
 }
 
 .icon.icon-close,
@@ -1110,30 +1161,30 @@ article.news {
 }
 
 .reply {
- margin-left: 40px;
+ margin-left: 50px;
  position: relative;
 }
 
 .reply::before {
  background-color: #484848;
+ background-image: url(./icons/reply.svg);
  border-radius: 20px;
- border: 2px solid #808080;
- color: #808080;
- content: '⮳';
+ border: 2px solid #fff;
+ content: '';
  display: block;
- font-size: 42px;
  height: 36px;
- left: -36px;
- line-height: 33px;
+ left: -55px;
+ opacity: 0.5;
  overflow: hidden;
  position: absolute;
- text-indent: -2px;
- top: 4px;
+ top: 5px;
  width: 36px;
 }
 
 body.light-mode .reply::before {
  background-color: #c8c8c8;
+ background-image: url(./icons/reply-light.svg);
+ border: 2px solid #282828;
 }
 
 body button.input-icon {
