@@ -23,6 +23,7 @@ a {
  cursor: pointer;
  text-decoration-line: underline;
  text-decoration-style: dotted;
+ text-decoration-thickness: 2px;
  text-underline-offset: 3px;
  word-wrap: break-word;
 }
@@ -213,6 +214,7 @@ footer:hover {
 
 footer h1 {
  font-size: 16px;
+ font-weight: normal;
  margin: 0;
  padding: 7px 0;
 }
