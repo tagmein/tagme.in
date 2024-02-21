@@ -1,8 +1,8 @@
 body {
- font-family: 'Noto Serif', 'Liberation Serif',
-  serif;
+ font-family: Vera, sans-serif;
  height: 100dvh;
  left: 0;
+ line-height: 1.5;
  overflow-x: hidden;
  overflow-y: auto;
  padding-top: 160px;
@@ -16,7 +16,7 @@ footer,
 .article-tools .score,
 .message-footer,
 a.channel {
- font-family: 'Avenir Next', sans-serif;
+ font-family: Vera, sans-serif;
 }
 
 a {
@@ -287,7 +287,7 @@ article blockquote {
 }
 
 .message-content > div:first-child {
- padding: 11px 15px;
+ padding: 11px 15px 9px;
 }
 
 .message-content > article > div:first-child {
@@ -366,7 +366,7 @@ article > div > .image-container {
  height: 50vh;
  min-height: 250px;
  margin-left: -15px;
- margin-top: 14px;
+ margin-top: 5px;
  width: 100vw;
 }
 
@@ -584,9 +584,16 @@ article.highlight::after {
  box-shadow: inset 0 0 10px #ca0;
 }
 
-body.light-mode {
- color: #282828;
+body,
+.message-content {
+ background-color: #282828;
+ color: #fff;
+}
+
+body.light-mode,
+body.light-mode .message-content {
  background-color: #f8f8f8;
+ color: #282828;
 }
 
 body.light-mode a {
@@ -818,7 +825,7 @@ body.light-mode .channel-history {
 .channel-history a {
  color: #fff;
  display: block;
- font-family: sans-serif;
+ font-family: Vera, sans-serif;
  font-size: 20px;
  padding: 4px 15px;
  position: relative;
@@ -1274,4 +1281,65 @@ body.light-mode .alert-container button {
 .alert-container input {
  position: relative;
  top: 1px;
+}
+
+@font-face {
+ font-family: 'Vera';
+ src: url('./fonts/Vera.woff') format('woff');
+ font-weight: normal;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: 'Vera';
+ src: url('./fonts/Vera-Bold.woff')
+  format('woff');
+ font-weight: bold;
+ font-style: normal;
+}
+
+@font-face {
+ font-family: 'Vera';
+ src: url('./fonts/Vera-Italic.woff')
+  format('woff');
+ font-weight: normal;
+ font-style: italic;
+}
+
+@font-face {
+ font-family: 'Vera';
+ src: url('./fonts/Vera-Bold-Italic.woff')
+  format('woff');
+ font-weight: bold;
+ font-style: italic;
+}
+
+summary {
+ cursor: pointer;
+ list-style: none;
+ padding-top: 2px;
+}
+
+summary::marker,
+summary::-webkit-details-marker {
+ display: none;
+}
+
+summary::after {
+ content: ' more';
+}
+
+details[open] > summary::after {
+ content: ' less';
+}
+
+summary::before {
+ border-radius: 100%;
+ border: 1px solid #808080;
+ content: '';
+ display: inline-block;
+ height: 1em;
+ margin-right: 4px;
+ vertical-align: -2px;
+ width: 1em;
 }
