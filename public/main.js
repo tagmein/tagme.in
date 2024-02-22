@@ -38,6 +38,13 @@ function cancelChannelInput() {
  channelInput.value = lastKnownChannelInput
 }
 
+let lastKnownActivityFilterInput
+let activityFilterInputFocused = false
+function cancelActivityFilterInput() {
+ activityFilterInput.value =
+  lastKnownActivityFilterInput
+}
+
 const autocompleteChannels =
  displayAutocompleteChannels(
   channelInput,
@@ -123,6 +130,146 @@ const appAccounts = displayAppAccounts()
 
 const activityContainer = displayActivity()
 
+const mainToolbar = elem({
+ classes: ['toolbar', 'mode-main'],
+ children: [
+  elem({
+   children: [
+    elem({
+     classes: [
+      'icon',
+      'icon-home',
+      'display-on-channel',
+     ],
+     tagName: 'span',
+    }),
+    elem({
+     classes: ['display-on-message'],
+     children: [icon('back')],
+     tagName: 'span',
+    }),
+   ],
+   events: {
+    click() {
+     const { channel, message } = getUrlData()
+     location.hash =
+      typeof message === 'string'
+       ? `#/${encodeURIComponent(channel)}`
+       : '#'
+     scrollToTop()
+    },
+   },
+   tagName: 'button',
+  }),
+  channelInput,
+  elem({
+   classes: ['input-icon'],
+   children: [icon('search')],
+   tagName: 'button',
+  }),
+  elem({
+   children: [
+    elem({
+     classes: ['icon', 'icon-news'],
+     tagName: 'span',
+    }),
+   ],
+   events: {
+    click() {
+     activityContainer.toggle()
+    },
+   },
+   tagName: 'button',
+  }),
+ ],
+})
+
+const activityFilterInput = elem({
+ attributes: {
+  maxlength: 25,
+  placeholder: 'Search activity',
+ },
+ events: {
+  blur() {
+   activityFilterInputFocused = false
+   autocompleteActivitySearch.close()
+   applyActivityFilter(
+    activityFilterInput.value.trim()
+   )
+  },
+  focus() {
+   lastKnownActivityFilterInput =
+    activityFilterInput.value
+   activityFilterInputFocused = true
+   autocompleteActivitySearch.open()
+  },
+  input() {
+   autocompleteActivitySearch.filter(
+    activityFilterInput.value.trim()
+   )
+  },
+  keydown({ key }) {
+   if (key === 'Enter') {
+    activityFilterInput.blur()
+   }
+  },
+ },
+ tagName: 'input',
+})
+
+const autocompleteActivitySearch =
+ displayAutocompleteActivitySearch(
+  activityFilterInput,
+  cancelActivityFilterInput,
+  applyActivityFilter
+ )
+
+function applyActivityFilter(filterText) {
+ const trimmedFilter = filterText.trim()
+ autocompleteActivitySearch.visit(trimmedFilter)
+ activityFilterInput.value = trimmedFilter
+ activityContainer.filter(trimmedFilter)
+}
+
+const activityToolbar = elem({
+ classes: ['toolbar', 'mode-activity'],
+ children: [
+  elem({
+   children: [icon('close')],
+   events: {
+    click() {
+     if (activityFilterInput.value === '') {
+      activityContainer.toggle()
+     } else {
+      applyActivityFilter('')
+     }
+    },
+   },
+   tagName: 'button',
+  }),
+  activityFilterInput,
+  elem({
+   classes: ['input-icon'],
+   children: [icon('search')],
+   tagName: 'button',
+  }),
+  elem({
+   children: [
+    elem({
+     classes: ['icon', 'icon-news'],
+     tagName: 'span',
+    }),
+   ],
+   events: {
+    click() {
+     activityContainer.toggle()
+    },
+   },
+   tagName: 'button',
+  }),
+ ],
+})
+
 const appHeader = elem({
  classes: ['app-header'],
  children: [
@@ -139,60 +286,9 @@ const appHeader = elem({
    ],
   }),
   appAccounts.element,
-  elem({
-   classes: ['toolbar'],
-   children: [
-    elem({
-     children: [
-      elem({
-       classes: [
-        'icon',
-        'icon-home',
-        'display-on-channel',
-       ],
-       tagName: 'span',
-      }),
-      elem({
-       classes: ['display-on-message'],
-       children: [icon('back')],
-       tagName: 'span',
-      }),
-     ],
-     events: {
-      click() {
-       const { channel, message } = getUrlData()
-       location.hash =
-        typeof message === 'string'
-         ? `#/${encodeURIComponent(channel)}`
-         : '#'
-       scrollToTop()
-      },
-     },
-     tagName: 'button',
-    }),
-    loadingIndicator,
-    channelInput,
-    elem({
-     classes: ['input-icon'],
-     children: [icon('search')],
-     tagName: 'button',
-    }),
-    elem({
-     children: [
-      elem({
-       classes: ['icon', 'icon-news'],
-       tagName: 'span',
-      }),
-     ],
-     events: {
-      click() {
-       activityContainer.toggle()
-      },
-     },
-     tagName: 'button',
-    }),
-   ],
-  }),
+  mainToolbar,
+  activityToolbar,
+  loadingIndicator,
  ],
 })
 
@@ -280,8 +376,7 @@ const compose = elem({
    tagName: 'button',
   }),
  ],
- classes: ['compose'],
-
+ classes: ['compose', 'mode-main'],
  events: {
   async submit(e) {
    e.preventDefault()
@@ -305,10 +400,11 @@ const compose = elem({
 })
 
 const messageContent = elem({
- classes: ['message-content'],
+ classes: ['message-content', 'mode-main'],
 })
 
 const mainContent = elem({
+ classes: ['mode-main'],
  tagName: 'main',
 })
 

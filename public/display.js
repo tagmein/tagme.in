@@ -614,7 +614,7 @@ function displayAutocompleteChannels(
  let openTimeout
  let canClose
  const channelHistoryListElement = elem({
-  classes: ['channel-history'],
+  classes: ['dropdown'],
   events: {
    mousedown() {
     canClose = false
@@ -634,7 +634,7 @@ function displayAutocompleteChannels(
  const historyElement = elem({
   children: [
    elem({
-    classes: ['channel-history-shade'],
+    classes: ['dropdown-shade'],
     events: {
      mousedown() {
       cancelChannelInput()
@@ -774,6 +774,161 @@ function displayAutocompleteChannels(
  }
 }
 
+function displayAutocompleteActivitySearch(
+ filterInput,
+ cancelFilterInput,
+ applyFilter
+) {
+ let filterHistory
+ function readFilterHistory() {
+  if (!filterHistory) {
+   filterHistory = read(
+    'tmi:activity-filter-history',
+    {}
+   )
+  }
+  return filterHistory
+ }
+ function writeFilterHistory(history) {
+  filterHistory = history
+  write('tmi:activity-filter-history', history)
+ }
+ let closeTimeout
+ let openTimeout
+ let canClose
+ const filterHistoryListElement = elem({
+  classes: ['dropdown'],
+  events: {
+   mousedown() {
+    canClose = false
+    cancelFilterInput()
+   },
+   mouseup() {
+    canClose = true
+    clearTimeout(closeTimeout)
+    openTimeout = setTimeout(
+     () => filterInput.focus(),
+     250
+    )
+   },
+  },
+ })
+ let isOpen = false
+ const historyElement = elem({
+  children: [
+   elem({
+    classes: ['dropdown-shade'],
+    events: {
+     mousedown() {
+      cancelFilterInput()
+     },
+    },
+   }),
+   filterHistoryListElement,
+  ],
+ })
+ function close() {
+  closeTimeout = setTimeout(closeNow, 250)
+ }
+ function closeNow() {
+  clearTimeout(closeTimeout)
+  clearTimeout(openTimeout)
+  if (!isOpen || !canClose) {
+   return
+  }
+  document.body.removeChild(historyElement)
+  isOpen = false
+ }
+ function filter(text) {
+  const terms = text.toLowerCase().split(/\s+/)
+  for (const [
+   historyChannel,
+   historyEntry,
+  ] of historyEntries) {
+   historyEntry.style.display = terms.every(
+    (term) => historyChannel.includes(term)
+   )
+    ? 'block'
+    : 'none'
+  }
+ }
+ let historyEntries = []
+ function open() {
+  canClose = true
+  clearTimeout(closeTimeout)
+  if (isOpen) {
+   return
+  }
+  filterHistoryListElement.innerHTML = ''
+  historyEntries = []
+  for (const [filter] of Object.entries(
+   readFilterHistory()
+  ).sort(function ([, a], [, b]) {
+   return b - a
+  })) {
+   const historyEntry = elem({
+    tagName: 'a',
+    events: {
+     click(e) {
+      e.stopPropagation()
+      e.preventDefault()
+      applyFilter(filter)
+     },
+    },
+    children: [
+     elem({
+      tagName: 'span',
+      textContent: filter,
+     }),
+     elem({
+      classes: ['remove'],
+      tagName: 'span',
+      textContent: '❌',
+      events: {
+       click(e) {
+        e.preventDefault()
+        e.stopPropagation()
+        historyEntry.remove()
+        const history = readFilterHistory()
+        delete history[filter]
+        writeFilterHistory(history)
+       },
+      },
+     }),
+    ],
+   })
+   filterHistoryListElement.appendChild(
+    historyEntry
+   )
+   historyEntries.push([
+    filter.toLowerCase(),
+    historyEntry,
+   ])
+  }
+  document.body.appendChild(historyElement)
+  isOpen = true
+ }
+ function visit(filterText) {
+  filterInput.blur()
+  closeNow()
+  if (filterText.trim().length === 0) {
+   return
+  }
+  const history = readFilterHistory()
+  if (!(filterText in history)) {
+   history[filterText] = 0
+  }
+  history[filterText]++
+  writeFilterHistory(history)
+ }
+ return {
+  close,
+  filter,
+  open,
+  visit,
+ }
+}
+
 function displayActivity() {
  const element = elem({
   classes: ['activity-container'],
@@ -791,21 +946,26 @@ function displayActivity() {
 
  function show() {
   isVisible = true
-  element.classList.add('visible')
+  document.body.setAttribute(
+   'data-mode',
+   'activity'
+  )
   load()
  }
 
  function hide() {
   isVisible = false
-  element.classList.remove('visible')
+  document.body.removeAttribute('data-mode')
  }
+
+ let lastMessages = []
 
  async function load() {
   const news = await getNews()
   element.innerHTML = ''
-  for (const newsMessage of news.data) {
+  lastMessages = news.data.map((newsMessage) =>
    attachNewsMessage(element, newsMessage)
-  }
+  )
  }
 
  function clear() {
@@ -813,7 +973,36 @@ function displayActivity() {
   hide()
  }
 
- return { clear, element, show, hide, toggle }
+ function filter(filterText) {
+  const terms = filterText
+   .split(/\s+/)
+   .map((x) => x.toLowerCase())
+  for (const {
+   element,
+   message,
+   parentMessage,
+  } of lastMessages) {
+   const messageIncludesAllTerms =
+    terms.length === 0
+     ? true
+     : terms.every(
+        (term) =>
+         message.includes(term) ||
+         parentMessage?.includes(term)
+       )
+   element.style.display =
+    messageIncludesAllTerms ? 'block' : 'none'
+  }
+ }
+
+ return {
+  clear,
+  element,
+  filter,
+  show,
+  hide,
+  toggle,
+ }
 }
 
 function localDateTime(dt) {
@@ -905,6 +1094,11 @@ function attachNewsMessage(
    tagName: 'article',
   })
   container.appendChild(article)
+  return {
+   element: article,
+   message: message.toLowerCase(),
+   parentMessage: parentMessage.toLowerCase(),
+  }
  } else {
   const dateContainer = elem({
    attributes: {
@@ -955,5 +1149,9 @@ function attachNewsMessage(
    tagName: 'article',
   })
   container.appendChild(article)
+  return {
+   element: article,
+   message: message.toLowerCase(),
+  }
  }
 }

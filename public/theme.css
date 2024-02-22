@@ -166,7 +166,7 @@ body.scroll-zero .app-header {
  width: 50px;
 }
 
-.toolbar input[placeholder='Search channels'] {
+.toolbar input[placeholder^='Search'] {
  padding-right: 50px;
 }
 
@@ -789,7 +789,7 @@ body.on-channel .display-on-message {
  opacity: 1;
 }
 
-.channel-history-shade {
+.dropdown-shade {
  background-color: #80808080;
  bottom: 0;
  left: 0;
@@ -800,7 +800,7 @@ body.on-channel .display-on-message {
  z-index: 2;
 }
 
-.channel-history {
+.dropdown {
  background-color: #000;
  max-height: calc(100dvh - 62px);
  box-shadow: 0 0 10px #00000080;
@@ -815,16 +815,16 @@ body.on-channel .display-on-message {
  z-index: 3;
 }
 
-body.scroll-zero .channel-history,
-body.scroll-up .channel-history {
+body.scroll-zero .dropdown,
+body.scroll-up .dropdown {
  top: 160px;
 }
 
-body.light-mode .channel-history {
+body.light-mode .dropdown {
  background-color: #fff;
 }
 
-.channel-history a {
+.dropdown a {
  color: #fff;
  display: block;
  font-family: Vera, sans-serif;
@@ -835,36 +835,36 @@ body.light-mode .channel-history {
  white-space: pre-wrap;
 }
 
-.channel-history a:hover {
+.dropdown a:hover {
  background-color: #fff;
  color: #000;
 }
 
-body.light-mode .channel-history a {
+body.light-mode .dropdown a {
  color: #000;
 }
 
-body.light-mode .channel-history a:hover {
+body.light-mode .dropdown a:hover {
  background-color: #000;
  color: #fff;
 }
 
-.channel-history a span.remove {
+.dropdown a span.remove {
  filter: grayscale(1);
  position: absolute;
  right: 15px;
  top: 4px;
 }
 
-.channel-history a.small {
+.dropdown a.small {
  font-size: 16px;
 }
 
-body.light-mode .channel-history a span.score {
+body.light-mode .dropdown a span.score {
  background-color: #efefef;
 }
 
-.channel-history a span.score {
+.dropdown a span.score {
  background-color: #383828;
  border-radius: 5px;
  color: inherit;
@@ -878,14 +878,11 @@ body.light-mode .channel-history a span.score {
  top: 7px;
 }
 
-.channel-history a:hover span.score {
+.dropdown a:hover span.score {
  background-color: #c8c8c8;
 }
 
-body.light-mode
- .channel-history
- a:hover
- span.score {
+body.light-mode .dropdown a:hover span.score {
  background-color: #585858;
 }
 
@@ -1074,6 +1071,12 @@ body.light-mode .icon.icon-close {
  width: 2px;
 }
 
+.toolbar .icon.icon-close::before,
+.toolbar .icon.icon-close::after {
+ left: 15px;
+ top: 4px;
+}
+
 .icon.icon-close::before {
  transform: rotate(45deg);
 }
@@ -1113,18 +1116,7 @@ body.light-mode .icon.icon-plus {
 }
 
 .activity-container {
- background-color: #202020;
- box-shadow: 0 0 20px #000;
- height: 0;
- left: 0;
- opacity: 0;
- overflow-x: hidden;
- overflow-y: scroll;
- position: fixed;
- right: 1px;
- top: 50px;
- transition: opacity 0.5s ease, top 0.5s ease;
- z-index: 3;
+ min-height: calc(100dvh - 114px);
 }
 
 body.scroll-zero .activity-container,
@@ -1137,14 +1129,18 @@ body.light-mode .activity-container {
  box-shadow: 0 0 20px #707070;
 }
 
-.activity-container.visible {
- height: calc(100dvh - 50px);
- opacity: 1;
+.activity-container,
+.mode-activity {
+ display: none;
 }
 
-body.scroll-zero .activity-container.visible,
-body.scroll-up .activity-container.visible {
- height: calc(100dvh - 160px);
+body[data-mode='activity'] .activity-container,
+body[data-mode='activity'] .mode-activity {
+ display: inherit;
+}
+
+body[data-mode='activity'] .mode-main {
+ display: none;
 }
 
 article.news {
