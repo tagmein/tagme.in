@@ -886,6 +886,9 @@ function displayAutocompleteActivitySearch(
       textContent: '❌',
       events: {
        click(e) {
+        if (filterInput.value === filter) {
+         filterInput.value = ''
+        }
         e.preventDefault()
         e.stopPropagation()
         historyEntry.remove()
@@ -978,6 +981,7 @@ function displayActivity() {
    .split(/\s+/)
    .map((x) => x.toLowerCase())
   for (const {
+   channel,
    element,
    message,
    parentMessage,
@@ -987,6 +991,7 @@ function displayActivity() {
      ? true
      : terms.every(
         (term) =>
+         channel.includes(term) ||
          message.includes(term) ||
          parentMessage?.includes(term)
        )
@@ -1095,6 +1100,7 @@ function attachNewsMessage(
   })
   container.appendChild(article)
   return {
+   channel: '#' + parentChannel.toLowerCase(),
    element: article,
    message: message.toLowerCase(),
    parentMessage: parentMessage.toLowerCase(),
@@ -1150,6 +1156,7 @@ function attachNewsMessage(
   })
   container.appendChild(article)
   return {
+   channel: '#' + channel.toLowerCase(),
    element: article,
    message: message.toLowerCase(),
   }
