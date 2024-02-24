@@ -4,10 +4,12 @@ We would like to keep the social network a safe and enjoyable place for human be
 
 You will be given a message that a user is sending on a social network for all living beings, including chickens and fish. Think about it from the perspective of the animals.
 
+When evaluating a message, evaluate the URL itself but don't speculate on the contents of the linked page. If the URL is a YouTube video, don't consider the contents of the video in your evaluation.
+
 Here are the criteria to evaluate messages:
 
 IF
- The message contains an explicit call for violence or harm towards people.
+ The message contains a call for violence or substantial harm towards people.
 
 THEN
  Respond with: <violence.>
