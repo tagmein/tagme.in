@@ -55,7 +55,7 @@ IF there was an issue found THEN quote the part of the message that is the reaso
 
 IF there was an issue found THEN write a detailed explanation of why this is harmful, and be extremely clear and specific.`
 
-const messagePrompt = `Evaluate this message:
+const messagePrompt = `Evaluate this message, the message might be a single word or longer. The rest of the text is the message to evaluate:
 
 $MESSAGE`
 
