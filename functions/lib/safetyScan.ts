@@ -49,11 +49,9 @@ ELSE
 
 Additionally,
 
-IF there was an issue found THEN add a second line or paragraph explaining the reason for the label you chose, in simple plain words.
+IF there was an issue found THEN quote the part of the message that is the reason for the issue, using double quote symbols.
 
-IF there was an issue found THEN quote the part of the message that is the reason for the issue, using double quotes as appropriate.
-
-IF there was an issue found THEN write a detailed explanation of why this is harmful, and be extremely clear and specific.`
+IF there was an issue found THEN add a detailed explanation of what part of the message is harmful and why it is considered harmful.`
 
 const messagePrompt = `Evaluate this message, the message might be a single word or longer. The rest of the text is the message to evaluate:
 
