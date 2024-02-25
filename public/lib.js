@@ -483,7 +483,8 @@ function messageReplyChannel(
 async function politeAlert(
  message,
  actionText,
- requiredConsent
+ requiredConsent,
+ allowCancel
 ) {
  let alertBox
  const consentForm = requiredConsent
@@ -519,7 +520,7 @@ async function politeAlert(
      }),
     ]
   : []
- await new Promise((agree) => {
+ const agreed = await new Promise((agree) => {
   alertBox = elem({
    classes: ['alert-shade'],
    children: [
@@ -545,12 +546,28 @@ async function politeAlert(
            return
           }
          }
-         agree()
+         agree(true)
         },
        },
        tagName: 'button',
        textContent: actionText ?? 'OK',
       }),
+      ...(allowCancel
+       ? [
+          elem({
+           events: {
+            click() {
+             agree(false)
+            },
+           },
+           tagName: 'button',
+           textContent:
+            typeof allowCancel === 'string'
+             ? allowCancel
+             : 'Cancel',
+          }),
+         ]
+       : []),
      ],
     }),
    ],
@@ -558,6 +575,7 @@ async function politeAlert(
   document.body.appendChild(alertBox)
  })
  document.body.removeChild(alertBox)
+ return agreed
 }
 
 function getUrlData() {

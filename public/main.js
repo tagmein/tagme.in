@@ -376,7 +376,11 @@ const compose = elem({
    tagName: 'button',
   }),
  ],
- classes: ['compose', 'mode-main'],
+ classes: [
+  'compose',
+  'mode-main',
+  'send-consent-granted',
+ ],
  events: {
   async submit(e) {
    e.preventDefault()
@@ -408,10 +412,25 @@ const mainContent = elem({
  tagName: 'main',
 })
 
+const consentPrompt = elem({
+ classes: [
+  'consent-prompt',
+  'mode-main',
+  'send-consent-not-granted',
+ ],
+ events: {
+  click: gainConsent,
+ },
+ tagName: 'p',
+ textContent:
+  'Tap here to learn about contributing to Tag Me In',
+})
+
 const { body } = document
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
 body.appendChild(messageContent)
+body.appendChild(consentPrompt)
 body.appendChild(compose)
 body.appendChild(mainContent)
 body.appendChild(
@@ -505,12 +524,28 @@ route().catch((e) => console.error(e))
 
 const consentKey = 'consent:ai-moderator'
 
+function checkConsent() {
+ if (
+  localStorage.getItem(consentKey) === 'consent'
+ ) {
+  document.body.classList.add(
+   'send-consent-granted'
+  )
+ } else {
+  {
+   document.body.classList.remove(
+    'send-consent-granted'
+   )
+  }
+ }
+}
+
 async function gainConsent() {
  const consented =
   localStorage.getItem(consentKey) === 'consent'
 
  if (!consented) {
-  await politeAlert(
+  const nowConsented = await politeAlert(
    `Greetings, Earthling, and welcome to Tag Me In!
 
 Researchers are currently developing techniques to communicate with animals using artificial intelligence.
@@ -534,23 +569,27 @@ If you believe in a world where every animal is seen as part of the sacred beaut
 You can change your mind at any time in the future and remove consent: look for a link in the footer to remove previously-granted consent.
 
 To get started, consider the following statements:`,
-   'Agree and continue to Tag Me In',
+   'Agree and access the ability to contribute to Tag Me In',
    [
     'I consent to having everything I type into Tag Me In be judged exactingly by artificial intelligence in support of creating a safe(r) space for animals on the internet.',
     'I welcome animal-human communication with open arms.',
     'I would like to co-create a future where humans and animals coexist in peace and mutual respect.',
-   ]
+   ],
+   'Cancel'
   )
-  localStorage.setItem(consentKey, 'consent')
+  if (nowConsented) {
+   localStorage.setItem(consentKey, 'consent')
+   checkConsent()
+  }
  }
 }
 
-gainConsent().catch((e) => console.error(e))
+checkConsent()
 
 document
  .getElementById('remove-consent')
  .addEventListener('click', (e) => {
   e.preventDefault()
   localStorage.removeItem(consentKey)
-  location.reload()
+  checkConsent()
  })

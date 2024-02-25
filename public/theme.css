@@ -234,6 +234,25 @@ footer > p {
  position: relative;
 }
 
+body.send-consent-granted
+ .send-consent-not-granted {
+ display: none;
+}
+
+body .send-consent-granted {
+ display: none;
+}
+
+body.send-consent-granted
+ .send-consent-granted {
+ display: inherit;
+}
+
+body.send-consent-granted
+ .send-consent-granted {
+ display: block;
+}
+
 .compose textarea {
  box-sizing: border-box;
  height: 78px;
@@ -526,6 +545,22 @@ footer {
  border-top: 1px solid #585858;
 }
 
+.consent-prompt {
+ cursor: pointer;
+ margin: 0;
+ padding: 15px;
+ text-align: center;
+}
+
+.consent-prompt:hover {
+ filter: brightness(1.25);
+}
+
+.consent-prompt {
+ background-color: #003800;
+ border-bottom: 1px solid #585858;
+}
+
 .compose textarea {
  background-color: #003800;
  border-bottom: 1px solid #585858;
@@ -669,6 +704,11 @@ body.light-mode footer {
   #efefef
  );
  border-top: 1px solid #c8c8c8;
+}
+
+body.light-mode .consent-prompt {
+ background-color: #d3e9f1;
+ border-bottom: 1px solid #c8c8c8;
 }
 
 body.light-mode .compose textarea {
