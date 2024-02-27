@@ -938,10 +938,10 @@ function displayActivity() {
  const element = elem({
   classes: ['activity-container'],
   events: {
-    onscrollend(e) {
+    async onscrollend(e) {
       const scrollBottom = Math.ceil(element.scrollTop + element.clientHeight);
       if (scrollBottom === element.scrollHeight) {
-        loadMore()
+        await withLoading(loadMore())
       }
     }
   }
