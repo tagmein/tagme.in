@@ -450,6 +450,25 @@ addEventListener('scroll', () => {
  } else {
   document.body.classList.add('scroll-zero')
  }
+ const scrollBottom = Math.ceil(document.documentElement.scrollHeight - scrollY - document.documentElement.clientHeight)
+ const activityContainerBottom = Math.ceil(document.documentElement.scrollHeight - activityContainer.element.offsetTop - activityContainer.element.offsetHeight)
+ if(scrollY < 1 || !activityContainer.element.checkVisibility() || scrollBottom > activityContainerBottom) {
+  activityContainer.element.classList.remove("scrolled-past-bottom")
+ } else {
+  activityContainer.element.classList.add("scrolled-past-bottom")
+ }
+ const messageContentBottom = Math.ceil(document.documentElement.scrollHeight - messageContent.offsetTop - messageContent.offsetHeight)
+ if(scrollY < 1 || !messageContent.checkVisibility() || scrollBottom > messageContentBottom) {
+  messageContent.classList.remove("scrolled-past-bottom")
+ } else {
+  messageContent.classList.add("scrolled-past-bottom")
+ }
+ const mainContentBottom = Math.ceil(document.documentElement.scrollHeight - mainContent.offsetTop - mainContent.offsetHeight)
+ if(scrollY < 1 || !mainContent.checkVisibility() || scrollBottom > mainContentBottom) {
+  mainContent.classList.remove("scrolled-past-bottom")
+ } else {
+  mainContent.classList.add("scrolled-past-bottom")
+ }
 })
 
 async function route() {
