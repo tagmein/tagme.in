@@ -933,8 +933,18 @@ function displayAutocompleteActivitySearch(
 }
 
 function displayActivity() {
+ let lastChunk = 0
+
  const element = elem({
   classes: ['activity-container'],
+  events: {
+    onscrollend(e) {
+      const scrollBottom = Math.ceil(element.scrollTop + element.clientHeight);
+      if (scrollBottom === element.scrollHeight) {
+        loadMore()
+      }
+    }
+  }
  })
 
  let isVisible = false
@@ -964,9 +974,22 @@ function displayActivity() {
  let lastMessages = []
 
  async function load() {
-  const news = await getNews()
-  element.innerHTML = ''
-  lastMessages = news.data.map((newsMessage) =>
+  loadMore(0, function() {
+    element.innerHTML = ''
+    lastMessages = []
+  })
+ }
+
+ async function loadMore(chunk, callback) {
+  const news = await getNews(
+    typeof chunk === 'number' ? chunk : lastChunk,
+  function(chunk) { 
+    lastChunk = chunk 
+  })
+  if (typeof callback === 'function') {
+    callback()
+  }
+  lastMessages += news.data.map((newsMessage) =>
    attachNewsMessage(element, newsMessage)
   )
  }

@@ -729,7 +729,7 @@ function networkRootUrl() {
   : ''
 }
 
-async function getNews(chunk) {
+async function getNews(chunk, callback) {
  const headers = {}
  const activeSession = getActiveSession()
  if (activeSession) {
@@ -745,6 +745,9 @@ async function getNews(chunk) {
   { headers }
  )
  const news = await response.json()
+ if (typeof callback === 'function') {
+  callback(chunk)
+ }
  return news
 }
 
