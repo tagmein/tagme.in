@@ -126,6 +126,14 @@ async function suggestMessages(
  let skip = 0
  async function suggestMoreMessages() {
   try {
+   if (
+    suggestMoreButton.parentElement ===
+    suggestedMessagesContainer
+   ) {
+    suggestedMessagesContainer.removeChild(
+     suggestMoreButton
+    )
+   }
    suggestedMessagesContainer.appendChild(
     suggestingMoreMessagesNotice
    )
