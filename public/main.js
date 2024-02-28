@@ -437,6 +437,25 @@ body.appendChild(
  document.getElementById('footer')
 )
 
+function scrolledPastBottom(element) {
+ if (
+  scrollY < 1 ||
+  !element.checkVisibility()
+ ) {
+  return false
+ }
+ const bottom = Math.ceil(
+  document.documentElement.scrollHeight -
+   scrollY -
+   document.documentElement.clientHeight
+ )
+ const elementBottom = Math.ceil(
+  document.documentElement.scrollHeight -
+   element.offsetTop -
+   element.offsetHeight
+ )
+ return bottom < elementBottom
+}
 let lastScrollY = 0
 addEventListener('scroll', () => {
  if (scrollY < lastScrollY) {
@@ -449,6 +468,36 @@ addEventListener('scroll', () => {
   document.body.classList.remove('scroll-zero')
  } else {
   document.body.classList.add('scroll-zero')
+ }
+ if (
+  scrolledPastBottom(activityContainer.element)
+ ) {
+  activityContainer.element.classList.add(
+   'scrolled-past-bottom'
+  )
+  withLoading(activityContainer.loadMore())
+ } else {
+  activityContainer.element.classList.remove(
+   'scrolled-past-bottom'
+  )
+ }
+ if (scrolledPastBottom(messageContent)) {
+  messageContent.classList.add(
+   'scrolled-past-bottom'
+  )
+ } else {
+  messageContent.classList.remove(
+   'scrolled-past-bottom'
+  )
+ }
+ if (scrolledPastBottom(mainContent)) {
+  mainContent.classList.add(
+   'scrolled-past-bottom'
+  )
+ } else {
+  mainContent.classList.remove(
+   'scrolled-past-bottom'
+  )
  }
 })
 

@@ -1159,6 +1159,10 @@ body.light-mode .icon.icon-plus {
  min-height: calc(100dvh - 114px);
 }
 
+.text-message {
+ padding: 0 15px;
+}
+
 body.scroll-zero .activity-container,
 body.scroll-up .activity-container {
  top: 160px;

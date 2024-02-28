@@ -935,6 +935,16 @@ function displayAutocompleteActivitySearch(
 function displayActivity() {
  const element = elem({
   classes: ['activity-container'],
+  events: {
+   async onscrollend(e) {
+    const scrollBottom = Math.ceil(
+     element.scrollTop + element.clientHeight
+    )
+    if (scrollBottom === element.scrollHeight) {
+     await withLoading(loadMore())
+    }
+   },
+  },
  })
 
  let isVisible = false
@@ -964,9 +974,46 @@ function displayActivity() {
  let lastMessages = []
 
  async function load() {
-  const news = await getNews()
-  element.innerHTML = ''
-  lastMessages = news.data.map((newsMessage) =>
+  loadMore(undefined, function () {
+   element.innerHTML = ''
+   lastMessages = []
+  })
+ }
+
+ let isLoading = false
+ let nextChunk = undefined
+ async function loadMore(chunk, callback) {
+  if (isLoading) {
+   return
+  }
+  const chunk2 =
+   typeof chunk === 'number' ? chunk : nextChunk
+  if (chunk2 < 0) {
+   if (chunk2 < -1) {
+    return
+   }
+   element.appendChild(
+    elem({
+     tagName: 'p',
+     textContent: 'End of news.',
+     classes: ['text-message'],
+    })
+   )
+   nextChunk--
+   return
+  }
+  isLoading = true
+  const news = await getNews(
+   chunk2,
+   function (chunk) {
+    nextChunk = chunk - 1
+    isLoading = false
+   }
+  )
+  if (typeof callback === 'function') {
+   callback()
+  }
+  lastMessages += news.data.map((newsMessage) =>
    attachNewsMessage(element, newsMessage)
   )
  }
@@ -1007,6 +1054,7 @@ function displayActivity() {
   show,
   hide,
   toggle,
+  loadMore,
  }
 }
 
