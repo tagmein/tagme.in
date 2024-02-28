@@ -9,11 +9,11 @@ export interface SessionData {
 }
 
 export function sessionIsExpired(
- session: SessionData
+ session?: SessionData
 ): boolean {
  return (
-  session &&
-  session.created <
-   Date.now() - SESSION_EXPIRE_MS
+  !session ||
+  Date.now() >
+   session.created + SESSION_EXPIRE_MS
  )
 }

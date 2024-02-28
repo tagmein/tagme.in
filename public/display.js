@@ -935,16 +935,6 @@ function displayAutocompleteActivitySearch(
 function displayActivity() {
  const element = elem({
   classes: ['activity-container'],
-  events: {
-   async onscrollend(e) {
-    const scrollBottom = Math.ceil(
-     element.scrollTop + element.clientHeight
-    )
-    if (scrollBottom === element.scrollHeight) {
-     await withLoading(loadMore())
-    }
-   },
-  },
  })
 
  let isVisible = false
@@ -967,8 +957,9 @@ function displayActivity() {
  }
 
  function hide() {
-  isVisible = false
   document.body.removeAttribute('data-mode')
+  isVisible = false
+  nextChunk = undefined
  }
 
  let lastMessages = []
