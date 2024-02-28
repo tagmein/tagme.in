@@ -10,6 +10,7 @@ const MAX_MESSAGE_LENGTH = 175
 interface PostBody {
  channel: string
  message?: string
+ skip: number
 }
 
 async function validateRequestBody(
@@ -76,6 +77,20 @@ async function validateRequestBody(
    }
   }
 
+  if (typeof data.skip !== 'number') {
+   return {
+    error: 'skip must be a number',
+    data,
+   }
+  }
+
+  if (data.skip < 0) {
+   return {
+    error: 'skip must be at least 0',
+    data,
+   }
+  }
+
   return { data }
  } catch (e) {
   return {
@@ -84,6 +99,7 @@ async function validateRequestBody(
     e.message,
    data: {
     channel: '',
+    skip: 0,
    },
   }
  }
@@ -93,7 +109,7 @@ export const onRequestPost: PagesFunction<Env> =
  async function (context) {
   const {
    error,
-   data: { channel, message },
+   data: { channel, message, skip },
   } = await validateRequestBody(context.request)
 
   if (error) {
@@ -122,6 +138,7 @@ export const onRequestPost: PagesFunction<Env> =
      await generateMessages(
       MAX_MESSAGE_LENGTH,
       context.env.WORKERS_AI_API_TOKEN,
+      skip,
       channel,
       message
      )

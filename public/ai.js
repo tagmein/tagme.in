@@ -1,50 +1,47 @@
 async function suggestMessages(
  suggestedMessagesContainer,
  composeTextarea,
+ formattedMessageData,
  channel,
  message
 ) {
- try {
-  suggestedMessagesContainer.innerHTML = ''
+ function showUpliftBot() {
   suggestedMessagesContainer.appendChild(
    elem({
-    classes: ['text-message'],
-    tagName: 'p',
+    classes: ['uplift-bot-avatar'],
+   })
+  )
+  suggestedMessagesContainer.appendChild(
+   elem({
+    classes: ['uplift-bot'],
     children: [
      elem({
+      classes: ['uplift-bot-name'],
       tagName: 'span',
-      textContent:
-       'Please wait, generating suggested messages...',
+      textContent: 'Uplift Bot',
+     }),
+     elem({
+      tagName: 'span',
+      textContent: ' says:',
      }),
     ],
    })
   )
-  const suggestBody = JSON.stringify({
-   channel,
-   message,
-  })
-  const suggestResponse = await withLoading(
-   fetch(`${networkRootUrl()}/generate`, {
-    method: 'POST',
-    body: suggestBody,
-    headers: {
-     'Content-Type': 'application/json',
-    },
-   })
-  )
-  const suggestedMessages = await withLoading(
-   suggestResponse.json()
-  )
-  suggestedMessagesContainer.innerHTML = ''
-  if (
-   !Array.isArray(suggestedMessages) ||
-   suggestedMessages.length < 1
-  ) {
-   throw new Error(
-    'No suggested messages found'
-   )
-  }
+ }
+ let totalRenderedSuggestions = 0
+ function renderSuggestedMessages(
+  suggestedMessages
+ ) {
+  console.log(formattedMessageData)
   for (const suggestedMessage of suggestedMessages) {
+   if (
+    formattedMessageData.find(
+     (x) => x.text === suggestedMessage
+    )
+   ) {
+    continue
+   }
+   totalRenderedSuggestions++
    suggestedMessagesContainer.appendChild(
     elem({
      classes: [
@@ -78,35 +75,110 @@ async function suggestMessages(
     })
    )
   }
- } catch (e) {
-  suggestedMessagesContainer.appendChild(
-   elem({
-    classes: ['text-message'],
-    tagName: 'p',
-    children: [
-     elem({
-      tagName: 'span',
-      textContent:
-       'There was an error suggesting messages ',
-     }),
-     elem({
-      tagName: 'a',
-      events: {
-       click(e) {
-        e.preventDefault()
-        suggestMessages(
-         suggestedMessagesContainer,
-         composeTextarea,
-         channel,
-         message
-        )
-       },
-       textContent: 'Try again',
-      },
-     }),
-    ],
-   })
-  )
-  throw e
  }
+
+ const suggestingMoreMessagesNotice = elem({
+  classes: ['text-message'],
+  tagName: 'p',
+  children: [
+   elem({
+    tagName: 'span',
+    textContent:
+     'Please wait, generating suggested messages...',
+   }),
+  ],
+ })
+
+ const suggestError = elem({
+  classes: ['text-message'],
+  tagName: 'p',
+  children: [
+   elem({
+    tagName: 'span',
+    textContent:
+     'There was an error suggesting messages ',
+   }),
+   elem({
+    tagName: 'a',
+    events: {
+     click(e) {
+      e.preventDefault()
+      suggestMoreMessages()
+     },
+    },
+    textContent: 'Try again',
+   }),
+  ],
+ })
+
+ const suggestMoreButton = elem({
+  classes: ['standalone-button'],
+  tagName: 'button',
+  events: {
+   click(e) {
+    e.preventDefault()
+    suggestMoreMessages()
+   },
+  },
+  textContent: 'More ideas, please!',
+ })
+
+ let skip = 0
+ async function suggestMoreMessages() {
+  try {
+   suggestedMessagesContainer.appendChild(
+    suggestingMoreMessagesNotice
+   )
+   const suggestBody = JSON.stringify({
+    channel,
+    message,
+    skip,
+   })
+   const suggestResponse = await withLoading(
+    fetch(`${networkRootUrl()}/generate`, {
+     method: 'POST',
+     body: suggestBody,
+     headers: {
+      'Content-Type': 'application/json',
+     },
+    })
+   )
+   const suggestedMessages = await withLoading(
+    suggestResponse.json()
+   )
+
+   if (
+    !Array.isArray(suggestedMessages) ||
+    suggestedMessages.length < 1
+   ) {
+    throw new Error(
+     'No suggested messages found'
+    )
+   }
+
+   renderSuggestedMessages(suggestedMessages)
+
+   if (totalRenderedSuggestions < skip + 5) {
+    skip += 5
+    setTimeout(suggestMoreMessages, 1000)
+   }
+
+   suggestedMessagesContainer.appendChild(
+    suggestMoreButton
+   )
+  } catch (e) {
+   suggestedMessagesContainer.appendChild(
+    suggestError
+   )
+   throw e
+  } finally {
+   suggestedMessagesContainer.removeChild(
+    suggestingMoreMessagesNotice
+   )
+  }
+ }
+
+ suggestedMessagesContainer.innerHTML = ''
+ showUpliftBot()
+ await suggestMoreMessages()
 }

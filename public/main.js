@@ -541,12 +541,6 @@ async function route() {
    COMPOSE_PLACEHOLDER_MESSAGE
   )
  }
- suggestMessages(
-  suggestedMessagesContainer,
-  composeTextarea,
-  channel,
-  messageText
- ).catch((e) => console.error(e))
  if (channelInput.value.trim() !== channel) {
   channelInput.value = channel
  }
@@ -556,6 +550,13 @@ async function route() {
  const formattedMessageData = formatMessageData(
   channelData.response.messages
  )
+ suggestMessages(
+  suggestedMessagesContainer,
+  composeTextarea,
+  formattedMessageData,
+  channel,
+  messageText
+ ).catch((e) => console.error(e))
  if (typeof messageText === 'string') {
   displayChannelMessage(
    channel,

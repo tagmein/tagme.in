@@ -4,7 +4,7 @@ You will be given the name of a "channel" and you should come up with 5 unique m
 
 Print the messages as 5 separate lines of text with no extra adornment.
 
-Keep the messages to $LENGTH characters or less.`
+Keep the messages to $LENGTH characters or less. $SKIP`
 
 const channelOnlyPrompt = `Here is the name of the channel:
 
@@ -21,6 +21,7 @@ $MESSAGE`
 export async function generateMessages(
  maxMessageLength: number,
  workersAIApiToken: string,
+ skip: number,
  channel: string,
  message?: string
 ): Promise<string[] | undefined> {
@@ -49,10 +50,19 @@ export async function generateMessages(
   messages: [
    {
     role: 'system',
-    content: generateMessagesTaskPrompt.replace(
-     '$LENGTH',
-     (maxMessageLength - 10).toString(10)
-    ),
+    content: generateMessagesTaskPrompt
+     .replace(
+      '$LENGTH',
+      (maxMessageLength - 10).toString(10)
+     )
+     .replace(
+      '$SKIP',
+      skip === 0
+       ? ''
+       : `Skip the first ${skip.toString(
+          10
+         )} messages that you would respond with, to create additional unique content suggestions.`
+     ),
    },
    {
     role: 'user',
@@ -95,7 +105,17 @@ export async function generateMessages(
 }
 
 function cleanMessage(message: string): string {
- return message
-  .replace(/^\d?\.?\s?\"?/, '')
-  .replace(/\"$/, '')
+ const cleaned = message.replace(
+  /^\d?\.?\s?/,
+  ''
+ )
+ if (
+  cleaned.startsWith('"') &&
+  cleaned.endsWith('"')
+ ) {
+  return cleaned
+   .replace(/^\"/, '')
+   .replace(/\"$/, '')
+ }
+ return cleaned
 }
