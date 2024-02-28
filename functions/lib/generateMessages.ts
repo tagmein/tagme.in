@@ -4,13 +4,22 @@ You will be given the name of a "channel" and you should come up with 5 unique m
 
 Print the messages as 5 separate lines of text with no extra adornment.`
 
-const messagePrompt = `Here is the name of the channel:
+const channelOnlyPrompt = `Here is the name of the channel:
 
 $CHANNEL`
 
+const channelAndMessagePrompt = `Here is the name of the channel:
+
+$CHANNEL
+
+Here is some text to consider in generating your responses:
+
+$MESSAGE`
+
 export async function generateMessages(
  workersAIApiToken: string,
- message: string
+ channel: string,
+ message?: string
 ): Promise<string[] | undefined> {
  async function runAI(
   model: string,
@@ -41,10 +50,21 @@ export async function generateMessages(
    },
    {
     role: 'user',
-    content: messagePrompt.replace(
-     '$CHANNEL',
-     JSON.stringify(message)
-    ),
+    content:
+     typeof message === 'string'
+      ? channelAndMessagePrompt
+         .replace(
+          '$CHANNEL',
+          JSON.stringify(channel)
+         )
+         .replace(
+          '$MESSAGE',
+          JSON.stringify(message)
+         )
+      : channelOnlyPrompt.replace(
+         '$CHANNEL',
+         JSON.stringify(channel)
+        ),
    },
   ],
  }

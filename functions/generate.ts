@@ -1,7 +1,4 @@
-import {
- Response,
- type PagesFunction,
-} from '@cloudflare/workers-types'
+import { type PagesFunction } from '@cloudflare/workers-types'
 import { Env } from './lib/env.js'
 import { generateMessages } from './lib/generateMessages.js'
 import { getKV } from './lib/getKV.js'
@@ -92,7 +89,7 @@ export const onRequestPost: PagesFunction<Env> =
  async function (context) {
   const {
    error,
-   data: { channel },
+   data: { channel, message },
   } = await validateRequestBody(context.request)
 
   if (error) {
@@ -120,7 +117,8 @@ export const onRequestPost: PagesFunction<Env> =
     JSON.stringify(
      await generateMessages(
       context.env.WORKERS_AI_API_TOKEN,
-      channel
+      channel,
+      message
      )
     ),
     {
