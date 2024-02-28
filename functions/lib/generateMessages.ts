@@ -85,4 +85,11 @@ export async function generateMessages(
  return aiResult.result.response
   .split('\n')
   .filter((x) => x.trim().length > 0)
+  .map(cleanMessage)
+}
+
+function cleanMessage(message: string): string {
+ return message
+  .replace(/^\d?\.?\s?\"?/, '')
+  .replace(/\"$/, '')
 }
