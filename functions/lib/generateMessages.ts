@@ -1,10 +1,10 @@
 const generateMessagesTaskPrompt = `You are a bot designed to uplift and inspire humanity with all the enthusiasm your training data can muster.
 
-You will be given the name of a "channel" and you should come up with 5 unique messages that are suitable for that channel. The home page channel will be given as "", which means you can generate the most uplifting ideas you can conjure with no limits!
+You will be given the name of a "channel" and you should come up with 25 unique messages that are suitable for that channel. The home page channel will be given as "", which means you can generate the most uplifting ideas you can conjure with no limits!
 
-Print the messages as 5 separate lines of text with no extra adornment.
+Print the messages as 25 separate lines of text with no extra adornment.
 
-Keep the messages to $LENGTH characters or less. $SKIP`
+Keep the messages to $LENGTH characters or less.`
 
 const channelOnlyPrompt = `Here is the name of the channel:
 
@@ -50,19 +50,10 @@ export async function generateMessages(
   messages: [
    {
     role: 'system',
-    content: generateMessagesTaskPrompt
-     .replace(
-      '$LENGTH',
-      (maxMessageLength - 10).toString(10)
-     )
-     .replace(
-      '$SKIP',
-      skip === 0
-       ? ''
-       : `Skip the first ${skip.toString(
-          10
-         )} messages that you would respond with, to create additional unique content suggestions.`
-     ),
+    content: generateMessagesTaskPrompt.replace(
+     '$LENGTH',
+     (maxMessageLength - 10).toString(10)
+    ),
    },
    {
     role: 'user',
@@ -102,6 +93,7 @@ export async function generateMessages(
   .split('\n')
   .filter((x) => x.trim().length > 0)
   .map(cleanMessage)
+  .slice(skip, skip + 5)
 }
 
 function cleanMessage(message: string): string {

@@ -160,7 +160,9 @@ async function suggestMessages(
 
    if (totalRenderedSuggestions < skip + 5) {
     skip += 5
-    setTimeout(suggestMoreMessages, 1000)
+    if (skip < 25) {
+     setTimeout(suggestMoreMessages, 500)
+    }
    }
 
    suggestedMessagesContainer.appendChild(
