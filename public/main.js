@@ -365,7 +365,7 @@ const composeTextarea = elem({
 })
 
 const suggestedMessagesContainer = elem({
- classes: ['generated-messages'],
+ classes: ['generated-messages-container'],
 })
 
 const compose = elem({
@@ -550,8 +550,15 @@ async function route() {
  const formattedMessageData = formatMessageData(
   channelData.response.messages
  )
+ const suggestContainer = elem({
+  classes: ['generated-messages'],
+ })
+ suggestedMessagesContainer.innerHTML = ''
+ suggestedMessagesContainer.appendChild(
+  suggestContainer
+ )
  suggestMessages(
-  suggestedMessagesContainer,
+  suggestContainer,
   composeTextarea,
   formattedMessageData,
   channel,
