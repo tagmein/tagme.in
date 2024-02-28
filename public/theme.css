@@ -599,10 +599,14 @@ article {
 }
 
 .suggested-message > span {
- background-color: #00000020;
+ background-color: #ffffff20;
  border-radius: 15px;
  flex-grow: 1;
  padding: 15px;
+}
+
+body.light-mode .suggested-message > span {
+ background-color: #00000018;
 }
 
 .suggested-message > a {
