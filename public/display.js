@@ -933,18 +933,18 @@ function displayAutocompleteActivitySearch(
 }
 
 function displayActivity() {
- let lastChunk = 0
-
  const element = elem({
   classes: ['activity-container'],
   events: {
-    async onscrollend(e) {
-      const scrollBottom = Math.ceil(element.scrollTop + element.clientHeight);
-      if (scrollBottom === element.scrollHeight) {
-        await withLoading(loadMore())
-      }
+   async onscrollend(e) {
+    const scrollBottom = Math.ceil(
+     element.scrollTop + element.clientHeight
+    )
+    if (scrollBottom === element.scrollHeight) {
+     await withLoading(loadMore())
     }
-  }
+   },
+  },
  })
 
  let isVisible = false
@@ -974,20 +974,44 @@ function displayActivity() {
  let lastMessages = []
 
  async function load() {
-  loadMore(0, function() {
-    element.innerHTML = ''
-    lastMessages = []
+  loadMore(undefined, function () {
+   element.innerHTML = ''
+   lastMessages = []
   })
  }
 
+ let isLoading = false
+ let nextChunk = undefined
  async function loadMore(chunk, callback) {
+  if (isLoading) {
+   return
+  }
+  const chunk2 =
+   typeof chunk === 'number' ? chunk : nextChunk
+  if (chunk2 < 0) {
+   if (chunk2 < -1) {
+    return
+   }
+   element.appendChild(
+    elem({
+     tagName: 'p',
+     textContent: 'End of news.',
+     classes: ['text-message'],
+    })
+   )
+   nextChunk--
+   return
+  }
+  isLoading = true
   const news = await getNews(
-    typeof chunk === 'number' ? chunk : lastChunk,
-  function(chunk) { 
-    lastChunk = chunk 
-  })
+   chunk2,
+   function (chunk) {
+    nextChunk = chunk - 1
+    isLoading = false
+   }
+  )
   if (typeof callback === 'function') {
-    callback()
+   callback()
   }
   lastMessages += news.data.map((newsMessage) =>
    attachNewsMessage(element, newsMessage)
@@ -1030,6 +1054,7 @@ function displayActivity() {
   show,
   hide,
   toggle,
+  loadMore,
  }
 }
 

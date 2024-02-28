@@ -438,18 +438,23 @@ body.appendChild(
 )
 
 function scrolledPastBottom(element) {
- if (scrollY < 1 || !element.checkVisibility()) {
-  return true
+ if (
+  scrollY < 1 ||
+  !element.checkVisibility()
+ ) {
+  return false
  }
  const bottom = Math.ceil(
-  document.documentElement.scrollHeight
-  - scrollY - document.documentElement.clientHeight
+  document.documentElement.scrollHeight -
+   scrollY -
+   document.documentElement.clientHeight
  )
  const elementBottom = Math.ceil(
-  document.documentElement.scrollHeight
-  - element.offsetTop - element.offsetHeight
+  document.documentElement.scrollHeight -
+   element.offsetTop -
+   element.offsetHeight
  )
- return bottom > elementBottom
+ return bottom < elementBottom
 }
 let lastScrollY = 0
 addEventListener('scroll', () => {
@@ -464,20 +469,35 @@ addEventListener('scroll', () => {
  } else {
   document.body.classList.add('scroll-zero')
  }
- if(scrolledPastBottom(activityContainer.element)) {
-  activityContainer.element.classList.remove("scrolled-past-bottom")
+ if (
+  scrolledPastBottom(activityContainer.element)
+ ) {
+  activityContainer.element.classList.add(
+   'scrolled-past-bottom'
+  )
+  withLoading(activityContainer.loadMore())
  } else {
-  activityContainer.element.classList.add("scrolled-past-bottom")
+  activityContainer.element.classList.remove(
+   'scrolled-past-bottom'
+  )
  }
- if(scrolledPastBottom(messageContent)) {
-  messageContent.classList.remove("scrolled-past-bottom")
+ if (scrolledPastBottom(messageContent)) {
+  messageContent.classList.add(
+   'scrolled-past-bottom'
+  )
  } else {
-  messageContent.classList.add("scrolled-past-bottom")
+  messageContent.classList.remove(
+   'scrolled-past-bottom'
+  )
  }
- if(scrolledPastBottom(mainContent)) {
-  mainContent.classList.remove("scrolled-past-bottom")
+ if (scrolledPastBottom(mainContent)) {
+  mainContent.classList.add(
+   'scrolled-past-bottom'
+  )
  } else {
-  mainContent.classList.add("scrolled-past-bottom")
+  mainContent.classList.remove(
+   'scrolled-past-bottom'
+  )
  }
 })
 

@@ -746,7 +746,7 @@ async function getNews(chunk, callback) {
  )
  const news = await response.json()
  if (typeof callback === 'function') {
-  callback(chunk)
+  callback(news.chunkId)
  }
  return news
 }
