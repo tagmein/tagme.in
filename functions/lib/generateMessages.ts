@@ -98,7 +98,7 @@ export async function generateMessages(
 
 function cleanMessage(message: string): string {
  const cleaned = message.replace(
-  /^\d?\.?\s?/,
+  /^\d*\.?\s?/,
   ''
  )
  if (

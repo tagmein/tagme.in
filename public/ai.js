@@ -158,7 +158,7 @@ async function suggestMessages(
 
    renderSuggestedMessages(suggestedMessages)
 
-   if (totalRenderedSuggestions < skip + 5) {
+   if (totalRenderedSuggestions < 5) {
     skip += 5
     if (skip < 25) {
      setTimeout(suggestMoreMessages, 500)
