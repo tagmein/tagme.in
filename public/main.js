@@ -364,6 +364,10 @@ const composeTextarea = elem({
  tagName: 'textarea',
 })
 
+const suggestedMessagesContainer = elem({
+ classes: ['generated-messages'],
+})
+
 const compose = elem({
  children: [
   composeTextarea,
@@ -375,6 +379,7 @@ const compose = elem({
    classes: ['submit'],
    tagName: 'button',
   }),
+  suggestedMessagesContainer,
  ],
  classes: [
   'compose',
@@ -536,6 +541,12 @@ async function route() {
    COMPOSE_PLACEHOLDER_MESSAGE
   )
  }
+ suggestedMessagesContainer.innerHTML = ''
+ suggestMessages(
+  suggestedMessagesContainer,
+  channel,
+  messageText
+ ).catch((e) => console.error(e))
  if (channelInput.value.trim() !== channel) {
   channelInput.value = channel
  }

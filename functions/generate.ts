@@ -14,7 +14,10 @@ interface PostBody {
 
 async function validateRequestBody(
  request: Request
-): Promise<{ error?: string; data: PostBody }> {
+): Promise<{
+ error?: string
+ data: PostBody
+}> {
  try {
   const data: PostBody = await request.json()
   if (!data || typeof data !== 'object') {
@@ -77,7 +80,8 @@ async function validateRequestBody(
  } catch (e) {
   return {
    error:
-    'unable to parse incoming JSON post body',
+    'unable to parse incoming JSON post body: ' +
+    e.message,
    data: {
     channel: '',
    },
