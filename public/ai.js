@@ -116,6 +116,7 @@ async function suggestMessages(
   tagName: 'button',
   events: {
    click(e) {
+    skip += 5
     e.preventDefault()
     suggestMoreMessages()
    },
@@ -132,6 +133,14 @@ async function suggestMessages(
    ) {
     suggestedMessagesContainer.removeChild(
      suggestMoreButton
+    )
+   }
+   if (
+    suggestError.parentElement ===
+    suggestedMessagesContainer
+   ) {
+    suggestedMessagesContainer.removeChild(
+     suggestError
     )
    }
    suggestedMessagesContainer.appendChild(
@@ -172,10 +181,11 @@ async function suggestMessages(
      setTimeout(suggestMoreMessages, 500)
     }
    }
-
-   suggestedMessagesContainer.appendChild(
-    suggestMoreButton
-   )
+   if (skip < 25) {
+    suggestedMessagesContainer.appendChild(
+     suggestMoreButton
+    )
+   }
   } catch (e) {
    suggestedMessagesContainer.appendChild(
     suggestError
