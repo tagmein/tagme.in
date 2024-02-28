@@ -43,10 +43,10 @@ async function validateRequestBody(
    }
 
    if (
-    data.channel.length > MAX_CHANNEL_LENGTH
+    data.message.length < MIN_MESSAGE_LENGTH
    ) {
     return {
-     error: `channel must be ${MAX_CHANNEL_LENGTH} characters or less`,
+     error: `message must be at least ${MIN_MESSAGE_LENGTH} characters long`,
      data,
     }
    }
@@ -59,19 +59,19 @@ async function validateRequestBody(
    }
   }
 
-  if (
-   data.message.length < MIN_MESSAGE_LENGTH
-  ) {
-   return {
-    error: `message must be at least ${MIN_MESSAGE_LENGTH} characters long`,
-    data,
-   }
-  }
-
   if (data.channel !== data.channel.trim()) {
    return {
     error:
      'channel must not start or end with space',
+    data,
+   }
+  }
+
+  if (
+   data.channel.length > MAX_CHANNEL_LENGTH
+  ) {
+   return {
+    error: `channel must be ${MAX_CHANNEL_LENGTH} characters or less`,
     data,
    }
   }
