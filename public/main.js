@@ -314,14 +314,14 @@ async function withLoading(promise) {
 }
 
 const COMPOSE_PLACEHOLDER_MESSAGE =
- 'Write a message (up to 150 characters)'
+ 'Write a message (up to 175 characters)'
 
 const COMPOSE_PLACEHOLDER_REPLY =
- 'Write a reply (up to 150 characters)'
+ 'Write a reply (up to 175 characters)'
 
 const composeTextarea = elem({
  attributes: {
-  maxlength: '150',
+  maxlength: '175',
   placeholder: COMPOSE_PLACEHOLDER_MESSAGE,
   required: 'required',
  },
@@ -541,9 +541,9 @@ async function route() {
    COMPOSE_PLACEHOLDER_MESSAGE
   )
  }
- suggestedMessagesContainer.innerHTML = ''
  suggestMessages(
   suggestedMessagesContainer,
+  composeTextarea,
   channel,
   messageText
  ).catch((e) => console.error(e))

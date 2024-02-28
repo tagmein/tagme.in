@@ -5,7 +5,7 @@ import { getKV } from './lib/getKV.js'
 
 const MAX_CHANNEL_LENGTH = 250
 const MIN_MESSAGE_LENGTH = 3
-const MAX_MESSAGE_LENGTH = 150
+const MAX_MESSAGE_LENGTH = 175
 
 interface PostBody {
  channel: string
@@ -120,6 +120,7 @@ export const onRequestPost: PagesFunction<Env> =
    return new Response(
     JSON.stringify(
      await generateMessages(
+      MAX_MESSAGE_LENGTH,
       context.env.WORKERS_AI_API_TOKEN,
       channel,
       message

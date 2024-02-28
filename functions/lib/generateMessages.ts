@@ -2,7 +2,9 @@ const generateMessagesTaskPrompt = `You are a bot designed to uplift and inspire
 
 You will be given the name of a "channel" and you should come up with 5 unique messages that are suitable for that channel. The home page channel will be given as "", which means you can generate the most uplifting ideas you can conjure with no limits!
 
-Print the messages as 5 separate lines of text with no extra adornment.`
+Print the messages as 5 separate lines of text with no extra adornment.
+
+Keep the messages to $LENGTH characters or less.`
 
 const channelOnlyPrompt = `Here is the name of the channel:
 
@@ -17,6 +19,7 @@ Here is some text to consider in generating your responses:
 $MESSAGE`
 
 export async function generateMessages(
+ maxMessageLength: number,
  workersAIApiToken: string,
  channel: string,
  message?: string
@@ -46,7 +49,10 @@ export async function generateMessages(
   messages: [
    {
     role: 'system',
-    content: generateMessagesTaskPrompt,
+    content: generateMessagesTaskPrompt.replace(
+     '$LENGTH',
+     (maxMessageLength - 10).toString(10)
+    ),
    },
    {
     role: 'user',
