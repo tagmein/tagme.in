@@ -36,7 +36,9 @@ async function suggestMessages(
   for (const suggestedMessage of suggestedMessages) {
    if (
     formattedMessageData.find(
-     (x) => x.text === suggestedMessage
+     (x) =>
+      x.text.toLowerCase() ===
+      suggestedMessage.toLowerCase()
     )
    ) {
     continue
