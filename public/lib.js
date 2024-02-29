@@ -265,6 +265,7 @@ function addImageByUrl(
      imageContainer.classList.remove('expanded')
     } else {
      imageContainer.classList.add('expanded')
+     imageContainer.focus()
     }
    },
    keydown({ key }) {

@@ -53,12 +53,21 @@ const autocompleteChannels =
 
 addEventListener('keydown', ({ key }) => {
  if (key === 'Escape') {
-  if (channelInputFocused) {
-   cancelChannelInput()
-   channelInput.blur()
-  } else {
-   channelInput.focus()
+  const expanded =
+   document.getElementsByClassName('expanded')
+  if (expanded.length < 1) {
+   if (channelInputFocused) {
+    cancelChannelInput()
+    channelInput.blur()
+   } else {
+    channelInput.focus()
+   }
   }
+  Array.prototype.slice
+   .call(expanded)
+   .forEach((element) => {
+    element.classList.remove('expanded')
+   })
  }
 })
 
