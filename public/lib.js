@@ -267,6 +267,16 @@ function addImageByUrl(
      imageContainer.classList.add('expanded')
     }
    },
+   keydown({ key }) {
+    if (
+     imageContainer.classList.contains(
+      'expanded'
+     ) &&
+     key === 'Escape'
+    ) {
+     imageContainer.classList.remove('expanded')
+    }
+   },
   },
  })
  container.appendChild(imageContainer)
