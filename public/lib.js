@@ -263,19 +263,10 @@ function addImageByUrl(
      )
     ) {
      imageContainer.classList.remove('expanded')
+     expandedElement = undefined
     } else {
      imageContainer.classList.add('expanded')
-     imageContainer.focus()
-    }
-   },
-   keydown({ key }) {
-    if (
-     imageContainer.classList.contains(
-      'expanded'
-     ) &&
-     key === 'Escape'
-    ) {
-     imageContainer.classList.remove('expanded')
+     expandedElement = imageContainer
     }
    },
   },
