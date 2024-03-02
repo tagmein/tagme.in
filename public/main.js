@@ -514,6 +514,9 @@ async function route() {
   message: messageText,
  } = getUrlData()
  autocompleteChannels.visit(channel)
+ document.title = ['Tag Me In', channel]
+  .filter((v) => v !== '')
+  .join(' - ')
  activityContainer.clear()
  const activeSessionId = getActiveSessionId()
  if (activeSessionId !== PUBLIC_SESSION_ID) {
