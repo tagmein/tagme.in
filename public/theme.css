@@ -1217,6 +1217,11 @@ body.light-mode .icon.icon-plus {
  padding: 0 15px;
 }
 
+.text-message.generating-messages {
+ padding: 18px 15px;
+ text-align: center;
+}
+
 body.scroll-zero .activity-container,
 body.scroll-up .activity-container {
  top: 160px;

@@ -28,7 +28,7 @@ $MESSAGE`
 
 const excludeMessagesPrompts = `
 
-Don't include the following responses, we already know these:
+Be as unique as possible. Don't include responses too similar to any of the following, since we already know these:
 
 $EXCLUDE`
 

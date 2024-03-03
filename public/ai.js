@@ -80,7 +80,10 @@ async function suggestMessages(
  }
 
  const suggestingMoreMessagesNotice = elem({
-  classes: ['text-message'],
+  classes: [
+   'generating-messages',
+   'text-message',
+  ],
   tagName: 'p',
   children: [
    elem({
@@ -122,7 +125,7 @@ async function suggestMessages(
     suggestMoreMessages()
    },
   },
-  textContent: 'More ideas, please!',
+  textContent: 'Show message ideas',
  })
 
  const MAX_MESSAGES_TO_GENERATE = 25
@@ -138,6 +141,15 @@ async function suggestMessages(
      suggestMoreButton
     )
    }
+
+   if (
+    suggestMoreButton.textContent !==
+    'More ideas, please!'
+   ) {
+    suggestMoreButton.textContent =
+     'More ideas, please!'
+   }
+
    if (
     suggestError.parentElement ===
     suggestedMessagesContainer
@@ -204,5 +216,7 @@ async function suggestMessages(
 
  suggestedMessagesContainer.innerHTML = ''
  showUpliftBot()
- await suggestMoreMessages()
+ suggestedMessagesContainer.appendChild(
+  suggestMoreButton
+ )
 }
