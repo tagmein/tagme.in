@@ -117,6 +117,7 @@ export async function generateMessages(
   .split('\n')
   .filter((x) => x.trim().length > 0)
   .map(cleanMessage)
+  .concat(JSON.stringify(inputs))
 }
 
 function cleanMessage(message: string): string {
