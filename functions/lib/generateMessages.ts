@@ -28,7 +28,7 @@ $MESSAGE`
 
 const excludeMessagesPrompts = `
 
-Be as unique as possible. Check each of your responses against the following list, and replace them with something else if they are too similar to any of the following:
+Avoid returning any of the following messages:
 
 $EXCLUDE`
 
@@ -117,7 +117,6 @@ export async function generateMessages(
   .split('\n')
   .filter((x) => x.trim().length > 0)
   .map(cleanMessage)
-  .concat(JSON.stringify(inputs))
 }
 
 function cleanMessage(message: string): string {
