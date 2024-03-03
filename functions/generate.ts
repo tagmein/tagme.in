@@ -4,6 +4,7 @@ import { generateMessages } from './lib/generateMessages.js'
 import { getKV } from './lib/getKV.js'
 
 const MAX_CHANNEL_LENGTH = 250
+const MAX_EXCLUDE_COUNT = 100
 const MIN_MESSAGE_LENGTH = 3
 const MAX_MESSAGE_LENGTH = 175
 
@@ -85,9 +86,11 @@ async function validateRequestBody(
     }
    }
 
-   if (data.exclude.length > 10) {
+   if (
+    data.exclude.length > MAX_EXCLUDE_COUNT
+   ) {
     return {
-     error: 'exclude must be at most 10 items',
+     error: `exclude must be at most ${MAX_EXCLUDE_COUNT} items`,
      data,
     }
    }

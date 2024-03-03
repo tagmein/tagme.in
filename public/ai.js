@@ -125,6 +125,8 @@ async function suggestMessages(
   textContent: 'More ideas, please!',
  })
 
+ const MAX_MESSAGES_TO_GENERATE = 25
+
  let exclude = []
  async function suggestMoreMessages() {
   try {
@@ -177,11 +179,13 @@ async function suggestMessages(
    renderSuggestedMessages(suggestedMessages)
 
    if (totalRenderedSuggestions < 5) {
-    if (exclude.length <= 10) {
+    if (exclude.length <= 5) {
      setTimeout(suggestMoreMessages, 500)
     }
    }
-   if (exclude.length <= 10) {
+   if (
+    exclude.length < MAX_MESSAGES_TO_GENERATE
+   ) {
     suggestedMessagesContainer.appendChild(
      suggestMoreButton
     )

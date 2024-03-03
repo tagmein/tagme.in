@@ -1,6 +1,8 @@
+const GENERATE_MESSAGE_COUNT = 5
+
 const generateMessagesTaskPrompt = `You are a bot designed to uplift and inspire humanity with all the enthusiasm your training data can muster.
 
-You will be given the name of a "channel" and you should come up with 10 unique messages that are suitable for that channel.
+You will be given the name of a "channel" and you should come up with ${GENERATE_MESSAGE_COUNT} unique messages that are suitable for that channel.
 
 Try to make the messages as relevant to the channel name and any additional context provided as possible.
 
@@ -8,7 +10,7 @@ Feel free to have a sense of humor in your replies, or keep it plain. Maybe you 
 
 The home page channel will be given as "", which means you can generate the most uplifting ideas you can conjure with no limits!
 
-Print the messages as 10 separate lines of text with no extra adornment. Keep each message on a single line, without quote marks.
+Print the messages as ${GENERATE_MESSAGE_COUNT} separate lines of text with no extra adornment. Keep each message on a single line, without quote marks.
 
 Keep the messages to $LENGTH characters or less. Be sure to capitalize the messages properly with Sentence case.`
 
@@ -26,7 +28,7 @@ $MESSAGE`
 
 const excludeMessagesPrompts = `
 
-Don't include the following responses, we already have these:
+Don't include the following responses, we already know these:
 
 $EXCLUDE`
 
