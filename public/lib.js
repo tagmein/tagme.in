@@ -263,8 +263,10 @@ function addImageByUrl(
      )
     ) {
      imageContainer.classList.remove('expanded')
+     expandedElement = undefined
     } else {
      imageContainer.classList.add('expanded')
+     expandedElement = imageContainer
     }
    },
   },

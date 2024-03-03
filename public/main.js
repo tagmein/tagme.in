@@ -1,9 +1,10 @@
 const HOME_CHANNEL_ICON = '⌂'
 const ONE_HOUR_MS = 60 * 60 * 1000
 
+let channelInputFocused = false
+let expandedElement = undefined
 let focusOnMessage = undefined
 let lastKnownChannelInput
-let channelInputFocused = false
 const channelInput = elem({
  attributes: {
   maxlength: 25,
@@ -53,11 +54,16 @@ const autocompleteChannels =
 
 addEventListener('keydown', ({ key }) => {
  if (key === 'Escape') {
-  if (channelInputFocused) {
-   cancelChannelInput()
-   channelInput.blur()
+  if (expandedElement === undefined) {
+   if (channelInputFocused) {
+    cancelChannelInput()
+    channelInput.blur()
+   } else {
+    channelInput.focus()
+   }
   } else {
-   channelInput.focus()
+   expandedElement.classList.remove('expanded')
+   expandedElement = undefined
   }
  }
 })
