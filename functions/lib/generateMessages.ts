@@ -12,7 +12,7 @@ Print the messages as 25 separate lines of text with no extra adornment. Keep ea
 
 Keep the messages to $LENGTH characters or less. Be sure to capitalize the messages properly with Sentence case.`
 
-const channelOnlyPrompt = `Here is the name of the channel:
+const channelOnlyPrompt = `Consider this channel name when formulating your ideas:
 
 $CHANNEL`
 
