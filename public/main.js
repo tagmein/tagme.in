@@ -1,11 +1,10 @@
 const HOME_CHANNEL_ICON = '⌂'
 const ONE_HOUR_MS = 60 * 60 * 1000
 
+let channelInputFocused = false
 let expandedElement = undefined
-
 let focusOnMessage = undefined
 let lastKnownChannelInput
-let channelInputFocused = false
 const channelInput = elem({
  attributes: {
   maxlength: 25,
