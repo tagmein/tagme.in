@@ -32,7 +32,6 @@ async function suggestMessages(
  function renderSuggestedMessages(
   suggestedMessages
  ) {
-  console.log(formattedMessageData)
   for (const suggestedMessage of suggestedMessages) {
    if (
     formattedMessageData.find(
@@ -43,6 +42,7 @@ async function suggestMessages(
    ) {
     continue
    }
+   exclude.push(suggestedMessage)
    totalRenderedSuggestions++
    suggestedMessagesContainer.appendChild(
     elem({
@@ -118,7 +118,6 @@ async function suggestMessages(
   tagName: 'button',
   events: {
    click(e) {
-    skip += 5
     e.preventDefault()
     suggestMoreMessages()
    },
@@ -126,7 +125,7 @@ async function suggestMessages(
   textContent: 'More ideas, please!',
  })
 
- let skip = 0
+ let exclude = []
  async function suggestMoreMessages() {
   try {
    if (
@@ -150,8 +149,8 @@ async function suggestMessages(
    )
    const suggestBody = JSON.stringify({
     channel,
+    exclude,
     message,
-    skip,
    })
    const suggestResponse = await withLoading(
     fetch(`${networkRootUrl()}/generate`, {
@@ -178,12 +177,11 @@ async function suggestMessages(
    renderSuggestedMessages(suggestedMessages)
 
    if (totalRenderedSuggestions < 5) {
-    skip += 5
-    if (skip < 25) {
+    if (exclude.length <= 10) {
      setTimeout(suggestMoreMessages, 500)
     }
    }
-   if (skip < 25) {
+   if (exclude.length <= 10) {
     suggestedMessagesContainer.appendChild(
      suggestMoreButton
     )

@@ -8,7 +8,7 @@ Feel free to have a sense of humor in your replies, or keep it plain. Maybe you 
 
 The home page channel will be given as "", which means you can generate the most uplifting ideas you can conjure with no limits!
 
-Print the messages as 25 separate lines of text with no extra adornment. Keep each message on a single line, without quote marks.
+Print the messages as 10 separate lines of text with no extra adornment. Keep each message on a single line, without quote marks.
 
 Keep the messages to $LENGTH characters or less. Be sure to capitalize the messages properly with Sentence case.`
 
@@ -24,10 +24,16 @@ Here is some text to consider in generating your responses:
 
 $MESSAGE`
 
+const excludeMessagesPrompts = `
+
+Don't include the following responses, we already have these:
+
+$EXCLUDE`
+
 export async function generateMessages(
  maxMessageLength: number,
  workersAIApiToken: string,
- skip: number,
+ exclude: string[],
  channel: string,
  message?: string
 ): Promise<string[] | undefined> {
@@ -56,10 +62,20 @@ export async function generateMessages(
   messages: [
    {
     role: 'system',
-    content: generateMessagesTaskPrompt.replace(
-     '$LENGTH',
-     (maxMessageLength - 10).toString(10)
-    ),
+    content:
+     generateMessagesTaskPrompt.replace(
+      '$LENGTH',
+      (maxMessageLength - 10).toString(10)
+     ) +
+     (Array.isArray(exclude) &&
+     exclude.length > 0
+      ? excludeMessagesPrompts.replace(
+         '$EXCLUDE',
+         exclude
+          .map((x) => JSON.stringify(x))
+          .join('\n\n')
+        )
+      : ''),
    },
    {
     role: 'user',
@@ -99,7 +115,6 @@ export async function generateMessages(
   .split('\n')
   .filter((x) => x.trim().length > 0)
   .map(cleanMessage)
-  .slice(skip, skip + 5)
 }
 
 function cleanMessage(message: string): string {

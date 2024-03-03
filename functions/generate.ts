@@ -9,8 +9,8 @@ const MAX_MESSAGE_LENGTH = 175
 
 interface PostBody {
  channel: string
+ exclude?: string[]
  message?: string
- skip: number
 }
 
 async function validateRequestBody(
@@ -77,17 +77,19 @@ async function validateRequestBody(
    }
   }
 
-  if (typeof data.skip !== 'number') {
-   return {
-    error: 'skip must be a number',
-    data,
+  if ('exclude' in data) {
+   if (!Array.isArray(data.exclude)) {
+    return {
+     error: 'exclude must be an array',
+     data,
+    }
    }
-  }
 
-  if (data.skip < 0) {
-   return {
-    error: 'skip must be at least 0',
-    data,
+   if (data.exclude.length > 10) {
+    return {
+     error: 'exclude must be at most 10 items',
+     data,
+    }
    }
   }
 
@@ -97,10 +99,7 @@ async function validateRequestBody(
    error:
     'unable to parse incoming JSON post body: ' +
     e.message,
-   data: {
-    channel: '',
-    skip: 0,
-   },
+   data: { channel: '' },
   }
  }
 }
@@ -109,7 +108,7 @@ export const onRequestPost: PagesFunction<Env> =
  async function (context) {
   const {
    error,
-   data: { channel, message, skip },
+   data: { channel, exclude, message },
   } = await validateRequestBody(context.request)
 
   if (error) {
@@ -138,7 +137,7 @@ export const onRequestPost: PagesFunction<Env> =
      await generateMessages(
       MAX_MESSAGE_LENGTH,
       context.env.WORKERS_AI_API_TOKEN,
-      skip,
+      exclude,
       channel,
       message
      )
