@@ -1082,6 +1082,10 @@ body:fullscreen .icon-in {
  background-image: url(./icons/sun.svg);
 }
 
+.icon-triangle-right {
+ background-image: url(./icons/triangle-right.svg);
+}
+
 .icon-yes {
  background-image: url(./icons/yes.svg);
 }
@@ -1132,6 +1136,10 @@ body.light-mode .icon-plane {
 
 body.light-mode .icon-sun {
  background-image: url(./icons/sun-light.svg);
+}
+
+body.light-mode .icon-triangle-right {
+ background-image: url(./icons/triangle-right-light.svg);
 }
 
 body.light-mode .icon-yes {
@@ -1422,14 +1430,25 @@ details[open] > summary::after {
 }
 
 summary::before {
- border-radius: 100%;
- border: 1px solid #808080;
+ background-image: url(./icons/triangle-right.svg);
+ background-size: 16px;
  content: '';
  display: inline-block;
- height: 1em;
- margin-right: 4px;
- vertical-align: -2px;
- width: 1em;
+ height: 16px;
+ margin-left: 3px;
+ margin-right: 1px;
+ transition: transform 0.5s ease;
+ transform-origin: 7px 8px;
+ vertical-align: -3px;
+ width: 16px;
+}
+
+body.light-mode summary::before {
+ background-image: url(./icons/triangle-right-light.svg);
+}
+
+details[open] > summary::before {
+ transform: rotate(90deg);
 }
 
 .uplift-bot {
