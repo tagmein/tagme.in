@@ -514,7 +514,7 @@ async function route() {
   message: messageText,
  } = getUrlData()
  autocompleteChannels.visit(channel)
- document.title = ['Tag Me In', channel]
+ document.title = [channel, 'Tag Me In']
   .filter((v) => v !== '')
   .join(' - ')
  activityContainer.clear()
