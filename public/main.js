@@ -335,6 +335,12 @@ const composeTextarea = elem({
   blur() {
    composeTextarea.value =
     composeTextarea.value.trim()
+   if (composeTextarea.value.length === 0) {
+    compose.classList.remove('active')
+   }
+  },
+  focus() {
+   compose.classList.add('active')
   },
   input() {
    const parametersToRemove = ['si']
@@ -385,7 +391,6 @@ const compose = elem({
    classes: ['submit'],
    tagName: 'button',
   }),
-  suggestedMessagesContainer,
  ],
  classes: [
   'compose',
@@ -407,6 +412,8 @@ const compose = elem({
    ) {
     focusOnMessage = composeTextarea.value
     composeTextarea.value = ''
+    compose.classList.remove('active')
+    document.body.focus()
     route()
    }
   },
@@ -441,6 +448,7 @@ const { body } = document
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
 body.appendChild(messageContent)
+body.appendChild(suggestedMessagesContainer)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
 body.appendChild(mainContent)
@@ -620,8 +628,9 @@ function checkConsent() {
 async function gainConsent() {
  const consented =
   localStorage.getItem(consentKey) === 'consent'
-
- if (!consented) {
+ if (consented) {
+  return true
+ } else {
   const nowConsented = await politeAlert(
    `Greetings, Earthling, and welcome to Tag Me In!
 
@@ -657,7 +666,9 @@ To get started, consider the following statements:`,
   if (nowConsented) {
    localStorage.setItem(consentKey, 'consent')
    checkConsent()
+   return true
   }
+  return false
  }
 }
 

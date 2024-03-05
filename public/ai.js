@@ -59,8 +59,11 @@ async function suggestMessages(
       elem({
        tagName: 'a',
        events: {
-        click(e) {
+        async click(e) {
          e.preventDefault()
+         if (!(await gainConsent())) {
+          return
+         }
          composeTextarea.value =
           suggestedMessage
          composeTextarea.focus()

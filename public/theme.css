@@ -231,7 +231,21 @@ footer > p {
 }
 
 .compose {
- position: relative;
+ bottom: -197px;
+ left: 25%;
+ opacity: 0.85;
+ position: fixed;
+ right: 25%;
+ transition: 0.5s left ease, 0.5s right ease,
+  0.5s bottom ease, 0.5s opacity ease;
+ z-index: 2;
+}
+
+.compose.active {
+ bottom: -2px;
+ left: 20px;
+ opacity: 1;
+ right: 20px;
 }
 
 body.send-consent-granted
@@ -254,13 +268,22 @@ body.send-consent-granted
 }
 
 .compose textarea {
+ box-shadow: 0 0 10px #00000080;
  box-sizing: border-box;
- height: 78px;
+ height: 240px;
  line-height: 1.65;
- min-height: 140px;
  padding: 11px 75px 11px 15px;
- resize: vertical;
+ resize: none;
  width: 100%;
+}
+
+.compose button {
+ opacity: 0;
+ transition: opacity 0.5s ease;
+}
+
+.compose.active button {
+ opacity: 0.5;
 }
 
 .compose button.submit {
@@ -269,7 +292,6 @@ body.send-consent-granted
  cursor: pointer;
  height: 48px;
  line-height: 22px;
- opacity: 0.5;
  padding: 4px 0 0;
  position: absolute;
  right: 15px;
@@ -279,8 +301,8 @@ body.send-consent-granted
  width: 48px;
 }
 
-.compose:hover button.submit,
-.compose textarea:focus + button.submit {
+.compose.active:hover button.submit,
+.compose.active textarea:focus + button.submit {
  opacity: 1;
 }
 
@@ -562,8 +584,9 @@ footer {
 }
 
 .compose textarea {
- background-color: #003800;
- border-bottom: 1px solid #585858;
+ background-color: #003800f0;
+ border-top-left-radius: 10px;
+ border-top-right-radius: 10px;
 }
 
 .compose button.submit {
@@ -581,7 +604,6 @@ article {
 
 .generated-messages {
  background-color: #484848;
- border-bottom: 1px solid #787878;
  padding: 8px 0;
  margin-top: -3px;
  display: flex;
@@ -753,8 +775,7 @@ body.light-mode .consent-prompt {
 }
 
 body.light-mode .compose textarea {
- background-color: #d3e9f1;
- border-bottom: 1px solid #c8c8c8;
+ background-color: #d3e9f1f0;
 }
 
 body.light-mode .compose button.submit {
@@ -772,7 +793,6 @@ body.light-mode article {
 
 body.light-mode .generated-messages {
  background-color: #d8d8d8;
- border-bottom: 1px solid #a8a8a8;
 }
 
 body.light-mode
@@ -1465,9 +1485,6 @@ details[open] > summary::before {
  background-color: #ffffff20;
  border-radius: 7px;
  border: 1px solid #ffffff40;
- font-family: 'DejaVu Sans Mono',
-  'Liberation Mono', 'Courier New', Courier,
-  monospace;
  font-variant: small-caps;
  font-weight: bold;
  letter-spacing: 1px;
