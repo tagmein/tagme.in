@@ -429,6 +429,11 @@ const compose = elem({
    },
    children: [icon('plane')],
    classes: ['submit'],
+   events: {
+    mousedown(e) {
+     e.preventDefault()
+    },
+   },
    tagName: 'button',
   }),
  ],
