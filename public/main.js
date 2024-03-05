@@ -7,6 +7,8 @@ let focusOnMessage = undefined
 let lastKnownChannelInput
 const channelInput = elem({
  attributes: {
+  'data-tour':
+   'See recently-visited channels, and switch to any channel.',
   maxlength: 25,
   placeholder: 'Search channels',
  },
@@ -78,6 +80,7 @@ const loadingIndicator = elem({
 
 const fullScreenButton = elem({
  attributes: {
+  'data-tour': 'Toggle full screen.',
   title: 'Toggle full screen',
  },
  children: [icon('in')],
@@ -113,6 +116,8 @@ if (
 
 const lightDarkModeButton = elem({
  attributes: {
+  'data-tour':
+   'Switch between light and dark mode.',
   title: 'Switch between light and dark mode',
  },
  children: [icon('sun')],
@@ -140,6 +145,10 @@ const mainToolbar = elem({
  classes: ['toolbar', 'mode-main'],
  children: [
   elem({
+   attributes: {
+    'data-tour':
+     'Go to the home channel, or back to the channel when viewing a message.',
+   },
    children: [
     elem({
      classes: [
@@ -174,6 +183,10 @@ const mainToolbar = elem({
    tagName: 'button',
   }),
   elem({
+   attributes: {
+    'data-tour':
+     'Catch up on the latest messages across all channels in the realm.',
+   },
    children: [
     elem({
      classes: ['icon', 'icon-news'],
@@ -192,6 +205,7 @@ const mainToolbar = elem({
 
 const activityFilterInput = elem({
  attributes: {
+  'data-tour': 'Search recent messages.',
   maxlength: 25,
   placeholder: 'Search activity',
  },
@@ -241,6 +255,9 @@ const activityToolbar = elem({
  classes: ['toolbar', 'mode-activity'],
  children: [
   elem({
+   attributes: {
+    'data-tour': 'Exit the news view.',
+   },
    children: [icon('close')],
    events: {
     click() {
@@ -260,6 +277,9 @@ const activityToolbar = elem({
    tagName: 'button',
   }),
   elem({
+   attributes: {
+    'data-tour': 'Exit the news view.',
+   },
    children: [
     elem({
      classes: ['icon', 'icon-news'],
@@ -283,15 +303,30 @@ const appHeader = elem({
    classes: ['toolbar'],
    children: [
     elem({
-     classes: ['brand', 'grow'],
-     tagName: 'span',
-     textContent: 'Tag Me In',
+     attributes: {
+      'data-tour':
+       'Welcome to the Tag Me In tour! Click the logo to re-launch the tour at any time.',
+     },
+     events: {
+      click() {
+       tour()
+      },
+     },
+     classes: ['brand'],
+     tagName: 'button',
+    }),
+    elem({
+     attributes: {
+      'data-tour':
+       'Switch between public and private realms.',
+     },
+     classes: ['app-accounts-container'],
+     children: [appAccounts.element],
     }),
     lightDarkModeButton,
     fullScreenButton,
    ],
   }),
-  appAccounts.element,
   mainToolbar,
   activityToolbar,
   loadingIndicator,
@@ -327,6 +362,8 @@ const COMPOSE_PLACEHOLDER_REPLY =
 
 const composeTextarea = elem({
  attributes: {
+  'data-tour':
+   'Compose your own message to send to the current channel.',
   maxlength: '175',
   placeholder: COMPOSE_PLACEHOLDER_MESSAGE,
   required: 'required',
@@ -377,7 +414,10 @@ const composeTextarea = elem({
 })
 
 const suggestedMessagesContainer = elem({
- classes: ['generated-messages-container'],
+ classes: [
+  'generated-messages-container',
+  'mode-main',
+ ],
 })
 
 const compose = elem({
@@ -422,15 +462,25 @@ const compose = elem({
 })
 
 const messageContent = elem({
+ attributes: {
+  'data-tour': 'General channel information.',
+ },
  classes: ['message-content', 'mode-main'],
 })
 
 const mainContent = elem({
+ attributes: {
+  'data-tour': 'Read the channel messages.',
+ },
  classes: ['mode-main'],
  tagName: 'main',
 })
 
 const consentPrompt = elem({
+ attributes: {
+  'data-tour':
+   'Read and accept the conditions for contributing your own messages.',
+ },
  classes: [
   'consent-prompt',
   'mode-main',
@@ -447,8 +497,8 @@ const consentPrompt = elem({
 const { body } = document
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
-body.appendChild(messageContent)
 body.appendChild(suggestedMessagesContainer)
+body.appendChild(messageContent)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
 body.appendChild(mainContent)

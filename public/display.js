@@ -314,39 +314,45 @@ let lastAttachedChannels
 
 function attachChannels(container, channels) {
  lastAttachedChannels = channels
- container.appendChild(
-  elem({
-   tagName: 'p',
-   textContent: 'Popular channels',
-  })
- )
  if (channels.length === 0) {
   channels.push({ name: '', score: 0 })
  }
  container.appendChild(
   elem({
+   attributes: {
+    'data-tour': 'Discover popular channels.',
+   },
    classes: ['channel-list'],
-   children: channels.map((c) =>
+   children: [
     elem({
-     attributes: {
-      href: `/#/${encodeURIComponent(c.name)}`,
-     },
-     classes: ['channel'],
-     tagName: 'a',
-     textContent:
-      c.name === ''
-       ? HOME_CHANNEL_ICON
-       : c.name,
-     children: [
-      elem({
-       attributes: {
-        title: Math.round(c.score).toString(10),
-       },
-       tagName: 'span',
-       textContent: niceNumber(c.score),
-      }),
-     ],
-    })
+     tagName: 'p',
+     textContent: 'Popular channels',
+    }),
+   ].concat(
+    channels.map((c) =>
+     elem({
+      attributes: {
+       href: `/#/${encodeURIComponent(c.name)}`,
+      },
+      classes: ['channel'],
+      tagName: 'a',
+      textContent:
+       c.name === ''
+        ? HOME_CHANNEL_ICON
+        : c.name,
+      children: [
+       elem({
+        attributes: {
+         title: Math.round(c.score).toString(
+          10
+         ),
+        },
+        tagName: 'span',
+        textContent: niceNumber(c.score),
+       }),
+      ],
+     })
+    )
    ),
   })
  )
@@ -934,6 +940,10 @@ function displayAutocompleteActivitySearch(
 
 function displayActivity() {
  const element = elem({
+  attributes: {
+   'data-tour':
+    'Read the news, all recent messages and replies in this realm.',
+  },
   classes: ['activity-container'],
  })
 

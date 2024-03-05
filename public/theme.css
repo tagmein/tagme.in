@@ -5,7 +5,7 @@ body {
  line-height: 1.5;
  overflow-x: hidden;
  overflow-y: auto;
- padding-top: 160px;
+ padding-top: 103px;
  position: absolute;
  top: 0;
  width: 100%;
@@ -51,12 +51,12 @@ body {
  box-shadow: 0 0 40px #00000080;
  display: flex;
  flex-direction: column;
- height: 160px;
+ height: 103px;
  left: 0;
  overflow: visible;
  position: fixed;
  right: 0;
- top: -110px;
+ top: -53px;
  transition: top 0.5s ease;
  z-index: 1000;
 }
@@ -74,7 +74,7 @@ body.scroll-zero .app-header {
  border-right: 1px solid #585858;
  cursor: pointer;
  font-size: 20px;
- padding: 8px 10px 0;
+ padding: 10px 10px 0;
  user-select: none;
  white-space: pre;
 }
@@ -110,15 +110,22 @@ body.scroll-zero .app-header {
  box-shadow: inset 0 2px 0 #80808080;
 }
 
+.app-accounts-container {
+ flex-grow: 1;
+ flex-shrink: 1;
+ overflow: hidden;
+}
+
 .app-accounts {
  background-color: #202020;
  border-bottom: 1px solid #585858;
  box-shadow: inset 0 -13px 0px #585858;
  display: flex;
  flex-direction: row;
- height: 72px;
+ height: 63px;
  overflow-x: scroll;
  overflow-y: hidden;
+ width: 100%;
 }
 
 .toolbar {
@@ -462,7 +469,12 @@ a.channel > span {
 }
 
 .channel-list {
- padding: 0 7px 7px 7px;
+ padding: 7px;
+}
+
+.channel-list > p {
+ margin: 0 0 7px;
+ padding: 7px;
 }
 
 .image-container img {
@@ -540,7 +552,9 @@ button:active {
 }
 
 .toolbar button,
-.toolbar > span {
+.toolbar > span,
+body.light-mode .app-accounts-container,
+.app-accounts-container {
  border-right: 1px solid #585858;
 }
 
@@ -568,10 +582,18 @@ footer {
 }
 
 .consent-prompt {
+ border-top-left-radius: 10px;
+ border-top-right-radius: 10px;
+ bottom: -4px;
+ box-shadow: 0 0 10px #00000080;
  cursor: pointer;
+ left: 25%;
  margin: 0;
  padding: 15px;
+ position: fixed;
+ right: 25%;
  text-align: center;
+ z-index: 2;
 }
 
 .consent-prompt:hover {
@@ -579,7 +601,7 @@ footer {
 }
 
 .consent-prompt {
- background-color: #003800;
+ background-color: #003800f0;
  border-bottom: 1px solid #585858;
 }
 
@@ -706,7 +728,8 @@ body.light-mode input,
 body.light-mode select,
 body.light-mode textarea,
 body.light-mode .toolbar,
-body.light-mode .toolbar > span {
+body.light-mode .toolbar > span,
+body.light-mode .app-accounts-container {
  background-color: #efefef;
 }
 
@@ -742,7 +765,8 @@ body.light-mode .toolbar {
 }
 
 body.light-mode .toolbar button,
-body.light-mode .toolbar > span {
+body.light-mode .toolbar > span,
+body.light-mode .app-accounts-container {
  border-right: 1px solid #c8c8c8;
 }
 
@@ -770,7 +794,7 @@ body.light-mode footer {
 }
 
 body.light-mode .consent-prompt {
- background-color: #d3e9f1;
+ background-color: #d3e9f1f0;
  border-bottom: 1px solid #c8c8c8;
 }
 
@@ -902,7 +926,7 @@ body.on-channel .display-on-message {
  overflow: hidden;
  position: fixed;
  right: 0;
- top: 158px;
+ top: 101px;
  z-index: 2;
 }
 
@@ -923,7 +947,7 @@ body.on-channel .display-on-message {
 
 body.scroll-zero .dropdown,
 body.scroll-up .dropdown {
- top: 160px;
+ top: 103px;
 }
 
 body.light-mode .dropdown {
@@ -1244,7 +1268,7 @@ body.light-mode .icon.icon-plus {
 
 body.scroll-zero .activity-container,
 body.scroll-up .activity-container {
- top: 160px;
+ top: 103px;
 }
 
 body.light-mode .activity-container {
@@ -1523,4 +1547,123 @@ body.light-mode .standalone-button {
 
 body.light-mode .standalone-button:hover {
  background-color: #a8a8a8;
+}
+
+button.brand {
+ background-color: #000;
+ background-image: url(./images/brand.png);
+ background-size: 42px;
+ background-position: center;
+ background-repeat: no-repeat;
+ image-rendering: pixelated;
+ filter: contrast(0.75);
+}
+
+body.light-mode button.brand {
+ background-color: #fff;
+ background-image: url(./images/brand-light.png);
+}
+
+.tour-shade {
+ bottom: 0;
+ left: 0;
+ position: fixed;
+ right: 0;
+ top: 0;
+ z-index: 100000;
+}
+
+.tour-shade > div {
+ background-color: transparent;
+ border: 2px solid #0080f0;
+ border-radius: 2px;
+ box-shadow: 0 0 8px #00000080,
+  inset 0 0 50px #0080f040,
+  inset 0 0 10px #0080f080;
+ box-sizing: border-box;
+ position: absolute;
+}
+
+.tour-shade > div > div {
+ background-color: #00000040;
+ position: absolute;
+}
+
+.tour-shade > div > div:nth-child(1) {
+ right: 100%;
+ width: 100vw;
+ top: -100vh;
+ bottom: -100vh;
+}
+
+.tour-shade > div > div:nth-child(2) {
+ left: 0;
+ right: 0;
+ height: 100vh;
+ bottom: 100%;
+}
+
+.tour-shade > div > div:nth-child(3) {
+ left: 0;
+ right: 0;
+ height: 100vh;
+ top: 100%;
+}
+
+.tour-shade > div > div:nth-child(4) {
+ left: 100%;
+ width: 100vw;
+ top: -100vh;
+ bottom: -100vh;
+}
+
+.tour-container {
+ background-color: #f8f8f8;
+ border: 1px solid #808080;
+ border-radius: 10px;
+ box-shadow: 0 0 10px #00000040;
+ color: #282828;
+ min-width: 200px;
+ max-width: 300px;
+ overflow: hidden;
+ position: fixed;
+ z-index: 100001;
+}
+
+.tour-container *::selection {
+ background-color: #282828;
+ color: white;
+}
+
+.tour-container p {
+ font-size: 20px;
+ margin: 0;
+ padding: 15px;
+}
+
+.tour-buttons {
+ background-color: #808080;
+ display: flex;
+ flex-direction: row;
+ padding: 1px 0 0;
+ gap: 1px;
+}
+
+.tour-buttons button {
+ background-color: #e0e0b3;
+ color: #383828;
+ flex-grow: 1;
+ flex-shrink: 0;
+ font-size: 15px;
+ font-weight: bold;
+ padding: 10px;
+ text-align: center;
+}
+
+.tour-buttons button:first-of-type {
+ border-bottom-left-radius: 10px;
+}
+
+.tour-buttons button:last-of-type {
+ border-bottom-right-radius: 10px;
 }

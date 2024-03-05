@@ -120,6 +120,10 @@ async function suggestMessages(
  })
 
  const suggestMoreButton = elem({
+  attributes: {
+   'data-tour':
+    'Let a bot suggest ideas to post.',
+  },
   classes: ['standalone-button'],
   tagName: 'button',
   events: {
