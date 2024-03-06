@@ -274,22 +274,6 @@ function addImageByUrl(
  container.appendChild(imageContainer)
 }
 
-function formatCodeBlocks(input) {
- const codeMatch = input.match('`.*`')
- if (codeMatch) {
-  const codeBlock =
-   document.createElement('code')
-  addTextWithCodeBlocks(
-   codeBlock,
-   codeMatch[0].slice(1, -1)
-  )
-  input.replace(
-   codeMatch[0],
-   codeBlock.outerHTML
-  )
- }
-}
-
 async function addOpenGraphLink(
  container,
  text
@@ -323,24 +307,23 @@ async function addOpenGraphLink(
    ])
   }
   if (tags.title) {
-   formatCodeBlocks(tags.title)
-   container.appendChild(
-    elem({
-     tagName: 'h1',
-     textContent: htmlEntities(tags.title),
-    })
-   )
+   const titleElem = elem({
+    tagName: 'h1',
+    textContent: htmlEntities(tags.title),
+   })
+   addTextWithCodeBlocks(titleElem, tags.title)
+   container.appendChild(titleElem)
   }
   if (tags.description) {
-   formatCodeBlocks(tags.description)
-   container.appendChild(
-    elem({
-     tagName: 'p',
-     textContent: htmlEntities(
-      tags.description
-     ),
-    })
+   const descriptionElem = elem({
+    tagName: 'p',
+    textContent: htmlEntities(tags.description),
+   })
+   addTextWithCodeBlocks(
+    descriptionElem,
+    tags.description
    )
+   container.appendChild(descriptionElem)
   }
   const siteName = htmlEntities(
    tags.site_name ?? urlMatch[0].split('/')[2]
