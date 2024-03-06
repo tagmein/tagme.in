@@ -1024,6 +1024,7 @@ function displayActivity() {
    )
   )
   filterAgain()
+  return nextChunk
  }
 
  function clear() {
@@ -1033,14 +1034,17 @@ function displayActivity() {
 
  let filterTerms = []
  let numFilteredNews = 0
- function filter(filterText) {
+ async function filter(filterText) {
   filterTerms = filterText
    .split(/\s+/)
    .map((x) => x.toLowerCase())
    .filter((x) => x !== '')
   filterAgain()
-  if (numFilteredNews < 1) {
-   withLoading(loadMore())
+  while (
+   numFilteredNews < 1 &&
+   (await withLoading(loadMore())) > -1
+  ) {
+   // Non-op
   }
  }
 
