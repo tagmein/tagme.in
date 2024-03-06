@@ -1032,15 +1032,20 @@ function displayActivity() {
  }
 
  let filterTerms = []
+ let numFilteredNews = 0
  function filter(filterText) {
   filterTerms = filterText
    .split(/\s+/)
    .map((x) => x.toLowerCase())
    .filter((x) => x !== '')
   filterAgain()
+  if (numFilteredNews < 1) {
+   withLoading(loadMore())
+  }
  }
 
  function filterAgain() {
+  numFilteredNews = 0
   for (const {
    channel,
    element,
@@ -1056,6 +1061,8 @@ function displayActivity() {
          message.includes(term) ||
          parentMessage?.includes(term)
        )
+   if (messageIncludesAllTerms)
+    numFilteredNews++
    element.style.display =
     messageIncludesAllTerms ? 'block' : 'none'
   }
