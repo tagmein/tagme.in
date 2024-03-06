@@ -87,7 +87,7 @@ const fullScreenButton = elem({
  events: {
   click() {
    if (!document.fullscreenElement) {
-    document.body
+    document.documentElement
      .requestFullscreen()
      .catch((e) => console.error(e))
    } else {

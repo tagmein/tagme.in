@@ -206,8 +206,6 @@ body.scroll-zero .app-header {
 
 .realm.active {
  background-color: var(--color-bg-medium-light);
- box-shadow: inset 0 2px 0
-  var(--color-shadow-dark);
 }
 
 .app-accounts-container {
