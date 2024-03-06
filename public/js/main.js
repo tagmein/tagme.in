@@ -580,6 +580,8 @@ addEventListener('scroll', () => {
  }
 })
 
+let lastRenderedRealmSessionId
+
 async function route() {
  const {
   channel,
@@ -621,7 +623,12 @@ async function route() {
  if (channelInput.value.trim() !== channel) {
   channelInput.value = channel
  }
- realmControlContainer.innerHTML = ''
+ if (
+  activeSessionId !== PUBLIC_SESSION_ID &&
+  activeSessionId !== lastRenderedRealmSessionId
+ ) {
+  realmControlContainer.innerHTML = ''
+ }
  realmControlContainer.style.display =
   activeSessionId === PUBLIC_SESSION_ID
    ? 'none'
@@ -635,11 +642,15 @@ async function route() {
  const suggestContainer = elem({
   classes: ['generated-messages'],
  })
- if (activeSessionId !== PUBLIC_SESSION_ID) {
+ if (
+  activeSessionId !== PUBLIC_SESSION_ID &&
+  activeSessionId !== lastRenderedRealmSessionId
+ ) {
   renderRealm(
    realmControlContainer,
    activeSessionId
   )
+  lastRenderedRealmSessionId = activeSessionId
  }
  suggestedMessagesContainer.innerHTML = ''
  suggestedMessagesContainer.appendChild(
