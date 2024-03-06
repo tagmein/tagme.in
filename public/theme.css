@@ -7,7 +7,7 @@ body {
  --color-bg-light: #606060;
  --color-bg-accent: #808080;
  --color-bg-accent-hover: #a0a0a0;
- --color-bg-accent-active: #c00000;
+ --color-bg-no-active: #c00000;
  --color-bg-primary: #008000f0;
  --color-bg-secondary: #008000;
  --color-bg-secondary-hover: #00c000;
@@ -56,7 +56,7 @@ body.light-mode {
  --color-bg-light: #eceae4;
  --color-bg-accent: #c9c9c9;
  --color-bg-accent-hover: #93e49f;
- --color-bg-accent-active: #dd8484;
+ --color-bg-no-active: #dd8484;
  --color-bg-primary: #c6eec9f0;
  --color-bg-secondary: #c6eec9;
  --color-bg-secondary-hover: #67d277;
@@ -787,9 +787,7 @@ article {
 
 .article-tool-buttons
  > button.disagree.disagreed {
- background-color: var(
-  --color-bg-accent-active
- );
+ background-color: var(--color-bg-no-active);
 }
 
 article > div > .image-container.expanded {
@@ -1558,5 +1556,48 @@ body.light-mode button.brand {
  background-color: var(--color-bg-medium-dark);
  border-bottom: 1px solid
   var(--color-border-dark);
+ display: flex;
+ flex-direction: column;
  height: 50vh;
+}
+
+.tab-strip {
+ background-color: var(--color-bg-medium-dark);
+ border-bottom: 1px solid
+  var(--color-border-dark);
+ box-sizing: border-box;
+ height: 45px;
+ overflow-x: auto;
+ overflow-y: hidden;
+ padding: 7px;
+ white-space: nowrap;
+}
+
+.tabs-container {
+ display: flex;
+}
+
+.tab {
+ height: 30px;
+ padding: 0 12px;
+ line-height: 31px;
+ background-color: var(--color-bg-medium);
+ color: var(--color-text-primary);
+ border-radius: 15px;
+ margin-right: 8px;
+ cursor: pointer;
+ user-select: none;
+}
+
+.tab:hover {
+ background-color: var(--color-bg-medium-light);
+}
+
+.tab.active {
+ background-color: var(--color-bg-secondary);
+}
+
+.tab-contents {
+ flex-grow: 1;
+ position: relative;
 }
