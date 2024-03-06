@@ -274,6 +274,22 @@ function addImageByUrl(
  container.appendChild(imageContainer)
 }
 
+function formatCodeBlocks(input) {
+ const codeMatch = input.match('`.*`')
+ if (codeMatch) {
+  const codeBlock =
+   document.createElement('code')
+  addTextWithCodeBlocks(
+   codeBlock,
+   codeMatch[0].slice(1, -1)
+  )
+  input.replace(
+   codeMatch[0],
+   codeBlock.outerHTML
+  )
+ }
+}
+
 async function addOpenGraphLink(
  container,
  text
@@ -307,6 +323,7 @@ async function addOpenGraphLink(
    ])
   }
   if (tags.title) {
+   formatCodeBlocks(tags.title)
    container.appendChild(
     elem({
      tagName: 'h1',
@@ -315,6 +332,7 @@ async function addOpenGraphLink(
    )
   }
   if (tags.description) {
+   formatCodeBlocks(tags.description)
    container.appendChild(
     elem({
      tagName: 'p',
