@@ -108,7 +108,7 @@ function addHashTagLinks(container, text) {
    container.appendChild(a)
   } else if (part) {
    container.appendChild(
-    document.createTextNode(part)
+    document.createTextNode(htmlEntities(part))
    )
   }
  })
@@ -307,22 +307,19 @@ async function addOpenGraphLink(
    ])
   }
   if (tags.title) {
-   container.appendChild(
-    elem({
-     tagName: 'h1',
-     textContent: htmlEntities(tags.title),
-    })
-   )
+   const titleElem = elem({ tagName: 'h1' })
+   addTextWithCodeBlocks(titleElem, tags.title)
+   container.appendChild(titleElem)
   }
   if (tags.description) {
-   container.appendChild(
-    elem({
-     tagName: 'p',
-     textContent: htmlEntities(
-      tags.description
-     ),
-    })
+   const descriptionElem = elem({
+    tagName: 'p',
+   })
+   addTextWithCodeBlocks(
+    descriptionElem,
+    tags.description
    )
+   container.appendChild(descriptionElem)
   }
   const siteName = htmlEntities(
    tags.site_name ?? urlMatch[0].split('/')[2]
