@@ -108,9 +108,13 @@ function displayAppAccounts() {
       (r) => session.id === r.session.id
      )
      if (switchToRealm) {
-      secondMostRecentRealm =
+      const secondRealmCandidate =
        activeRealm?.session?.id ??
        PUBLIC_SESSION_ID
+      if (secondRealmCandidate !== session.id) {
+       secondMostRecentRealm =
+        secondRealmCandidate
+      }
       setActiveSessionId(session.id)
       switchToRealm.realmTab.classList.add(
        'active'

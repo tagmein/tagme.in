@@ -33,7 +33,7 @@ body {
  --color-bg-code-formula: #583800;
  --color-bg-dropdown-item-hover: #fff;
 
- --color-border-dark: #808080;
+ --color-border-dark: #585858;
  --color-border-medium: #b0b0b0;
  --color-border-light: #ca0;
  --color-border-transparent: transparent;
@@ -97,15 +97,11 @@ body.light-mode {
 
 body {
  font-family: Vera, sans-serif;
- height: 100dvh;
- left: 0;
  line-height: 1.5;
+ min-height: 100dvh;
  overflow-x: hidden;
  overflow-y: auto;
  padding-top: 103px;
- position: absolute;
- top: 0;
- width: 100%;
 }
 
 .toolbar,
