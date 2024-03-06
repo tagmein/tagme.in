@@ -1024,7 +1024,7 @@ article > div code.formula {
  background-image: url(./icons/search.svg);
 }
 
-body:fullscreen .icon-in {
+:root:fullscreen .icon-in {
  background-image: url(./icons/out.svg);
 }
 
