@@ -1018,8 +1018,10 @@ function displayActivity() {
   if (typeof callback === 'function') {
    callback()
   }
-  lastMessages += news.data.map((newsMessage) =>
-   attachNewsMessage(element, newsMessage)
+  lastMessages.push(
+   ...news.data.map((newsMessage) =>
+    attachNewsMessage(element, newsMessage)
+   )
   )
  }
 
