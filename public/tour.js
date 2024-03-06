@@ -35,6 +35,14 @@ function tour() {
   refreshTour()
  }
 
+ const nextButton = elem({
+  tagName: 'button',
+  textContent: 'Next',
+  events: {
+   click: next,
+  },
+ })
+
  const tourButtons = elem({
   classes: ['tour-buttons'],
   children: [
@@ -52,13 +60,7 @@ function tour() {
      click: back,
     },
    }),
-   elem({
-    tagName: 'button',
-    textContent: 'Next',
-    events: {
-     click: next,
-    },
-   }),
+   nextButton,
   ],
  })
 
@@ -178,6 +180,8 @@ function tour() {
  document.body.appendChild(tourElement)
 
  refreshTour()
+
+ nextButton.focus()
 }
 
 if (!tourCompleted) {
