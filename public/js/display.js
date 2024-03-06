@@ -1030,10 +1030,12 @@ function displayActivity() {
   hide()
  }
 
+ let filterTerms = []
  function filter(filterText) {
-  const terms = filterText
+  filterTerms = filterText
    .split(/\s+/)
    .map((x) => x.toLowerCase())
+   .filter((x) => x !== '')
   for (const {
    channel,
    element,
@@ -1041,9 +1043,9 @@ function displayActivity() {
    parentMessage,
   } of lastMessages) {
    const messageIncludesAllTerms =
-    terms.length === 0
+    filterTerms.length === 0
      ? true
-     : terms.every(
+     : filterTerms.every(
         (term) =>
          channel.includes(term) ||
          message.includes(term) ||
