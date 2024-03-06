@@ -108,7 +108,7 @@ function addHashTagLinks(container, text) {
    container.appendChild(a)
   } else if (part) {
    container.appendChild(
-    document.createTextNode(part)
+    document.createTextNode(htmlEntities(part))
    )
   }
  })
@@ -307,17 +307,13 @@ async function addOpenGraphLink(
    ])
   }
   if (tags.title) {
-   const titleElem = elem({
-    tagName: 'h1',
-    textContent: htmlEntities(tags.title),
-   })
+   const titleElem = elem({ tagName: 'h1' })
    addTextWithCodeBlocks(titleElem, tags.title)
    container.appendChild(titleElem)
   }
   if (tags.description) {
    const descriptionElem = elem({
     tagName: 'p',
-    textContent: htmlEntities(tags.description),
    })
    addTextWithCodeBlocks(
     descriptionElem,
