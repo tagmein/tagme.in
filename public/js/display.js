@@ -1023,6 +1023,7 @@ function displayActivity() {
     attachNewsMessage(element, newsMessage)
    )
   )
+  filterAgain()
  }
 
  function clear() {
@@ -1036,6 +1037,10 @@ function displayActivity() {
    .split(/\s+/)
    .map((x) => x.toLowerCase())
    .filter((x) => x !== '')
+  filterAgain()
+ }
+
+ function filterAgain() {
   for (const {
    channel,
    element,
