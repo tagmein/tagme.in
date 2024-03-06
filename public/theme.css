@@ -739,7 +739,7 @@ article {
 }
 
 .generated-messages {
- background-color: var(--color-bg-light);
+ background-color: var(--color-bg-medium-light);
  padding: 8px 0;
  margin-top: -3px;
  display: flex;
@@ -1552,4 +1552,11 @@ body.light-mode button.brand {
 
 .tour-buttons button:last-of-type {
  border-bottom-right-radius: 10px;
+}
+
+.realm-control {
+ background-color: var(--color-bg-medium-dark);
+ border-bottom: 1px solid
+  var(--color-border-dark);
+ height: 50vh;
 }

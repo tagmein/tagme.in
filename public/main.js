@@ -413,6 +413,10 @@ const composeTextarea = elem({
  tagName: 'textarea',
 })
 
+const realmControlContainer = elem({
+ classes: ['realm-control', 'mode-main'],
+})
+
 const suggestedMessagesContainer = elem({
  classes: [
   'generated-messages-container',
@@ -502,6 +506,7 @@ const consentPrompt = elem({
 const { body } = document
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
+body.appendChild(realmControlContainer)
 body.appendChild(suggestedMessagesContainer)
 body.appendChild(messageContent)
 body.appendChild(consentPrompt)
@@ -616,6 +621,11 @@ async function route() {
  if (channelInput.value.trim() !== channel) {
   channelInput.value = channel
  }
+ realmControlContainer.innerHTML = ''
+ realmControlContainer.style.display =
+  activeSessionId === PUBLIC_SESSION_ID
+   ? 'none'
+   : 'block'
  const channelData = await withLoading(
   networkChannelSeek(channel, getHourNumber())
  )
@@ -625,6 +635,12 @@ async function route() {
  const suggestContainer = elem({
   classes: ['generated-messages'],
  })
+ if (activeSessionId !== PUBLIC_SESSION_ID) {
+  renderRealm(
+   realmControlContainer,
+   activeSessionId
+  )
+ }
  suggestedMessagesContainer.innerHTML = ''
  suggestedMessagesContainer.appendChild(
   suggestContainer
