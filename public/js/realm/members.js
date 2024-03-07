@@ -1,4 +1,7 @@
 function realmMembers(container, session) {
- container.textContent =
-  '<members> ' + JSON.stringify(session)
+ const store = networkStore(
+  session,
+  'system.members'
+ )
+ container.appendChild(explorer(store).element)
 }

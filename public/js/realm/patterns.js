@@ -1,4 +1,7 @@
 function realmPatterns(container, session) {
- container.textContent =
-  '<patterns> ' + JSON.stringify(session)
+ const store = networkStore(
+  session,
+  'system.patterns'
+ )
+ container.appendChild(explorer(store).element)
 }

@@ -6,14 +6,17 @@ import {
 import { Env } from './env.js'
 import { sessionIsExpired } from './session.js'
 
-export async function getKV({
- env,
- request,
-}: EventContext<
- Env,
- any,
- Record<string, unknown>
->): Promise<CivilMemoryKV | undefined> {
+export async function getKV(
+ {
+  env,
+  request,
+ }: EventContext<
+  Env,
+  any,
+  Record<string, unknown>
+ >,
+ allowPublic: boolean = true
+): Promise<CivilMemoryKV | undefined> {
  const authorization = request.headers.get(
   'authorization'
  )
@@ -59,7 +62,7 @@ export async function getKV({
     )
    },
   }
- } else {
+ } else if (allowPublic) {
   return civilMemoryKV.cloudflare({
    binding: env.TAGMEIN_KV,
   })

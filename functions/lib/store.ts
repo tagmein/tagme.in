@@ -1,0 +1,166 @@
+import { CivilMemoryKV } from '@tagmein/civil-memory'
+
+interface CollectionIndex {
+ [collectionName: string]: string[]
+}
+
+export function store(kv: CivilMemoryKV) {
+ async function getCollectionIndex(
+  collectionName: string
+ ): Promise<string[]> {
+  const indexKey = `store.index:${collectionName}`
+  const indexString = await kv.get(indexKey)
+  return indexString
+   ? JSON.parse(indexString)
+   : []
+ }
+
+ async function updateCollectionIndex(
+  collectionName: string,
+  ids: string[]
+ ): Promise<void> {
+  const indexKey = `store.index:${collectionName}`
+  await kv.set(indexKey, JSON.stringify(ids))
+ }
+
+ async function _delete(
+  collectionName: string,
+  id: string
+ ): Promise<void> {
+  const ids = await getCollectionIndex(
+   collectionName
+  )
+  const index = ids.indexOf(id)
+  if (index !== -1) {
+   ids.splice(index, 1)
+   await updateCollectionIndex(
+    collectionName,
+    ids
+   )
+  }
+
+  const itemKey = `store.item:${collectionName}:${id}`
+  await kv.delete(itemKey)
+ }
+
+ async function get(
+  collectionName: string,
+  id: string
+ ): Promise<Record<string, any> | null> {
+  const itemKey = `store.item:${collectionName}:${id}`
+  const itemString = await kv.get(itemKey)
+  if (itemString) {
+   const item = JSON.parse(itemString)
+   return { id, ...item }
+  }
+  return null
+ }
+
+ async function insert(
+  collectionName: string,
+  id: string,
+  item: Record<string, any>
+ ): Promise<void> {
+  const ids = await getCollectionIndex(
+   collectionName
+  )
+  if (ids.includes(id)) {
+   throw new Error(
+    `Item with id ${id} already exists in collection ${collectionName}`
+   )
+  }
+
+  const itemKey = `store.item:${collectionName}:${id}`
+  await kv.set(itemKey, JSON.stringify(item))
+
+  ids.push(id)
+  await updateCollectionIndex(
+   collectionName,
+   ids
+  )
+ }
+
+ async function list(
+  collectionName: string,
+  fieldList?: string[],
+  skip: number = 0,
+  limit: number = 100
+ ): Promise<Record<string, any>[]> {
+  const ids = await getCollectionIndex(
+   collectionName
+  )
+  const selectedIds = ids.slice(
+   skip,
+   skip + limit
+  )
+
+  const itemPromises = selectedIds.map(
+   async (id) => {
+    const itemKey = `store.item:${collectionName}:${id}`
+    const itemString = await kv.get(itemKey)
+    if (itemString) {
+     const item = JSON.parse(itemString)
+     const filteredItem: Record<string, any> = {
+      id,
+     }
+     if (fieldList) {
+      for (const field of fieldList) {
+       if (field in item) {
+        filteredItem[field] = item[field]
+       }
+      }
+     } else {
+      Object.assign(filteredItem, item)
+     }
+     return filteredItem
+    }
+    return null
+   }
+  )
+
+  const items = await Promise.all(itemPromises)
+  return items.filter(
+   (item): item is Record<string, any> =>
+    item !== null
+  )
+ }
+
+ async function patch(
+  collectionName: string,
+  id: string,
+  item: Record<string, any>
+ ): Promise<void> {
+  const itemKey = `store.item:${collectionName}:${id}`
+  const existingItemString = await kv.get(
+   itemKey
+  )
+  const existingItem = existingItemString
+   ? JSON.parse(existingItemString)
+   : {}
+
+  Object.assign(existingItem, item)
+  await kv.set(
+   itemKey,
+   JSON.stringify(existingItem)
+  )
+
+  const ids = await getCollectionIndex(
+   collectionName
+  )
+  if (!ids.includes(id)) {
+   ids.push(id)
+   await updateCollectionIndex(
+    collectionName,
+    ids
+   )
+  }
+ }
+
+ return {
+  delete: _delete,
+  get,
+  insert,
+  list,
+  patch,
+ }
+}

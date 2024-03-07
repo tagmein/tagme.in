@@ -1,4 +1,7 @@
 function realmDocuments(container, session) {
- container.textContent =
-  '<documents> ' + JSON.stringify(session)
+ const store = networkStore(
+  session,
+  'system.documents'
+ )
+ container.appendChild(explorer(store).element)
 }

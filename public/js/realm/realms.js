@@ -1,4 +1,7 @@
 function realmRealms(container, session) {
- container.textContent =
-  '<realms> ' + JSON.stringify(session)
+ const store = networkStore(
+  session,
+  'system.realms'
+ )
+ container.appendChild(explorer(store).element)
 }
