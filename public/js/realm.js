@@ -2,30 +2,35 @@ function renderRealm(
  realmControlContainer,
  sessionId
 ) {
+ const session = readSession(sessionId)
  const tabs = tabStrip()
  const contents = tabContents()
  tabs.add(
+  'Members',
+  contents.add((container) =>
+   realmMembers(container, session)
+  )
+ )
+ tabs.add(
   'Realms',
-  contents.add(
-   (elem) => (elem.textContent = 'Realms')
+  contents.add((container) =>
+   realmRealms(container, session)
   )
  )
  tabs.add(
-  'Fields',
-  contents.add(
-   (elem) => (elem.textContent = 'Fields')
+  'Patterns',
+  contents.add((container) =>
+   realmPatterns(container, session)
   )
  )
  tabs.add(
-  'Values',
-  contents.add(
-   (elem) => (elem.textContent = 'Values')
+  'Documents',
+  contents.add((container) =>
+   realmDocuments(container, session)
   )
  )
  realmControlContainer.appendChild(tabs.element)
  realmControlContainer.appendChild(
   contents.element
  )
- const session = readSession(sessionId)
- console.log({ session })
 }
