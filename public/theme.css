@@ -1601,3 +1601,9 @@ body.light-mode button.brand {
  flex-grow: 1;
  position: relative;
 }
+
+.tab-contents > div {
+ position: relative;
+ height: 100%;
+ width: 100%;
+}

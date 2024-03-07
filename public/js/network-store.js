@@ -33,12 +33,15 @@ function networkStore(session, collectionName) {
  }
 
  async function get(id) {
-  return sendRequest(
+  const response = await sendRequest(
    `get?collectionName=${encodeURIComponent(
     collectionName
    )}&id=${encodeURIComponent(id)}`,
    'GET'
   )
+  if ('item' in response) {
+   return response.item
+  }
  }
 
  async function _delete(id) {
@@ -57,12 +60,19 @@ function networkStore(session, collectionName) {
  }
 
  async function list(fieldList, skip, limit) {
-  return sendRequest('list', 'POST', {
-   collectionName,
-   fieldList,
-   skip,
-   limit,
-  })
+  const response = await sendRequest(
+   'list',
+   'POST',
+   {
+    collectionName,
+    fieldList,
+    skip,
+    limit,
+   }
+  )
+  if ('items' in response) {
+   return response.items
+  }
  }
 
  async function patch(id, item) {

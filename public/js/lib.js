@@ -370,6 +370,7 @@ function elem({
  attributes,
  classes,
  children,
+ dataset,
  events,
  tagName = 'div',
  textContent,
@@ -390,6 +391,13 @@ function elem({
  if (classes) {
   for (const c of classes) {
    e.classList.add(c)
+  }
+ }
+ if (dataset) {
+  for (const [k, v] of Object.entries(
+   dataset
+  )) {
+   e.dataset[k] = v
   }
  }
  if (textContent) {
