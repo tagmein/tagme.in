@@ -1292,13 +1292,33 @@ a.external-link::after {
  width: 640px;
 }
 
+.alert-container h2 {
+ margin: 0;
+}
+
+.alert-container h4 {
+ margin: 30px 0 0;
+}
+
 .alert-container button {
- background-color: var(--color-bg-accent-hover);
- border: 1px solid var(--color-border-medium);
- border-radius: 2px;
+ background-color: var(--color-bg-medium-dark);
+ border-radius: 5px;
+ border: 1px solid var(--color-border-dark);
  cursor: pointer;
  margin: 30px 30px 0 0;
  padding: 10px 15px;
+}
+
+.alert-container input[type='text'] {
+ background-color: var(--color-bg-medium-dark);
+ border-radius: 5px;
+ border: 1px solid var(--color-border-dark);
+ margin: 0 10px 0 0;
+ padding: 10px 15px;
+}
+
+.alert-container button:hover {
+ background-color: var(--color-bg-medium);
 }
 
 .alert-container label {
@@ -1314,7 +1334,7 @@ a.external-link::after {
   var(--color-border-formula-error);
 }
 
-.alert-container input {
+.alert-container input[type='checkbox'] {
  position: relative;
  top: 1px;
 }

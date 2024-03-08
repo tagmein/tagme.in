@@ -585,6 +585,32 @@ async function politeAlert(
  return agreed
 }
 
+async function dialog(...children) {
+ const dialogBox = elem({
+  classes: ['alert-shade'],
+  children: [
+   elem({
+    classes: ['alert-container'],
+    children: [
+     elem({
+      children,
+     }),
+     elem({
+      events: {
+       click() {
+        document.body.removeChild(dialogBox)
+       },
+      },
+      tagName: 'button',
+      textContent: 'Cancel',
+     }),
+    ],
+   }),
+  ],
+ })
+ document.body.appendChild(dialogBox)
+}
+
 function getUrlData() {
  const [control, channel, messageEncoded] =
   window.location.hash
@@ -862,6 +888,66 @@ function getActiveSessionId() {
 }
 
 function createSession() {
+ dialog(
+  elem({
+   tagName: 'h2',
+   textContent: 'Sign in',
+  }),
+  elem({
+   tagName: 'h4',
+   textContent: 'Get a code by email',
+  }),
+  elem({
+   tagName: 'form',
+   children: [
+    elem({
+     attributes: {
+      type: 'text',
+      placeholder: 'Enter email address',
+     },
+     tagName: 'input',
+    }),
+    elem({
+     events: {
+      click: createSessionEmail,
+     },
+     tagName: 'button',
+     textContent: 'Send email',
+    }),
+   ],
+  }),
+  elem({
+   tagName: 'h4',
+   textContent:
+    'Verify email address with LinkedIn',
+  }),
+  elem({
+   events: {
+    click: createSessionLinkedIn,
+   },
+   tagName: 'button',
+   textContent: 'Verify with LinkedIn',
+  })
+ )
+}
+
+function createSessionEmail() {
+ const id = randomId()
+ const { hash, origin } = location
+ writeSessions([
+  ...listSessions(),
+  {
+   id,
+   hash,
+  },
+ ])
+ setActiveSessionId(id)
+ location.href = `https://tagme.in/auth-linkedin-init?state=${encodeURIComponent(
+  JSON.stringify({ id, origin })
+ )}`
+}
+
+function createSessionLinkedIn() {
  const id = randomId()
  const { hash, origin } = location
  writeSessions([
