@@ -1078,7 +1078,7 @@ body.light-mode .icon-search {
  background-image: url(./icons/search-light.svg);
 }
 
-body.light-mode:fullscreen .icon-in {
+:root:fullscreen body.light-mode .icon-in {
  background-image: url(./icons/out-light.svg);
 }
 
