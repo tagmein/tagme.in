@@ -1,4 +1,4 @@
-function explorer(store) {
+function explorer(store, { itemAction } = {}) {
  const element = elem({
   classes: ['explorer'],
  })
@@ -63,7 +63,8 @@ function explorer(store) {
    const it = explorerItem(
     item,
     store,
-    updateToolbarState
+    updateToolbarState,
+    itemAction
    )
    itemsContainer.appendChild(it.element)
   })

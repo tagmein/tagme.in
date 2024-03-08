@@ -84,7 +84,11 @@ export function store(kv: CivilMemoryKV) {
   const ids = await getCollectionIndex(
    collectionName
   )
-  if (ids.includes(id)) {
+  const itemExists = await kv.get(
+   collectionItemKey(collectionName, id)
+  )
+
+  if (itemExists) {
    throw new Error(
     `Item with id ${id} already exists in collection ${collectionName}`
    )
@@ -95,11 +99,13 @@ export function store(kv: CivilMemoryKV) {
    JSON.stringify(item)
   )
 
-  ids.push(id)
-  await updateCollectionIndex(
-   collectionName,
-   ids
-  )
+  if (!ids.includes(id)) {
+   ids.push(id)
+   await updateCollectionIndex(
+    collectionName,
+    ids
+   )
+  }
  }
 
  async function list(

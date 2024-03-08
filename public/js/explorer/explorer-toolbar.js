@@ -141,12 +141,10 @@ function explorerToolbar(
 
  const newItemButton = elem({
   tagName: 'button',
-  textContent: 'New Item',
+  textContent: 'New',
   events: {
    click: () => {
-    const name = prompt(
-     'Enter the new item name:'
-    )
+    const name = prompt('Enter the new item:')
     if (name) {
      onNewItem(name)
     }

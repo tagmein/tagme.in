@@ -3,5 +3,14 @@ function realmRealms(container, session) {
   session,
   'system.realms'
  )
- container.appendChild(explorer(store).element)
+ container.appendChild(
+  explorer(store, {
+   itemAction: {
+    label: 'Launch',
+    handler(item) {
+     console.log({ session, item })
+    },
+   },
+  }).element
+ )
 }

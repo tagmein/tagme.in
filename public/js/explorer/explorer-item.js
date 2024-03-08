@@ -1,4 +1,9 @@
-function explorerItem(item, store, onUpdate) {
+function explorerItem(
+ item,
+ store,
+ onUpdate,
+ itemAction
+) {
  const element = elem({
   classes: ['explorer-item'],
   dataset: {
@@ -6,6 +11,10 @@ function explorerItem(item, store, onUpdate) {
   },
   events: {
    click: (event) => {
+    if (event.target.closest('.item-action')) {
+     // Ignore clicks on the action button
+     return
+    }
     if (event.shiftKey) {
      element.classList.toggle('selected')
     } else {
@@ -26,6 +35,20 @@ function explorerItem(item, store, onUpdate) {
   textContent: item.name,
  })
  element.appendChild(nameElement)
+
+ if (itemAction) {
+  const actionButton = elem({
+   tagName: 'button',
+   classes: ['item-action'],
+   textContent: itemAction.label,
+   events: {
+    click() {
+     itemAction.handler(item)
+    },
+   },
+  })
+  element.appendChild(actionButton)
+ }
 
  return { element }
 }

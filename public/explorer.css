@@ -103,6 +103,7 @@
  border-bottom: 1px solid
   var(--color-border-dark);
  display: flex;
+ justify-content: space-between;
  padding: 11px 10px 9px;
 }
 
@@ -124,7 +125,7 @@
  cursor: pointer;
  display: flex;
  flex-direction: column;
- justify-content: center;
+ justify-content: space-evenly;
  padding: 10px;
 }
 
@@ -137,4 +138,16 @@
  overflow: hidden;
  text-overflow: ellipsis;
  white-space: nowrap;
+}
+
+.explorer-item button {
+ background-color: var(--color-bg-medium-light);
+ border-radius: 5px;
+ margin: -4px 0 -1px;
+ padding: 5px 8px 3px;
+ transition: background-color 0.3s ease;
+}
+
+.explorer-item button:hover {
+ background-color: var(--color-bg-light);
 }
