@@ -24,6 +24,10 @@ function displayAppAccounts() {
   ],
   events: {
    click() {
+    globalRealmTab.scrollIntoView({
+     behavior: 'smooth',
+     inline: 'nearest',
+    })
     const sessionId = getActiveSessionId()
     if (sessionId !== PUBLIC_SESSION_ID) {
      const activeRealm = realms.find(
@@ -49,8 +53,38 @@ function displayAppAccounts() {
  function addAccount(session) {
   const realmTabLabel = elem({
    tagName: 'span',
-   textContent: session.email ?? '···',
+   textContent:
+    session.name ?? session.email ?? '···',
   })
+  function switchTo() {
+   const sessionId = getActiveSessionId()
+   const activeRealm = realms.find(
+    (r) => sessionId === r.session.id
+   )
+   const activeRealmTab =
+    activeRealm?.realmTab ?? globalRealmTab
+   activeRealmTab.classList.remove('active')
+   const switchToRealm = realms.find(
+    (r) => session.id === r.session.id
+   )
+   if (switchToRealm) {
+    const secondRealmCandidate =
+     activeRealm?.session?.id ??
+     PUBLIC_SESSION_ID
+    if (secondRealmCandidate !== session.id) {
+     secondMostRecentRealm =
+      secondRealmCandidate
+    }
+    setActiveSessionId(session.id)
+    switchToRealm.realmTab.classList.add(
+     'active'
+    )
+    switchToRealm.realmTab.scrollIntoView({
+     behavior: 'smooth',
+     inline: 'nearest',
+    })
+   }
+  }
   const realmTab = elem({
    classes: ['realm'],
    children: [
@@ -96,35 +130,16 @@ function displayAppAccounts() {
     }),
    ],
    events: {
-    click() {
-     const sessionId = getActiveSessionId()
-     const activeRealm = realms.find(
-      (r) => sessionId === r.session.id
-     )
-     const activeRealmTab =
-      activeRealm?.realmTab ?? globalRealmTab
-     activeRealmTab.classList.remove('active')
-     const switchToRealm = realms.find(
-      (r) => session.id === r.session.id
-     )
-     if (switchToRealm) {
-      const secondRealmCandidate =
-       activeRealm?.session?.id ??
-       PUBLIC_SESSION_ID
-      if (secondRealmCandidate !== session.id) {
-       secondMostRecentRealm =
-        secondRealmCandidate
-      }
-      setActiveSessionId(session.id)
-      switchToRealm.realmTab.classList.add(
-       'active'
-      )
-     }
-    },
+    click: switchTo,
    },
   })
   element.insertBefore(realmTab, addRealm)
-  return { session, realmTab, realmTabLabel }
+  return {
+   session,
+   switchTo,
+   realmTab,
+   realmTabLabel,
+  }
  }
 
  const addRealm = elem({
@@ -159,7 +174,20 @@ function displayAppAccounts() {
   activeRealm?.realmTab ?? globalRealmTab
  activeRealmTab.classList.add('active')
 
- return { element }
+ setTimeout(function () {
+  activeRealmTab.scrollIntoView({
+   behavior: 'instant',
+   inline: 'center',
+  })
+ })
+
+ function add(session) {
+  const newAccount = addAccount(session)
+  realms.push(newAccount)
+  return newAccount
+ }
+
+ return { add, element }
 }
 
 async function displayChannelMessageReplies(

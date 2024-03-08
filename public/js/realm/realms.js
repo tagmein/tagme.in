@@ -8,9 +8,34 @@ function realmRealms(container, session) {
    itemAction: {
     label: 'Launch',
     handler(item) {
-     console.log({ session, item })
+     appAccounts
+      .add(
+       forkSession(
+        session,
+        session.realm
+         ? extendRealm(session.realm, item.id)
+         : `${encodeURIComponent(
+            session.email
+           )}#${encodeURIComponent(
+            JSON.stringify([item.id])
+           )}`,
+        item.id
+       )
+      )
+      .switchTo()
     },
    },
   }).element
  )
+}
+
+function extendRealm(realm, id) {
+ const [emailEncoded, idsEncoded] =
+  realm.split('#')
+ const ids = JSON.parse(
+  decodeURIComponent(idsEncoded)
+ )
+ return `${emailEncoded}#${encodeURIComponent(
+  JSON.stringify([...ids, id])
+ )}`
 }

@@ -5,6 +5,7 @@ import {
 } from '@tagmein/civil-memory'
 import { Env } from './env.js'
 import { sessionIsExpired } from './session.js'
+import { store } from './store.js'
 
 export async function getKV(
  {
@@ -41,30 +42,63 @@ export async function getKV(
   const privateKV = civilMemoryKV.cloudflare({
    binding: env.TAGMEIN_PRIVATE_KV,
   })
-  const privateNamespacePrefix = `[email=${encodeURIComponent(
+  const realm = request.headers.get('x-realm')
+  if (realm) {
+   return getPermittedRealmNamespaceKV(
+    privateKV,
+    session.email,
+    realm
+   )
+  }
+  const emailNamespace = `[email=${encodeURIComponent(
    session.email
   )}]`
-  return {
-   delete(key) {
-    return privateKV.delete(
-     `${privateNamespacePrefix}${key}`
-    )
-   },
-   get(key) {
-    return privateKV.get(
-     `${privateNamespacePrefix}${key}`
-    )
-   },
-   set(key, value) {
-    return privateKV.set(
-     `${privateNamespacePrefix}${key}`,
-     value
-    )
-   },
-  }
+  return namespacedKV(privateKV, emailNamespace)
  } else if (allowPublic) {
   return civilMemoryKV.cloudflare({
    binding: env.TAGMEIN_KV,
   })
+ }
+}
+
+function namespacedKV(
+ kv: CivilMemoryKV,
+ namespace: string
+) {
+ return {
+  delete(key: string) {
+   return kv.delete(`${namespace}${key}`)
+  },
+  get(key: string) {
+   return kv.get(`${namespace}${key}`)
+  },
+  set(key: string, value: string) {
+   return kv.set(`${namespace}${key}`, value)
+  },
+ }
+}
+
+async function getPermittedRealmNamespaceKV(
+ privateKV: CivilMemoryKV,
+ email: string,
+ realm: string
+): Promise<CivilMemoryKV | undefined> {
+ const realmKV = namespacedKV(
+  privateKV,
+  `[realm=${encodeURIComponent(realm)}]`
+ )
+ const [encodedEmail] = realm.split('#')
+ const realmOwnerEmail =
+  decodeURIComponent(encodedEmail)
+ const realmStore = store(realmKV)
+ if (realmOwnerEmail === email) {
+  // always grant permission to realm owner
+  return realmKV
+ }
+ if (
+  await realmStore.get('system.members', email)
+ ) {
+  // grant permission to realm members
+  return realmKV
  }
 }

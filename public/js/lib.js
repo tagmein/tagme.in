@@ -672,6 +672,9 @@ async function networkChannelSeek(
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
+  if (activeSession.realm) {
+   headers['X-Realm'] = activeSession.realm
+  }
  }
  const response = await fetch(
   `${networkRootUrl()}/seek?channel=${encodeURIComponent(
@@ -712,6 +715,9 @@ async function networkMessageSend(
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
+  if (activeSession.realm) {
+   headers['X-Realm'] = activeSession.realm
+  }
  }
  const resp = await fetch(
   `${networkRootUrl()}/send`,
@@ -742,6 +748,9 @@ async function getNews(chunk, callback) {
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
+  if (activeSession.realm) {
+   headers['X-Realm'] = activeSession.realm
+  }
  }
  const response = await fetch(
   `${networkRootUrl()}/news${
@@ -866,6 +875,29 @@ function createSession() {
  location.href = `https://tagme.in/auth-linkedin-init?state=${encodeURIComponent(
   JSON.stringify({ id, origin })
  )}`
+}
+
+function forkSession(session, realm, name) {
+ const id = randomId()
+ const { accessToken, email } = session
+ const created = Date.now()
+
+ const forkedSession = {
+  id,
+  hash: '',
+  accessToken,
+  created,
+  email,
+  realm,
+  name,
+ }
+
+ writeSessions([
+  ...listSessions(),
+  forkedSession,
+ ])
+
+ return forkedSession
 }
 
 async function registerSession(
