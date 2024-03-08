@@ -5,11 +5,27 @@ interface CollectionIndex {
 }
 
 export function store(kv: CivilMemoryKV) {
+ function collectionIndexKey(
+  collectionName: string
+ ) {
+  return `store.index#${encodeURIComponent(
+   collectionName
+  )}`
+ }
+ function collectionItemKey(
+  collectionName: string,
+  id: string
+ ) {
+  return `store.item:${encodeURIComponent(
+   collectionName
+  )}#${encodeURIComponent(id)}`
+ }
  async function getCollectionIndex(
   collectionName: string
  ): Promise<string[]> {
-  const indexKey = `store.index:${collectionName}`
-  const indexString = await kv.get(indexKey)
+  const indexString = await kv.get(
+   collectionIndexKey(collectionName)
+  )
   return indexString
    ? JSON.parse(indexString)
    : []
@@ -19,8 +35,10 @@ export function store(kv: CivilMemoryKV) {
   collectionName: string,
   ids: string[]
  ): Promise<void> {
-  const indexKey = `store.index:${collectionName}`
-  await kv.set(indexKey, JSON.stringify(ids))
+  await kv.set(
+   collectionIndexKey(collectionName),
+   JSON.stringify(ids)
+  )
  }
 
  async function _delete(
@@ -39,16 +57,18 @@ export function store(kv: CivilMemoryKV) {
    )
   }
 
-  const itemKey = `store.item:${collectionName}:${id}`
-  await kv.delete(itemKey)
+  await kv.delete(
+   collectionItemKey(collectionName, id)
+  )
  }
 
  async function get(
   collectionName: string,
   id: string
  ): Promise<Record<string, any> | null> {
-  const itemKey = `store.item:${collectionName}:${id}`
-  const itemString = await kv.get(itemKey)
+  const itemString = await kv.get(
+   collectionItemKey(collectionName, id)
+  )
   if (itemString) {
    const item = JSON.parse(itemString)
    return { id, ...item }
@@ -70,8 +90,10 @@ export function store(kv: CivilMemoryKV) {
    )
   }
 
-  const itemKey = `store.item:${collectionName}:${id}`
-  await kv.set(itemKey, JSON.stringify(item))
+  await kv.set(
+   collectionItemKey(collectionName, id),
+   JSON.stringify(item)
+  )
 
   ids.push(id)
   await updateCollectionIndex(
@@ -96,8 +118,9 @@ export function store(kv: CivilMemoryKV) {
 
   const itemPromises = selectedIds.map(
    async (id) => {
-    const itemKey = `store.item:${collectionName}:${id}`
-    const itemString = await kv.get(itemKey)
+    const itemString = await kv.get(
+     collectionItemKey(collectionName, id)
+    )
     if (itemString) {
      const item = JSON.parse(itemString)
      const filteredItem: Record<string, any> = {
@@ -130,7 +153,10 @@ export function store(kv: CivilMemoryKV) {
   id: string,
   item: Record<string, any>
  ): Promise<void> {
-  const itemKey = `store.item:${collectionName}:${id}`
+  const itemKey = collectionItemKey(
+   collectionName,
+   id
+  )
   const existingItemString = await kv.get(
    itemKey
   )

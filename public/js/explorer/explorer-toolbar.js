@@ -167,10 +167,15 @@ function explorerToolbar(
   nextPageButton.disabled = !hasNextPage
  }
 
+ function updateSelectAllCheckbox(allSelected) {
+  selectAllCheckbox.checked = allSelected
+ }
+
  return {
   element,
   updateDeleteButton,
   updateItemCount,
   updatePagination,
+  updateSelectAllCheckbox,
  }
 }

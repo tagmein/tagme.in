@@ -17,7 +17,7 @@ function explorer(store) {
      item.classList.toggle('selected', selected)
     }
    )
-   updateDeleteButton()
+   updateToolbarState()
   },
   async onDelete() {
    const selectedItems = Array.from(
@@ -28,7 +28,8 @@ function explorer(store) {
      store.delete(item.dataset.id)
     )
    )
-   loadItems()
+   await loadItems()
+   toolbarElement.updateSelectAllCheckbox(false)
   },
   async onNewItem(name) {
    await store.insert(name, { name })
@@ -62,12 +63,12 @@ function explorer(store) {
    const it = explorerItem(
     item,
     store,
-    updateDeleteButton
+    updateToolbarState
    )
    itemsContainer.appendChild(it.element)
   })
 
-  updateDeleteButton()
+  updateToolbarState()
   toolbarElement.updateItemCount(items.length)
   toolbarElement.updatePagination(
    currentPage,
@@ -75,12 +76,18 @@ function explorer(store) {
   )
  }
 
- function updateDeleteButton() {
+ function updateToolbarState() {
   const selectedItems = Array.from(
    itemsContainer.querySelectorAll('.selected')
   )
+  const allSelected =
+   selectedItems.length ===
+   itemsContainer.children.length
   toolbarElement.updateDeleteButton(
    selectedItems.length > 0
+  )
+  toolbarElement.updateSelectAllCheckbox(
+   allSelected
   )
  }
 
