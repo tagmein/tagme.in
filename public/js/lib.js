@@ -191,7 +191,7 @@ function addYouTubeEmbed(container, text) {
  if (match && match[2].length == 11) {
   const id = match[2]
   const frame = document.createElement('iframe')
-  frame.setAttribute('width', '560')
+  frame.setAttribute('width', '100%')
   frame.setAttribute('height', '315')
   frame.setAttribute('frameborder', '0')
   frame.setAttribute(
