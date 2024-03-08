@@ -88,7 +88,8 @@ function explorer(store, { itemAction } = {}) {
    selectedItems.length > 0
   )
   toolbarElement.updateSelectAllCheckbox(
-   allSelected
+   itemsContainer.children.length > 0 &&
+    allSelected
   )
  }
 

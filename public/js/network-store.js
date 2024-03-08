@@ -7,7 +7,9 @@ function networkStore(session, collectionName) {
   const headers = {
    Authorization: session.accessToken,
    'Content-Type': 'application/json',
-   'X-Realm': session.realm,
+  }
+  if (session.realm) {
+   headers['X-Realm'] = session.realm
   }
   const postBody = body
    ? JSON.stringify(body)
