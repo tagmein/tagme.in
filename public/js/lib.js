@@ -987,14 +987,17 @@ function createSession() {
 
 async function createSessionEmail(email) {
  const body = JSON.stringify({ email })
- await fetch('/auth-email-init', {
-  method: 'POST',
-  body,
-  headers: {
-   'Content-Type': 'application/json',
-   'Content-Length': body.length,
-  },
- })
+ await fetch(
+  `${networkRootUrl()}/auth-email-init`,
+  {
+   method: 'POST',
+   body,
+   headers: {
+    'Content-Type': 'application/json',
+    'Content-Length': body.length,
+   },
+  }
+ )
 }
 
 async function validateSessionEmail() {
