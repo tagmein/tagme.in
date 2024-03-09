@@ -888,6 +888,20 @@ function getActiveSessionId() {
 }
 
 function createSession() {
+ const code = [0, 0, 0, 0]
+  .map(() =>
+   (
+    Math.round(100 * Math.random()) % 10
+   ).toString(10)
+  )
+  .join('')
+ const sendEmailButton = elem({
+  attributes: {
+   type: 'submit',
+   value: 'Send email',
+  },
+  tagName: 'input',
+ })
  dialog(
   elem({
    tagName: 'h2',
@@ -895,43 +909,95 @@ function createSession() {
   }),
   elem({
    tagName: 'h4',
-   textContent: 'Get a code by email',
+   textContent: 'Verify your email:',
+  }),
+  elem({
+   tagName: 'p',
+   textContent: `➊ Enter email address and send`,
+  }),
+  elem({
+   tagName: 'p',
+   textContent: `➋ Click the link in the email`,
+  }),
+  elem({
+   tagName: 'p',
+   textContent: `➌ Enter code ${code}`,
   }),
   elem({
    tagName: 'form',
    children: [
     elem({
      attributes: {
-      type: 'text',
+      autofocus: true,
+      name: 'email',
       placeholder: 'Enter email address',
+      required: true,
+      type: 'text',
      },
      tagName: 'input',
     }),
-    elem({
-     events: {
-      click: createSessionEmail,
-     },
-     tagName: 'button',
-     textContent: 'Send email',
-    }),
+    sendEmailButton,
    ],
+   events: {
+    async submit(e) {
+     e.preventDefault()
+     const waitingMessage = elem({
+      tagName: 'p',
+      textContent:
+       'Check your email inbox, the verification email should arrive momentarily...',
+     })
+     try {
+      e.target.email.disabled = true
+      sendEmailButton.disabled = true
+      e.target.appendChild(waitingMessage)
+      await createSessionEmail(
+       e.target.email.value
+      )
+     } catch (e) {
+      alert(
+       e.message ??
+        'Something went wrong, please try again'
+      )
+     } finally {
+      e.target.removeChild(waitingMessage)
+      e.target.email.disabled = false
+      sendEmailButton.disabled = false
+     }
+    },
+   },
   }),
   elem({
    tagName: 'h4',
-   textContent:
-    'Verify email address with LinkedIn',
+   textContent: 'Or, verify with LinkedIn:',
   }),
   elem({
-   events: {
-    click: createSessionLinkedIn,
-   },
-   tagName: 'button',
-   textContent: 'Verify with LinkedIn',
+   tagName: 'form',
+   children: [
+    elem({
+     events: {
+      click: createSessionLinkedIn,
+     },
+     tagName: 'button',
+     textContent: 'Verify with LinkedIn',
+    }),
+   ],
   })
  )
 }
 
-function createSessionEmail() {
+async function createSessionEmail(email) {
+ const body = JSON.stringify({ email })
+ await fetch('/auth-email-init', {
+  method: 'POST',
+  body,
+  headers: {
+   'Content-Type': 'application/json',
+   'Content-Length': body.length,
+  },
+ })
+}
+
+async function validateSessionEmail() {
  const id = randomId()
  const { hash, origin } = location
  writeSessions([
