@@ -1,4 +1,4 @@
-function tabStrip() {
+function tabStrip(currentTabKey, setTabKey) {
  const element = elem({
   classes: ['tab-strip'],
  })
@@ -9,49 +9,51 @@ function tabStrip() {
 
  const tabs = []
 
- function add(label, contentHandler) {
+ function add(key, label, contentHandler) {
   const tab = elem({
    classes: ['tab'],
    textContent: label,
    events: {
-    click: () => {
-     switchTo(tab)
-     contentHandler.switchTo()
+    async click() {
+     await switchTo(tabObject)
     },
    },
   })
   tabsContainer.appendChild(tab)
-  tabs.push({ tab, contentHandler })
-
-  if (tabs.length === 1) {
-   switchTo(tab)
-   contentHandler.switchTo()
-  }
+  const tabObject = { key, tab, contentHandler }
+  tabs.push(tabObject)
 
   return {
-   switchTo: () => switchTo(tab),
-   remove: () => remove(tab),
+   switchTo: () => switchTo(tabObject),
+   remove: () => remove(tabObject),
   }
  }
 
- function switchTo(tab) {
+ async function switchTo(tabObject) {
   tabs.forEach(({ tab: t }) =>
    t.classList.remove('active')
   )
-  tab.classList.add('active')
+  tabObject.tab.classList.add('active')
+  tabObject.contentHandler.switchTo()
+  if (currentTabKey !== tabObject.key) {
+   await setTabKey(tabObject.key)
+   currentTabKey = tabObject.key
+  }
  }
 
- function remove(tab) {
+ function remove(tabObject) {
   const index = tabs.findIndex(
-   ({ tab: t }) => t === tab
+   (t) => t === tabObject
   )
   if (index !== -1) {
    const { contentHandler } = tabs[index]
    tabs.splice(index, 1)
-   tab.remove()
+   tabObject.tab.remove()
    contentHandler.remove()
 
-   if (tab.classList.contains('active')) {
+   if (
+    tabObject.tab.classList.contains('active')
+   ) {
     const newIndex =
      index === tabs.length ? index - 1 : index
     if (newIndex >= 0) {
@@ -66,7 +68,19 @@ function tabStrip() {
   }
  }
 
+ async function activate() {
+  const matchingTab = tabs.find(
+   (t) => t.key === currentTabKey
+  )
+  if (matchingTab) {
+   await switchTo(matchingTab)
+  } else {
+   await switchTo(tabs[0])
+  }
+ }
+
  return {
+  activate,
   add,
   element,
  }
