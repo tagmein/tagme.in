@@ -17,19 +17,18 @@ function networkStore(session, collectionName) {
   if (body) {
    headers['Content-Length'] = postBody.length
   }
-  const response = await fetch(
-   `${networkRootUrl()}/store/${path}`,
-   {
+  const response = await withLoading(
+   fetch(`${networkRootUrl()}/store/${path}`, {
     method,
     headers,
     body: postBody,
-   }
+   })
   )
   if (!response.ok) {
    throw new Error(
-    `${
-     response.statusText
-    }: ${await response.text()}`
+    `${response.statusText}: ${withLoading(
+     await response.text()
+    )}`
    )
   }
   return response.json()

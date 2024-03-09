@@ -3,5 +3,11 @@ function realmDocuments(container, session) {
   session,
   'system.documents'
  )
- container.appendChild(explorer(store).element)
+ const preferencesStore = networkStore(
+  session,
+  'system.preferences.documents'
+ )
+ container.appendChild(
+  explorer(store, preferencesStore).element
+ )
 }

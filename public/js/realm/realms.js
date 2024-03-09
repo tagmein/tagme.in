@@ -3,8 +3,12 @@ function realmRealms(container, session) {
   session,
   'system.realms'
  )
+ const preferencesStore = networkStore(
+  session,
+  'system.preferences.patterns'
+ )
  container.appendChild(
-  explorer(store, {
+  explorer(store, preferencesStore, {
    itemAction: {
     label: 'Launch',
     handler(item) {

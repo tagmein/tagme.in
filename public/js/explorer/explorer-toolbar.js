@@ -112,6 +112,10 @@ function explorerToolbar(
   deleteButton.disabled = !hasSelection
  }
 
+ const emptyMode = elem({
+  tagName: 'option',
+  textContent: '',
+ })
  const viewModeSelect = elem({
   tagName: 'select',
   classes: ['explorer-view-mode'],
@@ -121,6 +125,7 @@ function explorerToolbar(
    },
   },
   children: [
+   emptyMode,
    elem({
     tagName: 'option',
     textContent: 'List',
@@ -169,11 +174,21 @@ function explorerToolbar(
   selectAllCheckbox.checked = allSelected
  }
 
+ function updateViewMode(mode) {
+  if (
+   emptyMode.parentElement === viewModeSelect
+  ) {
+   viewModeSelect.removeChild(emptyMode)
+  }
+  viewModeSelect.value = mode
+ }
+
  return {
   element,
   updateDeleteButton,
   updateItemCount,
   updatePagination,
   updateSelectAllCheckbox,
+  updateViewMode,
  }
 }

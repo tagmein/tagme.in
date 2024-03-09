@@ -3,5 +3,11 @@ function realmMembers(container, session) {
   session,
   'system.members'
  )
- container.appendChild(explorer(store).element)
+ const preferencesStore = networkStore(
+  session,
+  'system.preferences.members'
+ )
+ container.appendChild(
+  explorer(store, preferencesStore).element
+ )
 }

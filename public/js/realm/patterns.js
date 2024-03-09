@@ -3,5 +3,11 @@ function realmPatterns(container, session) {
   session,
   'system.patterns'
  )
- container.appendChild(explorer(store).element)
+ const preferencesStore = networkStore(
+  session,
+  'system.preferences.realms'
+ )
+ container.appendChild(
+  explorer(store, preferencesStore).element
+ )
 }

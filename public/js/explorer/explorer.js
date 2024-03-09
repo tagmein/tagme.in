@@ -1,15 +1,27 @@
-function explorer(store, { itemAction } = {}) {
+function explorer(
+ store,
+ preferencesStore,
+ { itemAction } = {}
+) {
  const element = elem({
   classes: ['explorer'],
  })
 
+ let currentViewMode
+
  const toolbarElement = explorerToolbar(store, {
-  onViewModeChange(mode) {
+  async onViewModeChange(mode) {
    itemsContainer.classList.remove(
     'list-view',
     'grid-view'
    )
    itemsContainer.classList.add(mode)
+   if (mode !== currentViewMode) {
+    await preferencesStore.patch('view-mode', {
+     value: mode,
+    })
+    currentViewMode = mode
+   }
   },
   onSelectAll(selected) {
    Array.from(itemsContainer.children).forEach(
@@ -43,7 +55,7 @@ function explorer(store, { itemAction } = {}) {
  element.appendChild(toolbarElement.element)
 
  const itemsContainer = elem({
-  classes: ['explorer-items', 'list-view'],
+  classes: ['explorer-items'],
  })
  element.appendChild(itemsContainer)
 
@@ -93,7 +105,16 @@ function explorer(store, { itemAction } = {}) {
   )
  }
 
- loadItems()
+ async function initialize() {
+  currentViewMode =
+   (await preferencesStore.get('view-mode'))
+    ?.value ?? 'list-view'
+  itemsContainer.classList.add(currentViewMode)
+  toolbarElement.updateViewMode(currentViewMode)
+  await loadItems()
+ }
+
+ initialize().catch((e) => console.error(e))
 
  return { element }
 }

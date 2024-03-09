@@ -172,8 +172,8 @@ body.scroll-zero .app-header {
  border-right: 1px solid
   var(--color-border-dark);
  cursor: pointer;
- font-size: 20px;
- padding: 10px 10px 0;
+ font-size: 18px;
+ padding: 11px 10px 0;
  user-select: none;
  white-space: pre;
 }
