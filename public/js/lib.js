@@ -944,7 +944,7 @@ function createSession() {
      const waitingMessage = elem({
       tagName: 'p',
       textContent:
-       'Check your email inbox, the verification email should arrive momentarily...',
+       'Please wait, sending email...',
      })
      try {
       e.target.email.disabled = true
@@ -953,13 +953,15 @@ function createSession() {
       await createSessionEmail(
        e.target.email.value
       )
+      waitingMessage.textContent =
+       'Check your email inbox, the verification email should arrive momentarily...'
      } catch (e) {
       alert(
        e.message ??
         'Something went wrong, please try again'
       )
-     } finally {
       e.target.removeChild(waitingMessage)
+     } finally {
       e.target.email.disabled = false
       sendEmailButton.disabled = false
      }

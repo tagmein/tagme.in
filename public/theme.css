@@ -191,8 +191,8 @@ body.scroll-zero .app-header {
 }
 
 .realm .icon {
- vertical-align: -4px;
  margin-right: 5px;
+ vertical-align: -5px;
 }
 
 .realm .icon.icon-plus {
