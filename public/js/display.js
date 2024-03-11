@@ -1033,23 +1033,25 @@ function displayActivity() {
  }
 
  let filterTerms = []
- let numFilteredNews = 0
  async function filter(filterText) {
   filterTerms = filterText
    .split(/\s+/)
    .map((x) => x.toLowerCase())
    .filter((x) => x !== '')
   filterAgain()
-  while (
-   numFilteredNews < 1 &&
-   (await withLoading(loadMore())) > -1
-  ) {
-   // Non-op
+  while ((await withLoading(loadMore())) > -1) {
+   if (
+    !scrolledPastBottom(
+     activityContainer.element,
+     true
+    )
+   ) {
+    break
+   }
   }
  }
 
  function filterAgain() {
-  numFilteredNews = 0
   for (const {
    channel,
    element,
@@ -1065,8 +1067,6 @@ function displayActivity() {
          message.includes(term) ||
          parentMessage?.includes(term)
        )
-   if (messageIncludesAllTerms)
-    numFilteredNews++
    element.style.display =
     messageIncludesAllTerms ? 'block' : 'none'
   }
