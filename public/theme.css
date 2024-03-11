@@ -454,7 +454,7 @@ article blockquote {
  flex-direction: column;
  gap: 2px;
  position: absolute;
- right: 15px;
+ right: calc(15px + 63.5px);
  top: 5px;
  z-index: 1;
 }
@@ -491,14 +491,9 @@ article blockquote {
  width: 50%;
 }
 
-.article-tool-buttons > button.agree {
- border-radius: 15px;
- box-sizing: border-box;
- line-height: 22px;
- padding: 4px 5px 5px 4px;
-}
-
-.article-tool-buttons > button.disagree {
+.article-tool-buttons > button.agree,
+.article-tool-buttons > button.disagree,
+.article-tool-buttons > button.copy {
  border-radius: 15px;
  box-sizing: border-box;
  line-height: 22px;
@@ -775,11 +770,13 @@ article {
 }
 
 .article-tool-buttons > button.agree,
-.article-tool-buttons > button.disagree {
+.article-tool-buttons > button.disagree,
+.article-tool-buttons > button.copy {
  background-color: var(--color-bg-accent);
 }
 
-.article-tool-buttons > button.agree.agreed {
+.article-tool-buttons > button.agree.agreed,
+.article-tool-buttons > button.copy:active {
  background-color: var(
   --color-bg-secondary-hover
  );

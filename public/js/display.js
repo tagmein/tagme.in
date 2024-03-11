@@ -431,6 +431,21 @@ function attachMessage(
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
+ 
+ const copyButton = elem({
+  classes: ['copy'],
+  children: [elem({textContent:'📋'})],
+  attributes: {
+   title: 'Copy article text to clipboard.',
+  },
+  events: {
+   async click() {
+    navigator.clipboard.writeText(message.text)
+   },
+  },
+  tagName: 'button',
+ })
+
  const agreeButton = elem({
   classes: ['agree'],
   children: [icon('yes')],
@@ -522,7 +537,7 @@ function attachMessage(
  renderScore()
  const articleToolButtons = elem({
   classes: ['article-tool-buttons'],
-  children: [agreeButton, disagreeButton],
+  children: [copyButton, agreeButton, disagreeButton],
  })
  const articleTools = elem({
   classes: ['article-tools'],
