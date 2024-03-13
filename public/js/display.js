@@ -408,13 +408,14 @@ function attachMessages(
    })
   )
  }
- for (const message of messages) {
+ for (const index in messages) {
   attachMessage(
    channel,
    container,
-   message,
+   messages[index],
    includeFooter,
-   sendToRealm
+   sendToRealm,
+   index === '0'
   )
  }
 }
@@ -424,7 +425,8 @@ function attachMessage(
  container,
  message,
  includeFooter,
- sendToRealm
+ sendToRealm,
+ includeTourAttributes
 ) {
  const content = elem()
  addTextBlocks(content, message.text)
@@ -437,6 +439,12 @@ function attachMessage(
   attributes: {
    title: 'I agree with this',
   },
+  dataset: includeTourAttributes
+   ? {
+      tour:
+       'Click here to promote the message. The maximum promotion speed is +10 points per hour.',
+     }
+   : undefined,
   events: {
    async click() {
     message.data.velocity = Math.min(
@@ -468,6 +476,12 @@ function attachMessage(
   attributes: {
    title: 'I disagree with this',
   },
+  dataset: includeTourAttributes
+   ? {
+      tour:
+       'Click here to demote the message. The maximum demotion speed is -10 points per hour.',
+     }
+   : undefined,
   events: {
    async click() {
     message.data.velocity = Math.max(
@@ -518,6 +532,12 @@ function attachMessage(
  }
  const score = elem({
   classes: ['score'],
+  dataset: includeTourAttributes
+   ? {
+      tour:
+       'The message score. The score continues to increase or decrease unless the movement is stopped.',
+     }
+   : undefined,
  })
  renderScore()
  const articleToolButtons = elem({
@@ -546,6 +566,12 @@ function attachMessage(
     attributes: {
      href,
     },
+    dataset: includeTourAttributes
+     ? {
+        tour:
+         'View the message, including any replies. You can also reply to the message from here.',
+       }
+     : undefined,
     tagName: 'a',
     textContent: 'View message',
    })
@@ -573,6 +599,11 @@ function attachMessage(
       }, 2e3)
      },
     },
+    dataset: includeTourAttributes
+     ? {
+        tour: 'Copy a link to this message.',
+       }
+     : undefined,
     tagName: 'a',
     textContent: 'copy link',
    })
@@ -587,6 +618,12 @@ function attachMessage(
      attributes: {
       href,
      },
+     dataset: includeTourAttributes
+      ? {
+         tour:
+          'Copy this message into another realm.',
+        }
+      : undefined,
      events: {
       async click(e) {
        e.preventDefault()

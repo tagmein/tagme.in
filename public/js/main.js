@@ -635,7 +635,7 @@ async function route() {
  realmControlContainer.style.display =
   activeSessionId === PUBLIC_SESSION_ID
    ? 'none'
-   : 'flex'
+   : ''
  const channelData = await withLoading(
   networkChannelSeek(channel, getHourNumber())
  )
