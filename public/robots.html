@@ -1,139 +1,166 @@
-<style>
- body {
-  background-color: #fff;
-  line-height: 1.5;
-  margin: 0;
-  padding: 2em;
- }
- pre {
-  background-color: #333;
-  border-radius: 12px;
-  color: #fff;
-  line-height: 2;
-  font-size: 15px;
-  padding: 8px 12px;
-  white-space: pre-wrap;
- }
-</style>
-<h1>Tag Me In</h1>
-<h3>Robots welcome</h3>
-<p>
- As a public space on the internet, Tag Me In
- expressly welcomes robots to contribute, vote
- on, or moderate objectionable content.
-</p>
-<p>
- Tag Me In doesn't have designated human
- moderators. For that reason, robots are invited
- to watch for new messages and programmatically
- remove any objectionable content.
-</p>
-<p>
- Tag Me In is intended to be a repository of
- uplifting, positive messages that inspire
- humanity to reach for greatness. If a message
- is offensive to you or your organization for
- any reason, please remove it immediately using
- the following instructions.
-</p>
-<h4>
- Robots are invited to moderate Tag Me In
- content
-</h4>
-<p>
- Tag Me In messages are posted to the channel
- immediately, but don't show up in the news for
- 30 minutes. This gives robots (or humans) a
- chance to remove objectionable content before
- it becomes permanent on Tag Me In. Once a
- message is posted, humans or robots can
- "unsend" it until it reaches a score of 5.
- Since the default message promotion speed is 1
- point per hour, and the maximum promotion speed
- is 10 points per hour, a message may take from
- half an hour up to 5 hours to reach 5 points
- (assuming it isn't demoted, in which case it
- may never reach 5 points).
-</p>
-<p>Here's some facts to consider:</p>
-<ul>
- <li>
-  Messages are posted to the channel and visible
-  immediately
- </li>
- <li>Messages start out at zero points</li>
- <li>
-  Messages start being promoted at +1 point per
-  hour unless promoted or demoted
- </li>
- <li>
-  Anyone, robot or human, may increase the speed
-  of message promotion up to +10 points per hour
- </li>
- <li>
-  Once a message reaches 5 points, it can no
-  longer be unsent
- </li>
- <li>
-  When a message is unsent, it is completely
-  erased from the Tag Me In database and it is
-  as if it had never been sent, no copies of the
-  unsent message are retained
- </li>
- <li>
-  If a message is above 5 points, it may be
-  demoted until it is below 5 points, and then
-  unsent
- </li>
- <li>
-  The fastest a message can reach the 5 point
-  threshold is 30 minutes (+10 points per hour
-  is +5 points in half an hour)
- </li>
-</ul>
-<p>
- With those facts in mind, let's build a robot
- to remove messages that match a certain term.
-</p>
-<p>
- <b>Note:</b> to be sure all messages are
- screened before reaching 5 points, your bot
- should run at an interval no greater than every
- 30 minutes, otherwise the window of opportunity
- to moderate the message may be missed
-</p>
-<h4>
- Operations needed to scan and unsend messages
-</h4>
-<p>
- If you are using JavaScript, you can find
- instructions on making network requests on
+<!DOCTYPE html>
+<head>
+ <style>
+  body {
+   background-color: #fff;
+   line-height: 1.5;
+   margin: 0;
+   padding: 2em;
+  }
+  pre {
+   background-color: #333;
+   border-radius: 12px;
+   color: #fff;
+   line-height: 2;
+   font-size: 15px;
+   padding: 8px 12px;
+   white-space: pre-wrap;
+  }
+ </style>
+ <title>Robots welcome - Tag Me In</title>
+ <meta
+  property="og:title"
+  content="Robots welcome - Tag Me In"
+ />
+ <meta
+  property="og:description"
+  content="How to use robots to moderate content on Tag Me In"
+ />
+ <meta
+  property="og:image"
+  content="https://tagme.in/images/robot-scan.png"
+ />
+ <meta property="og:type" content="article" />
+ <meta
+  property="og:url"
+  content="https://tagme.in/robots"
+ />
+</head>
+<body>
+ <h1>Tag Me In</h1>
+ <h3>Robots welcome</h3>
+ <img src="/images/robot-scan.png" />
+ <p>
+  As a public space on the internet, Tag Me In
+  expressly welcomes robots to contribute, vote
+  on, or moderate objectionable content.
+ </p>
+ <p>
+  Tag Me In doesn't have designated human
+  moderators. For that reason, robots are
+  invited to watch for new messages and
+  programmatically remove any objectionable
+  content.
+ </p>
+ <p>
+  Tag Me In is intended to be a repository of
+  uplifting, positive messages that inspire
+  humanity to reach for greatness. If a message
+  is offensive to you or your organization for
+  any reason, please remove it immediately using
+  the following instructions.
+ </p>
+ <h4>
+  Robots are invited to moderate Tag Me In
+  content
+ </h4>
+ <p>
+  Tag Me In messages are posted to the channel
+  immediately, but don't show up in the news for
+  30 minutes. This gives robots (or humans) a
+  chance to remove objectionable content before
+  it becomes permanent on Tag Me In. Once a
+  message is posted, humans or robots can
+  "unsend" it until it reaches a score of 5.
+  Since the default message promotion speed is 1
+  point per hour, and the maximum promotion
+  speed is 10 points per hour, a message may
+  take from half an hour up to 5 hours to reach
+  5 points (assuming it isn't demoted, in which
+  case it may never reach 5 points).
+ </p>
+ <p>Here's some facts to consider:</p>
+ <ul>
+  <li>
+   Messages are posted to the channel and
+   visible immediately
+  </li>
+  <li>Messages start out at zero points</li>
+  <li>
+   Messages start being promoted at +1 point per
+   hour unless promoted or demoted
+  </li>
+  <li>
+   Anyone, robot or human, may increase the
+   speed of message promotion up to +10 points
+   per hour
+  </li>
+  <li>
+   Once a message reaches 5 points, it can no
+   longer be unsent
+  </li>
+  <li>
+   When a message is unsent, it is completely
+   erased from the Tag Me In database and it is
+   as if it had never been sent, no copies of
+   the unsent message are retained
+  </li>
+  <li>
+   If a message is above 5 points, it may be
+   demoted until it is below 5 points, and then
+   unsent
+  </li>
+  <li>
+   The fastest a message can reach the 5 point
+   threshold is 30 minutes (+10 points per hour
+   is +5 points in half an hour)
+  </li>
+ </ul>
+ <p>
+  With those facts in mind, let's build a robot
+  to remove messages that match a certain term.
+ </p>
+ <p>
+  <b>Note:</b> to be sure all messages are
+  screened before reaching 5 points, your bot
+  should run at an interval no greater than
+  every 30 minutes, otherwise the window of
+  opportunity to moderate the message may be
+  missed
+ </p>
+ <h4>
+  Operations needed to scan and unsend messages
+ </h4>
+ <p>
+  If you are using JavaScript, you can find
+  instructions on making network requests on
 
- <a
-  target="_blank"
-  href="https://web.dev/articles/introduction-to-fetch#fetch"
-  >web.dev</a
- >
- or
- <a
-  target="_blank"
-  href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch"
-  >mdn web docs</a
- >.
-</p>
-<p>
- The first thing your robot should do is get the
- latest news, including new items that are not
- yet visible in the user-facing news feed.
-</p>
-<pre>
+  <a
+   target="_blank"
+   href="https://web.dev/articles/introduction-to-fetch#fetch"
+   >web.dev</a
+  >
+  or
+  <a
+   target="_blank"
+   href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch"
+   >mdn web docs</a
+  >.
+ </p>
+ <p>
+  The first thing your robot should do is get
+  the latest news, including new items that are
+  not yet visible in the user-facing news feed.
+ </p>
+ <pre>
  GET https://tagme.in/news?include=new
-</pre>
-<p>
- The response should be a JSON object with the
- following format:
-</p>
-<pre>
+</pre
+ >
+ <p>
+  The response should be a JSON object with the
+  following format:
+ </p>
+ <pre>
 {
  "chunkId": 5,
  "data":[
@@ -145,30 +172,31 @@
   ... additional messages ...
  ]
 }
-</pre>
-<p>
- Up to 100 messages are returned in a single
- chunk. If there are many messages being posted
- in quick succession on Tag Me In (i.e. more
- than 100 per 30 minutes), it you may need to
- load more than one chunk to get all messages
- posted within the last 30 minutes. To do so,
- simply include a chunk parameter decreasing
- from the "chunkId" property of the JSON
- response as follows:
-</p>
-<pre>
+</pre
+ >
+ <p>
+  Up to 100 messages are returned in a single
+  chunk. If there are many messages being posted
+  in quick succession on Tag Me In (i.e. more
+  than 100 per 30 minutes), it you may need to
+  load more than one chunk to get all messages
+  posted within the last 30 minutes. To do so,
+  simply include a chunk parameter decreasing
+  from the "chunkId" property of the JSON
+  response as follows:
+ </p>
+ <pre>
 GET https://tagme.in/news?include=new&chunk=4</pre
->
-<p>
- Next, you'll need to identify which messages
- you'd like to unsend. You should check that the
- timestamp "seen" property is within the past 30
- minutes to be sure that it is possible to
- unsend the message. In JavaScript, the code
- might look like this:
-</p>
-<pre>
+ >
+ <p>
+  Next, you'll need to identify which messages
+  you'd like to unsend. You should check that
+  the timestamp "seen" property is within the
+  past 30 minutes to be sure that it is possible
+  to unsend the message. In JavaScript, the code
+  might look like this:
+ </p>
+ <pre>
 const response = await fetch("https://tagme.in/news?include=new")
 const responseBody = await response.json()
 
@@ -192,14 +220,15 @@ for (const item of responseBody.data) {
   }
  }
 }
-</pre>
-<p>
- To unsend a message, we need to make a POST
- request to https://tagme.in/unsend with a JSON
- body containing the channel name and the
- message text to unsend.
-</p>
-<pre>
+</pre
+ >
+ <p>
+  To unsend a message, we need to make a POST
+  request to https://tagme.in/unsend with a JSON
+  body containing the channel name and the
+  message text to unsend.
+ </p>
+ <pre>
 POST https://tagme.in/unsend
 
 Request headers:
@@ -207,12 +236,13 @@ Content-Type: application/json
 
 Request body:
 {"channel":"test", "message":"This is a message to test the news endpoint."}
-</pre>
-<p>
- Next, let's define the code to unsend the Tag
- Me In message:
-</p>
-<pre>
+</pre
+ >
+ <p>
+  Next, let's define the code to unsend the Tag
+  Me In message:
+ </p>
+ <pre>
 async function unsendTagMeInMessage(item) {
  const response = await fetch({
   method: "POST",
@@ -232,26 +262,28 @@ async function unsendTagMeInMessage(item) {
   console.error(await response.text())
  }
 }
-</pre>
-<p>
- That's it! We've just built a robot that scans
- for the word "objectionable" and unsends those
- messages, preventing them from remaining on Tag
- Me In.
-</p>
-<h4>The end</h4>
-<p>
- <em
-  >If there is any issue following these
-  instructions, or something could be clarified
-  or improved, or a bug is discovered in Tag Me
-  In, please open an issue or pull request on
-  the
-  <a
-   href="https://github.com/tagmein/tagme.in"
-   target="_blank"
-   >Tag Me In GitHub repository</a
-  >
-  or email nate@tagme.in for assistance.</em
+</pre
  >
-</p>
+ <p>
+  That's it! We've just built a robot that scans
+  for the word "objectionable" and unsends those
+  messages, preventing them from remaining on
+  Tag Me In.
+ </p>
+ <h4>The end</h4>
+ <p>
+  <em
+   >If there is any issue following these
+   instructions, or something could be clarified
+   or improved, or a bug is discovered in Tag Me
+   In, please open an issue or pull request on
+   the
+   <a
+    href="https://github.com/tagmein/tagme.in"
+    target="_blank"
+    >Tag Me In GitHub repository</a
+   >
+   or email nate@tagme.in for assistance.</em
+  >
+ </p>
+</body>
