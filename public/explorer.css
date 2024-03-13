@@ -108,6 +108,7 @@
 }
 
 .explorer-items.grid-view {
+ align-content: start;
  display: grid;
  grid-gap: 10px;
  grid-template-columns: repeat(

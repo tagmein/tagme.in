@@ -479,7 +479,8 @@ export function scroll(
  }
 
  async function news(
-  chunk: number | null
+  chunk: number | null,
+  includeNewMessages: boolean
  ): Promise<string> {
   const chunkId =
    typeof chunk === 'number'
@@ -487,24 +488,33 @@ export function scroll(
     : await getLatestNewsChunkId()
   const chunkKey =
    newsKey.newsChunkById(chunkId)
-  const template = JSON.stringify({
-   chunkId,
-   data: 'DATA',
-  })
-  const showNewsOlderThan =
-   Date.now() - NEWS_ITEM_APPEARS_AFTER
-  const newsChunkString = await kv.get(chunkKey)
-  const newsChunk = (
-   typeof newsChunkString === 'string'
-    ? JSON.parse(newsChunkString)
-    : []
-  ).filter(
-   (n: NewsItem) => n.seen < showNewsOlderThan
-  )
-  return template.replace(
-   '"DATA"',
-   (await kv.get(chunkKey)) ?? '[]'
-  )
+  if (includeNewMessages) {
+   const template = JSON.stringify({
+    chunkId,
+    data: 'DATA',
+   })
+   return template.replace(
+    '"DATA"',
+    (await kv.get(chunkKey)) ?? '[]'
+   )
+  } else {
+   const showNewsOlderThan =
+    Date.now() - NEWS_ITEM_APPEARS_AFTER
+   const newsChunkString = await kv.get(
+    chunkKey
+   )
+   const newsChunk = (
+    typeof newsChunkString === 'string'
+     ? JSON.parse(newsChunkString)
+     : []
+   ).filter(
+    (n: NewsItem) => n.seen < showNewsOlderThan
+   )
+   return JSON.stringify({
+    chunkId,
+    data: newsChunk,
+   })
+  }
  }
 
  return { channel, news }

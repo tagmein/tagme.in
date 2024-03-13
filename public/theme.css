@@ -1624,6 +1624,7 @@ body.light-mode button.brand {
  border-bottom: 1px solid
   var(--color-border-dark);
  box-sizing: border-box;
+ flex-shrink: 0;
  height: 45px;
  overflow-x: auto;
  overflow-y: hidden;

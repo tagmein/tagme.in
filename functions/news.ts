@@ -8,6 +8,8 @@ export const onRequestGet: PagesFunction<
 > = async (context) => {
  const url = new URL(context.request.url)
  const chunkId = url.searchParams.get('chunk')
+ const includeNewMessages =
+  url.searchParams.get('include') === 'new'
 
  const chunk =
   typeof chunkId === 'string'
@@ -45,7 +47,7 @@ export const onRequestGet: PagesFunction<
    const data = await scroll(
     kv,
     context.env.WORKERS_AI_API_TOKEN
-   ).news(chunk)
+   ).news(chunk, includeNewMessages)
    return data
   } catch (e) {
    return JSON.stringify({
