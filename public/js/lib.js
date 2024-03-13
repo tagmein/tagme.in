@@ -772,6 +772,42 @@ async function networkMessageSend(
  return await resp.text()
 }
 
+async function networkMessageUnsend(
+ channel,
+ message
+) {
+ const body = JSON.stringify({
+  channel,
+  message,
+ })
+ const headers = {
+  'Content-Length': body.length,
+  'Content-Type': 'application/json',
+ }
+ const activeSession = getActiveSession()
+ if (activeSession) {
+  headers.Authorization =
+   activeSession.accessToken
+  if (activeSession.realm) {
+   headers['X-Realm'] = activeSession.realm
+  }
+ }
+ const resp = await fetch(
+  `${networkRootUrl()}/unsend`,
+  {
+   method: 'POST',
+   headers,
+   body,
+  }
+ )
+
+ if (!resp.ok) {
+  throw new Error(await resp.text())
+ }
+
+ return await resp.text()
+}
+
 function networkRootUrl() {
  return location.origin ===
   'http://localhost:8000'

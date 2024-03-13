@@ -2,6 +2,8 @@ let realms = []
 
 let secondMostRecentRealm
 
+const MESSAGE_PERSIST_THRESHOLD = 5
+
 function icon(...names) {
  return elem({
   classes: [
@@ -650,6 +652,52 @@ function attachMessage(
      })
     )
     messageFooter.appendChild(sendToLink)
+   }
+   if (
+    message.score < MESSAGE_PERSIST_THRESHOLD
+   ) {
+    const unsendInfo = `Unsend this message. Messages with a score less than ${MESSAGE_PERSIST_THRESHOLD} can be unsent.`
+    const unsendLink = elem({
+     attributes: {
+      href,
+      title: unsendInfo,
+     },
+     classes: ['unsend'],
+     dataset: includeTourAttributes
+      ? {
+         tour: unsendInfo,
+        }
+      : undefined,
+     events: {
+      async click(e) {
+       e.preventDefault()
+       await withLoading(
+        networkMessageUnsend(
+         channel,
+         message.text
+        )
+       )
+       unsendLink.textContent = `✔ unsent`
+       await new Promise((r) =>
+        setTimeout(r, 1000)
+       )
+       article.classList.add('unsent')
+       await new Promise((r) =>
+        setTimeout(r, 1000)
+       )
+       article.remove()
+      },
+     },
+     tagName: 'a',
+     textContent: 'unsend',
+    })
+    messageFooter.appendChild(
+     elem({
+      tagName: 'span',
+      textContent: ' • ',
+     })
+    )
+    messageFooter.appendChild(unsendLink)
    }
   }
   renderFooter()

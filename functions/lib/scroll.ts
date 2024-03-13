@@ -3,14 +3,22 @@ import { getHourNumber } from './getHourNumber.js'
 import { safetyScan } from './safetyScan.js'
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
-const RANKED_HISTORY_ITEM_COUNT = 1000
+const MESSAGE_PERSIST_THRESHOLD = 5
 const NEWS_ITEMS_PER_CHUNK = 100
+const NEWS_ITEM_APPEARS_AFTER = 30 * 60 * 1000
 const ONE_HOUR_MS = 60 * 60 * 1000
+const RANKED_HISTORY_ITEM_COUNT = 1000
 
 interface MessageData {
  position: number
  timestamp: number
  velocity: number
+}
+
+interface NewsItem {
+ channel: string
+ message: string
+ seen: number
 }
 
 export function scroll(
@@ -37,7 +45,9 @@ export function scroll(
    : 0
  }
 
- async function getPublishChunk() {
+ async function getPublishChunk(): Promise<
+  [number, string, object[]]
+ > {
   const chunkId = await getLatestNewsChunkId()
   const chunkKey =
    newsKey.newsChunkById(chunkId)
@@ -63,9 +73,13 @@ export function scroll(
     typeof newChunkString === 'string'
      ? JSON.parse(newChunkString)
      : []
-   return [newChunkKey, newChunkData]
+   return [
+    newChunkId,
+    newChunkKey,
+    newChunkData,
+   ]
   }
-  return [chunkKey, chunkData]
+  return [chunkId, chunkKey, chunkData]
  }
 
  function channel(channelName: string) {
@@ -167,8 +181,8 @@ export function scroll(
   async function publishMessageActivity(
    message: string,
    seen: number
-  ) {
-   const [chunkKey, chunkData] =
+  ): Promise<number> {
+   const [chunkId, chunkKey, chunkData] =
     await getPublishChunk()
    const messageActivity = {
     channel: channelName,
@@ -176,6 +190,29 @@ export function scroll(
     seen,
    }
    chunkData.unshift(messageActivity)
+   await kv.set(
+    chunkKey,
+    JSON.stringify(chunkData)
+   )
+   return chunkId
+  }
+
+  async function unpublishMessageActivity(
+   message: string,
+   chunkId: number
+  ) {
+   const chunkKey =
+    newsKey.newsChunkById(chunkId)
+   const chunkString = await kv.get(chunkKey)
+   const chunkData = (
+    typeof chunkString === 'string'
+     ? JSON.parse(chunkString)
+     : []
+   ).filter(
+    // remove the message
+    (m: Record<string, any>) =>
+     m.message !== message
+   )
    await kv.set(
     chunkKey,
     JSON.stringify(chunkData)
@@ -241,6 +278,52 @@ export function scroll(
     storeChannelRank(channelScore),
    ])
   }
+
+  async function unrankMessage(
+   message: string
+  ) {
+   const existingChannelRankString =
+    await kv.get(key.channelMessages)
+   let channelMessageRank: {
+    [key: string]: MessageData
+   } = existingChannelRankString
+    ? JSON.parse(existingChannelRankString)
+    : {}
+
+   delete channelMessageRank[message]
+
+   const newChannelMessageRankString =
+    JSON.stringify(channelMessageRank)
+
+   const channelScore = Object.values(
+    channelMessageRank
+   ).reduce(
+    (a: number, b) =>
+     a +
+     Math.max(
+      0,
+      b.position +
+       ((timestamp - b.timestamp) *
+        b.velocity) /
+        ONE_HOUR_MS
+     ),
+    0
+   )
+
+   await Promise.all([
+    kv.set(
+     key.channelMessages,
+     newChannelMessageRankString
+    ),
+    kv.set(
+     key.channelMessagesHour,
+     newChannelMessageRankString
+    ),
+    active(),
+    storeChannelRank(channelScore),
+   ])
+  }
+
   async function send(
    message: string,
    velocity: number
@@ -275,11 +358,21 @@ export function scroll(
     (timeDelta * messageData.velocity) /
     ONE_HOUR_MS
    const newMessageData = {
+    newsChunk: messageData.newsChunk,
     position:
      messageData.position + positionDelta,
     seen: messageData.seen ?? Date.now(),
     timestamp,
     velocity,
+   }
+   if (
+    typeof newMessageData.newsChunk !== 'number'
+   ) {
+    newMessageData.newsChunk =
+     publishMessageActivity(
+      message,
+      newMessageData.seen
+     )
    }
    await Promise.all([
     kv.set(
@@ -287,15 +380,53 @@ export function scroll(
      JSON.stringify(newMessageData)
     ),
     rankMessage(message, newMessageData),
-    ...(newMessageData.seen !== messageData.seen
-     ? [
-        publishMessageActivity(
-         message,
-         newMessageData.seen
-        ),
-       ]
-     : []),
    ])
+  }
+
+  async function unsend(message: string) {
+   const messageId = encodeURIComponent(message)
+   const key = {
+    messagePosition: `scroll.channel.message:${channelId}#${messageId}`,
+   }
+   const messageDataString = await kv.get(
+    key.messagePosition
+   )
+   const messageData = messageDataString
+    ? JSON.parse(messageDataString)
+    : {
+       position: 0,
+       timestamp,
+       velocity: 0,
+      }
+   const timeDelta =
+    timestamp - messageData.timestamp
+   const positionDelta =
+    (timeDelta * messageData.velocity) /
+    ONE_HOUR_MS
+   const currentPosition =
+    messageData.position + positionDelta
+   if (
+    currentPosition < MESSAGE_PERSIST_THRESHOLD
+   ) {
+    await Promise.all([
+     kv.delete(key.messagePosition),
+     unrankMessage(message),
+     ...(typeof messageData.newsChunk ===
+     'number'
+      ? [
+         unpublishMessageActivity(
+          message,
+          messageData.newsChunk
+         ),
+        ]
+      : []),
+    ])
+    return true
+   } else {
+    throw new Error(
+     `Message with score of ${MESSAGE_PERSIST_THRESHOLD} cannot be unsent. Please demote the message first.`
+    )
+   }
   }
 
   async function seekMessages() {
@@ -344,7 +475,7 @@ export function scroll(
    return { channels, messages }
   }
 
-  return { send, seek }
+  return { send, seek, unsend }
  }
 
  async function news(
@@ -360,6 +491,16 @@ export function scroll(
    chunkId,
    data: 'DATA',
   })
+  const showNewsOlderThan =
+   Date.now() - NEWS_ITEM_APPEARS_AFTER
+  const newsChunkString = await kv.get(chunkKey)
+  const newsChunk = (
+   typeof newsChunkString === 'string'
+    ? JSON.parse(newsChunkString)
+    : []
+  ).filter(
+   (n: NewsItem) => n.seen < showNewsOlderThan
+  )
   return template.replace(
    '"DATA"',
    (await kv.get(chunkKey)) ?? '[]'
