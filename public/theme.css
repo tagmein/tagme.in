@@ -544,10 +544,6 @@ article > div code {
  position: relative;
 }
 
-article > div a::after {
- content: ' ';
-}
-
 a.channel {
  color: inherit;
  display: inline-block;

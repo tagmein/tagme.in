@@ -34,6 +34,7 @@ function safeDecodeURI(uri) {
 
 function addTextWithLinks(container, text) {
  const parts = text.split(/(https?:\/\/[^\s]+)/)
+ let isAfterLink = false
  parts.forEach((part) => {
   if (/^https?:\/\//.test(part)) {
    const a = document.createElement('a')
@@ -41,8 +42,9 @@ function addTextWithLinks(container, text) {
    a.setAttribute('href', part)
    a.textContent = safeDecodeURI(part)
    container.appendChild(a)
+   isAfterLink = true
   } else if (part) {
-   addHashTagLinks(container, part)
+   addHashTagLinks(container, part, isAfterLink)
   }
  })
 }
@@ -91,7 +93,11 @@ function addTextBlocks(container, text) {
  }
 }
 
-function addHashTagLinks(container, text) {
+function addHashTagLinks(
+ container,
+ text,
+ isAfterLink
+) {
  const parts = text.split(/(#[^,.\s]*)/)
 
  parts.forEach((part) => {
@@ -106,10 +112,15 @@ function addHashTagLinks(container, text) {
      ? `#${HOME_CHANNEL_ICON}`
      : part
    container.appendChild(a)
+   isAfterLink = true
   } else if (part) {
    container.appendChild(
-    document.createTextNode(htmlEntities(part))
+    document.createTextNode(
+     (isAfterLink ? ' ' : '') +
+      htmlEntities(part)
+    )
    )
+   isAfterLink = false
   }
  })
 }
