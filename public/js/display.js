@@ -1046,9 +1046,13 @@ function displayActivity() {
   if (typeof callback === 'function') {
    callback()
   }
-  lastMessages += news.data.map((newsMessage) =>
-   attachNewsMessage(element, newsMessage)
+  lastMessages.push(
+   ...news.data.map((newsMessage) =>
+    attachNewsMessage(element, newsMessage)
+   )
   )
+  filterAgain()
+  return nextChunk
  }
 
  function clear() {
@@ -1056,10 +1060,26 @@ function displayActivity() {
   hide()
  }
 
- function filter(filterText) {
-  const terms = filterText
+ let filterTerms = []
+ async function filter(filterText) {
+  filterTerms = filterText
    .split(/\s+/)
    .map((x) => x.toLowerCase())
+   .filter((x) => x !== '')
+  filterAgain()
+  while ((await withLoading(loadMore())) > -1) {
+   if (
+    !scrolledPastBottom(
+     activityContainer.element,
+     true
+    )
+   ) {
+    break
+   }
+  }
+ }
+
+ function filterAgain() {
   for (const {
    channel,
    element,
@@ -1067,9 +1087,9 @@ function displayActivity() {
    parentMessage,
   } of lastMessages) {
    const messageIncludesAllTerms =
-    terms.length === 0
+    filterTerms.length === 0
      ? true
-     : terms.every(
+     : filterTerms.every(
         (term) =>
          channel.includes(term) ||
          message.includes(term) ||

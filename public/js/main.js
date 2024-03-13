@@ -516,10 +516,13 @@ body.appendChild(
  document.getElementById('footer')
 )
 
-function scrolledPastBottom(element) {
+function scrolledPastBottom(
+ element,
+ exemptZeroScroll = false
+) {
  if (
-  scrollY < 1 ||
-  !element.checkVisibility()
+  !exemptZeroScroll &&
+  (scrollY < 1 || !element.checkVisibility())
  ) {
   return false
  }
