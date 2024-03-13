@@ -80,6 +80,10 @@ export const onRequestPost: PagesFunction<Env> =
      body: JSON.stringify({
       personalizations: [
        {
+        dkim_domain: 'tagme.in',
+        dkim_selector: 'mailchannels',
+        dkim_private_key:
+         context.env.DKIM_PRIVATE_KEY,
         to: [{ email, name: email }],
        },
       ],
