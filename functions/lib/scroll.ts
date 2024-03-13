@@ -369,7 +369,7 @@ export function scroll(
     typeof newMessageData.newsChunk !== 'number'
    ) {
     newMessageData.newsChunk =
-     publishMessageActivity(
+     await publishMessageActivity(
       message,
       newMessageData.seen
      )
