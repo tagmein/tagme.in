@@ -69,6 +69,8 @@ export const onRequestPost: PagesFunction<Env> =
 
   const kv = await getKV(context)
 
+  const verifyLink = 'https://tagme.in'
+
   try {
    const response = await fetch(
     'https://api.mailchannels.net/tx/v1/send',
@@ -95,8 +97,7 @@ export const onRequestPost: PagesFunction<Env> =
       content: [
        {
         type: 'text/plain',
-        value:
-         'And no email service accounts and all for free too!',
+        value: `Verify your email address to sign in to Tag Me In\n\n${verifyLink}`,
        },
       ],
      }),
