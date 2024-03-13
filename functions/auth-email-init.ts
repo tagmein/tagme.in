@@ -81,9 +81,9 @@ export const onRequestPost: PagesFunction<Env> =
       personalizations: [
        {
         dkim_domain: 'tagme.in',
-        dkim_selector: 'mailchannels',
         dkim_private_key:
          context.env.DKIM_PRIVATE_KEY,
+        dkim_selector: 'mailchannels',
         to: [{ email, name: email }],
        },
       ],
