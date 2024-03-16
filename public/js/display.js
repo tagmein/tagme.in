@@ -545,7 +545,7 @@ function attachMessage(
  renderScore()
  const articleToolButtons = elem({
   classes: ['article-tool-buttons'],
-  children: [copyButton, agreeButton, disagreeButton],
+  children: [agreeButton, disagreeButton],
  })
  const articleTools = elem({
   classes: ['article-tools'],
