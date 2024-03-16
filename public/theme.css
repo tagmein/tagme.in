@@ -492,8 +492,7 @@ article blockquote {
 }
 
 .article-tool-buttons > button.agree,
-.article-tool-buttons > button.disagree,
-.article-tool-buttons > button.copy {
+.article-tool-buttons > button.disagree {
  border-radius: 15px;
  box-sizing: border-box;
  line-height: 22px;
@@ -770,13 +769,11 @@ article {
 }
 
 .article-tool-buttons > button.agree,
-.article-tool-buttons > button.disagree,
-.article-tool-buttons > button.copy {
+.article-tool-buttons > button.disagree {
  background-color: var(--color-bg-accent);
 }
 
-.article-tool-buttons > button.agree.agreed,
-.article-tool-buttons > button.copy:active {
+.article-tool-buttons > button.agree.agreed {
  background-color: var(
   --color-bg-secondary-hover
  );

@@ -432,20 +432,6 @@ function attachMessage(
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
  
- const copyButton = elem({
-  classes: ['copy'],
-  children: [elem({textContent:'📋'})],
-  attributes: {
-   title: 'Copy article text to clipboard.',
-  },
-  events: {
-   async click() {
-    navigator.clipboard.writeText(message.text)
-   },
-  },
-  tagName: 'button',
- })
-
  const agreeButton = elem({
   classes: ['agree'],
   children: [icon('yes')],
@@ -537,7 +523,7 @@ function attachMessage(
  renderScore()
  const articleToolButtons = elem({
   classes: ['article-tool-buttons'],
-  children: [copyButton, agreeButton, disagreeButton],
+  children: [agreeButton, disagreeButton],
  })
  const articleTools = elem({
   classes: ['article-tools'],
@@ -565,6 +551,26 @@ function attachMessage(
     textContent: 'View message',
    })
    messageFooter.appendChild(repliesLink)
+   messageFooter.appendChild(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+   const copyMessageLink = elem({
+    attributes: {
+      href,
+    },
+    events: {
+      click(e) {
+        e.preventDefault()
+        navigator.clipboard.writeText(message.text)        
+      }
+    },
+    tagName: 'a',
+    textContent: 'copy message',
+   })
+   messageFooter.appendChild(copyMessageLink)
    messageFooter.appendChild(
     elem({
      tagName: 'span',
