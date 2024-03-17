@@ -435,6 +435,7 @@ function attachMessage(
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
+ 
  const agreeButton = elem({
   classes: ['agree'],
   children: [icon('yes')],
@@ -578,6 +579,26 @@ function attachMessage(
     textContent: 'View message',
    })
    messageFooter.appendChild(repliesLink)
+   messageFooter.appendChild(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+   const copyMessageLink = elem({
+    attributes: {
+      href,
+    },
+    events: {
+      click(e) {
+        e.preventDefault()
+        navigator.clipboard.writeText(message.text)        
+      }
+    },
+    tagName: 'a',
+    textContent: 'copy message',
+   })
+   messageFooter.appendChild(copyMessageLink)
    messageFooter.appendChild(
     elem({
      tagName: 'span',

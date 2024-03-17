@@ -495,13 +495,7 @@ article blockquote {
  width: 50%;
 }
 
-.article-tool-buttons > button.agree {
- border-radius: 15px;
- box-sizing: border-box;
- line-height: 22px;
- padding: 4px 5px 5px 4px;
-}
-
+.article-tool-buttons > button.agree,
 .article-tool-buttons > button.disagree {
  border-radius: 15px;
  box-sizing: border-box;
