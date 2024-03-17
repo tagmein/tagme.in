@@ -454,7 +454,7 @@ article blockquote {
  flex-direction: column;
  gap: 2px;
  position: absolute;
- right: calc(15px + 63.5px);
+ right: 15px;
  top: 5px;
  z-index: 1;
 }
