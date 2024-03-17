@@ -435,7 +435,7 @@ function attachMessage(
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
- 
+
  const agreeButton = elem({
   classes: ['agree'],
   children: [icon('yes')],
@@ -587,13 +587,21 @@ function attachMessage(
    )
    const copyMessageLink = elem({
     attributes: {
-      href,
+     href,
     },
     events: {
-      click(e) {
-        e.preventDefault()
-        navigator.clipboard.writeText(message.text)        
-      }
+     click(e) {
+      e.preventDefault()
+      navigator.clipboard.writeText(
+       message.text
+      )
+      copyMessageLink.textContent =
+       '✔ message copied'
+      setTimeout(function () {
+       copyMessageLink.textContent =
+        'copy message'
+      }, 2e3)
+     },
     },
     tagName: 'a',
     textContent: 'copy message',
