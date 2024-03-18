@@ -935,6 +935,8 @@ function getActiveSessionId() {
 }
 
 function createSession() {
+ let waitingMessage
+ let continueButton
  const code = [0, 0, 0, 0]
   .map(() =>
    (
@@ -988,15 +990,24 @@ function createSession() {
    events: {
     async submit(e) {
      e.preventDefault()
-     const waitingMessage = elem({
-      tagName: 'p',
-      textContent:
-       'Please wait, sending email...',
-     })
+     if (!waitingMessage) {
+      waitingMessage = elem({
+       tagName: 'p',
+       textContent:
+        'Please wait, sending email...',
+      })
+     }
      try {
+      if (continueButton?.parentElement) {
+       continueButton.parentElement.removeChild(
+        continueButton
+       )
+      }
       e.target.email.disabled = true
       sendEmailButton.disabled = true
       e.target.appendChild(waitingMessage)
+      waitingMessage.textContent =
+       'Please wait, sending email...'
       const id = await createSessionEmail(
        e.target.email.value
       )
@@ -1007,7 +1018,7 @@ function createSession() {
       )
       waitingMessage.textContent =
        'You must approve the login request within 5 minutes. Once you have approved the login request sent to your email, click the continue button:'
-      const continueButton = elem({
+      continueButton = elem({
        tagName: 'button',
        textContent: 'Continue',
        events: {

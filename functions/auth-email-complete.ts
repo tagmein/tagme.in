@@ -1,10 +1,13 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
+import { civilMemoryKV } from '@tagmein/civil-memory'
 import { Env } from './lib/env.js'
 import { getKV } from './lib/getKV.js'
-import { getLoginRequest } from './lib/loginRequest.js'
+import { deleteLoginRequest } from './lib/loginRequest.js'
+import { randomId } from './lib/randomId.js'
 
 interface PostBody {
  id: string
+ sessionId: string
 }
 
 async function validateRequestBody(
@@ -26,13 +29,20 @@ async function validateRequestBody(
    }
   }
 
+  if (typeof data.sessionId !== 'string') {
+   return {
+    error: 'sessionId is required',
+    data,
+   }
+  }
+
   return { data }
  } catch (e) {
   return {
    error:
     'unable to parse incoming JSON post body: ' +
     e.message,
-   data: { id: '' },
+   data: { id: '', sessionId: '' },
   }
  }
 }
@@ -41,7 +51,7 @@ export const onRequestPost: PagesFunction<Env> =
  async function (context) {
   const {
    error,
-   data: { id: uniqueId },
+   data: { id: uniqueId, sessionId },
   } = await validateRequestBody(context.request)
 
   if (error) {
@@ -50,7 +60,7 @@ export const onRequestPost: PagesFunction<Env> =
 
   const kv = await getKV(context)
 
-  const loginRequest = await getLoginRequest(
+  const loginRequest = await deleteLoginRequest(
    kv,
    uniqueId
   )
@@ -66,10 +76,24 @@ export const onRequestPost: PagesFunction<Env> =
    )
   }
 
+  const authKV = civilMemoryKV.cloudflare({
+   binding: context.env.TAGMEIN_AUTH_KV,
+  })
+
+  const key = randomId()
+
+  await authKV.set(
+   `init#${key}-${sessionId}`,
+   JSON.stringify({
+    created: Date.now(),
+    email: loginRequest.email,
+   })
+  )
+
   return new Response(
    JSON.stringify({
     success: true,
-    loginRequest,
+    key,
    }),
    {
     headers: {
