@@ -1007,11 +1007,12 @@ function createSession() {
       )
       waitingMessage.textContent =
        'You must approve the login request within 5 minutes. Once you have approved the login request sent to your email, click the continue button:'
-      const verifyButton = elem({
+      const continueButton = elem({
        tagName: 'button',
        textContent: 'Continue',
        events: {
-        async click() {
+        async click(e) {
+         e.preventDefault()
          const fetchBody = JSON.stringify({
           id,
          })
@@ -1058,7 +1059,7 @@ function createSession() {
         },
        },
       })
-      e.target.appendChild(verifyButton)
+      e.target.appendChild(continueButton)
      } catch (e) {
       alert(
        e.message ??
