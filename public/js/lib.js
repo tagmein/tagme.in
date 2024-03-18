@@ -541,9 +541,17 @@ async function politeAlert(
  const agreed = await new Promise((agree) => {
   alertBox = elem({
    classes: ['alert-shade'],
+   events: {
+    click() {
+     this.children[0].focus()
+    },
+   },
    children: [
     elem({
      classes: ['alert-container'],
+     attributes: {
+      tabIndex: 0,
+     },
      children: [
       elem({
        textContent: message,
@@ -599,9 +607,17 @@ async function politeAlert(
 async function dialog(...children) {
  const dialogBox = elem({
   classes: ['alert-shade'],
+  events: {
+   click() {
+    this.children[0].focus()
+   },
+  },
   children: [
    elem({
     classes: ['alert-container'],
+    attributes: {
+     tabIndex: 0,
+    },
     children: [
      elem({
       children,

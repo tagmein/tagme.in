@@ -1288,6 +1288,10 @@ a.external-link::after {
  z-index: 2000;
 }
 
+.alert-container:focus-within {
+  box-shadow: 0 0 10px var(--color-shadow-light);
+}
+
 .alert-container {
  background-color: var(--color-bg-medium);
  border-radius: 10px;
