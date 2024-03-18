@@ -17,7 +17,11 @@ async function validateRequestBody(
  data: PostBody
 }> {
  try {
-  const data: PostBody = await request.json()
+  const formData = await request.formData()
+  const data: PostBody = {
+   code: formData.get('code'),
+   id: formData.get('id'),
+  }
   if (!data || typeof data !== 'object') {
    throw new Error('missing data')
   }
