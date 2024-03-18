@@ -1,6 +1,8 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
 import { Env } from './lib/env.js'
 import { getKV } from './lib/getKV.js'
+import { createLoginRequest } from './lib/loginRequest.js'
+import { sendEmail } from './lib/sendEmail.js'
 
 interface PostBody {
  email: string
@@ -60,48 +62,32 @@ export const onRequestPost: PagesFunction<Env> =
  async function (context) {
   const {
    error,
-   data: { email },
+   data: { email: _email },
   } = await validateRequestBody(context.request)
 
   if (error) {
    return new Response(error, { status: 400 })
   }
 
+  const email = _email.toLowerCase()
+
   const kv = await getKV(context)
 
-  const verifyLink = 'https://tagme.in'
+  const uniqueId = await createLoginRequest(
+   kv,
+   email
+  )
+
+  const verifyLink = `https://tagme.in/auth?id=${uniqueId}`
 
   try {
-   const response = await fetch(
-    'https://api.mailchannels.net/tx/v1/send',
+   const response = await sendEmail(
+    context.env,
     {
-     method: 'POST',
-     headers: {
-      'content-type': 'application/json',
-     },
-     body: JSON.stringify({
-      personalizations: [
-       {
-        dkim_domain: 'tagme.in',
-        dkim_private_key:
-         context.env.DKIM_PRIVATE_KEY,
-        dkim_selector: 'mailchannels',
-        to: [{ email, name: email }],
-       },
-      ],
-      from: {
-       email: 'service@tagme.in',
-       name: 'Tag Me In',
-      },
-      subject: 'Verify your email address',
-      content: [
-       {
-        type: 'text/plain',
-        value: `Verify your email address to sign in to Tag Me In\n\n${verifyLink}`,
-       },
-      ],
-     }),
-    }
+     email,
+     name: email,
+    },
+    `Verify your email address to sign in to Tag Me In:\n\n${verifyLink}`
    )
 
    if (!response.ok) {
@@ -124,7 +110,10 @@ export const onRequestPost: PagesFunction<Env> =
   }
 
   return new Response(
-   JSON.stringify({ success: true }),
+   JSON.stringify({
+    success: true,
+    id: uniqueId,
+   }),
    {
     headers: {
      'Content-Type': 'application/json',

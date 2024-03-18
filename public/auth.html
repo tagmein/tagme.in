@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+ <title>Sign in to Tag Me In</title>
+</head>
+<body>
+ <form method="POST" action="/auth-email-code">
+  <input
+   type="text"
+   maxlength="4"
+   name="code"
+   placeholder="Enter code"
+   required
+  />
+  <input
+   type="hidden"
+   id="uniqueId"
+   name="uniqueId"
+  />
+  <input type="submit" value="Approve log in" />
+ </form>
+ <script>
+  document
+   .getElementById('uniqueId')
+   .setAttribute(
+    'value',
+    new URLSearchParams(location.search).get(
+     'id'
+    )
+   )
+ </script>
+</body>
