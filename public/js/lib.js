@@ -1019,6 +1019,7 @@ function createSession() {
          const response = await fetch(
           `${networkRootUrl()}/auth-email-verify`,
           {
+           method: 'POST',
            body: fetchBody,
            headers: {
             'Content-Length':
@@ -1134,6 +1135,7 @@ async function completeSessionEmail(uniqueId) {
  const completeResponse = await fetch(
   `${networkRootUrl()}/auth-email-complete`,
   {
+   method: 'POST',
    body: completeFetchBody,
    headers: {
     'Content-Length':
