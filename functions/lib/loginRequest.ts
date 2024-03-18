@@ -4,6 +4,12 @@ import { randomId } from './randomId.js'
 const LOGIN_REQUEST_EXPIRES_AFTER =
  5 * 60 * 1000 // 5 minutes
 
+export interface LoginRequest {
+ created: number
+ email: string
+ code?: string
+}
+
 export async function createLoginRequest(
  kv: CivilMemoryKV,
  email: string
@@ -40,19 +46,46 @@ export async function createLoginRequest(
  return uniqueId
 }
 
-export async function deleteLoginRequest(
+export async function getLoginRequest(
  kv: CivilMemoryKV,
- email: string,
  uniqueId: string
-) {
+): Promise<LoginRequest | undefined> {
  const key = {
   uniqueId: `auth.email.uniqueId#${uniqueId}`,
+ }
+
+ const loginRequestString = await kv.get(
+  key.uniqueId
+ )
+
+ if (!loginRequestString) {
+  return
+ }
+
+ return JSON.parse(loginRequestString)
+}
+
+export async function deleteLoginRequest(
+ kv: CivilMemoryKV,
+ uniqueId: string
+): Promise<LoginRequest | undefined> {
+ const key = {
+  uniqueId: `auth.email.uniqueId#${uniqueId}`,
+ }
+
+ const loginRequest = await getLoginRequest(
+  kv,
+  uniqueId
+ )
+
+ if (!loginRequest) {
+  return
  }
 
  await kv.delete(key.uniqueId)
 
  const key2 = {
-  emailUniqueIdList: `auth.email.uniqueIdList#${email}`,
+  emailUniqueIdList: `auth.email.uniqueIdList#${loginRequest.email}`,
  }
 
  const emailUniqueIdString = await kv.get(
@@ -69,6 +102,16 @@ export async function deleteLoginRequest(
   key2.emailUniqueIdList,
   JSON.stringify(emailUniqueIdList)
  )
+
+ if (
+  Date.now() >
+  loginRequest.created +
+   LOGIN_REQUEST_EXPIRES_AFTER
+ ) {
+  return
+ }
+
+ return loginRequest
 }
 
 export async function approveLoginRequest(
@@ -96,7 +139,7 @@ export async function approveLoginRequest(
   Date.now() >
   created + LOGIN_REQUEST_EXPIRES_AFTER
  ) {
-  await deleteLoginRequest(kv, email, uniqueId)
+  await deleteLoginRequest(kv, uniqueId)
   return 'log in request has expired'
  }
 
@@ -108,5 +151,6 @@ export async function approveLoginRequest(
    code,
   })
  )
+
  return true
 }

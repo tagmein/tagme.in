@@ -1012,7 +1012,49 @@ function createSession() {
        textContent: 'Continue',
        events: {
         async click() {
-         //
+         const fetchBody = JSON.stringify({
+          id,
+         })
+         const response = await fetch(
+          `${networkRootUrl()}/auth-email-verify`,
+          {
+           body: fetchBody,
+           headers: {
+            'Content-Length':
+             fetchBody.length.toString(10),
+            'Content-Type': 'application/json',
+           },
+          }
+         )
+         if (!response.ok) {
+          await politeAlert(
+           `There was a problem: ${await response.text()}`
+          )
+          return
+         } else {
+          const responseBody =
+           await response.json()
+          if (
+           !responseBody ||
+           typeof responseBody.loginRequest
+            ?.code !== 'string'
+          ) {
+           await politeAlert(
+            'The log in request has not been approved'
+           )
+           return
+          }
+          if (
+           responseBody.loginRequest.code ==
+           code
+          ) {
+           await completeSessionEmail(id)
+          } else {
+           await politeAlert(
+            `The code entered on approval was ${responseBody.loginRequest.code}, which did not match the code ${code} displayed above`
+           )
+          }
+         }
         },
        },
       })
@@ -1074,20 +1116,51 @@ async function createSessionEmail(email) {
  return data.id
 }
 
-async function validateSessionEmail() {
- const id = randomId()
- const { hash, origin } = location
+async function completeSessionEmail(uniqueId) {
+ const sessionId = randomId()
  writeSessions([
   ...listSessions(),
   {
-   id,
-   hash,
+   id: sessionId,
+   hash: location.hash,
   },
  ])
  setActiveSessionId(id)
- location.href = `https://tagme.in/auth-linkedin-init?state=${encodeURIComponent(
-  JSON.stringify({ id, origin })
- )}`
+ const completeFetchBody = JSON.stringify({
+  id: uniqueId,
+  sessionId,
+ })
+ const completeResponse = await fetch(
+  `${networkRootUrl()}/auth-email-complete`,
+  {
+   body: completeFetchBody,
+   headers: {
+    'Content-Length':
+     completeFetchBody.length.toString(10),
+    'Content-Type': 'application/json',
+   },
+  }
+ )
+ if (!completeResponse.ok) {
+  await politeAlert(
+   `There was a problem: ${await completeResponse.text()}`
+  )
+  return
+ } else {
+  const completeResponseBody =
+   await completeResponse.json()
+  if (
+   !completeResponseBody ||
+   typeof completeResponseBody.key !== 'string'
+  ) {
+   await politeAlert(
+    'The log in request was not completed'
+   )
+   return
+  }
+  const { key } = completeResponseBody
+  await registerSessionWithKey(sessionId, key)
+ }
 }
 
 function createSessionLinkedIn() {
@@ -1127,6 +1200,41 @@ function forkSession(session, realm, name) {
  ])
 
  return forkedSession
+}
+
+async function registerSessionWithKey(
+ sessionId,
+ key
+) {
+ const session = readSession(sessionId)
+ if (session && !session.accessToken) {
+  const response = await fetch(
+   'https://tagme.in/auth-init',
+   {
+    method: 'POST',
+    body: JSON.stringify({
+     id: sessionId,
+     key,
+    }),
+    headers: {
+     'Content-Type': 'application/json',
+    },
+   }
+  )
+  const data = await response.json()
+  const newSession = {
+   ...session,
+   ...data,
+  }
+  writeSession(sessionId, newSession)
+  const realm = realms.find(
+   (x) => x.session.id === sessionId
+  )
+  realm.realmTabLabel.textContent =
+   newSession.email
+  location.hash = session.hash
+  return true
+ }
 }
 
 async function registerSession(
