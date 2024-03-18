@@ -997,11 +997,26 @@ function createSession() {
       e.target.email.disabled = true
       sendEmailButton.disabled = true
       e.target.appendChild(waitingMessage)
-      await createSessionEmail(
+      const id = await createSessionEmail(
        e.target.email.value
       )
       waitingMessage.textContent =
        'Check your email inbox, the verification email should arrive momentarily...'
+      await new Promise((x) =>
+       setTimeout(x, 3000)
+      )
+      waitingMessage.textContent =
+       'You must approve the login request within 5 minutes. Once you have approved the login request sent to your email, click the continue button:'
+      const verifyButton = elem({
+       tagName: 'button',
+       textContent: 'Continue',
+       events: {
+        async click() {
+         //
+        },
+       },
+      })
+      e.target.appendChild(verifyButton)
      } catch (e) {
       alert(
        e.message ??
@@ -1036,7 +1051,7 @@ function createSession() {
 
 async function createSessionEmail(email) {
  const body = JSON.stringify({ email })
- await fetch(
+ const response = await fetch(
   `${networkRootUrl()}/auth-email-init`,
   {
    method: 'POST',
@@ -1047,6 +1062,16 @@ async function createSessionEmail(email) {
    },
   }
  )
+ if (!response.ok) {
+  throw new Error(await response.text())
+ }
+ const data = await response.json()
+ if (!data.success) {
+  throw new Error(
+   data.message ?? JSON.stringify(data)
+  )
+ }
+ return data.id
 }
 
 async function validateSessionEmail() {
