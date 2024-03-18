@@ -1138,7 +1138,7 @@ async function completeSessionEmail(uniqueId) {
    hash: location.hash,
   },
  ])
- setActiveSessionId(id)
+ setActiveSessionId(sessionId)
  const completeFetchBody = JSON.stringify({
   id: uniqueId,
   sessionId,
