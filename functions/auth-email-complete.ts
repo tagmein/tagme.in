@@ -93,6 +93,7 @@ export const onRequestPost: PagesFunction<Env> =
   return new Response(
    JSON.stringify({
     success: true,
+    loginRequest,
     key,
    }),
    {

@@ -1131,14 +1131,6 @@ async function createSessionEmail(email) {
 
 async function completeSessionEmail(uniqueId) {
  const sessionId = randomId()
- writeSessions([
-  ...listSessions(),
-  {
-   id: sessionId,
-   hash: location.hash,
-  },
- ])
- setActiveSessionId(sessionId)
  const completeFetchBody = JSON.stringify({
   id: uniqueId,
   sessionId,
@@ -1172,7 +1164,17 @@ async function completeSessionEmail(uniqueId) {
    )
    return
   }
-  const { key } = completeResponseBody
+  const { loginRequest, key } =
+   completeResponseBody
+  const { email } = loginRequest
+  const newSession = {
+   id: sessionId,
+   email,
+   hash: location.hash,
+  }
+  writeSessions([...listSessions(), newSession])
+  appAccounts.add(newSession)
+  setActiveSessionId(sessionId)
   await registerSessionWithKey(sessionId, key)
  }
 }
