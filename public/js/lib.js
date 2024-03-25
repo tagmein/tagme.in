@@ -14,6 +14,19 @@ function niceNumber(value) {
  return Math.round(value).toString(10)
 }
 
+function isInsideElementWithClass(
+ target,
+ className
+) {
+ let parent = target
+ while ((parent = parent.parentElement)) {
+  if (parent.classList.contains(className)) {
+   return true
+  }
+ }
+ return false
+}
+
 function insertAfter(child, node) {
  if (child.nextElementSibling) {
   child.parentElement.insertBefore(
@@ -539,65 +552,72 @@ async function politeAlert(
     ]
   : []
  const agreed = await new Promise((agree) => {
-  alertBox = elem({
-   classes: ['alert-shade'],
-   events: {
-    click() {
-     this.children[0].focus()
+  const alertContainer = elem({
+    classes: ['alert-container'],
+    attributes: {
+     tabIndex: 0,
     },
-   },
-   children: [
-    elem({
-     classes: ['alert-container'],
-     attributes: {
-      tabIndex: 0,
-     },
-     children: [
-      elem({
-       textContent: message,
-      }),
-      ...consentForm,
-      elem({
-       events: {
-        click() {
-         if (consentForm[0]) {
-          const missingCheckbox =
-           consentForm[0].querySelector(
-            'input:not(:checked)'
-           )
-          if (missingCheckbox) {
-           missingCheckbox.parentElement.classList.add(
-            'required'
-           )
-           return
-          }
+    children: [
+     elem({
+      textContent: message,
+     }),
+     ...consentForm,
+     elem({
+      events: {
+       click() {
+        if (consentForm[0]) {
+         const missingCheckbox =
+          consentForm[0].querySelector(
+           'input:not(:checked)'
+          )
+         if (missingCheckbox) {
+          missingCheckbox.parentElement.classList.add(
+           'required'
+          )
+          return
          }
-         agree(true)
-        },
+        }
+        agree(true)
        },
-       tagName: 'button',
-       textContent: actionText ?? 'OK',
-      }),
-      ...(allowCancel
-       ? [
-          elem({
-           events: {
-            click() {
-             agree(false)
-            },
+      },
+      tagName: 'button',
+      textContent: actionText ?? 'OK',
+     }),
+     ...(allowCancel
+      ? [
+         elem({
+          events: {
+           click() {
+            agree(false)
            },
-           tagName: 'button',
-           textContent:
-            typeof allowCancel === 'string'
-             ? allowCancel
-             : 'Cancel',
-          }),
-         ]
-       : []),
-     ],
-    }),
-   ],
-  })
+          },
+          tagName: 'button',
+          textContent:
+           typeof allowCancel === 'string'
+            ? allowCancel
+            : 'Cancel',
+         }),
+        ]
+      : []),
+    ],
+   }),
+   alertBox = elem({
+    classes: ['alert-shade'],
+    events: {
+     click(e) {
+      if (
+       isInsideElementWithClass(
+        e.target,
+        'alert-container'
+       )
+      ) {
+       return
+      }
+      alertContainer.focus()
+     },
+    },
+    children: [alertContainer],
+   })
   document.body.appendChild(alertBox)
  })
  document.body.removeChild(alertBox)
@@ -605,35 +625,42 @@ async function politeAlert(
 }
 
 function dialog(...children) {
- const dialogBox = elem({
-  classes: ['alert-shade'],
-  events: {
-   click() {
-    this.children[0].focus()
-   },
+ const alertContainer = elem({
+  classes: ['alert-container'],
+  attributes: {
+   tabIndex: 0,
   },
   children: [
    elem({
-    classes: ['alert-container'],
-    attributes: {
-     tabIndex: 0,
+    children,
+   }),
+   elem({
+    events: {
+     click() {
+      document.body.removeChild(dialogBox)
+     },
     },
-    children: [
-     elem({
-      children,
-     }),
-     elem({
-      events: {
-       click() {
-        document.body.removeChild(dialogBox)
-       },
-      },
-      tagName: 'button',
-      textContent: 'Cancel',
-     }),
-    ],
+    tagName: 'button',
+    textContent: 'Cancel',
    }),
   ],
+ })
+ const dialogBox = elem({
+  classes: ['alert-shade'],
+  events: {
+   click(e) {
+    if (
+     isInsideElementWithClass(
+      e.target,
+      'alert-container'
+     )
+    ) {
+     return
+    }
+    alertContainer.focus()
+   },
+  },
+  children: [alertContainer],
  })
  document.body.appendChild(dialogBox)
 
@@ -1196,9 +1223,10 @@ async function completeSessionEmail(uniqueId) {
    hash: location.hash,
   }
   writeSessions([...listSessions(), newSession])
-  appAccounts.add(newSession)
-  setActiveSessionId(sessionId)
+  const createdAppAccount =
+   appAccounts.add(newSession)
   await registerSessionWithKey(sessionId, key)
+  createdAppAccount.switchTo()
  }
 }
 
