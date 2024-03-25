@@ -222,8 +222,10 @@ async function displayChannelMessageReplies(
   messageChannel,
   mainContent,
   formattedReplyMessageData,
-  false,
-  'No replies. Be the first to write a reply!'
+  true,
+  'No replies. Be the first to write a reply!',
+  undefined,
+  true,
  )
 }
 
@@ -278,7 +280,8 @@ function displayChannelHome(
   formattedMessageData,
   true,
   undefined,
-  sendToRealm
+  sendToRealm,
+  false,
  )
  attachChannels(
   mainContent,
@@ -337,7 +340,10 @@ function displayChannelMessage(
   attachMessage(
    channel,
    messageContent,
-   message
+   message,
+   true,
+   undefined,
+   true,
   )
  } else {
   messageContent.innerText = 'Not found'
@@ -398,7 +404,8 @@ function attachMessages(
  messages,
  includeFooter = true,
  emptyMessage = undefined,
- sendToRealm = undefined
+ sendToRealm = undefined,
+ copyToReply = false,
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -417,6 +424,7 @@ function attachMessages(
    messages[index],
    includeFooter,
    sendToRealm,
+   copyToReply,
    index === '0'
   )
  }
@@ -428,6 +436,7 @@ function attachMessage(
  message,
  includeFooter,
  sendToRealm,
+ copyToReply,
  includeTourAttributes
 ) {
  const content = elem()
@@ -681,6 +690,35 @@ function attachMessage(
      })
     )
     messageFooter.appendChild(sendToLink)
+   }
+   if (copyToReply) {
+    const copyToReplyLink = elem({
+     attributes: {
+      href,
+     },
+     dataset: includeTourAttributes
+      ? {
+         tour: 'Copy message content to reply.',
+        }
+      : undefined,
+     events: {
+      click(e) {
+        e.preventDefault()
+        composeTextarea.innerText = message.text
+        composeTextarea.focus()
+        composeTextarea.selectionStart = composeTextarea.value.length
+      }
+     },
+     tagName: 'a',
+     textContent: 'copy message in reply',
+    })
+    messageFooter.appendChild(
+     elem({
+      tagName: 'span',
+      textContent: ' • ',
+     })
+    )
+    messageFooter.appendChild(copyToReplyLink)
    }
    if (
     message.score < MESSAGE_PERSIST_THRESHOLD
