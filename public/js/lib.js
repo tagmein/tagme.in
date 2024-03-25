@@ -957,7 +957,7 @@ function createSession() {
   },
   tagName: 'input',
  })
- const dialogBox = dialog(
+ const loginDialog = dialog(
   elem({
    tagName: 'h2',
    textContent: 'Sign in',
@@ -1068,7 +1068,7 @@ function createSession() {
            code
           ) {
            await completeSessionEmail(id)
-           dialogBox.close()
+           loginDialog.close()
           } else {
            await politeAlert(
             `The code entered on approval was ${responseBody.loginRequest.code}, which did not match the code ${code} displayed above`
