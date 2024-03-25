@@ -596,7 +596,7 @@ async function politeAlert(
  return agreed
 }
 
-async function dialog(...children) {
+function dialog(...children) {
  const dialogBox = elem({
   classes: ['alert-shade'],
   children: [
@@ -620,6 +620,12 @@ async function dialog(...children) {
   ],
  })
  document.body.appendChild(dialogBox)
+
+ function close() {
+  document.body.removeChild(dialogBox)
+ }
+
+ return { close }
 }
 
 function getUrlData() {
@@ -951,7 +957,7 @@ function createSession() {
   },
   tagName: 'input',
  })
- dialog(
+ const loginDialog = dialog(
   elem({
    tagName: 'h2',
    textContent: 'Sign in',
@@ -1062,6 +1068,7 @@ function createSession() {
            code
           ) {
            await completeSessionEmail(id)
+           loginDialog.close()
           } else {
            await politeAlert(
             `The code entered on approval was ${responseBody.loginRequest.code}, which did not match the code ${code} displayed above`
