@@ -16,35 +16,48 @@ async function renderRealm(
  )
  const contents = tabContents()
  tabs.add(
-  'members',
-  'Members',
+  'discussion',
+  'Discussion',
   contents.add((container) =>
-   realmMembers(container, session)
-  )
- )
- tabs.add(
-  'realms',
-  'Realms',
-  contents.add((container) =>
-   realmRealms(container, session)
-  )
- )
- tabs.add(
-  'patterns',
-  'Patterns',
-  contents.add((container) =>
-   realmPatterns(container, session)
-  )
+   realmDiscussion(container, session)
+  ),
+  switchToMode('main')
  )
  tabs.add(
   'documents',
   'Documents',
   contents.add((container) =>
    realmDocuments(container, session)
-  )
+  ),
+  switchToMode('other')
  )
+ tabs.add(
+  'members',
+  'Members',
+  contents.add((container) =>
+   realmMembers(container, session)
+  ),
+  switchToMode('other')
+ )
+ tabs.add(
+  'patterns',
+  'Patterns',
+  contents.add((container) =>
+   realmPatterns(container, session)
+  ),
+  switchToMode('other')
+ )
+ tabs.add(
+  'realms',
+  'Realms',
+  contents.add((container) =>
+   realmRealms(container, session)
+  ),
+  switchToMode('other')
+ )
+ tabStripContainer.innerHTML = ''
  await tabs.activate()
- realmControlContainer.appendChild(tabs.element)
+ tabStripContainer.appendChild(tabs.element)
  realmControlContainer.appendChild(
   contents.element
  )
