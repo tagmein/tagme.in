@@ -180,6 +180,7 @@
  max-width: calc(100% - 16px);
  min-height: 20px;
  min-width: 20px;
+ opacity: 0.65;
  overflow: hidden;
  padding: 3px 6px 1px;
  position: absolute;
@@ -192,4 +193,5 @@
 .explorer-item-note:hover {
  background-color: #c0c00080;
  height: max-content;
+ opacity: 1;
 }
