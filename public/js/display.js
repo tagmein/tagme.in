@@ -203,7 +203,8 @@ async function displayChannelMessageReplies(
    (x) => x.text === messageText
   )
  if (!message) {
-  mainContent.innerHTML = 'Not found'
+  mainContent.innerHTML =
+   '<p style="padding: 0 30px">This content is not available</p>'
   return
  }
  const replyChannelData = await withLoading(
@@ -225,7 +226,7 @@ async function displayChannelMessageReplies(
   true,
   'No replies. Be the first to write a reply!',
   undefined,
-  true,
+  true
  )
 }
 
@@ -281,7 +282,7 @@ function displayChannelHome(
   true,
   undefined,
   sendToRealm,
-  false,
+  false
  )
  attachChannels(
   mainContent,
@@ -343,10 +344,11 @@ function displayChannelMessage(
    message,
    true,
    undefined,
-   true,
+   true
   )
  } else {
-  messageContent.innerText = 'Not found'
+  messageContent.innerHTML =
+   '<h3 style="padding: 0 30px">Not found</h3>'
  }
 }
 
@@ -405,7 +407,7 @@ function attachMessages(
  includeFooter = true,
  emptyMessage = undefined,
  sendToRealm = undefined,
- copyToReply = false,
+ copyToReply = false
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -703,11 +705,12 @@ function attachMessage(
       : undefined,
      events: {
       click(e) {
-        e.preventDefault()
-        composeTextarea.innerText = message.text
-        composeTextarea.focus()
-        composeTextarea.selectionStart = composeTextarea.value.length
-      }
+       e.preventDefault()
+       composeTextarea.innerText = message.text
+       composeTextarea.focus()
+       composeTextarea.selectionStart =
+        composeTextarea.value.length
+      },
      },
      tagName: 'a',
      textContent: 'copy message in reply',
@@ -1151,7 +1154,10 @@ function displayActivity() {
  }
 
  function hide() {
-  document.body.removeAttribute('data-mode')
+  document.body.setAttribute(
+   'data-mode',
+   'main'
+  )
   isVisible = false
   nextChunk = undefined
  }

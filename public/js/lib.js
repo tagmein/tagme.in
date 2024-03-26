@@ -1,6 +1,8 @@
 function switchToMode(mode) {
  return function () {
-  document.body.dataset.mode = mode
+  if (document.body.dataset.mode !== mode) {
+   document.body.dataset.mode = mode
+  }
  }
 }
 
@@ -559,71 +561,71 @@ async function politeAlert(
   : []
  const agreed = await new Promise((agree) => {
   const alertContainer = elem({
-    classes: ['alert-container'],
-    attributes: {
-     tabIndex: 0,
-    },
-    children: [
-     elem({
-      textContent: message,
-     }),
-     ...consentForm,
-     elem({
-      events: {
-       click() {
-        if (consentForm[0]) {
-         const missingCheckbox =
-          consentForm[0].querySelector(
-           'input:not(:checked)'
-          )
-         if (missingCheckbox) {
-          missingCheckbox.parentElement.classList.add(
-           'required'
-          )
-          return
-         }
+   classes: ['alert-container'],
+   attributes: {
+    tabIndex: 0,
+   },
+   children: [
+    elem({
+     textContent: message,
+    }),
+    ...consentForm,
+    elem({
+     events: {
+      click() {
+       if (consentForm[0]) {
+        const missingCheckbox =
+         consentForm[0].querySelector(
+          'input:not(:checked)'
+         )
+        if (missingCheckbox) {
+         missingCheckbox.parentElement.classList.add(
+          'required'
+         )
+         return
         }
-        agree(true)
-       },
+       }
+       agree(true)
       },
-      tagName: 'button',
-      textContent: actionText ?? 'OK',
-     }),
-     ...(allowCancel
-      ? [
-         elem({
-          events: {
-           click() {
-            agree(false)
-           },
-          },
-          tagName: 'button',
-          textContent:
-           typeof allowCancel === 'string'
-            ? allowCancel
-            : 'Cancel',
-         }),
-        ]
-      : []),
-    ],
-   }),
-   alertBox = elem({
-    classes: ['alert-shade'],
-    events: {
-     click(e) {
-      if (
-       isInsideElementWithClass(
-        e.target,
-        'alert-container'
-       )
-      ) {
-       return
-      }
-      alertContainer.focus()
      },
+     tagName: 'button',
+     textContent: actionText ?? 'OK',
+    }),
+    ...(allowCancel
+     ? [
+        elem({
+         events: {
+          click() {
+           agree(false)
+          },
+         },
+         tagName: 'button',
+         textContent:
+          typeof allowCancel === 'string'
+           ? allowCancel
+           : 'Cancel',
+        }),
+       ]
+     : []),
+   ],
+  })
+  alertBox = elem({
+   classes: ['alert-shade'],
+   events: {
+    click(e) {
+     if (
+      isInsideElementWithClass(
+       e.target,
+       'alert-container'
+      )
+     ) {
+      return
+     }
+     alertContainer.focus()
     },
-    children: [alertContainer],
-   })
+   },
+   children: [alertContainer],
+  })
   document.body.appendChild(alertBox)
  })
  document.body.removeChild(alertBox)
