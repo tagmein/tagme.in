@@ -69,7 +69,7 @@ function explorer(
  async function loadItems() {
   const skip = (currentPage - 1) * itemsPerPage
   const items = await store.list(
-   ['id', 'name'],
+   ['id', 'name', 'note'],
    skip,
    itemsPerPage
   )

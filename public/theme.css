@@ -1652,7 +1652,10 @@ body.light-mode button.brand {
 
 .tabs-container {
  display: flex;
- justify-content: center;
+}
+
+.tab-spacer {
+ flex-grow: 1;
 }
 
 .tab {

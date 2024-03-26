@@ -129,6 +129,10 @@
  padding: 10px;
 }
 
+.explorer-item {
+ position: relative;
+}
+
 .explorer-items.grid-view .explorer-item {
  align-items: center;
  aspect-ratio: 1 / 1;
@@ -162,4 +166,32 @@
 
 .explorer-item button:hover {
  background-color: var(--color-bg-light);
+}
+
+.explorer-item-note {
+ background-color: #c0c00040;
+ border-top-left-radius: 6px;
+ border-top-right-radius: 6px;
+ bottom: 0;
+ box-sizing: border-box;
+ font-size: 12px;
+ height: 20px;
+ left: 50%;
+ max-width: calc(100% - 16px);
+ min-height: 20px;
+ min-width: 20px;
+ opacity: 0.65;
+ overflow: hidden;
+ padding: 3px 6px 1px;
+ position: absolute;
+ text-overflow: ellipsis;
+ transform: translateX(-50%);
+ transition: background-color 0.3s ease;
+ width: max-content;
+}
+
+.explorer-item-note:hover {
+ background-color: #c0c00080;
+ height: max-content;
+ opacity: 1;
 }
