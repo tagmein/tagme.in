@@ -1,3 +1,9 @@
+function switchToMode(mode) {
+ return function () {
+  document.body.dataset.mode = mode
+ }
+}
+
 function niceNumber(value) {
  if (value > 1e12) {
   return (value / 1e12).toFixed(1) + 'T'

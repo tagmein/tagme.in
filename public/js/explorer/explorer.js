@@ -52,7 +52,11 @@ function explorer(
    loadItems()
   },
  })
- element.appendChild(toolbarElement.element)
+
+ otherToolbar.innerHTML = ''
+ otherToolbar.appendChild(
+  toolbarElement.element
+ )
 
  const itemsContainer = elem({
   classes: ['explorer-items'],

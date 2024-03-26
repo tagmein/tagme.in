@@ -203,6 +203,10 @@ const mainToolbar = elem({
  ],
 })
 
+const otherToolbar = elem({
+ classes: ['toolbar', 'mode-other'],
+})
+
 const activityFilterInput = elem({
  attributes: {
   'data-tour': 'Search recent messages.',
@@ -296,6 +300,10 @@ const activityToolbar = elem({
  ],
 })
 
+const tabStripContainer = elem({
+ classes: ['tab-strip-container'],
+})
+
 const appHeader = elem({
  classes: ['app-header'],
  children: [
@@ -327,7 +335,9 @@ const appHeader = elem({
     fullScreenButton,
    ],
   }),
+  tabStripContainer,
   mainToolbar,
+  otherToolbar,
   activityToolbar,
   loadingIndicator,
  ],
@@ -414,7 +424,7 @@ const composeTextarea = elem({
 })
 
 const realmControlContainer = elem({
- classes: ['realm-control', 'mode-main'],
+ classes: ['realm-control', 'mode-other'],
 })
 
 const suggestedMessagesContainer = elem({
@@ -654,6 +664,22 @@ async function route() {
    activeSessionId
   )
   lastRenderedRealmSessionId = activeSessionId
+ } else if (
+  activeSessionId === PUBLIC_SESSION_ID
+ ) {
+  const tabs = tabStrip(
+   'discussion',
+   () => void 0
+  )
+  tabs.add(
+   'discussion',
+   'Discussion',
+   { switchTo() {} },
+   switchToMode('main')
+  )
+  tabStripContainer.innerHTML = ''
+  await tabs.activate()
+  tabStripContainer.appendChild(tabs.element)
  }
  suggestedMessagesContainer.innerHTML = ''
  suggestedMessagesContainer.appendChild(

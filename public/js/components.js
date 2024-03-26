@@ -9,7 +9,12 @@ function tabStrip(currentTabKey, setTabKey) {
 
  const tabs = []
 
- function add(key, label, contentHandler) {
+ function add(
+  key,
+  label,
+  contentHandler,
+  switchToHandler
+ ) {
   const tab = elem({
    classes: ['tab'],
    textContent: label,
@@ -20,7 +25,12 @@ function tabStrip(currentTabKey, setTabKey) {
    },
   })
   tabsContainer.appendChild(tab)
-  const tabObject = { key, tab, contentHandler }
+  const tabObject = {
+   key,
+   tab,
+   contentHandler,
+   switchToHandler,
+  }
   tabs.push(tabObject)
 
   return {
@@ -35,6 +45,7 @@ function tabStrip(currentTabKey, setTabKey) {
   )
   tabObject.tab.classList.add('active')
   tabObject.contentHandler.switchTo()
+  tabObject.switchToHandler?.()
   if (currentTabKey !== tabObject.key) {
    await setTabKey(tabObject.key)
    currentTabKey = tabObject.key
