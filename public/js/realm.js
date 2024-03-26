@@ -55,6 +55,14 @@ async function renderRealm(
   ),
   switchToMode('other')
  )
+ tabs.add(
+  'schedule',
+  'Schedule',
+  contents.add((container) =>
+   realmSchedule(container, session)
+  ),
+  switchToMode('other')
+ )
  tabStripContainer.innerHTML = ''
  await tabs.activate()
  tabStripContainer.appendChild(tabs.element)

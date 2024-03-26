@@ -36,6 +36,31 @@ function explorerItem(
  })
  element.appendChild(nameElement)
 
+ const noteElement = elem({
+  attributes: {
+   title: 'Edit note',
+  },
+  classes: ['explorer-item-note'],
+  textContent: item.note,
+  events: {
+   async click() {
+    const newNote = prompt(
+     `"${item.name}" note`,
+     item.note
+    )
+    if (typeof newNote === 'string') {
+     await store.patch(item.id, {
+      ...item,
+      note: newNote,
+     })
+     item.note = newNote
+     noteElement.textContent = newNote
+    }
+   },
+  },
+ })
+ element.appendChild(noteElement)
+
  if (itemAction) {
   const actionButton = elem({
    tagName: 'button',

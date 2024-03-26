@@ -4,6 +4,11 @@ function tabStrip(currentTabKey, setTabKey) {
  })
  const tabsContainer = elem({
   classes: ['tabs-container'],
+  children: [
+   elem({
+    classes: ['tab-spacer'],
+   }),
+  ],
  })
  element.appendChild(tabsContainer)
 
@@ -80,6 +85,11 @@ function tabStrip(currentTabKey, setTabKey) {
  }
 
  async function activate() {
+  tabsContainer.appendChild(
+   elem({
+    classes: ['tab-spacer'],
+   })
+  )
   const matchingTab = tabs.find(
    (t) => t.key === currentTabKey
   )
