@@ -310,9 +310,12 @@ main > p {
 footer {
  font-size: 12px;
  line-height: 1.65;
- opacity: 0.65;
+ opacity: 0;
  padding: 8px 15px;
- transition: opacity 0.5s ease;
+}
+
+body[data-mode] footer {
+ opacity: 0.65;
 }
 
 footer:hover {
@@ -355,21 +358,26 @@ footer > p {
  right: 20px;
 }
 
-body.send-consent-granted
+:root
+ body[data-mode='main'].send-consent-granted
  .send-consent-not-granted {
  display: none;
 }
 
-body .send-consent-granted {
+:root
+ body[data-mode='main']
+ .send-consent-granted {
  display: none;
 }
 
-body.send-consent-granted
+:root
+ body[data-mode='main'].send-consent-granted
  .send-consent-granted {
  display: inherit;
 }
 
-body.send-consent-granted
+:root
+ body[data-mode='main'].send-consent-granted
  .send-consent-granted {
  display: block;
 }
@@ -1192,13 +1200,15 @@ body.scroll-up .activity-container {
 
 .activity-container,
 .mode-activity,
-.mode-other {
+.mode-other,
+.mode-main {
  display: none;
 }
 
 body[data-mode='activity'] .activity-container,
 body[data-mode='activity'] .mode-activity,
-body[data-mode='other'] .mode-other {
+body[data-mode='other'] .mode-other,
+body[data-mode='main'] .mode-main {
  display: inherit;
 }
 
