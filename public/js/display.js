@@ -705,11 +705,10 @@ function attachMessage(
       : undefined,
      events: {
       click(e) {
-       e.preventDefault()
-       composeTextarea.innerText = message.text
-       composeTextarea.focus()
-       composeTextarea.selectionStart =
-        composeTextarea.value.length
+        e.preventDefault()
+        composeTextarea.focus()
+        composeTextarea.value = message.text
+        composeTextarea.selectionStart = composeTextarea.value.length
       },
      },
      tagName: 'a',
