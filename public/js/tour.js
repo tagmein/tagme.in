@@ -60,7 +60,7 @@ function tour() {
       },
      },
      tagName: 'button',
-     textContent: 'Exit tour',
+     textContent: 'Done',
     })
    )
   } else {
