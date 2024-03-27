@@ -29,11 +29,59 @@ function tour() {
  function next() {
   if (tourPointer === elements.length - 1) {
    tourPointer = 0
+   exitTour()
+   const tourFinished = dialog(
+    false, // Omit cancel button
+    elem({
+     tagName: 'h2',
+     textContent: 'End of tour',
+    }),
+    elem({
+     tagName: 'p',
+     textContent:
+      "You've reached the end of the Tag Me In tour." +
+      ' You can start the tour over, or start using Tag Me In.',
+    }),
+    elem({
+     events: {
+      click: () => {
+       tour()
+       nextButton.focus()
+       tourFinished.close()
+      },
+     },
+     tagName: 'button',
+     textContent: 'Restart tour',
+    }),
+    elem({
+     events: {
+      click: () => tourFinished.close(),
+     },
+     tagName: 'button',
+     textContent: 'Done',
+    })
+   )
   } else {
    tourPointer++
+   refreshTour()
   }
-  refreshTour()
  }
+
+ const exitButton = elem({
+  tagName: 'button',
+  textContent: 'Exit',
+  events: {
+   click: exitTour,
+  },
+ })
+
+ const backButton = elem({
+  tagName: 'button',
+  textContent: 'Back',
+  events: {
+   click: back,
+  },
+ })
 
  const nextButton = elem({
   tagName: 'button',
@@ -46,20 +94,8 @@ function tour() {
  const tourButtons = elem({
   classes: ['tour-buttons'],
   children: [
-   elem({
-    tagName: 'button',
-    textContent: 'Exit',
-    events: {
-     click: exitTour,
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Back',
-    events: {
-     click: back,
-    },
-   }),
+   exitButton,
+   backButton,
    nextButton,
   ],
  })
