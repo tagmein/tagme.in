@@ -29,6 +29,7 @@ function tour() {
  function next() {
   if (tourPointer === elements.length - 1) {
    tourPointer = 0
+   exitTour()
    const tourFinished = dialog(
     false, // Omit cancel button
     elem({
@@ -39,12 +40,12 @@ function tour() {
      tagName: 'p',
      textContent:
       "You've reached the end of the Tag Me In tour." +
-      ' You can start the tour over, or start using Me In.',
+      ' You can start the tour over, or start using Tag Me In.',
     }),
     elem({
      events: {
       click: () => {
-       refreshTour()
+       tour()
        nextButton.focus()
        tourFinished.close()
       },
@@ -54,10 +55,7 @@ function tour() {
     }),
     elem({
      events: {
-      click: () => {
-       exitTour()
-       tourFinished.close()
-      },
+      click: () => tourFinished.close(),
      },
      tagName: 'button',
      textContent: 'Done',
