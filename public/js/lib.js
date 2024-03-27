@@ -633,15 +633,14 @@ async function politeAlert(
 }
 
 function dialog(...children) {
- const alertContainer = elem({
-  classes: ['alert-container'],
-  attributes: {
-   tabIndex: 0,
-  },
-  children: [
-   elem({
-    children,
-   }),
+ const cancelButton = !children.includes(false)
+ const compChildren = [
+  elem({
+   children: children.filter((v) => typeof v !== 'boolean'),
+  }),
+ ]
+ if (cancelButton) {
+  compChildren.push(
    elem({
     events: {
      click() {
@@ -650,8 +649,15 @@ function dialog(...children) {
     },
     tagName: 'button',
     textContent: 'Cancel',
-   }),
-  ],
+   })
+  )
+ }
+ const alertContainer = elem({
+  classes: ['alert-container'],
+  attributes: {
+   tabIndex: 0,
+  },
+  children: compChildren,
  })
  const dialogBox = elem({
   classes: ['alert-shade'],
