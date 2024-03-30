@@ -192,12 +192,24 @@ function displayAppAccounts() {
  return { add, element }
 }
 
+async function getChannelMessageReplies(
+ messageChannel
+) {
+ return await withLoading(
+  networkChannelSeek(
+   messageChannel,
+   getHourNumber()
+  )
+ )
+}
+
 async function displayChannelMessageReplies(
  messageChannel,
  formattedChannelMessageData,
  messageText
 ) {
  mainContent.innerHTML = ''
+
  const message =
   formattedChannelMessageData.find(
    (x) => x.text === messageText
@@ -207,13 +219,9 @@ async function displayChannelMessageReplies(
    '<p style="padding: 0 30px">This content is not available</p>'
   return
  }
- const replyChannelData = await withLoading(
-  networkChannelSeek(
-   messageChannel,
-   getHourNumber()
-  )
- )
 
+ const replyChannelData =
+  await getChannelMessageReplies(messageChannel)
  const formattedReplyMessageData =
   formatMessageData(
    replyChannelData.response.messages
@@ -290,8 +298,9 @@ function displayChannelHome(
  )
 }
 
-function displayChannelMessage(
+async function displayChannelMessage(
  channel,
+ messageChannel,
  formattedMessageData,
  messageText
 ) {
@@ -344,7 +353,13 @@ function displayChannelMessage(
    message,
    true,
    undefined,
-   true
+   Object.entries(
+    (
+     await getChannelMessageReplies(
+      messageChannel
+     )
+    ).response.messages
+   ).length
   )
  } else {
   messageContent.innerHTML =
@@ -400,7 +415,7 @@ function attachChannels(container, channels) {
  )
 }
 
-function attachMessages(
+async function attachMessages(
  channel,
  container,
  messages,
@@ -573,11 +588,13 @@ function attachMessage(
   article.appendChild(messageFooter)
   async function renderFooter() {
    messageFooter.innerHTML = ''
-   const numReplies = 0
-   if (numReplies > 0) {
+   if (
+    typeof copyToReply !== 'boolean' &&
+    copyToReply > 0
+   ) {
     const numReply = elem({
      tagName: 'span',
-     textContent: `${numReplies} replies`,
+     textContent: `${copyToReply} replies`,
     })
     messageFooter.appendChild(numReply)
     messageFooter.appendChild(
@@ -707,7 +724,10 @@ function attachMessage(
     )
     messageFooter.appendChild(sendToLink)
    }
-   if (copyToReply) {
+   if (
+    typeof copyToReply === 'boolean' &&
+    copyToReply
+   ) {
     const copyToReplyLink = elem({
      attributes: {
       href,
