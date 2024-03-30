@@ -573,6 +573,20 @@ function attachMessage(
   article.appendChild(messageFooter)
   async function renderFooter() {
    messageFooter.innerHTML = ''
+   const numReplies = 0
+   if (numReplies > 0) {
+    const numReply = elem({
+     tagName: 'span',
+     textContent: `${numReplies} replies`,
+    })
+    messageFooter.appendChild(numReply)
+    messageFooter.appendChild(
+     elem({
+      tagName: 'span',
+      textContent: ' • ',
+     })
+    )
+   }
    const href = `/#/${encodeURIComponent(
     channel
    )}/${btoa(encodeURIComponent(message.text))}`
@@ -705,10 +719,11 @@ function attachMessage(
       : undefined,
      events: {
       click(e) {
-        e.preventDefault()
-        composeTextarea.focus()
-        composeTextarea.value = message.text
-        composeTextarea.selectionStart = composeTextarea.value.length
+       e.preventDefault()
+       composeTextarea.focus()
+       composeTextarea.value = message.text
+       composeTextarea.selectionStart =
+        composeTextarea.value.length
       },
      },
      tagName: 'a',
