@@ -686,6 +686,7 @@ async function route() {
  if (typeof messageText === 'string') {
   displayChannelMessage(
    channel,
+   messageChannel,
    formattedMessageData,
    messageText
   )
