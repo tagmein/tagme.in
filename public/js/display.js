@@ -290,7 +290,8 @@ function displayChannelHome(
   true,
   undefined,
   sendToRealm,
-  false
+  false,
+  true
  )
  attachChannels(
   mainContent,
@@ -422,7 +423,8 @@ async function attachMessages(
  includeFooter = true,
  emptyMessage = undefined,
  sendToRealm = undefined,
- copyToReply = false
+ copyToReply = false,
+ showReplies = false
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -435,13 +437,26 @@ async function attachMessages(
   )
  }
  for (const index in messages) {
+  const messageChannel = messageReplyChannel(
+   channel,
+   messages[index].text
+  )
+  const numReplies = showReplies
+   ? Object.entries(
+      (
+       await getChannelMessageReplies(
+        messageChannel
+       )
+      ).response.messages
+     ).length
+   : 0
   attachMessage(
    channel,
    container,
    messages[index],
    includeFooter,
    sendToRealm,
-   copyToReply,
+   copyToReply ? copyToReply : numReplies,
    index === '0'
   )
  }
