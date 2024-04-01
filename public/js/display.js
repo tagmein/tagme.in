@@ -705,10 +705,11 @@ function attachMessage(
       : undefined,
      events: {
       click(e) {
-        e.preventDefault()
-        composeTextarea.focus()
-        composeTextarea.value = message.text
-        composeTextarea.selectionStart = composeTextarea.value.length
+       e.preventDefault()
+       composeTextarea.focus()
+       composeTextarea.value = message.text
+       composeTextarea.selectionStart =
+        composeTextarea.value.length
       },
      },
      tagName: 'a',
@@ -1143,13 +1144,14 @@ function displayActivity() {
   }
  }
 
- function show() {
+ async function show() {
   isVisible = true
   document.body.setAttribute(
    'data-mode',
    'activity'
   )
-  load()
+  await load()
+  fakeScroll()
  }
 
  function hide() {
@@ -1164,7 +1166,7 @@ function displayActivity() {
  let lastMessages = []
 
  async function load() {
-  loadMore(undefined, function () {
+  return await loadMore(undefined, function () {
    element.innerHTML = ''
    lastMessages = []
   })
