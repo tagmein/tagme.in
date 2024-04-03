@@ -1166,7 +1166,7 @@ function displayActivity() {
  let lastMessages = []
 
  async function load() {
-  return await loadMore(undefined, function () {
+  await loadMore(undefined, function () {
    element.innerHTML = ''
    lastMessages = []
   })
