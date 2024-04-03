@@ -531,8 +531,8 @@ function scrolledPastBottom(
  exemptZeroScroll = false
 ) {
  if (
-  !exemptZeroScroll &&
-  (scrollY < 1 || !element.checkVisibility())
+  (!exemptZeroScroll && scrollY < 1) ||
+  !element.checkVisibility()
  ) {
   return false
  }
@@ -562,7 +562,10 @@ addEventListener('scroll', () => {
   document.body.classList.add('scroll-zero')
  }
  if (
-  scrolledPastBottom(activityContainer.element)
+  scrolledPastBottom(
+   activityContainer.element,
+   true
+  )
  ) {
   activityContainer.element.classList.add(
    'scrolled-past-bottom'

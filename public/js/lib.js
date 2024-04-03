@@ -636,7 +636,9 @@ function dialog(...children) {
  const cancelButton = !children.includes(false)
  const compChildren = [
   elem({
-   children: children.filter((v) => typeof v !== 'boolean'),
+   children: children.filter(
+    (v) => typeof v !== 'boolean'
+   ),
   }),
  ]
  if (cancelButton) {
@@ -1365,4 +1367,8 @@ function scrollToTop() {
  scrollTo(0, 0)
  document.body.classList.remove('scroll-up')
  document.body.classList.add('scroll-zero')
+}
+
+function fakeScroll() {
+ window.dispatchEvent(new CustomEvent('scroll'))
 }
