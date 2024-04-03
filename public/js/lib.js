@@ -215,12 +215,11 @@ function addTextWithCodeBlocks(
 }
 
 const isYouTubeUrl =
- /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/
+ /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]{11}).*/
 
 function addYouTubeEmbed(container, text) {
  const match = text.match(isYouTubeUrl)
-
- if (match && match[2].length == 11) {
+ if (match && match[2].length === 11) {
   const id = match[2]
   const frame = document.createElement('iframe')
   frame.setAttribute('width', '100%')
