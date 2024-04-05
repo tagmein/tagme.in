@@ -53,6 +53,12 @@ function safeDecodeURI(uri) {
  return uri
 }
 
+function decodeHTMLEntities(text) {
+  const txt = document.createElement('textarea')
+  txt.innerHTML = text
+  return txt.value
+}
+
 function addTextWithLinks(container, text) {
  const parts = text.split(/(https?:\/\/[^\s]+)/)
  let isAfterLink = false
@@ -154,6 +160,8 @@ function addTextWithCodeBlocks(
  let codeContent = ''
  let isEscape = false
  let textContent = ''
+
+ text = decodeHTMLEntities(text)
 
  for (let i = 0; i < text.length; i++) {
   const char = text[i]
