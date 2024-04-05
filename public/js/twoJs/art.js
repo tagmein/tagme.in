@@ -53,6 +53,7 @@ function update(frameCount, timeDelta) {
 two.bind('update', update)
 
 const mouse = new Two.Vector()
+mouse.intersection = null
 var x, y, line
 
 art.addEventListener('mousedown', (e) => {
@@ -73,11 +74,11 @@ function drag(e) {
  if (!line) {
   line = two.makeCurve(
    makePoint(mouse),
-   makePoint(x, y)
+   makePoint(x, y),
+   true
   )
-  line.fill = '#000'
-  line.stroke = '#000'
   line.linewidth = 2
+  line.noFill().stroke = '#000'
   line.vertices.forEach((v) => {
    v.addSelf(line.translation)
   })
