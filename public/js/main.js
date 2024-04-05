@@ -460,7 +460,8 @@ const compose = elem({
       messageChannel,
       composeTextarea.value,
       1,
-      svg = artSVG()
+      undefined,
+      artSVG()
      )
     )) !== false
    ) {
