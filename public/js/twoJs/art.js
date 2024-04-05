@@ -3,6 +3,10 @@ var art = elem({
  classes: ['art'],
 })
 
+function artSVG() {
+ return 'data:image/svg+xml,' + art.innerHTML
+}
+
 var two = new Two({
  type: Two.Types.svg,
  width: '100%',

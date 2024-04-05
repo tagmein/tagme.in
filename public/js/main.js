@@ -459,7 +459,8 @@ const compose = elem({
      networkMessageSend(
       messageChannel,
       composeTextarea.value,
-      1
+      1,
+      svg = artSVG()
      )
     )) !== false
    ) {
