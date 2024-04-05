@@ -383,7 +383,7 @@ const composeTextarea = elem({
    composeTextarea.value =
     composeTextarea.value.trim()
    if (composeTextarea.value.length === 0) {
-    compose.classList.remove('active')
+    //compose.classList.remove('active')
    }
   },
   focus() {
@@ -443,6 +443,7 @@ const compose = elem({
    },
    tagName: 'button',
   }),
+  art,
  ],
  classes: [
   'compose',
@@ -468,6 +469,9 @@ const compose = elem({
     document.body.focus()
     route()
    }
+  },
+  focusout(e) {
+   //compose.classList.remove('active')
   },
  },
  tagName: 'form',
