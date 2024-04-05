@@ -5,7 +5,17 @@ var art = elem({
 
 var two = new Two({
  type: Two.Types.svg,
+ width: '100%',
+ height: '100%',
 }).appendTo(art)
+
+function sanitizeX(x) {
+ return x - art.getBoundingClientRect().left
+}
+
+function sanitizeY(y) {
+ return y - art.getBoundingClientRect().top
+}
 
 function makePoint(x, y) {
  if (arguments.length <= 1) {
@@ -46,7 +56,10 @@ const mouse = new Two.Vector()
 var x, y, line
 
 art.addEventListener('mousedown', (e) => {
- mouse.set(e.clientX, e.clientY)
+ mouse.set(
+  sanitizeX(e.clientX),
+  sanitizeY(e.clientY)
+ )
  line = null
 
  art.addEventListener('mousemove', drag)
@@ -54,16 +67,17 @@ art.addEventListener('mousedown', (e) => {
 })
 
 function drag(e) {
- x = e.clientX
- y = e.clientY
+ x = sanitizeX(e.clientX)
+ y = sanitizeY(e.clientY)
 
  if (!line) {
-  const v1 = makePoint(mouse)
-  const v2 = makePoint(x, y)
-  line = two.makeCurve([v1, v2])
-  line.noFill()
-  line.stroke = '#333'
-  line.linewidth = 10
+  line = two.makeCurve(
+   makePoint(mouse),
+   makePoint(x, y)
+  )
+  line.fill = '#000'
+  line.stroke = '#000'
+  line.linewidth = 2
   line.vertices.forEach((v) => {
    v.addSelf(line.translation)
   })
