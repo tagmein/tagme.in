@@ -1,6 +1,5 @@
 import { CivilMemoryKV } from '@tagmein/civil-memory'
 import { getHourNumber } from './getHourNumber.js'
-import { safetyScan } from './safetyScan.js'
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
 const MESSAGE_PERSIST_THRESHOLD = 5
@@ -342,16 +341,6 @@ export function scroll(
        timestamp,
        velocity: 0,
       }
-   if (!('seen' in messageData)) {
-    // this is a new message
-    const safetyScanResult = await safetyScan(
-     workersAIApiToken,
-     message
-    )
-    if (typeof safetyScanResult === 'string') {
-     throw new Error(safetyScanResult)
-    }
-   }
    const timeDelta =
     timestamp - messageData.timestamp
    const positionDelta =

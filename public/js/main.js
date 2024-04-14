@@ -427,13 +427,6 @@ const realmControlContainer = elem({
  classes: ['realm-control', 'mode-other'],
 })
 
-const suggestedMessagesContainer = elem({
- classes: [
-  'generated-messages-container',
-  'mode-main',
- ],
-})
-
 const compose = elem({
  children: [
   composeTextarea,
@@ -517,7 +510,6 @@ const { body } = document
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
 body.appendChild(realmControlContainer)
-body.appendChild(suggestedMessagesContainer)
 body.appendChild(messageContent)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
@@ -650,9 +642,6 @@ async function route() {
  const formattedMessageData = formatMessageData(
   channelData.response.messages
  )
- const suggestContainer = elem({
-  classes: ['generated-messages'],
- })
  if (activeSessionId !== PUBLIC_SESSION_ID) {
   renderRealm(
    realmControlContainer,
@@ -675,17 +664,6 @@ async function route() {
   await tabs.activate()
   tabStripContainer.appendChild(tabs.element)
  }
- suggestedMessagesContainer.innerHTML = ''
- suggestedMessagesContainer.appendChild(
-  suggestContainer
- )
- suggestMessages(
-  suggestContainer,
-  composeTextarea,
-  formattedMessageData,
-  channel,
-  messageText
- ).catch((e) => console.error(e))
  if (typeof messageText === 'string') {
   displayChannelMessage(
    channel,
@@ -745,7 +723,7 @@ Tag Me In intends to be the first social network to welcome our animal brothers 
 
 To support this mission, Tag Me In is run as a social experiment that asks: what if we came together with the highest imaginable ethical guidelines to collaborate on a vision for a brighter future for animals on Earth?
 
-By interacting with Tag Me In, you consent for your messages to be sent to an artificial intelligence system for evaluation on the following criteria:
+By interacting with Tag Me In, you consent for your messages to be sent to an artificial intelligence system, other human beings, or other technological systems by any group, organization, or government agency of any nation (moderation technology on Tag Me In is open to the public) for evaluation on the following criteria:
 
  • Violence or harmful language
  • Discrimination based on group characteristics
