@@ -119,7 +119,7 @@ function addHashTagLinks(
  text,
  isAfterLink
 ) {
- const parts = text.split(/(#[^,.\s]*)/)
+ const parts = text.split(/(?<!\&)#[^,.\s]*/)
 
  parts.forEach((part) => {
   if (part[0] === '#') {
