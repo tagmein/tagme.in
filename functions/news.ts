@@ -44,10 +44,10 @@ export const onRequestGet: PagesFunction<
 
  async function scrollNews() {
   try {
-   const data = await scroll(
-    kv,
-    context.env.WORKERS_AI_API_TOKEN
-   ).news(chunk, includeNewMessages)
+   const data = await scroll(kv).news(
+    chunk,
+    includeNewMessages
+   )
    return data
   } catch (e) {
    return JSON.stringify({

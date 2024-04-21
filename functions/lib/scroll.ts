@@ -20,10 +20,7 @@ interface NewsItem {
  seen: number
 }
 
-export function scroll(
- kv: CivilMemoryKV,
- workersAIApiToken: string
-) {
+export function scroll(kv: CivilMemoryKV) {
  const timestamp = Date.now()
  const hour = getHourNumber()
  const kHour = Math.floor(hour / 1e3)

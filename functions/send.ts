@@ -140,10 +140,7 @@ export const onRequestPost: PagesFunction<Env> =
   }
 
   try {
-   await scroll(
-    kv,
-    context.env.WORKERS_AI_API_TOKEN
-   )
+   await scroll(kv)
     .channel(channel)
     .send(message, velocity)
   } catch (error) {

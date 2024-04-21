@@ -341,21 +341,29 @@ footer > p {
 }
 
 .compose {
- bottom: -197px;
- left: 40px;
+ bottom: -177px;
+ left: 50%;
+ max-width: 50vw;
  opacity: 0.85;
  position: fixed;
- right: 40px;
+ transform: translateX(-50%);
  transition: 0.5s left ease, 0.5s right ease,
   0.5s bottom ease, 0.5s opacity ease;
  z-index: 2;
 }
 
+.compose textarea::placeholder {
+ color: white;
+}
+
 .compose.active {
- bottom: -2px;
+ bottom: unset;
  left: 20px;
+ max-width: unset;
  opacity: 1;
  right: 20px;
+ top: 50dvh;
+ transform: translateY(-50%);
 }
 
 :root
@@ -724,8 +732,7 @@ footer {
 
 .compose textarea {
  background-color: var(--color-bg-primary);
- border-top-left-radius: 10px;
- border-top-right-radius: 10px;
+ border-radius: 10px;
 }
 
 .compose button.submit {

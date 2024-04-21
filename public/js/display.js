@@ -21,7 +21,7 @@ function displayAppAccounts() {
    icon('globe', 'sm'),
    elem({
     tagName: 'span',
-    textContent: 'Public',
+    textContent: 'Earth',
    }),
   ],
   events: {
