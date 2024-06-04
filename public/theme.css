@@ -366,6 +366,11 @@ footer > p {
  transform: translateY(-50%);
 }
 
+.art {
+  background-color: var(--color-bg-dropdown-item-hover);
+  height: 200px;
+}
+
 :root
  body[data-mode='main'].send-consent-granted
  .send-consent-not-granted {
