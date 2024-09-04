@@ -119,8 +119,9 @@ function addHashTagLinks(
  text,
  isAfterLink
 ) {
- const parts = text.split(/(?<!\&)#[^,.\s]*/)
-
+ const parts = text.match(
+  /((?<!\&)#[^,.\s]*)|([^#]+)|(\&#\d*;?)/g
+ )
  parts.forEach((part) => {
   if (part[0] === '#') {
    const channel = decodeURIComponent(
