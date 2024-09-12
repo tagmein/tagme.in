@@ -192,12 +192,24 @@ function displayAppAccounts() {
  return { add, element }
 }
 
+async function getChannelMessageReplies(
+ messageChannel
+) {
+ return await withLoading(
+  networkChannelSeek(
+   messageChannel,
+   getHourNumber()
+  )
+ )
+}
+
 async function displayChannelMessageReplies(
  messageChannel,
  formattedChannelMessageData,
  messageText
 ) {
  mainContent.innerHTML = ''
+
  const message =
   formattedChannelMessageData.find(
    (x) => x.text === messageText
@@ -207,13 +219,9 @@ async function displayChannelMessageReplies(
    '<p style="padding: 0 30px">This content is not available</p>'
   return
  }
- const replyChannelData = await withLoading(
-  networkChannelSeek(
-   messageChannel,
-   getHourNumber()
-  )
- )
 
+ const replyChannelData =
+  await getChannelMessageReplies(messageChannel)
  const formattedReplyMessageData =
   formatMessageData(
    replyChannelData.response.messages
@@ -282,7 +290,8 @@ function displayChannelHome(
   true,
   undefined,
   sendToRealm,
-  false
+  false,
+  true
  )
  attachChannels(
   mainContent,
@@ -290,8 +299,9 @@ function displayChannelHome(
  )
 }
 
-function displayChannelMessage(
+async function displayChannelMessage(
  channel,
+ messageChannel,
  formattedMessageData,
  messageText
 ) {
@@ -344,7 +354,13 @@ function displayChannelMessage(
    message,
    true,
    undefined,
-   true
+   Object.entries(
+    (
+     await getChannelMessageReplies(
+      messageChannel
+     )
+    ).response.messages
+   ).length
   )
  } else {
   messageContent.innerHTML =
@@ -400,14 +416,15 @@ function attachChannels(container, channels) {
  )
 }
 
-function attachMessages(
+async function attachMessages(
  channel,
  container,
  messages,
  includeFooter = true,
  emptyMessage = undefined,
  sendToRealm = undefined,
- copyToReply = false
+ copyToReply = false,
+ showReplies = false
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -420,13 +437,26 @@ function attachMessages(
   )
  }
  for (const index in messages) {
+  const messageChannel = messageReplyChannel(
+   channel,
+   messages[index].text
+  )
+  const numReplies = showReplies
+   ? Object.entries(
+      (
+       await getChannelMessageReplies(
+        messageChannel
+       )
+      ).response.messages
+     ).length
+   : 0
   attachMessage(
    channel,
    container,
    messages[index],
    includeFooter,
    sendToRealm,
-   copyToReply,
+   copyToReply ? copyToReply : numReplies,
    index === '0'
   )
  }
@@ -573,6 +603,22 @@ function attachMessage(
   article.appendChild(messageFooter)
   async function renderFooter() {
    messageFooter.innerHTML = ''
+   if (
+    typeof copyToReply !== 'boolean' &&
+    copyToReply > 0
+   ) {
+    const numReply = elem({
+     tagName: 'span',
+     textContent: `${copyToReply} replies`,
+    })
+    messageFooter.appendChild(numReply)
+    messageFooter.appendChild(
+     elem({
+      tagName: 'span',
+      textContent: ' • ',
+     })
+    )
+   }
    const href = `/#/${encodeURIComponent(
     channel
    )}/${btoa(encodeURIComponent(message.text))}`
@@ -693,7 +739,10 @@ function attachMessage(
     )
     messageFooter.appendChild(sendToLink)
    }
-   if (copyToReply) {
+   if (
+    typeof copyToReply === 'boolean' &&
+    copyToReply
+   ) {
     const copyToReplyLink = elem({
      attributes: {
       href,
