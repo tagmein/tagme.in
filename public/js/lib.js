@@ -798,12 +798,14 @@ async function networkMessageSend(
  channel,
  message,
  velocity = 0,
- sessionId
+ sessionId,
+ svg,
 ) {
  const body = JSON.stringify({
   channel,
   message,
   velocity,
+  svg,
  })
  const headers = {
   'Content-Length': body.length,
