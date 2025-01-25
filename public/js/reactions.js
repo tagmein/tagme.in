@@ -58,15 +58,18 @@ async function fetchReactions() {
  }
 
  try {
-  const response = await fetch('/reactions', {
-   method: 'POST',
-   headers: {
-    'Content-Type': 'application/json',
-   },
-   body: JSON.stringify({
-    getForMessageIds: uncachedMessageIds,
-   }),
-  })
+  const response = await fetch(
+   `${networkRootUrl()}/reactions`,
+   {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     getForMessageIds: uncachedMessageIds,
+    }),
+   }
+  )
 
   if (!response.ok)
    throw new Error('Failed to fetch reactions')
@@ -154,7 +157,7 @@ async function addReaction(
  reaction
 ) {
  try {
-  await fetch('/reactions', {
+  await fetch(`${networkRootUrl()}/reactions`, {
    method: 'POST',
    headers: {
     'Content-Type': 'application/json',

@@ -4,11 +4,11 @@ import { getKV } from './lib/getKV.js'
 import { scroll } from './lib/scroll.js'
 
 interface GetReactionsBody {
- getForMessageIds: number[]
+ getForMessageIds: string[]
 }
 
 interface CreateReactionBody {
- createForMessageId: number
+ createForMessageId: string
  reaction: string
 }
 
@@ -16,125 +16,146 @@ type RequestBody =
  | GetReactionsBody
  | CreateReactionBody
 
-async function validateRequestBody(
+async function readRequestBody(
  request: Request
+) {
+ const contentType = request.headers.get(
+  'content-type'
+ )
+ if (!contentType) {
+  throw new Error('Missing content-type header')
+ }
+
+ if (contentType.includes('application/json')) {
+  const data = await request.json()
+  if (!data || typeof data !== 'object') {
+   throw new Error('Invalid JSON body')
+  }
+  return data as RequestBody
+ }
+
+ throw new Error('Unsupported content type')
+}
+
+async function validateRequestBody(
+ data: RequestBody
 ): Promise<{
  error?: string
  data: RequestBody
 }> {
- try {
-  const data: RequestBody = await request.json()
-
-  if (!data || typeof data !== 'object') {
-   throw new Error('missing data')
-  }
-
-  // Check if it's a get reactions request
+ // Check if it's a get reactions request
+ if (
+  'getForMessageIds' in data &&
+  Array.isArray(data.getForMessageIds)
+ ) {
   if (
-   'getForMessageIds' in data &&
-   Array.isArray(data.getForMessageIds)
+   !data.getForMessageIds.every(
+    (id) => typeof id === 'string'
+   )
   ) {
-   if (
-    !data.getForMessageIds.every(
-     (id) => typeof id === 'string'
-    )
-   ) {
-    return {
-     error:
-      'getForMessageIds must be an array of strings',
-     data: data as RequestBody,
-    }
+   return {
+    error:
+     'getForMessageIds must be an array of strings',
+    data,
    }
-   return { data: data as GetReactionsBody }
   }
+  return { data: data as GetReactionsBody }
+ }
 
-  // Check if it's a create reaction request
-  if (
-   'createForMessageId' in data &&
-   typeof data.createForMessageId ===
-    'number' &&
-   'reaction' in data &&
-   typeof data.reaction === 'string'
-  ) {
-   if (data.reaction.length > 25) {
-    return {
-     error:
-      'reaction must be 25 characters or less',
-     data: data as RequestBody,
-    }
+ // Check if it's a create reaction request
+ if (
+  'createForMessageId' in data &&
+  typeof data.createForMessageId === 'string' &&
+  'reaction' in data &&
+  typeof data.reaction === 'string'
+ ) {
+  if (data.reaction.length > 25) {
+   return {
+    error:
+     'reaction must be 25 characters or less',
+    data,
    }
+  }
 
-   if (data.reaction !== data.reaction.trim()) {
-    return {
-     error:
-      'reaction must not start or end with space',
-     data: data as RequestBody,
-    }
+  if (data.reaction !== data.reaction.trim()) {
+   return {
+    error:
+     'reaction must not start or end with space',
+    data,
    }
-
-   return { data: data as CreateReactionBody }
   }
 
-  return {
-   error: 'invalid request body format',
-   data: data as RequestBody,
-  }
- } catch (e) {
-  return {
-   error:
-    'unable to parse incoming JSON post body',
-   data: { getForMessageIds: [] },
-  }
+  return { data: data as CreateReactionBody }
+ }
+
+ return {
+  error: 'invalid request body format',
+  data,
  }
 }
 
 export default {
  async fetch(request: Request, env: Env) {
+  // Only allow POST requests
   if (request.method !== 'POST') {
    return new Response('Method not allowed', {
     status: 405,
+    headers: {
+     Allow: 'POST',
+    },
    })
   }
 
-  const { error, data } =
-   await validateRequestBody(request)
-
-  if (error) {
-   return new Response(error, { status: 400 })
-  }
-
-  const kv = await getKV({
-   env: {
-    ...env,
-    ASSETS: { fetch: globalThis.fetch },
-   },
-   request,
-  } as any)
-
-  if (!kv) {
-   return new Response(
-    JSON.stringify({
-     error: 'not authorized',
-    }),
-    {
-     headers: {
-      'Content-Type': 'application/json',
-     },
-     status: 401,
-    }
-   )
-  }
-
   try {
+   // Read and validate the request body
+   const body = await readRequestBody(request)
+   const { error, data } =
+    await validateRequestBody(body)
+
+   if (error) {
+    return new Response(
+     JSON.stringify({ error }),
+     {
+      status: 400,
+      headers: {
+       'Content-Type': 'application/json',
+      },
+     }
+    )
+   }
+
+   // Authenticate and get KV instance
+   const kv = await getKV({
+    env: {
+     ...env,
+     ASSETS: { fetch: globalThis.fetch },
+    },
+    request,
+   } as any)
+
+   if (!kv) {
+    return new Response(
+     JSON.stringify({
+      error: 'not authorized',
+     }),
+     {
+      status: 401,
+      headers: {
+       'Content-Type': 'application/json',
+      },
+     }
+    )
+   }
+
+   // Handle the request based on type
    if ('getForMessageIds' in data) {
     // Handle get reactions request
     const reactions = await Promise.all(
      data.getForMessageIds.map(
       async (messageId) => {
+       const MESSAGE_REACTIONS_CHANNEL = `reactions--message-${messageId}`
        const messageReactions = await scroll(kv)
-        .channel(
-         `reactions--message-${messageId}`
-        )
+        .channel(MESSAGE_REACTIONS_CHANNEL)
         .seek()
        return {
         messageId,
@@ -153,20 +174,36 @@ export default {
      }
     )
    } else {
+    const messageId = data.createForMessageId
+    const MESSAGE_REACTIONS_CHANNEL = `reactions--message-${messageId}`
     // Handle create reaction request
     await scroll(kv)
-     .channel('reactions')
-     .send(
-      `reaction${data.reaction}`,
-      data.createForMessageId
-     )
+     .channel(MESSAGE_REACTIONS_CHANNEL)
+     .send(`reaction${data.reaction}`, 1)
 
-    return new Response('reaction added')
+    return new Response(
+     JSON.stringify({
+      message: 'reaction added',
+     }),
+     {
+      headers: {
+       'Content-Type': 'application/json',
+      },
+     }
+    )
    }
   } catch (error) {
-   return new Response(error.message, {
-    status: 400,
-   })
+   return new Response(
+    JSON.stringify({
+     error: error.message,
+    }),
+    {
+     status: 400,
+     headers: {
+      'Content-Type': 'application/json',
+     },
+    }
+   )
   }
  },
 }
