@@ -36,12 +36,12 @@ async function validateRequestBody(
   ) {
    if (
     !data.getForMessageIds.every(
-     (id) => typeof id === 'number'
+     (id) => typeof id === 'string'
     )
    ) {
     return {
      error:
-      'getForMessageIds must be an array of numbers',
+      'getForMessageIds must be an array of strings',
      data: data as RequestBody,
     }
    }
