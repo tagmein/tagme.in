@@ -512,6 +512,7 @@ article blockquote {
  flex-grow: 0;
  flex-shrink: 0;
  justify-content: center;
+ min-width: 44px;
  width: 50%;
 }
 
@@ -766,8 +767,6 @@ footer {
 
 article {
  background-color: var(--color-bg-medium);
- border-bottom: 1px solid
-  var(--color-border-dark);
 }
 
 .article-tool-buttons > button.agree,
@@ -823,12 +822,13 @@ body,
 }
 
 .message-footer {
+ border-bottom: 1px solid var(--color-border-dark);
+ box-shadow: 0 4px 4px var(--color-shadow-dark);
+ margin-bottom: 8px;
  min-height: 23px;
  opacity: 0.65;
- transition: opacity 0.5s ease;
- margin-bottom: 8px;
  padding: 8px;
- box-shadow: 0 0 10px var(--color-shadow-dark);
+ transition: opacity 0.5s ease;
 }
 
 .message-footer a {
@@ -1172,8 +1172,14 @@ body.light-mode .icon-yes {
 }
 
 .activity-container {
+ height: fit-content;
+ left: 0;
+ min-height: 100dvh;
  padding: 8px;
+ position: absolute;
+ right: 0;
  top: 147px;
+ z-index: 1;
 }
 
 .activity-container-inner {
@@ -1210,9 +1216,10 @@ body.scroll-up .activity-container {
 body[data-mode='activity'] .activity-container,
 body[data-mode='activity'] .mode-activity,
 body[data-mode='other'] .mode-other,
-body[data-mode='main'] .mode-main {
+body[data-mode='main'] .mode-main, main.mode-main {
  display: inherit;
 }
+
 /* 
 body[data-mode='activity'] .mode-main,
 body[data-mode='activity'] .mode-other, */
@@ -1226,7 +1233,7 @@ body[data-mode='other'] .mode-main {
 }
 
 .news {
- margin-bottom: 22px;
+ padding-bottom: 22px;
 }
 
 .news > article {
@@ -1245,6 +1252,13 @@ body[data-mode='other'] .mode-main {
  max-height: 50vh;
  overflow-x: hidden;
  overflow-y: auto;
+}
+
+body[data-mode='activity'] .news > article > div {
+  display: inline;
+  max-height: unset;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .news-channel {

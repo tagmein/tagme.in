@@ -478,7 +478,11 @@ const messageContent = elem({
  attributes: {
   'data-tour': 'General channel information.',
  },
- classes: ['message-content', 'mode-main'],
+ classes: [
+  'message-content',
+  'mode-main',
+  'mode-activity',
+ ],
 })
 
 const mainContent = elem({
