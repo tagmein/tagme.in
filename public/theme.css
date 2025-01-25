@@ -1814,21 +1814,28 @@ body[data-mode='theme-selector'] {
   gap: 10px;
   min-height: calc(100dvh - 148px);
   padding: 10px;
-  overflow-x: auto;
-  overflow-y: hidden;
   height: calc(100dvh - 148px);
 }
 
 body[data-mode='theme-selector'] .theme-selector {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
-  flex-flow: column wrap-reverse;
+  flex-grow: 1;
+}
+
+body[data-mode='theme-selector'] .theme-selector-theme-list {
   align-content: flex-start;
   align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+  flex-flow: column wrap-reverse;
+  flex-wrap: wrap;
+  gap: 10px;
+  height: calc(100dvh - 368px);
   justify-content: flex-start;
-  height: calc(100dvh - 168px);
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 body[data-mode='theme-selector'] .tab-strip-container {
@@ -1839,7 +1846,7 @@ body[data-mode='theme-selector'] .app-header {
   height: 50px;
 }
 
-.theme-selector > button {
+.theme-selector > .theme-selector-theme-list > button {
   box-sizing: border-box;
   background-color: var(--color-bg-medium);
   color: var(--color-text-primary);
@@ -1953,8 +1960,7 @@ body[data-mode='theme-selector'] .app-header {
   color: invert(var(--theme-black--color-bg));
 }
 
-body[data-theme]::before {
-  content: '';
+.theme-filter {
   position: fixed;
   top: 0;
   left: 0;
@@ -1968,50 +1974,50 @@ body[data-theme]::before {
   opacity: 0.5;
 }
 
-body[data-theme='blue']::before {
+body[data-theme='blue'] *[data-theme-bg] {
   background-color: var(--theme-blue--color-bg);
 }
 
-body[data-theme='red']::before {
+body[data-theme='red'] *[data-theme-bg] {
   background-color: var(--theme-red--color-bg);
 }
-body[data-theme='green']::before {
+body[data-theme='green'] *[data-theme-bg] {
   background-color: var(--theme-green--color-bg);
 }
-body[data-theme='yellow']::before {
+body[data-theme='yellow'] *[data-theme-bg] {
   background-color: var(--theme-yellow--color-bg);
 }
-body[data-theme='gray']::before {
+body[data-theme='gray'] *[data-theme-bg] {
   background-color: var(--theme-gray--color-bg);
 }
-body[data-theme='cyan']::before {
+body[data-theme='cyan'] *[data-theme-bg] {
   background-color: var(--theme-cyan--color-bg);
 }
-body[data-theme='magenta']::before {
+body[data-theme='magenta'] *[data-theme-bg] {
   background-color: var(--theme-magenta--color-bg);
 }
-body[data-theme='darkred']::before {
+body[data-theme='darkred'] *[data-theme-bg] {
   background-color: var(--theme-darkred--color-bg);
 }
-body[data-theme='purple']::before {
+body[data-theme='purple'] *[data-theme-bg] {
   background-color: var(--theme-purple--color-bg);
 }
-body[data-theme='orange']::before {
+body[data-theme='orange'] *[data-theme-bg] {
   background-color: var(--theme-orange--color-bg);
 }
-body[data-theme='pink']::before {
+body[data-theme='pink'] *[data-theme-bg] {
   background-color: var(--theme-pink--color-bg);
 }
-body[data-theme='brown']::before {
+body[data-theme='brown'] *[data-theme-bg] {
   background-color: var(--theme-brown--color-bg);
 }
-body[data-theme='gray']::before {
+body[data-theme='gray'] *[data-theme-bg] {
   background-color: var(--theme-gray--color-bg);
 }
-body[data-theme='white']::before {
+body[data-theme='white'] *[data-theme-bg] {
   background-color: var(--theme-white--color-bg);
 }
-body[data-theme='black']::before {
+body[data-theme='black'] *[data-theme-bg] {
   background-color: var(--theme-black--color-bg);
 }
 
@@ -2074,4 +2080,35 @@ body.light-mode[data-theme='black'] button[data-theme='black'] {
   box-shadow: none;
   margin: inherit;
   width: inherit;
+}
+
+.theme-selector-opacity-slider {
+  padding: 10px;
+}
+
+.theme-selector-opacity-slider-label {
+  color: #808080;
+  content: 'Opacity';
+  display: block;
+  font-size: 16px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  opacity: 0.85;
+  text-align: center;
+  text-shadow: 1px 1px 1px #00000020, -1px -1px 1px #aaaaaa40;
+  text-transform: uppercase;
+}
+
+.theme-selector-opacity-slider:hover .theme-selector-opacity-slider-label {
+  opacity: 1;
+}
+
+.theme-selector-opacity-slider-input {
+  width: 100%;
+}
+
+.theme-selector-reset-button, .theme-selector-close-button {
+  padding: 10px;
+  border-radius: 15px;
+  width: 100%;
 }

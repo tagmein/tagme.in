@@ -1,39 +1,3 @@
-const themeNames = [
- 'black',
- 'blue',
- 'brown',
- 'cyan',
- 'darkred',
- 'gray',
- 'green',
- 'magenta',
- 'none',
- 'orange',
- 'pink',
- 'purple',
- 'red',
- 'white',
- 'yellow',
-]
-
-const setTheme = (themeName) => {
- document.body.setAttribute(
-  'data-theme',
-  themeName
- )
- currentTheme = themeName
- localStorage.setItem('theme', themeName)
-}
-
-let currentTheme = localStorage.getItem('theme')
-
-if (currentTheme) {
- document.body.setAttribute(
-  'data-theme',
-  currentTheme
- )
-}
-
 const lightDarkModeButton = elem({
  attributes: {
   'data-tour':
@@ -258,41 +222,6 @@ const tabStripContainer = elem({
  classes: ['tab-strip-container'],
 })
 
-const themeSelector = elem({
- classes: ['theme-selector'],
- children: themeNames.map((themeName) =>
-  elem({
-   attributes: {
-    'data-theme': themeName,
-   },
-   children: [
-    document.createTextNode(themeName),
-   ],
-   style: {
-    backgroundColor: `var(--theme-${themeName}--color-bg)`,
-   },
-   tagName: 'button',
-   events: {
-    click() {
-     setTheme(themeName)
-    },
-   },
-  })
- ),
-})
-
-let modeBeforeThemeSelector = undefined
-
-function exitThemeSelector() {
- document.body.removeAttribute('data-mode')
- if (modeBeforeThemeSelector) {
-  document.body.setAttribute(
-   'data-mode',
-   modeBeforeThemeSelector
-  )
- }
-}
-
 const themeSelectorButton = elem({
  attributes: {
   'data-tour': 'Switch theme.',
@@ -315,13 +244,17 @@ const themeSelectorButton = elem({
      'theme-selector'
     )
     setTimeout(() => {
-     document
-      .querySelector(
+     currentThemeButton =
+      document.querySelector(
        `button[data-theme="${
         currentTheme ?? 'none'
        }"]`
       )
-      .focus()
+     currentThemeButton.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+     })
+     currentThemeButton.focus()
     }, 100)
    }
   },

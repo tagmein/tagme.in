@@ -1372,3 +1372,39 @@ function scrollToTop(top = 0) {
 function fakeScroll() {
  window.dispatchEvent(new CustomEvent('scroll'))
 }
+
+const themeNames = [
+ 'black',
+ 'blue',
+ 'brown',
+ 'cyan',
+ 'darkred',
+ 'gray',
+ 'green',
+ 'magenta',
+ 'none',
+ 'orange',
+ 'pink',
+ 'purple',
+ 'red',
+ 'white',
+ 'yellow',
+]
+
+const setTheme = (themeName) => {
+ document.body.setAttribute(
+  'data-theme',
+  themeName
+ )
+ currentTheme = themeName
+ localStorage.setItem('theme', themeName)
+}
+
+let currentTheme = localStorage.getItem('theme')
+
+if (currentTheme) {
+ document.body.setAttribute(
+  'data-theme',
+  currentTheme
+ )
+}

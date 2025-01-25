@@ -250,3 +250,136 @@ async function withLoading(promise) {
   }
  }
 }
+
+const themeFilter = elem({
+ dataset: {
+  themeBg: true,
+ },
+ classes: ['theme-filter'],
+})
+
+document.body.appendChild(themeFilter)
+
+const themeSelectorThemeListContainer = elem({
+ classes: ['theme-selector-theme-list'],
+ children: themeNames.map((themeName) =>
+  elem({
+   attributes: {
+    'data-theme': themeName,
+   },
+   children: [
+    document.createTextNode(themeName),
+   ],
+   events: {
+    click() {
+     setTheme(themeName)
+    },
+   },
+   tagName: 'button',
+  })
+ ),
+})
+
+const themeSelectorOpacitySliderLabel = elem({
+ classes: [
+  'theme-selector-opacity-slider-label',
+ ],
+ tagName: 'label',
+ textContent: 'Opacity',
+})
+
+const THEME_OPACITY_STORAGE_KEY =
+ 'theme-opacity'
+
+const currentThemeOpacityString =
+ localStorage.getItem(THEME_OPACITY_STORAGE_KEY)
+const currentThemeOpacity =
+ currentThemeOpacityString &&
+ !isNaN(parseFloat(currentThemeOpacityString))
+  ? parseFloat(currentThemeOpacityString)
+  : 50
+
+themeFilter.style.opacity = (
+ currentThemeOpacity / 100
+).toString(10)
+
+const themeSelectorOpacitySliderInput = elem({
+ attributes: {
+  type: 'range',
+  value: currentThemeOpacity,
+ },
+ classes: [
+  'theme-selector-opacity-slider-input',
+ ],
+ events: {
+  input() {
+   localStorage.setItem(
+    THEME_OPACITY_STORAGE_KEY,
+    this.value
+   )
+   themeFilter.style.opacity = (
+    this.value / 100
+   ).toString(10)
+  },
+ },
+ tagName: 'input',
+})
+
+const themeSelectorOpacitySlider = elem({
+ classes: ['theme-selector-opacity-slider'],
+ children: [
+  themeSelectorOpacitySliderLabel,
+  themeSelectorOpacitySliderInput,
+ ],
+})
+
+const themeSelectorResetButton = elem({
+ classes: ['theme-selector-reset-button'],
+ events: {
+  click() {
+   localStorage.removeItem(
+    THEME_OPACITY_STORAGE_KEY
+   )
+   themeSelectorOpacitySliderInput.value = 50
+   setTheme('none')
+  },
+ },
+ tagName: 'button',
+ textContent: 'Reset to default',
+})
+
+const themeSelectorCloseButton = elem({
+ dataset: {
+  themeBg: true,
+ },
+ classes: ['theme-selector-close-button'],
+ events: {
+  click() {
+   exitThemeSelector()
+  },
+ },
+ tagName: 'button',
+ textContent: 'Done',
+})
+
+const themeSelector = elem({
+ classes: ['theme-selector'],
+ children: [
+  themeSelectorThemeListContainer,
+  themeSelectorOpacitySlider,
+  themeSelectorResetButton,
+  themeSelectorCloseButton,
+ ],
+})
+
+let modeBeforeThemeSelector = undefined
+
+function exitThemeSelector() {
+ document.body.removeAttribute('data-mode')
+ if (modeBeforeThemeSelector) {
+  document.body.setAttribute(
+   'data-mode',
+   modeBeforeThemeSelector
+  )
+ }
+}
