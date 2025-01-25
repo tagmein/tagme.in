@@ -554,6 +554,30 @@ function attachMessage(
    : undefined,
  })
  renderScore()
+ const messageLink = `/#/${encodeURIComponent(
+  channel
+ )}/${btoa(encodeURIComponent(message.text))}`
+ const dateContainer = elem({
+  attributes: {
+   href: messageLink,
+   title: new Date(
+    message.data.seen
+   ).toString(),
+  },
+  classes: ['news-date'],
+  events: {
+   click() {
+    const { channel: currentChannel } =
+     getUrlData()
+    focusOnMessage = message
+    route()
+   },
+  },
+  tagName: 'a',
+  textContent: localDateTime(
+   new Date(message.data.seen)
+  ),
+ })
  const articleToolButtons = elem({
   classes: ['article-tool-buttons'],
   children: [agreeButton, disagreeButton],
@@ -566,11 +590,15 @@ function attachMessage(
   children: [content, articleTools],
   tagName: 'article',
  })
+ const newsItem = elem({
+  classes: ['news'],
+  children: [article, dateContainer],
+ })
  if (includeFooter) {
   const messageFooter = elem({
    classes: ['message-footer'],
   })
-  article.appendChild(messageFooter)
+  newsItem.appendChild(messageFooter)
   async function renderFooter() {
    messageFooter.innerHTML = ''
    const href = `/#/${encodeURIComponent(
@@ -772,7 +800,7 @@ function attachMessage(
   }
   renderFooter()
  }
- container.appendChild(article)
+ container.appendChild(newsItem)
  if (focusOnMessage === message.text) {
   setTimeout(function () {
    article.scrollIntoView({
@@ -1131,7 +1159,12 @@ function displayActivity() {
    'data-tour':
     'Read the news, all recent messages and replies in this realm.',
   },
+  classes: ['activity-container-inner'],
+ })
+
+ const outerElement = elem({
   classes: ['activity-container'],
+  children: [element],
  })
 
  let isVisible = false
@@ -1261,7 +1294,7 @@ function displayActivity() {
 
  return {
   clear,
-  element,
+  element: outerElement,
   filter,
   show,
   hide,
@@ -1350,18 +1383,17 @@ function attachNewsMessage(
    textContent: localDateTime(new Date(seen)),
   })
   const article = elem({
-   children: [
-    dateContainer,
-    content,
-    parentContent,
-   ],
-   classes: ['news'],
+   children: [content, parentContent],
    tagName: 'article',
   })
-  container.appendChild(article)
+  const newsItem = elem({
+   classes: ['news'],
+   children: [article, dateContainer],
+  })
+  container.appendChild(newsItem)
   return {
    channel: '#' + parentChannel.toLowerCase(),
-   element: article,
+   element: newsItem,
    message: message.toLowerCase(),
    parentMessage: parentMessage.toLowerCase(),
   }
@@ -1411,13 +1443,16 @@ function attachNewsMessage(
     channelContainer,
     content,
    ],
-   classes: ['news'],
    tagName: 'article',
   })
-  container.appendChild(article)
+  const newsItem = elem({
+   classes: ['news'],
+   children: [article, dateContainer],
+  })
+  container.appendChild(newsItem)
   return {
    channel: '#' + channel.toLowerCase(),
-   element: article,
+   element: newsItem,
    message: message.toLowerCase(),
   }
  }

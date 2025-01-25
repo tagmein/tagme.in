@@ -284,6 +284,7 @@ const activityToolbar = elem({
    attributes: {
     'data-tour': 'Exit the news view.',
    },
+   classes: ['icon-news-active'],
    children: [
     elem({
      classes: ['icon', 'icon-news'],
