@@ -58,15 +58,18 @@ async function fetchReactions() {
  }
 
  try {
-  const response = await fetch('/reactions', {
-   method: 'POST',
-   headers: {
-    'Content-Type': 'application/json',
-   },
-   body: JSON.stringify({
-    getForMessageIds: uncachedMessageIds,
-   }),
-  })
+  const response = await fetch(
+   `${networkRootUrl()}/reactions`,
+   {
+    method: 'POST',
+    headers: {
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     getForMessageIds: uncachedMessageIds,
+    }),
+   }
+  )
 
   if (!response.ok)
    throw new Error('Failed to fetch reactions')
@@ -154,7 +157,7 @@ async function addReaction(
  reaction
 ) {
  try {
-  await fetch('/reactions', {
+  await fetch(`${networkRootUrl()}/reactions`, {
    method: 'POST',
    headers: {
     'Content-Type': 'application/json',
@@ -198,7 +201,7 @@ function attachReactions(
 
  let isOpening = false
  let isOpeningTimeout = null
- const addReaction = elem({
+ const addReactionButton = elem({
   children: [icon('no')],
   classes: ['reaction'],
   tagName: 'button',
@@ -222,7 +225,7 @@ function attachReactions(
     popupMenu = popup.element
 
     const rect =
-     addReaction.getBoundingClientRect()
+     addReactionButton.getBoundingClientRect()
     popupMenu.style.top = `${
      rect.bottom - 227
     }px`
@@ -238,10 +241,7 @@ function attachReactions(
       )
       return
      }
-     if (
-      !popupMenu.contains(e.target) &&
-      e.target !== addReaction
-     ) {
+     if (!popupMenu.contains(e.target)) {
       popupMenu.remove()
       document.removeEventListener(
        'click',
@@ -263,7 +263,7 @@ function attachReactions(
   elem({
    tagName: 'div',
    classes: ['reactions-container'],
-   children: [reactions, addReaction],
+   children: [reactions, addReactionButton],
   })
  )
 
@@ -286,7 +286,10 @@ function attachReactions(
     textContent: reaction,
     events: {
      click: async () => {
-      await addReaction(message.id, reaction)
+      await addReaction(
+       `${channel}--message-${message.text}`,
+       reaction
+      )
 
       const reactionElement = elem({
        tagName: 'button',
