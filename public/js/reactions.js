@@ -201,7 +201,7 @@ function attachReactions(
 
  let isOpening = false
  let isOpeningTimeout = null
- const addReaction = elem({
+ const addReactionButton = elem({
   children: [icon('no')],
   classes: ['reaction'],
   tagName: 'button',
@@ -225,7 +225,7 @@ function attachReactions(
     popupMenu = popup.element
 
     const rect =
-     addReaction.getBoundingClientRect()
+     addReactionButton.getBoundingClientRect()
     popupMenu.style.top = `${
      rect.bottom - 227
     }px`
@@ -241,10 +241,7 @@ function attachReactions(
       )
       return
      }
-     if (
-      !popupMenu.contains(e.target) &&
-      e.target !== addReaction
-     ) {
+     if (!popupMenu.contains(e.target)) {
       popupMenu.remove()
       document.removeEventListener(
        'click',
@@ -266,7 +263,7 @@ function attachReactions(
   elem({
    tagName: 'div',
    classes: ['reactions-container'],
-   children: [reactions, addReaction],
+   children: [reactions, addReactionButton],
   })
  )
 
@@ -289,7 +286,10 @@ function attachReactions(
     textContent: reaction,
     events: {
      click: async () => {
-      await addReaction(message.id, reaction)
+      await addReaction(
+       `${channel}--message-${message.text}`,
+       reaction
+      )
 
       const reactionElement = elem({
        tagName: 'button',
