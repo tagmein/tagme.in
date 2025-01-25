@@ -1,6 +1,42 @@
 const HOME_CHANNEL_ICON = '⌂'
 const ONE_HOUR_MS = 60 * 60 * 1000
 
+const themeNames = [
+ 'black',
+ 'blue',
+ 'brown',
+ 'cyan',
+ 'darkred',
+ 'gray',
+ 'green',
+ 'magenta',
+ 'none',
+ 'orange',
+ 'pink',
+ 'purple',
+ 'red',
+ 'white',
+ 'yellow',
+]
+
+const setTheme = (themeName) => {
+ document.body.setAttribute(
+  'data-theme',
+  themeName
+ )
+ currentTheme = themeName
+ localStorage.setItem('theme', themeName)
+}
+
+let currentTheme = localStorage.getItem('theme')
+
+if (currentTheme) {
+ document.body.setAttribute(
+  'data-theme',
+  currentTheme
+ )
+}
+
 let channelInputFocused = false
 let expandedElement = undefined
 let focusOnMessage = undefined
@@ -116,9 +152,8 @@ if (
 
 const lightDarkModeButton = elem({
  attributes: {
-  'data-tour':
-   'Switch between light and dark mode.',
-  title: 'Switch between light and dark mode',
+  'data-tour': 'Switch theme.',
+  title: 'Switch theme',
  },
  children: [icon('sun')],
  events: {
@@ -306,6 +341,76 @@ const tabStripContainer = elem({
  classes: ['tab-strip-container'],
 })
 
+const themeSelector = elem({
+ classes: ['theme-selector'],
+ children: themeNames.map((themeName) =>
+  elem({
+   attributes: {
+    'data-theme': themeName,
+   },
+   children: [
+    document.createTextNode(themeName),
+   ],
+   style: {
+    backgroundColor: `var(--theme-${themeName}--color-bg)`,
+   },
+   tagName: 'button',
+   events: {
+    click() {
+     setTheme(themeName)
+    },
+   },
+  })
+ ),
+})
+
+let modeBeforeThemeSelector = undefined
+
+function exitThemeSelector() {
+ document.body.removeAttribute('data-mode')
+ if (modeBeforeThemeSelector) {
+  document.body.setAttribute(
+   'data-mode',
+   modeBeforeThemeSelector
+  )
+ }
+}
+
+const themeSelectorButton = elem({
+ attributes: {
+  'data-tour': 'Switch theme.',
+ },
+ children: [icon('theme')],
+ tagName: 'button',
+ events: {
+  click(e) {
+   e.stopPropagation()
+   if (
+    document.body.getAttribute('data-mode') ===
+    'theme-selector'
+   ) {
+    exitThemeSelector()
+   } else {
+    modeBeforeThemeSelector =
+     document.body.getAttribute('data-mode')
+    document.body.setAttribute(
+     'data-mode',
+     'theme-selector'
+    )
+    setTimeout(() => {
+     document
+      .querySelector(
+       `button[data-theme="${
+        currentTheme ?? 'none'
+       }"]`
+      )
+      .focus()
+    }, 100)
+   }
+  },
+ },
+})
+
 const appHeader = elem({
  classes: ['app-header'],
  children: [
@@ -334,6 +439,7 @@ const appHeader = elem({
      children: [appAccounts.element],
     }),
     lightDarkModeButton,
+    themeSelectorButton,
     fullScreenButton,
    ],
   }),
@@ -343,6 +449,16 @@ const appHeader = elem({
   activityToolbar,
   loadingIndicator,
  ],
+ events: {
+  click() {
+   if (
+    document.body.getAttribute('data-mode') ===
+    'theme-selector'
+   ) {
+    exitThemeSelector()
+   }
+  },
+ },
 })
 
 let loaderCount = 0
@@ -509,6 +625,7 @@ const consentPrompt = elem({
 })
 
 const { body } = document
+body.appendChild(themeSelector)
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
 body.appendChild(realmControlContainer)

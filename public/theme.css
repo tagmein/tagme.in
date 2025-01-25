@@ -304,6 +304,10 @@ main {
  min-height: calc(100dvh - 79px - 78px);
 }
 
+main.mode-main {
+ padding: 0 15px;
+}
+
 main > p {
  margin: 0;
  padding: 15px;
@@ -815,15 +819,10 @@ article.highlight::after {
   var(--color-shadow-accent);
 }
 
-body,
-.message-content {
- background-color: var(--color-bg-medium);
- color: var(--color-text-primary);
-}
-
 .message-footer {
- border-bottom: 1px solid var(--color-border-dark);
  box-shadow: 0 4px 4px var(--color-shadow-dark);
+ border-bottom-left-radius: 10px;
+ border-bottom-right-radius: 10px;
  margin-bottom: 8px;
  min-height: 23px;
  opacity: 0.65;
@@ -1034,6 +1033,10 @@ article > div code.formula {
  background-image: url(./icons/search.svg);
 }
 
+.icon-theme {
+ background-image: url(./icons/theme.svg);
+}
+
 :root:fullscreen .icon-in {
  background-image: url(./icons/out.svg);
 }
@@ -1088,6 +1091,10 @@ body.light-mode .icon-reply {
 
 body.light-mode .icon-search {
  background-image: url(./icons/search-light.svg);
+}
+
+body.light-mode .icon-theme {
+ background-image: url(./icons/theme-light.svg);
 }
 
 :root:fullscreen body.light-mode .icon-in {
@@ -1785,4 +1792,265 @@ body.light-mode button.brand {
  position: relative;
  height: 100%;
  width: 100%;
+}
+
+body[data-mode='theme-selector'] .app-header progress {
+  display: none;
+}
+body[data-mode='theme-selector'] {
+  padding-top: 50px
+}
+
+.theme-selector {
+  display: none;
+  flex-direction: row;
+  gap: 10px;
+  min-height: calc(100dvh - 148px);
+  padding: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: calc(100dvh - 148px);
+}
+
+body[data-mode='theme-selector'] .theme-selector {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-flow: column wrap-reverse;
+  align-content: flex-start;
+  align-items: flex-start;
+  justify-content: flex-start;
+  height: calc(100dvh - 168px);
+}
+
+body[data-mode='theme-selector'] .tab-strip-container {
+  display: none;
+}
+
+body[data-mode='theme-selector'] .app-header {
+  height: 50px;
+}
+
+.theme-selector > button {
+  box-sizing: border-box;
+  background-color: var(--color-bg-medium);
+  color: var(--color-text-primary);
+  border-radius: 15px;
+  padding: 0 12px;
+  line-height: 31px;
+  display: inline-block;
+  margin: 10px;
+  width: 160px;
+  padding: 40px;
+}
+
+:root {
+  --theme-light--color-bg: #aaaaaa;
+  --theme-dark--color-bg: #000000;
+  --theme-blue--color-bg: #0000aa;
+  --theme-red--color-bg: #aa0000;
+  --theme-green--color-bg: #00aa00;
+  --theme-yellow--color-bg: #aaaa00;
+  --theme-gray--color-bg: #808080;
+  --theme-cyan--color-bg: #00aaaa;
+  --theme-magenta--color-bg: #aa00aa;
+  --theme-darkred--color-bg: #800000;
+  --theme-purple--color-bg: #800080;
+  --theme-orange--color-bg: #aa5b2e;
+  --theme-pink--color-bg: #c72bbf;
+  --theme-brown--color-bg: #97451e;
+  --theme-gray--color-bg: #808080;
+  --theme-white--color-bg: #aaaaaa;
+  --theme-black--color-bg: #000000;
+  }
+
+  :root body.light-mode {
+  --theme-light--color-bg: #cccccc;
+  --theme-dark--color-bg: #666666;
+  --theme-blue--color-bg: #6666cc;
+  --theme-red--color-bg: #cc6666;
+  --theme-green--color-bg: #66cc66;
+  --theme-yellow--color-bg: #cccc66;
+  --theme-gray--color-bg: #d6d6d6;
+  --theme-cyan--color-bg: #66cccc;
+  --theme-magenta--color-bg: #cc66cc;
+  --theme-darkred--color-bg: #d66666;
+  --theme-purple--color-bg: #d666d6;
+  --theme-orange--color-bg: #cca566;
+  --theme-pink--color-bg: #d6abd4;
+  --theme-brown--color-bg: #97651e;
+  --theme-gray--color-bg: #d6d6d6;
+  --theme-white--color-bg: #ffffff;
+  --theme-black--color-bg: #000000;
+  }
+
+:root button[data-theme='blue'] {
+  background-color: var(--theme-blue--color-bg);
+  color: invert(var(--theme-blue--color-bg));
+}
+:root button[data-theme='red'] {
+  background-color: var(--theme-red--color-bg);
+  color: invert(var(--theme-red--color-bg));
+}
+:root button[data-theme='green'] {
+  background-color: var(--theme-green--color-bg);
+  color: invert(var(--theme-green--color-bg));
+}
+:root button[data-theme='yellow'] {
+  background-color: var(--theme-yellow--color-bg);
+  color: invert(var(--theme-yellow--color-bg));
+}
+:root button[data-theme='gray'] {
+  background-color: var(--theme-gray--color-bg);
+  color: invert(var(--theme-gray--color-bg));
+}
+:root button[data-theme='cyan'] {
+  background-color: var(--theme-cyan--color-bg);
+  color: invert(var(--theme-cyan--color-bg));
+}
+:root button[data-theme='magenta'] {
+  background-color: var(--theme-magenta--color-bg);
+  color: invert(var(--theme-magenta--color-bg));
+}
+:root button[data-theme='darkred'] {
+  background-color: var(--theme-darkred--color-bg);
+  color: invert(var(--theme-darkred--color-bg));
+}
+:root button[data-theme='purple'] {
+  background-color: var(--theme-purple--color-bg);
+  color: invert(var(--theme-purple--color-bg));
+}
+:root button[data-theme='orange'] {
+  background-color: var(--theme-orange--color-bg);
+  color: invert(var(--theme-orange--color-bg));
+}
+:root button[data-theme='pink'] {
+  background-color: var(--theme-pink--color-bg);
+  color: invert(var(--theme-pink--color-bg));
+}
+:root button[data-theme='brown'] {
+  background-color: var(--theme-brown--color-bg);
+  color: invert(var(--theme-brown--color-bg));
+}
+:root button[data-theme='gray'] {
+  background-color: var(--theme-gray--color-bg);
+  color: invert(var(--theme-gray--color-bg));
+}
+:root button[data-theme='white'] {
+  background-color: var(--theme-white--color-bg);
+  color: invert(var(--theme-white--color-bg));
+}
+:root button[data-theme='black'] {
+  background-color: var(--theme-black--color-bg);
+  color: invert(var(--theme-black--color-bg));
+}
+
+body[data-theme]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 999999999999;
+  transition: background-color 1.25s ease;
+  transition-delay: 0.25s;
+  opacity: 0.5;
+}
+
+body[data-theme='blue']::before {
+  background-color: var(--theme-blue--color-bg);
+}
+
+body[data-theme='red']::before {
+  background-color: var(--theme-red--color-bg);
+}
+body[data-theme='green']::before {
+  background-color: var(--theme-green--color-bg);
+}
+body[data-theme='yellow']::before {
+  background-color: var(--theme-yellow--color-bg);
+}
+body[data-theme='gray']::before {
+  background-color: var(--theme-gray--color-bg);
+}
+body[data-theme='cyan']::before {
+  background-color: var(--theme-cyan--color-bg);
+}
+body[data-theme='magenta']::before {
+  background-color: var(--theme-magenta--color-bg);
+}
+body[data-theme='darkred']::before {
+  background-color: var(--theme-darkred--color-bg);
+}
+body[data-theme='purple']::before {
+  background-color: var(--theme-purple--color-bg);
+}
+body[data-theme='orange']::before {
+  background-color: var(--theme-orange--color-bg);
+}
+body[data-theme='pink']::before {
+  background-color: var(--theme-pink--color-bg);
+}
+body[data-theme='brown']::before {
+  background-color: var(--theme-brown--color-bg);
+}
+body[data-theme='gray']::before {
+  background-color: var(--theme-gray--color-bg);
+}
+body[data-theme='white']::before {
+  background-color: var(--theme-white--color-bg);
+}
+body[data-theme='black']::before {
+  background-color: var(--theme-black--color-bg);
+}
+
+body[data-theme='white'] * {
+  color: #000 !important;
+  background-color: #fff !important;
+}
+
+body.light-mode[data-theme='white'] * {
+  color: #fff !important;
+  background-color: #000 !important;
+}
+
+body[data-theme='black'] * {
+  color: #fff !important;
+  background-color: #000 !important;
+}
+
+body.light-mode[data-theme='black'] * {
+  color: #000 !important;
+  background-color: #fff !important;
+}
+
+
+body[data-theme='none'] button[data-theme='none'],
+body:not([data-theme]) button[data-theme='none'],
+body[data-theme='blue'] button[data-theme='blue'],
+body[data-theme='red'] button[data-theme='red'],
+body[data-theme='green'] button[data-theme='green'],
+body[data-theme='yellow'] button[data-theme='yellow'],
+body[data-theme='gray'] button[data-theme='gray'],
+body[data-theme='cyan'] button[data-theme='cyan'],
+body[data-theme='magenta'] button[data-theme='magenta'],
+body[data-theme='darkred'] button[data-theme='darkred'],
+body[data-theme='purple'] button[data-theme='purple'],
+body[data-theme='orange'] button[data-theme='orange'],
+body[data-theme='pink'] button[data-theme='pink'],
+body[data-theme='brown'] button[data-theme='brown'],
+body[data-theme='gray'] button[data-theme='gray'],
+body[data-theme='white'] button[data-theme='white'],
+body[data-theme='black'] button[data-theme='black'] {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+body.light-mode[data-theme='black'] button[data-theme='black'] {
+  outline: 3px solid #000;
+  outline-offset: 3px;
 }
