@@ -453,6 +453,7 @@ function elem({
  children,
  dataset,
  events,
+ style,
  tagName = 'div',
  textContent,
 } = {}) {
@@ -487,6 +488,11 @@ function elem({
  if (children) {
   for (const c of children) {
    e.appendChild(c)
+  }
+ }
+ if (style) {
+  for (const [k, v] of Object.entries(style)) {
+   e.style[k] = v
   }
  }
  return e

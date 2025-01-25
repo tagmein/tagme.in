@@ -576,6 +576,11 @@ function attachMessage(
   classes: ['article-tools'],
   children: [score, articleToolButtons],
  })
+ articleTools.appendChild(
+  elem({
+   style: { flexGrow: 1 },
+  })
+ )
  attachReactions(articleTools, channel, message)
  const article = elem({
   children: [content, articleTools],
