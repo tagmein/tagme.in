@@ -23,18 +23,33 @@ addEventListener('keydown', ({ key }) => {
  }
 })
 
+const ADD_REACTION_PLACEHOLDER_MESSAGE =
+ 'Add a reaction (up to 25 characters)'
+
 const COMPOSE_PLACEHOLDER_MESSAGE =
  'Write a message (up to 175 characters)'
 
 const COMPOSE_PLACEHOLDER_REPLY =
  'Write a reply (up to 175 characters)'
 
+async function updateComposeTextarea(channel) {
+ composeTextarea.setAttribute(
+  'placeholder',
+  channel === 'reactions'
+   ? ADD_REACTION_PLACEHOLDER_MESSAGE
+   : COMPOSE_PLACEHOLDER_MESSAGE
+ )
+ composeTextarea.setAttribute(
+  'maxlength',
+  channel === 'reactions' ? 25 : 175
+ )
+}
+
 const composeTextarea = elem({
  attributes: {
   'data-tour':
    'Compose your own message to send to the current channel.',
   maxlength: '175',
-  placeholder: COMPOSE_PLACEHOLDER_MESSAGE,
   required: 'required',
  },
  events: {
@@ -50,7 +65,10 @@ const composeTextarea = elem({
   },
   input() {
    const parametersToRemove = ['si']
-   const text = composeTextarea.value
+   const text =
+    channel === 'reactions'
+     ? `reaction${composeTextarea.value}`
+     : composeTextarea.value
    const urls =
     text.match(/\bhttps?:\/\/\S+/gi) || []
    composeTextarea.value = urls.reduce(
@@ -345,6 +363,7 @@ async function route() {
   )
  }
  scrollToTop()
+ await updateComposeTextarea(channel)
 }
 
 window.addEventListener('hashchange', route)
