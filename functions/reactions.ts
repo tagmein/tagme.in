@@ -149,7 +149,7 @@ export const onRequestPost: PagesFunction<Env> =
         .seek()
        return {
         messageId,
-        reactions: messageReactions,
+        reactions: messageReactions.messages,
        }
       }
      )

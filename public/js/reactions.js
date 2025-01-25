@@ -122,15 +122,16 @@ function updateReactionDisplay(
 
  // Group reactions by emoji
  const reactionCounts = {}
- Object.entries(
-  reactions.messages || {}
- ).forEach(([key, data]) => {
-  if (key.startsWith('reaction')) {
-   const emoji = key.slice('reaction'.length)
-   reactionCounts[emoji] =
-    (reactionCounts[emoji] || 0) + 1
+ Object.entries(reactions).forEach(
+  ([key, data]) => {
+   if (key.startsWith('reaction')) {
+    const emoji = key.slice('reaction'.length)
+    reactionCounts[emoji] =
+     (reactionCounts[emoji] || 0) +
+     calculateScore(data)
+   }
   }
- })
+ )
 
  // Create reaction elements
  Object.entries(reactionCounts).forEach(

@@ -502,14 +502,19 @@ function formatChannelData(channels) {
   })
 }
 
-function formatMessageData(messages) {
+function calculateScore(data) {
  const now = Date.now()
+ return (
+  data.position +
+  (data.velocity * (now - data.timestamp)) /
+   ONE_HOUR_MS
+ )
+}
+
+function formatMessageData(messages) {
  return Object.entries(messages)
   .map(function ([text, data]) {
-   const score =
-    data.position +
-    (data.velocity * (now - data.timestamp)) /
-     ONE_HOUR_MS
+   const score = calculateScore(data)
    return { data, score, text }
   })
   .sort(function (a, b) {
