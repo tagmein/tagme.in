@@ -284,24 +284,22 @@ function attachReactions(
     tagName: 'button',
     classes: ['reaction-option'],
     textContent: reaction,
+    events: {
+     click: async () => {
+      await addReaction(message.id, reaction)
+
+      const reactionElement = elem({
+       tagName: 'button',
+       classes: ['reaction', 'active'],
+       textContent: `${reaction} 1`,
+      })
+      reactions.appendChild(reactionElement)
+
+      popupMenu.remove()
+      popupMenu = null
+     },
+    },
    })
-
-   reactionBtn.addEventListener(
-    'click',
-    async () => {
-     await addReaction(message.id, reaction)
-
-     const reactionElement = elem({
-      tagName: 'button',
-      classes: ['reaction', 'active'],
-      textContent: `${reaction} 1`,
-     })
-     reactions.appendChild(reactionElement)
-
-     popupMenu.remove()
-     popupMenu = null
-    }
-   )
 
    menu.appendChild(reactionBtn)
   })
