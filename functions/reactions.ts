@@ -93,19 +93,9 @@ async function validateRequestBody(
   data,
  }
 }
-
-export default {
- async fetch(request: Request, env: Env) {
-  // Only allow POST requests
-  if (request.method !== 'POST') {
-   return new Response('Method not allowed', {
-    status: 405,
-    headers: {
-     Allow: 'POST',
-    },
-   })
-  }
-
+export const onRequestPost: PagesFunction<Env> =
+ async function (context) {
+  const { request, env } = context
   try {
    // Read and validate the request body
    const body = await readRequestBody(request)
@@ -205,5 +195,4 @@ export default {
     }
    )
   }
- },
-}
+ }
