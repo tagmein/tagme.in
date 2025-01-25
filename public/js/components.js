@@ -44,13 +44,18 @@ function tabStrip(currentTabKey, setTabKey) {
   }
  }
 
- async function switchTo(tabObject) {
+ async function switchTo(
+  tabObject,
+  switchTo = true
+ ) {
   tabs.forEach(({ tab: t }) =>
    t.classList.remove('active')
   )
   tabObject.tab.classList.add('active')
   tabObject.contentHandler.switchTo()
-  tabObject.switchToHandler?.()
+  if (switchTo) {
+   tabObject.switchToHandler?.()
+  }
   if (currentTabKey !== tabObject.key) {
    await setTabKey(tabObject.key)
    currentTabKey = tabObject.key
@@ -94,9 +99,15 @@ function tabStrip(currentTabKey, setTabKey) {
    (t) => t.key === currentTabKey
   )
   if (matchingTab) {
-   await switchTo(matchingTab)
+   await switchTo(
+    matchingTab,
+    typeof lastKnownMode !== 'string'
+   )
   } else {
-   await switchTo(tabs[0])
+   await switchTo(
+    tabs[0],
+    typeof lastKnownMode !== 'string'
+   )
   }
  }
 
@@ -372,14 +383,30 @@ const themeSelector = elem({
  ],
 })
 
-let modeBeforeThemeSelector = undefined
-
 function exitThemeSelector() {
  document.body.removeAttribute('data-mode')
- if (modeBeforeThemeSelector) {
-  document.body.setAttribute(
-   'data-mode',
-   modeBeforeThemeSelector
-  )
+ if (
+  localStorage.getItem('mode--1') ===
+  'theme-selector'
+ ) {
+  switchToMode('main')()
+ } else {
+  restoreLastKnownMode(-1)
  }
+}
+
+function enterThemeSelector() {
+ switchToMode('theme-selector')(false)
+ setTimeout(() => {
+  currentThemeButton = document.querySelector(
+   `button[data-theme="${
+    currentTheme ?? 'none'
+   }"]`
+  )
+  currentThemeButton.scrollIntoView({
+   behavior: 'smooth',
+   block: 'center',
+  })
+  currentThemeButton.focus()
+ }, 100)
 }

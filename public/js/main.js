@@ -424,3 +424,15 @@ document
   localStorage.removeItem(consentKey)
   checkConsent()
  })
+
+setTimeout(() => {
+ if (
+  typeof lastKnownModeAtStartup === 'string'
+ ) {
+  switchToMode(lastKnownModeAtStartup)()
+ }
+ setTimeout(() => {
+  hasCompletedStartup = true
+  document.body.removeAttribute('data-starting')
+ }, 500)
+})

@@ -1182,10 +1182,7 @@ function displayActivity() {
  }
 
  function hide() {
-  document.body.setAttribute(
-   'data-mode',
-   'main'
-  )
+  restoreLastKnownMode(-1)
   isVisible = false
   nextChunk = undefined
   scrollToTop(lastScrollPosition)

@@ -6,7 +6,8 @@ const lightDarkModeButton = elem({
  },
  children: [icon('sun')],
  events: {
-  click() {
+  click(e) {
+   e.stopPropagation()
    if (
     document.body.classList.contains(
      'light-mode'
@@ -28,7 +29,8 @@ const fullScreenButton = elem({
  },
  children: [icon('in')],
  events: {
-  click() {
+  click(e) {
+   e.stopPropagation()
    if (!document.fullscreenElement) {
     document.documentElement
      .requestFullscreen()
@@ -237,25 +239,7 @@ const themeSelectorButton = elem({
    ) {
     exitThemeSelector()
    } else {
-    modeBeforeThemeSelector =
-     document.body.getAttribute('data-mode')
-    document.body.setAttribute(
-     'data-mode',
-     'theme-selector'
-    )
-    setTimeout(() => {
-     currentThemeButton =
-      document.querySelector(
-       `button[data-theme="${
-        currentTheme ?? 'none'
-       }"]`
-      )
-     currentThemeButton.scrollIntoView({
-      behavior: 'smooth',
-      block: 'center',
-     })
-     currentThemeButton.focus()
-    }, 100)
+    enterThemeSelector()
    }
   },
  },
