@@ -1281,6 +1281,10 @@ body[data-mode='activity'] .news > article > div {
  margin-top: 8px;
 }
 
+main.mode-main article {
+  min-height: 88px;
+}
+
 .mode-main .news > article {
   display: flex;
   flex-direction: row;
