@@ -162,3 +162,91 @@ function tabContents() {
   add,
  }
 }
+
+function icon(...names) {
+ return elem({
+  classes: [
+   'icon',
+   ...names.map((name) => `icon-${name}`),
+  ],
+  tagName: 'span',
+ })
+}
+
+let channelInputFocused = false
+let expandedElement = undefined
+let focusOnMessage = undefined
+let lastKnownChannelInput
+
+const channelInput = elem({
+ attributes: {
+  'data-tour':
+   'See recently-visited channels, and switch to any channel.',
+  maxlength: 25,
+  placeholder: 'Search channels',
+ },
+ events: {
+  blur() {
+   channelInputFocused = false
+   autocompleteChannels.close()
+   setChannel(channelInput.value.trim())
+  },
+  focus() {
+   lastKnownChannelInput = channelInput.value
+   channelInputFocused = true
+   autocompleteChannels.open()
+  },
+  input() {
+   autocompleteChannels.filter(
+    channelInput.value.trim()
+   )
+  },
+  keydown({ key }) {
+   if (key === 'Enter') {
+    channelInput.blur()
+   }
+  },
+ },
+ tagName: 'input',
+})
+
+function cancelChannelInput() {
+ channelInput.value = lastKnownChannelInput
+}
+
+let lastKnownActivityFilterInput
+let activityFilterInputFocused = false
+
+function cancelActivityFilterInput() {
+ activityFilterInput.value =
+  lastKnownActivityFilterInput
+}
+
+const loadingIndicator = elem({
+ attributes: {
+  inditerminate: 'true',
+ },
+ classes: ['loader'],
+ tagName: 'progress',
+})
+
+let loaderCount = 0
+
+async function withLoading(promise) {
+ loaderCount++
+ loadingIndicator.style.opacity = '1'
+ try {
+  const data = await promise
+  return data
+ } catch (e) {
+  await politeAlert(
+   e.message ?? e ?? 'Unknown error'
+  )
+  return false
+ } finally {
+  loaderCount--
+  if (loaderCount === 0) {
+   loadingIndicator.style.opacity = '0'
+  }
+ }
+}
