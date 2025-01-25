@@ -41,7 +41,9 @@ const reactionOptionsLoaded = new Promise(
 )
 
 async function fetchReactions() {
- if (pendingReactionRequests.size === 0) return
+ if (pendingReactionRequests.size === 0) {
+  return
+ }
 
  const messageIds = Array.from(
   pendingReactionRequests
@@ -64,6 +66,7 @@ async function fetchReactions() {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
+     Accept: 'application/json',
     },
     body: JSON.stringify({
      getForMessageIds: uncachedMessageIds,
@@ -157,19 +160,36 @@ async function addReaction(
  reaction
 ) {
  try {
-  await fetch(`${networkRootUrl()}/reactions`, {
-   method: 'POST',
-   headers: {
-    'Content-Type': 'application/json',
-   },
-   body: JSON.stringify({
-    createForMessageId: messageId,
-    reaction: reaction,
-   }),
-  })
+  const response = await fetch(
+   `${networkRootUrl()}/reactions`,
+   {
+    method: 'POST',
+    headers: {
+     Accept: 'application/json',
+     'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+     createForMessageId: messageId,
+     reaction: reaction,
+    }),
+   }
+  )
+  if (!response.ok) {
+   throw new Error(
+    'Failed to add reaction: HTTP ' +
+     response.status
+   )
+  }
  } catch (err) {
   console.error('Error adding reaction:', err)
+  throw err
  }
+}
+
+function reactionMessageId(channel, message) {
+ return `channel-message-${encodeURIComponent(
+  channel
+ )}--${encodeURIComponent(message.text)}`
 }
 
 function attachReactions(
@@ -177,7 +197,10 @@ function attachReactions(
  channel,
  message
 ) {
- const messageId = `${channel}--message-${message.text}`
+ const messageId = reactionMessageId(
+  channel,
+  message
+ )
 
  const reactions = elem({
   tagName: 'div',
@@ -286,17 +309,25 @@ function attachReactions(
     textContent: reaction,
     events: {
      click: async () => {
-      await addReaction(
-       `${channel}--message-${message.text}`,
-       reaction
-      )
-
       const reactionElement = elem({
        tagName: 'button',
        classes: ['reaction', 'active'],
        textContent: `${reaction} 1`,
+       style: {
+        opacity: 0.5,
+       },
       })
       reactions.appendChild(reactionElement)
+      try {
+       await addReaction(messageId, reaction)
+       reactionElement.style.opacity = 1
+      } catch (err) {
+       console.error(
+        'Error adding reaction:',
+        err
+       )
+       reactionElement.remove()
+      }
 
       popupMenu.remove()
       popupMenu = null
