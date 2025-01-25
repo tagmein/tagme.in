@@ -1,8 +1,57 @@
-function switchToMode(mode) {
- return function () {
-  if (document.body.dataset.mode !== mode) {
-   document.body.dataset.mode = mode
+const lastKnownModeAtStartup =
+ localStorage.getItem('mode')
+
+let hasCompletedStartup = false
+
+function switchToMode(
+ mode,
+ saveToStorage = true
+) {
+ return function (runSpecialActions = true) {
+  if (
+   mode !== lastKnownModeAtStartup &&
+   !hasCompletedStartup
+  ) {
+   console.warn(
+    `mode ${mode} is not the same as the last known mode at startup ${lastKnownModeAtStartup}, skipping`
+   )
+   return
   }
+  if (document.body.dataset.mode !== mode) {
+   if (saveToStorage) {
+    for (const index of [-5, -4, -3, -2]) {
+     localStorage.setItem(
+      `mode-${index.toString(10)}`,
+      localStorage.getItem(
+       `mode-${(index + 1).toString(10)}`
+      ) ?? 'main'
+     )
+    }
+    localStorage.setItem(
+     `mode--1`,
+     localStorage.getItem('mode') ?? 'main'
+    )
+    localStorage.setItem('mode', mode)
+   }
+   document.body.dataset.mode = mode
+   // two ways of setting the data-mode attribute for maximum compatibility
+   document.body.setAttribute('data-mode', mode)
+   if (runSpecialActions) {
+    if (mode === 'theme-selector') {
+     enterThemeSelector()
+    }
+   }
+  }
+ }
+}
+
+function restoreLastKnownMode(index = 0) {
+ const lastKnownMode = localStorage.getItem(
+  index === 0 ? 'mode' : `mode-${index}`
+ )
+
+ if (typeof lastKnownMode === 'string') {
+  switchToMode(lastKnownMode, false)()
  }
 }
 
@@ -831,7 +880,9 @@ async function networkMessageSend(
  )
 
  if (!resp.ok) {
-  throw new Error(await resp.text())
+  const error = await resp.text()
+  alert(error)
+  return false
  }
 
  return await resp.text()
@@ -1371,4 +1422,40 @@ function scrollToTop(top = 0) {
 
 function fakeScroll() {
  window.dispatchEvent(new CustomEvent('scroll'))
+}
+
+const themeNames = [
+ 'black',
+ 'blue',
+ 'brown',
+ 'cyan',
+ 'darkred',
+ 'gray',
+ 'green',
+ 'magenta',
+ 'none',
+ 'orange',
+ 'pink',
+ 'purple',
+ 'red',
+ 'white',
+ 'yellow',
+]
+
+const setTheme = (themeName) => {
+ document.body.setAttribute(
+  'data-theme',
+  themeName
+ )
+ currentTheme = themeName
+ localStorage.setItem('theme', themeName)
+}
+
+let currentTheme = localStorage.getItem('theme')
+
+if (currentTheme) {
+ document.body.setAttribute(
+  'data-theme',
+  currentTheme
+ )
 }

@@ -4,16 +4,6 @@ let secondMostRecentRealm
 
 const MESSAGE_PERSIST_THRESHOLD = 5
 
-function icon(...names) {
- return elem({
-  classes: [
-   'icon',
-   ...names.map((name) => `icon-${name}`),
-  ],
-  tagName: 'span',
- })
-}
-
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -1192,10 +1182,7 @@ function displayActivity() {
  }
 
  function hide() {
-  document.body.setAttribute(
-   'data-mode',
-   'main'
-  )
+  restoreLastKnownMode(-1)
   isVisible = false
   nextChunk = undefined
   scrollToTop(lastScrollPosition)
