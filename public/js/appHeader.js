@@ -36,8 +36,9 @@ if (currentTheme) {
 
 const lightDarkModeButton = elem({
  attributes: {
-  'data-tour': 'Switch theme.',
-  title: 'Switch theme',
+  'data-tour':
+   'Switch between light and dark mode.',
+  title: 'Switch light/dark mode',
  },
  children: [icon('sun')],
  events: {
