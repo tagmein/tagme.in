@@ -893,7 +893,7 @@ async function getNews(chunk, callback) {
  const response = await fetch(
   `${networkRootUrl()}/news${
    typeof chunk === 'number'
-    ? `?chunk=${chunk.toString(10)}`
+    ? `?chunk=${chunk.toString(36)}`
     : ''
   }`,
   { headers }
@@ -1363,8 +1363,8 @@ async function registerSession(
  }
 }
 
-function scrollToTop() {
- scrollTo(0, 0)
+function scrollToTop(top = 0) {
+ scrollTo(0, top, { behavior: 'instant' })
  document.body.classList.remove('scroll-up')
  document.body.classList.add('scroll-zero')
 }

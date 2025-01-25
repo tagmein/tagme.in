@@ -253,6 +253,7 @@ function applyActivityFilter(filterText) {
  autocompleteActivitySearch.visit(trimmedFilter)
  activityFilterInput.value = trimmedFilter
  activityContainer.filter(trimmedFilter)
+ scrollToTop()
 }
 
 const activityToolbar = elem({
@@ -478,11 +479,7 @@ const messageContent = elem({
  attributes: {
   'data-tour': 'General channel information.',
  },
- classes: [
-  'message-content',
-  'mode-main',
-  'mode-activity',
- ],
+ classes: ['message-content', 'mode-main'],
 })
 
 const mainContent = elem({

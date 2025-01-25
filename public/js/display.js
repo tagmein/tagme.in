@@ -1177,7 +1177,10 @@ function displayActivity() {
   }
  }
 
+ let lastScrollPosition = 0
+
  async function show() {
+  lastScrollPosition = window.scrollY
   isVisible = true
   document.body.setAttribute(
    'data-mode',
@@ -1185,6 +1188,7 @@ function displayActivity() {
   )
   await load()
   fakeScroll()
+  scrollToTop()
  }
 
  function hide() {
@@ -1194,6 +1198,7 @@ function displayActivity() {
   )
   isVisible = false
   nextChunk = undefined
+  scrollToTop(lastScrollPosition)
  }
 
  let lastMessages = []
@@ -1213,7 +1218,10 @@ function displayActivity() {
   }
   const chunk2 =
    typeof chunk === 'number' ? chunk : nextChunk
-  if (chunk2 < 0) {
+  if (
+   typeof chunk2 === 'number' &&
+   chunk2 < 0
+  ) {
    if (chunk2 < -1) {
     return
    }
@@ -1228,6 +1236,7 @@ function displayActivity() {
    return
   }
   isLoading = true
+  console.log('loading more news', chunk2)
   const news = await getNews(
    chunk2,
    function (chunk) {
@@ -1237,6 +1246,9 @@ function displayActivity() {
   )
   if (typeof callback === 'function') {
    callback()
+  }
+  if (typeof nextChunk !== 'number') {
+   nextChunk = news.chunkId - 1
   }
   lastMessages.push(
    ...news.data.map((newsMessage) =>

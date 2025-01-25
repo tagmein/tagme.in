@@ -90,7 +90,7 @@ body.light-mode {
  --color-border-transparent: transparent;
 
  --color-text-primary: #4a4a48;
- --color-text-secondary: #8a735f;
+ --color-text-secondary: #5f4936;
 
  --color-shadow-dark: #00000040;
  --color-shadow-light: #00000020;
@@ -1176,7 +1176,6 @@ body.light-mode .icon-yes {
  left: 0;
  min-height: 100dvh;
  padding: 8px;
- position: absolute;
  right: 0;
  top: 147px;
  z-index: 1;
@@ -1216,7 +1215,7 @@ body.scroll-up .activity-container {
 body[data-mode='activity'] .activity-container,
 body[data-mode='activity'] .mode-activity,
 body[data-mode='other'] .mode-other,
-body[data-mode='main'] .mode-main, main.mode-main {
+body[data-mode='main'] .mode-main {
  display: inherit;
 }
 
@@ -1313,7 +1312,7 @@ body[data-mode='activity'] .news > article > div {
 
 body.light-mode .news-date::before,
 body.light-mode .news-date::after {
- filter: sepia(10) saturate(0.5) hue-rotate(345deg);
+ filter: sepia(10) saturate(0.5) hue-rotate(345deg) brightness(0.55);
 }
 
 .mode-main .news-date {
