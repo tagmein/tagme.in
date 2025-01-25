@@ -143,7 +143,7 @@ export const onRequestPost: PagesFunction<Env> =
     const reactions = await Promise.all(
      data.getForMessageIds.map(
       async (messageId) => {
-       const MESSAGE_REACTIONS_CHANNEL = `reactions--message-${messageId}`
+       const MESSAGE_REACTIONS_CHANNEL = `reactions:message-${messageId}`
        const messageReactions = await scroll(kv)
         .channel(MESSAGE_REACTIONS_CHANNEL)
         .seek()
@@ -165,7 +165,7 @@ export const onRequestPost: PagesFunction<Env> =
     )
    } else {
     const messageId = data.createForMessageId
-    const MESSAGE_REACTIONS_CHANNEL = `reactions--message-${messageId}`
+    const MESSAGE_REACTIONS_CHANNEL = `reactions:message-${messageId}`
     // Handle create reaction request
     await scroll(kv)
      .channel(MESSAGE_REACTIONS_CHANNEL)
