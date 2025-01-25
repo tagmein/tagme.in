@@ -121,29 +121,62 @@ function updateReactionDisplay(
  container.innerHTML = ''
 
  // Group reactions by emoji
- const reactionCounts = {}
+ const reactionScores = {}
  Object.entries(reactions).forEach(
   ([key, data]) => {
    if (key.startsWith('reaction')) {
     const emoji = key.slice('reaction'.length)
-    reactionCounts[emoji] =
-     (reactionCounts[emoji] || 0) +
-     calculateScore(data)
+    reactionScores[emoji] =
+     (reactionScores[emoji] || 0) +
+     (1 + calculateScore(data))
    }
   }
  )
 
  // Create reaction elements
- Object.entries(reactionCounts).forEach(
-  ([emoji, count]) => {
+ Object.entries(reactionScores)
+  .sort((a, b) => b[1] - a[1])
+  .forEach(([reaction, score]) => {
    const reactionElement = elem({
     tagName: 'button',
-    classes: ['reaction', 'active'],
-    textContent: `${emoji} ${count}`,
+    classes: ['reaction'],
+    dataset: {
+     reaction,
+    },
+    attributes: {
+     title: `Score: ${Math.round(
+      score
+     ).toString(10)}`,
+    },
+    textContent: `${reaction} ${niceNumber(
+     score
+    )}`,
+    events: {
+     click: async () => {
+      reactionElement.style.opacity = 0.5
+      reactionElement.style.pointerEvents =
+       'none'
+      try {
+       await addReaction(messageId, reaction)
+       reactionElement.classList.add('active')
+      } catch (err) {
+       console.error(
+        'Error adding reaction:',
+        err
+       )
+       reactionElement.classList.remove(
+        'active'
+       )
+      } finally {
+       reactionElement.style.opacity = 1
+       reactionElement.style.pointerEvents =
+        'auto'
+      }
+     },
+    },
    })
    container.appendChild(reactionElement)
-  }
- )
+  })
 }
 
 function queueReactionFetch(messageId) {
@@ -225,6 +258,7 @@ function attachReactions(
 
  let isOpening = false
  let isOpeningTimeout = null
+
  const addReactionButton = elem({
   children: [icon('no')],
   classes: ['reaction'],
@@ -241,32 +275,26 @@ function attachReactions(
      isOpening = false
     }, 250)
 
-    if (popupMenu) {
-     popupMenu.remove()
+    if (popupMenuElement) {
+     popupMenuElement.remove()
     }
 
     const popup = await createPopupMenu()
-    popupMenu = popup.element
-
-    const rect =
-     addReactionButton.getBoundingClientRect()
-    popupMenu.style.top = `${
-     rect.bottom - 227
-    }px`
-    popupMenu.style.left = `${rect.left}px`
-
-    document.body.appendChild(popupMenu)
+    popupMenuElement = popup.element
+    addReactionButton.parentElement.appendChild(
+     popupMenuElement
+    )
 
     const closePopup = (e) => {
-     if (!popupMenu) {
+     if (!popupMenuElement) {
       document.removeEventListener(
        'click',
        closePopup
       )
       return
      }
-     if (!popupMenu.contains(e.target)) {
-      popupMenu.remove()
+     if (!popupMenuElement.contains(e.target)) {
+      popupMenuElement.remove()
       document.removeEventListener(
        'click',
        closePopup
@@ -291,7 +319,7 @@ function attachReactions(
   })
  )
 
- let popupMenu = null
+ let popupMenuElement = null
 
  async function createPopupMenu() {
   await reactionOptionsLoaded
@@ -304,21 +332,33 @@ function attachReactions(
   })
 
   reactionOptions.forEach((reaction) => {
+   let reactionElement = null
    const reactionBtn = elem({
     tagName: 'button',
     classes: ['reaction-option'],
     textContent: reaction,
     events: {
      click: async () => {
-      const reactionElement = elem({
-       tagName: 'button',
-       classes: ['reaction', 'active'],
-       textContent: `${reaction} 1`,
-       style: {
-        opacity: 0.5,
-       },
-      })
-      reactions.appendChild(reactionElement)
+      reactionElement = reactions.querySelector(
+       `[data-reaction="${reaction}"]`
+      )
+      if (reactionElement) {
+       reactionElement.style.opacity = 1
+       reactionElement.classList.add('active')
+      } else {
+       reactionElement = elem({
+        dataset: {
+         reaction,
+        },
+        tagName: 'button',
+        classes: ['reaction', 'active'],
+        textContent: `${reaction} 1`,
+        style: {
+         opacity: 0.5,
+        },
+       })
+       reactions.appendChild(reactionElement)
+      }
       try {
        await addReaction(messageId, reaction)
        reactionElement.style.opacity = 1
@@ -330,8 +370,8 @@ function attachReactions(
        reactionElement.remove()
       }
 
-      popupMenu.remove()
-      popupMenu = null
+      popupMenuElement.remove()
+      popupMenuElement = null
      },
     },
    })
