@@ -88,16 +88,28 @@ async function validateRequestBody(
  }
 }
 
-export const onRequestPost: PagesFunction<Env> =
- async function (context) {
+export default {
+ async fetch(request: Request, env: Env) {
+  if (request.method !== 'POST') {
+   return new Response('Method not allowed', {
+    status: 405,
+   })
+  }
+
   const { error, data } =
-   await validateRequestBody(context.request)
+   await validateRequestBody(request)
 
   if (error) {
    return new Response(error, { status: 400 })
   }
 
-  const kv = await getKV(context)
+  const kv = await getKV({
+   env: {
+    ...env,
+    ASSETS: { fetch: globalThis.fetch },
+   },
+   request,
+  } as any)
 
   if (!kv) {
    return new Response(
@@ -156,4 +168,5 @@ export const onRequestPost: PagesFunction<Env> =
     status: 400,
    })
   }
- }
+ },
+}

@@ -28,12 +28,17 @@ const reactionOptionsLoaded = new Promise(
    )
     .filter((x) => x.startsWith('reaction'))
     .map((x) => x.slice('reaction'.length))
+   //  console.log(
+   //   reactionOptions,
+   //   updatedReactionOptions
+   //  )
    if (updatedReactionOptions.length >= 10) {
     reactionOptions.splice(
      0,
      Infinity,
      ...updatedReactionOptions.slice(0, 10)
     )
+    // console.log(reactionOptions)
    }
    resolve(reactionOptions)
   }, 1000)
@@ -214,13 +219,16 @@ function attachReactions(
      isOpening = false
     }, 250)
 
+    // Remove existing popup if one exists
     if (popupMenu) {
      popupMenu.remove()
     }
 
+    // Create new popup
     const popup = await createPopupMenu()
     popupMenu = popup.element
 
+    // Position popup relative to add reaction button
     const rect =
      addReaction.getBoundingClientRect()
     popupMenu.style.top = `${
@@ -228,8 +236,10 @@ function attachReactions(
     }px`
     popupMenu.style.left = `${rect.left}px`
 
+    // Add popup to document
     document.body.appendChild(popupMenu)
 
+    // Close popup when clicking outside
     const closePopup = (e) => {
      if (!popupMenu) {
       document.removeEventListener(
@@ -250,6 +260,7 @@ function attachReactions(
      }
     }
 
+    // Add small delay before adding click listener to prevent immediate close
     setTimeout(() => {
      document.addEventListener(
       'click',
@@ -284,24 +295,22 @@ function attachReactions(
     tagName: 'button',
     classes: ['reaction-option'],
     textContent: reaction,
+    events: {
+     click: async () => {
+      await addReaction(message.id, reaction)
+
+      const reactionElement = elem({
+       tagName: 'button',
+       classes: ['reaction', 'active'],
+       textContent: `${reaction} 1`,
+      })
+      reactions.appendChild(reactionElement)
+
+      popupMenu.remove()
+      popupMenu = null
+     },
+    },
    })
-
-   reactionBtn.addEventListener(
-    'click',
-    async () => {
-     await addReaction(message.id, reaction)
-
-     const reactionElement = elem({
-      tagName: 'button',
-      classes: ['reaction', 'active'],
-      textContent: `${reaction} 1`,
-     })
-     reactions.appendChild(reactionElement)
-
-     popupMenu.remove()
-     popupMenu = null
-    }
-   )
 
    menu.appendChild(reactionBtn)
   })
