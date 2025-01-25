@@ -537,7 +537,6 @@ article > div > .image-container {
  cursor: zoom-in;
  max-height: 50vh;
  min-height: 250px;
- margin-left: -15px;
  margin-top: 5px;
  width: 100%;
 }
