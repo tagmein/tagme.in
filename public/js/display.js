@@ -576,6 +576,7 @@ function attachMessage(
   classes: ['article-tools'],
   children: [score, articleToolButtons],
  })
+ attachReactions(articleTools, channel, message)
  const article = elem({
   children: [content, articleTools],
   tagName: 'article',
@@ -1318,6 +1319,11 @@ function attachNewsMessage(
  { message, channel, seen }
 ) {
  const content = elem()
+ console.log(
+  'attachNewsMessage',
+  channel,
+  message
+ )
  addTextBlocks(content, message)
  addYouTubeEmbed(content, message)
  addImageEmbed(content, message)
