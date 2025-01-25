@@ -1865,7 +1865,7 @@ body[data-mode='theme-selector'] .app-header {
   --theme-gray--color-bg: #808080;
   --theme-cyan--color-bg: #00cccc;
   --theme-magenta--color-bg: #cc00cc;
-  --theme-darkred--color-bg: #800000;
+  --theme-darkred--color-bg: #400000;
   --theme-purple--color-bg: #800080;
   --theme-orange--color-bg: #962e04;
   --theme-pink--color-bg: #c72bbf;
@@ -1885,7 +1885,7 @@ body[data-mode='theme-selector'] .app-header {
   --theme-gray--color-bg: #d6d6d6;
   --theme-cyan--color-bg: #66cccc;
   --theme-magenta--color-bg: #cc66cc;
-  --theme-darkred--color-bg: #d66666;
+  --theme-darkred--color-bg: #800000;
   --theme-purple--color-bg: #d666d6;
   --theme-orange--color-bg: #ee7f36;
   --theme-pink--color-bg: #d6abd4;
