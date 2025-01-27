@@ -4,6 +4,9 @@ let secondMostRecentRealm
 
 const MESSAGE_PERSIST_THRESHOLD = 5
 
+const REACTION_PREFIX =
+ 'reactions:message-channel-message-'
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -1329,10 +1332,127 @@ function attachNewsMessage(
   channel,
   message
  )
- addTextBlocks(content, message)
+ const isReaction = channel.startsWith(
+  'reactions:message-'
+ )
+ addTextBlocks(content, message, (x) =>
+  isReaction && x.startsWith('reaction')
+   ? x.substring('reaction'.length)
+   : x
+ )
  addYouTubeEmbed(content, message)
  addImageEmbed(content, message)
  addOpenGraphLink(content, message)
+ if (isReaction) {
+  content.classList.add('reaction-reaction')
+  /*
+  Incoming channel name:
+  `channel-message-${encodeURIComponent(
+  channel
+ )}--${encodeURIComponent(message.text)}`
+  */
+  const [reactionChannel, reactionMessage] =
+   channel
+    .substring(REACTION_PREFIX.length)
+    .split('--')
+    .map(decodeURIComponent)
+  if (!channel.startsWith(REACTION_PREFIX)) {
+   console.error(
+    'Unknown reaction channel',
+    channel
+   )
+   return elem({
+    tagName: 'p',
+    textContent:
+     'Error: Unknown reaction channel',
+   })
+  }
+
+  const messageLink = `/#/${encodeURIComponent(
+   reactionChannel
+  )}/${btoa(
+   encodeURIComponent(reactionMessage)
+  )}`
+
+  const reactionChannelContainer = elem({
+   attributes: {
+    href: messageLink,
+   },
+   classes: ['news-channel'],
+   events: {
+    click() {
+     const { channel: currentChannel } =
+      getUrlData()
+     focusOnMessage = message
+     if (reactionChannel === currentChannel) {
+      route()
+     }
+    },
+   },
+   tagName: 'a',
+   textContent: `#${
+    reactionChannel === ''
+     ? HOME_CHANNEL_ICON
+     : reactionChannel
+   }`,
+  })
+  const reactionContent = elem({
+   children: [reactionChannelContainer],
+   classes: ['reply'],
+   tagName: 'blockquote',
+  })
+  addTextBlocks(
+   reactionContent,
+   reactionMessage
+  )
+  addYouTubeEmbed(
+   reactionContent,
+   reactionMessage
+  )
+  addImageEmbed(
+   reactionContent,
+   reactionMessage
+  )
+  addOpenGraphLink(
+   reactionContent,
+   reactionMessage
+  )
+  const dateContainer = elem({
+   attributes: {
+    href: messageLink,
+    title: new Date(seen).toString(),
+   },
+   classes: ['news-date'],
+   events: {
+    click() {
+     const { channel: currentChannel } =
+      getUrlData()
+     focusOnMessage = message
+     if (reactionChannel === currentChannel) {
+      route()
+     }
+    },
+   },
+   tagName: 'a',
+   textContent: localDateTime(new Date(seen)),
+  })
+  const article = elem({
+   children: [content, reactionContent],
+   tagName: 'article',
+  })
+  const newsItem = elem({
+   classes: ['news', 'reaction-message'],
+   children: [article, dateContainer],
+  })
+  container.appendChild(newsItem)
+  return {
+   channel: '#' + reactionChannel.toLowerCase(),
+   element: newsItem,
+   message: message.toLowerCase(),
+   reactionMessage:
+    reactionMessage.toLowerCase(),
+  }
+ }
  const isReply = channel.startsWith('replies@')
  if (isReply) {
   const [parentChannel, parentMessage] = channel
