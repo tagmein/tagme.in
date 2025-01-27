@@ -348,7 +348,9 @@ function displayChannelMessage(
 let lastAttachedChannels
 
 function attachChannels(container, channels) {
- lastAttachedChannels = channels
+ lastAttachedChannels = channels.filter(
+  (c) => c.name.length <= 25
+ )
  if (channels.length === 0) {
   channels.push({ name: '', score: 0 })
  }
@@ -364,7 +366,7 @@ function attachChannels(container, channels) {
      textContent: 'Popular channels',
     }),
    ].concat(
-    channels.map((c) =>
+    lastAttachedChannels.map((c) =>
      elem({
       attributes: {
        href: `/#/${encodeURIComponent(c.name)}`,
@@ -900,9 +902,11 @@ function displayAutocompleteChannels(
   historyEntries = []
   for (const [channel] of Object.entries(
    readChannelHistory()
-  ).sort(function ([, a], [, b]) {
-   return b - a
-  })) {
+  )
+   .filter(([channel]) => channel.length <= 25)
+   .sort(function ([, a], [, b]) {
+    return b - a
+   })) {
    const historyEntry = elem({
     tagName: 'a',
     attributes: {
