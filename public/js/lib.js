@@ -119,8 +119,18 @@ function addTextWithLinks(container, text) {
  })
 }
 
-function addTextBlocks(container, text) {
- const lines = text.split('\n')
+function addTextBlocks(
+ container,
+ text,
+ filter
+) {
+ const lines =
+  typeof filter === 'function'
+   ? text
+      .split('\n')
+      .map(filter)
+      .filter((x) => x !== undefined)
+   : text.split('\n')
  let currentQuote = null
  lines.forEach((line) => {
   if (line.trimStart().startsWith('>')) {
