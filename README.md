@@ -1,8 +1,10 @@
 # tagme.in
 
-Slow text social network, may the best ideas win.
+> Slow text social network, may the best ideas win.
 
 Visit: https://tagme.in/#/Tag%20Me%20In%20News
+
+Please leave all feedback for Tag Me In at https://tagme.in/#/tmi:feedback
 
 ## Screenshot
 
@@ -27,4 +29,36 @@ Tag Me In features include:
 - Messages must be 3 - 175 characters long
 - YouTube video links embed a video player
 - Simple code formulas in messages are evaluated, like `= 5 * 3` would render as `15`
-- Please leave all feedback for Tag Me In at https://tagme.in/#/tmi:feedback
+
+## Development
+
+To start the development front end, run `./serve` which just runs `python3 -m http.server -d public 8000` so really any HTTP server can serve the front end. There's no framework other than JavaScript, and a https://github.com/tagmein/civil-memory compatible key-value store, one for auth, one for public data, and one for private data for signed in users.
+
+To run the development server, use Cloudflare's wrangler cli to run the functions locally (note: add more detail here in the future on wrangler setup).
+
+The following environment variables may be set:
+
+- TAGMEIN_KV ......... cloudflare binding to primary kv store
+- TAGMEIN_AUTH_KV .... cloudflare binding to auth kv store
+- TAGMEIN_PRIVATE_KV . cloudflare binding to private kv store
+- TAGMEIN_LINKEDIN_REDIRECT_URI .. all these for linkedin connection
+- LINKEDIN_AUTH_URL
+- LINKEDIN_SCOPES
+- TAGMEIN_AUTH_LINKEDIN_CLIENT_ID
+- TAGMEIN_AUTH_LINKEDIN_CLIENT_SECRET
+
+If you visit exactly `http://localhost:8000`, the app will use the production APIs, simplifying front end development when no api changes are needed.
+
+## Hosting
+
+The software is open source, and easy to host on Cloudflare - just set up this repository as a Workers project. View the Workers docs at https://developers.cloudflare.com/workers/
+
+It might require functional updates to host on a platform that is not Cloudflare
+
+## Contributing
+
+Contributions welcome.
+
+Please ensure you have the rights to what you are contributing, and your desire to release your contribution into the public domain, from which we will then use it in Tag Me In.
+
+Thank you.
