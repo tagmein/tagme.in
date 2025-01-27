@@ -357,7 +357,8 @@ function attachChannels(container, channels) {
  container.appendChild(
   elem({
    attributes: {
-    'data-tour': 'Discover popular channels.',
+    'data-tour-off':
+     'Discover popular channels.',
    },
    classes: ['channel-list'],
    children: [

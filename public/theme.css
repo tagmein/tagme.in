@@ -101,9 +101,6 @@ body {
  font-family: Vera, sans-serif;
  line-height: 1.5;
  min-height: calc(100dvh - 148px);
- overflow-x: hidden;
- overflow-y: auto;
- padding-top: 148px;
 }
 
 .toolbar,
@@ -154,7 +151,7 @@ body {
  height: 148px;
  left: 0;
  overflow: visible;
- position: fixed;
+ position: sticky;
  right: 0;
  top: -52px;
  transition: top 0.5s ease;
@@ -1676,6 +1673,7 @@ body.light-mode button.brand {
 .tour-shade {
  bottom: 0;
  left: 0;
+ pointer-events: none;
  position: fixed;
  right: 0;
  top: 0;
@@ -1702,30 +1700,30 @@ body.light-mode button.brand {
 
 .tour-shade > div > div:nth-child(1) {
  right: 100%;
- width: 100vw;
- top: -100vh;
- bottom: -100vh;
+ width: 101vw;
+ top: -101vh;
+ bottom: -101vh;
 }
 
 .tour-shade > div > div:nth-child(2) {
  left: 0;
  right: 0;
- height: 100vh;
+ height: 101vh;
  bottom: 100%;
 }
 
 .tour-shade > div > div:nth-child(3) {
  left: 0;
  right: 0;
- height: 100vh;
+ height: 101vh;
  top: 100%;
 }
 
 .tour-shade > div > div:nth-child(4) {
  left: 100%;
- width: 100vw;
- top: -100vh;
- bottom: -100vh;
+ width: 101vw;
+ top: -101vh;
+ bottom: -101vh;
 }
 
 .tour-container {
@@ -2471,34 +2469,35 @@ div.reaction-reaction
 }
 
 .news.reaction-message > article {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
+ display: flex;
+ flex-direction: row;
+ gap: 10px;
 }
 
 .reaction-reaction {
-  flex-shrink: 0;
-  min-width: 60px;
+ flex-shrink: 0;
+ min-width: 60px;
 }
 
 .reaction-reaction > p {
-  background-color: var(--color-bg-light);
-  border-radius: 20px;
-  border: 2px solid var(--color-text-primary);
-  display: block;
-  font-size: 150%;
-  height: 36px;
-  margin: 10px 0;
-  min-width: 36px;
-  overflow: hidden;
-  padding: 10px;
-  text-align: center;
+ background-color: var(--color-bg-light);
+ border-radius: 20px;
+ border: 2px solid var(--color-text-primary);
+ display: block;
+ font-size: 150%;
+ height: 36px;
+ margin: 10px 0;
+ min-width: 36px;
+ overflow: hidden;
+ padding: 10px;
+ text-align: center;
 }
 
-div.reaction-reaction + blockquote.reply::before {
+div.reaction-reaction
+ + blockquote.reply::before {
  display: none;
 }
 
 .news.reaction-message > article > blockquote {
-  margin-left: 0;
+ margin-left: 0;
 }
