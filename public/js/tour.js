@@ -1,7 +1,13 @@
 const tourCompleted =
  localStorage.getItem('tour') === 'complete'
 
+let tourIsActive
+
 function tour() {
+ if (tourIsActive) {
+  return
+ }
+ tourIsActive = true
  const elements = Array.from(
   document.querySelectorAll('*[data-tour]')
  ).filter(
@@ -14,7 +20,7 @@ function tour() {
   document.body.removeChild(tourElement)
   document.body.removeChild(tourShade)
   localStorage.setItem('tour', 'complete')
-  removeEventListener('scroll', refreshTour)
+  tourIsActive = false
  }
 
  function back() {
@@ -119,6 +125,11 @@ function tour() {
  })
 
  function repositionTour() {
+  for (const t of Array.from(
+   tourSelf.children
+  )) {
+   t.style.display = 'none'
+  }
   const currentElement = elements[tourPointer]
   const box =
    currentElement.getBoundingClientRect()
@@ -135,7 +146,10 @@ function tour() {
        bottom: `${Math.max(
         pad,
         Math.min(
-         innerHeight - self.height - pad,
+         innerHeight -
+          self.height -
+          pad -
+          scrollY,
          innerHeight - box.top + pad
         )
        )}px`,
@@ -146,7 +160,10 @@ function tour() {
        top: `${Math.max(
         pad,
         Math.min(
-         innerHeight - self.height - pad,
+         scrollY +
+          innerHeight -
+          self.height -
+          pad,
          box.bottom + pad
         )
        )}px`,
@@ -182,6 +199,19 @@ function tour() {
    height: `${box.height}px`,
    width: `${box.width}px`,
   })
+  scrollX = 0
+  document.body.scrollLeft = 0
+  setTimeout(() => {
+   scrollX = 0
+   document.body.scrollLeft = 0
+  }, 100)
+  tourSelf.children[3].style.width =
+   window.innerWidth - box.right + 'px'
+  for (const t of Array.from(
+   tourSelf.children
+  )) {
+   t.style.display = 'block'
+  }
  }
 
  async function refreshTour() {
@@ -190,27 +220,41 @@ function tour() {
    exitTour()
    return
   }
-  removeEventListener('scroll', refreshTour)
   currentElement.scrollIntoView({
    behavior: 'instant',
    block: 'start',
    inline: 'start',
   })
-  scrollBy({
-   behavior: 'instant',
-   top: -240,
-  })
-  addEventListener('scroll', refreshTour)
   tourMessage.textContent =
    currentElement.getAttribute('data-tour')
+  tourElement?.scrollIntoView({
+   behavior: 'instant',
+   block: 'center',
+  })
+  currentElement?.scrollIntoView({
+   behavior: 'instant',
+   block: 'center',
+  })
   repositionTour()
-  await new Promise((r) => setTimeout(r, 250))
-  repositionTour()
-  await new Promise((r) => setTimeout(r, 250))
+  tourElement?.scrollIntoView({
+   behavior: 'instant',
+   block: 'center',
+  })
+  currentElement?.scrollIntoView({
+   behavior: 'instant',
+   block: 'center',
+  })
+  await new Promise((r) => setTimeout(r, 50))
+  tourElement?.scrollIntoView({
+   behavior: 'instant',
+   block: 'center',
+  })
+  currentElement?.scrollIntoView({
+   behavior: 'instant',
+   block: 'center',
+  })
   repositionTour()
  }
-
- addEventListener('scroll', refreshTour)
 
  document.body.appendChild(tourShade)
  document.body.appendChild(tourElement)

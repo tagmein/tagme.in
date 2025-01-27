@@ -9,6 +9,7 @@ function switchToMode(
 ) {
  return function (runSpecialActions = true) {
   if (
+   typeof lastKnownModeAtStartup === 'string' &&
    mode !== lastKnownModeAtStartup &&
    !hasCompletedStartup
   ) {
@@ -749,6 +750,11 @@ function dialog(...children) {
   children: [alertContainer],
  })
  document.body.appendChild(dialogBox)
+
+ dialogBox.scrollIntoView({
+  behavior: 'instant',
+  block: 'center',
+ })
 
  function close() {
   document.body.removeChild(dialogBox)

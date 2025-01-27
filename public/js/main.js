@@ -219,11 +219,20 @@ function scrolledPastBottom(
  return bottom < elementBottom
 }
 let lastScrollY = 0
+let addTimeout
+let removeTimeout
 addEventListener('scroll', () => {
+ clearTimeout(addTimeout)
+ clearTimeout(removeTimeout)
  if (scrollY < lastScrollY) {
-  body.classList.add('scroll-up')
+  addTimeout = setTimeout(() =>
+   body.classList.add('scroll-up')
+  )
  } else {
-  body.classList.remove('scroll-up')
+  removeTimeout = setTimeout(
+   () => body.classList.remove('scroll-up'),
+   1000
+  )
  }
  lastScrollY = scrollY
  if (scrollY > 0) {
