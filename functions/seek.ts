@@ -73,6 +73,7 @@ export const onRequestGet: PagesFunction<
    ) {
     await scroll(kv).channel(channel).remove()
    }
+   return data
   } catch (e) {
    return {
     error: e.message ?? 'unknown error',
