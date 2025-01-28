@@ -133,20 +133,22 @@ export function scrollChannel(
    } = existingChannelRankString
     ? JSON.parse(existingChannelRankString)
     : {}
-   delete existingChannelRank[channelName]
-   const newChannelRankString = JSON.stringify(
-    existingChannelRank
-   )
-   await Promise.all([
-    kv.set(
-     key.channelRank,
-     newChannelRankString
-    ),
-    kv.set(
-     key.channelRankHour,
-     newChannelRankString
-    ),
-   ])
+   if (channelName in existingChannelRank) {
+    delete existingChannelRank[channelName]
+    const newChannelRankString = JSON.stringify(
+     existingChannelRank
+    )
+    await Promise.all([
+     kv.set(
+      key.channelRank,
+      newChannelRankString
+     ),
+     kv.set(
+      key.channelRankHour,
+      newChannelRankString
+     ),
+    ])
+   }
   }
   async function activeKH() {
    const existingKHString = await kv.get(
