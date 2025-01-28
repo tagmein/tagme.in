@@ -125,6 +125,29 @@ export function scrollChannel(
     ),
    ])
   }
+  async function removeChannelRank() {
+   const existingChannelRankString =
+    await kv.get(key.channelRank)
+   let existingChannelRank: {
+    [key: string]: number
+   } = existingChannelRankString
+    ? JSON.parse(existingChannelRankString)
+    : {}
+   delete existingChannelRank[channelName]
+   const newChannelRankString = JSON.stringify(
+    existingChannelRank
+   )
+   await Promise.all([
+    kv.set(
+     key.channelRank,
+     newChannelRankString
+    ),
+    kv.set(
+     key.channelRankHour,
+     newChannelRankString
+    ),
+   ])
+  }
   async function activeKH() {
    const existingKHString = await kv.get(
     key.channelActivityKH
@@ -176,6 +199,10 @@ export function scrollChannel(
     JSON.stringify(chunkData)
    )
    return chunkId
+  }
+
+  async function remove() {
+   await removeChannelRank()
   }
 
   async function unpublishMessageActivity(
@@ -443,9 +470,10 @@ export function scrollChannel(
      seekMessages(),
      seekChannels(),
     ])
+
    return { channels, messages }
   }
 
-  return { send, seek, unsend }
+  return { remove, send, seek, unsend }
  }
 }
