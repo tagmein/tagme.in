@@ -894,7 +894,9 @@ async function networkChannelSeek(
   }
  }
  const response = await fetch(
-  `${networkRootUrl()}/seek?channel=${encodeURIComponent(
+  `${networkRootUrl(
+   'seek'
+  )}/seek?channel=${encodeURIComponent(
    channel
   )}&hour=${hour}`,
   { headers }
@@ -947,6 +949,12 @@ async function networkMessageSend(
 
  if (!resp.ok) {
   const error = await resp.text()
+  window.g = resp
+  window.h = error
+  console.error({
+   error,
+   url: `${networkRootUrl()}/send`,
+  })
   alert(error)
   return false
  }
@@ -990,7 +998,13 @@ async function networkMessageUnsend(
  return await resp.text()
 }
 
-function networkRootUrl() {
+function networkRootUrl(keyword) {
+ if (keyword === 'seek') {
+  return location.origin ===
+   'http://localhost:8000'
+   ? 'http://localhost:8787'
+   : ''
+ }
  return location.origin ===
   'http://localhost:8000'
   ? 'https://tagme.in'
@@ -1009,7 +1023,7 @@ async function getNews(chunk, callback) {
  }
  const response = await fetch(
   `${networkRootUrl()}/news${
-   typeof chunk === 'number'
+   typeof chunk === 'number' && !isNaN(chunk)
     ? `?chunk=${chunk.toString(36)}`
     : ''
   }`,

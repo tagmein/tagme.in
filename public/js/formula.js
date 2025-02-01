@@ -44,7 +44,7 @@ function formula(element, value) {
    element.textContent = output
   })
   .catch((e) => {
-   console.log(e)
+   console.error(e)
    element.classList.add('formula-error')
    element.textContent = e.message
   })

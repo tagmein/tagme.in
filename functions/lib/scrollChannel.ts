@@ -34,7 +34,8 @@ export function scrollChannel(
    newsKey.newsChunkById(chunkId)
   const chunkString = await kv.get(chunkKey)
   const chunkData =
-   typeof chunkString === 'string'
+   typeof chunkString === 'string' &&
+   chunkString.length > 4
     ? JSON.parse(chunkString)
     : []
   if (
@@ -51,7 +52,8 @@ export function scrollChannel(
     newChunkKey
    )
    const newChunkData =
-    typeof newChunkString === 'string'
+    typeof newChunkString === 'string' &&
+    newChunkString.length > 4
      ? JSON.parse(newChunkString)
      : []
    return [
@@ -196,10 +198,18 @@ export function scrollChannel(
     seen,
    }
    chunkData.unshift(messageActivity)
-   await kv.set(
-    chunkKey,
-    JSON.stringify(chunkData)
-   )
+   try {
+    await kv.set(
+     chunkKey,
+     JSON.stringify(chunkData)
+    )
+   } catch (error) {
+    throw new Error(
+     `Error setting chunk data: ${error} ; chunkId: ${chunkId} ; chunkKey: ${chunkKey} ; chunkData: ${JSON.stringify(
+      chunkData
+     )}`
+    )
+   }
    return chunkId
   }
 
@@ -215,7 +225,8 @@ export function scrollChannel(
     newsKey.newsChunkById(chunkId)
    const chunkString = await kv.get(chunkKey)
    const chunkData = (
-    typeof chunkString === 'string'
+    typeof chunkString === 'string' &&
+    chunkString.length > 4
      ? JSON.parse(chunkString)
      : []
    ).filter(
@@ -345,13 +356,19 @@ export function scrollChannel(
    const messageDataString = await kv.get(
     key.messagePosition
    )
-   const messageData = messageDataString
-    ? JSON.parse(messageDataString)
-    : {
-       position: 0,
-       timestamp,
-       velocity: 0,
-      }
+   const messageData =
+    typeof messageDataString === 'string' &&
+    messageDataString.length > 4
+     ? JSON.parse(messageDataString)
+     : {
+        position: 0,
+        timestamp,
+        velocity: 0,
+        replies: {
+         count: 0,
+         top: [],
+        },
+       }
    const timeDelta =
     timestamp - messageData.timestamp
    const positionDelta =

@@ -64,11 +64,8 @@ const composeTextarea = elem({
    compose.classList.add('active')
   },
   input() {
-   const parametersToRemove = ['si']
-   const text =
-    channel === 'reactions'
-     ? `reaction${composeTextarea.value}`
-     : composeTextarea.value
+   const urlParametersToRemove = ['si'] // remove tracking parameters @todo: move to a function and add more parameters
+   const text = composeTextarea.value
    const urls =
     text.match(/\bhttps?:\/\/\S+/gi) || []
    composeTextarea.value = urls.reduce(
@@ -79,7 +76,7 @@ const composeTextarea = elem({
       const searchParams = new URLSearchParams(
        urlObj.search
       )
-      parametersToRemove.forEach((param) => {
+      urlParametersToRemove.forEach((param) => {
        if (searchParams.has(param)) {
         searchParams.delete(param)
         removed = true
@@ -130,16 +127,20 @@ const compose = elem({
   async submit(e) {
    e.preventDefault()
    const { messageChannel } = getUrlData()
+   const messageText =
+    messageChannel === 'reactions'
+     ? `reaction${composeTextarea.value}`
+     : composeTextarea.value
    if (
     (await withLoading(
      networkMessageSend(
       messageChannel,
-      composeTextarea.value,
+      messageText,
       1
      )
     )) !== false
    ) {
-    focusOnMessage = composeTextarea.value
+    focusOnMessage = messageText
     composeTextarea.value = ''
     compose.classList.remove('active')
     document.body.focus()
@@ -326,6 +327,18 @@ async function route() {
  const channelData = await withLoading(
   networkChannelSeek(channel, getHourNumber())
  )
+ if (
+  'error' in channelData ||
+  typeof channelData?.response?.messages !==
+   'object'
+ ) {
+  throw new Error(
+   channelData.error ??
+    `Error seeking channel: ${JSON.stringify(
+     channelData
+    )}`
+  )
+ }
  const formattedMessageData = formatMessageData(
   channelData.response.messages
  )

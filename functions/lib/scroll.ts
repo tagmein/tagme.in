@@ -20,9 +20,13 @@ export function scroll(kv: CivilMemoryKV) {
   const latestChunkString = await kv.get(
    newsKey.newsChunkId
   )
-  return typeof latestChunkString === 'string'
-   ? parseInt(latestChunkString, 36)
-   : 0
+  const latestChunkId =
+   typeof latestChunkString === 'string'
+    ? parseInt(latestChunkString, 36)
+    : 0
+  return isNaN(latestChunkId)
+   ? 0
+   : latestChunkId
  }
 
  const channel = scrollChannel(
@@ -36,7 +40,7 @@ export function scroll(kv: CivilMemoryKV) {
   includeNewMessages: boolean
  ): Promise<string> {
   const chunkId =
-   typeof chunk === 'number'
+   typeof chunk === 'number' && !isNaN(chunk)
     ? chunk
     : await getLatestNewsChunkId()
   const chunkKey =
@@ -57,7 +61,8 @@ export function scroll(kv: CivilMemoryKV) {
     chunkKey
    )
    const newsChunk = (
-    typeof newsChunkString === 'string'
+    typeof newsChunkString === 'string' &&
+    newsChunkString.length > 4
      ? JSON.parse(newsChunkString)
      : []
    ).filter(
