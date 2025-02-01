@@ -1,10 +1,14 @@
-import { CivilMemoryKV } from './modules/civil-memory/index.mjs'
+import { CivilMemoryKV } from '../modules/civil-memory/index.mjs'
 import { getHourNumber } from './getHourNumber.js'
 
 interface MessageData {
  position: number
  timestamp: number
  velocity: number
+ replies: {
+  count: number
+  top: MessageData[]
+ }
 }
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
@@ -381,6 +385,10 @@ export function scrollChannel(
     seen: messageData.seen ?? Date.now(),
     timestamp,
     velocity,
+    replies: messageData.replies ?? {
+     count: 0,
+     top: [],
+    },
    }
    if (
     typeof newMessageData.newsChunk !== 'number'
@@ -391,6 +399,73 @@ export function scrollChannel(
       newMessageData.seen
      )
    }
+
+   async function updateParentMessageReplies() {
+    const isReply =
+     channelName.startsWith('replies@')
+    if (!isReply) {
+     return
+    }
+    const [parentChannelId, parentMessageId] =
+     channelName.substring(8).split(':')
+
+    const [parentChannel] = [
+     parentChannelId,
+    ].map(decodeURIComponent)
+
+    const parentChannelNowKey = `scroll.channel.messages:${parentChannelId}#now`
+    const parentChannelDataString =
+     await kv.get(parentChannelNowKey)
+
+    if (
+     typeof parentChannelDataString ===
+      'string' &&
+     parentChannelDataString.length > 4
+    ) {
+    } else {
+     throw new Error(
+      `Parent channel data not found: ${JSON.stringify(
+       parentChannel
+      )}`
+     )
+    }
+
+    const parentMessageData = JSON.parse(
+     parentChannelDataString
+    )
+
+    const allRepliesKey = `scroll.channel.messages:${encodeURIComponent(
+     `replies@${parentChannelId}:${parentMessageId}`
+    )}#now`
+
+    const allReplies = await seekMessages(
+     allRepliesKey
+    )
+
+    const top10Replies = Object.fromEntries(
+     Object.entries(allReplies)
+      .sort(
+       (a, b) => b[1].position - a[1].position
+      )
+      .slice(0, 10)
+    )
+
+    const updatedParentMessageData = {
+     ...parentMessageData,
+     [parentMessageId]: {
+      ...parentMessageData[parentMessageId],
+      replies: {
+       count: allReplies.length,
+       top: top10Replies,
+      },
+     },
+    }
+
+    await kv.set(
+     parentChannelNowKey,
+     JSON.stringify(updatedParentMessageData)
+    )
+   }
    await Promise.all([
     kv.set(
      key.messagePosition,
@@ -398,6 +473,12 @@ export function scrollChannel(
     ),
     rankMessage(message, newMessageData),
    ])
+
+   await new Promise((resolve) =>
+    setTimeout(resolve, 100)
+   )
+
+   await updateParentMessageReplies()
   }
 
   async function unsend(message: string) {
@@ -446,10 +527,8 @@ export function scrollChannel(
    }
   }
 
-  async function seekMessages() {
-   const messagesString = await kv.get(
-    key.channelMessages
-   )
+  async function seekMessages(_key: string) {
+   const messagesString = await kv.get(_key)
    return messagesString
     ? excludeOverlyNegativeMessages(
        JSON.parse(messagesString)
@@ -460,9 +539,18 @@ export function scrollChannel(
   function excludeOverlyNegativeMessages(messages: {
    [key: string]: MessageData
   }) {
+   console.error({ messages })
    return Object.fromEntries(
     Object.entries(messages).filter(
      ([_, messageData]) => {
+      if (
+       !(('replies' in messageData) as unknown)
+      ) {
+       messageData.replies = {
+        count: 0,
+        top: [],
+       }
+      }
       const score =
        messageData.position +
        ((timestamp - messageData.timestamp) *
@@ -486,7 +574,7 @@ export function scrollChannel(
   async function seek() {
    const [messages, channels] =
     await Promise.all([
-     seekMessages(),
+     seekMessages(key.channelMessages),
      seekChannels(),
     ])
 
