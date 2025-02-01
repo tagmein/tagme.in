@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from './modules/civil-memory/index.mjs'
+import { CivilMemoryKV } from '../modules/civil-memory/index.mjs'
 
 interface CollectionIndex {
  [collectionName: string]: string[]

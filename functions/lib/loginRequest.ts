@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from './modules/civil-memory/index.mjs'
+import { CivilMemoryKV } from '../modules/civil-memory/index.mjs'
 import { randomId } from './randomId.js'
 
 const LOGIN_REQUEST_EXPIRES_AFTER =
