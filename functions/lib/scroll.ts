@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from './modules/civil-memory/index.js'
+import { CivilMemoryKV } from './modules/civil-memory/index.mjs'
 import { scrollChannel } from './scrollChannel.js'
 
 const NEWS_ITEM_APPEARS_AFTER = 30 * 60 * 1000

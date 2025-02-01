@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from './modules/civil-memory/index.js'
+import { CivilMemoryKV } from './modules/civil-memory/index.mjs'
 import { getHourNumber } from './getHourNumber.js'
 
 interface MessageData {
