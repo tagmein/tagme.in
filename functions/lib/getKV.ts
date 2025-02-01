@@ -3,8 +3,6 @@ import {
  CivilMemoryKV,
  civilMemoryKV,
 } from '@tagmein/civil-memory'
-import { promises as fsPromises } from 'node:fs'
-import { join } from 'path/posix'
 import { Env } from './env.js'
 import { sessionIsExpired } from './session.js'
 import { store } from './store.js'
@@ -26,11 +24,8 @@ export async function getKV(
  if (typeof authorization === 'string') {
   const authKV = env.TAGMEIN_LOCAL_KV
    ? civilMemoryKV.http({
-      baseUrl: 'http://localhost:3333',
-      mode: 'disk',
-      modeOptions: {
-       disk: { basePath: './.kv-auth' },
-      },
+      baseUrl:
+       'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-auth',
      })
    : civilMemoryKV.cloudflare({
       binding: env.TAGMEIN_AUTH_KV,
