@@ -1,4 +1,4 @@
 compatibility_date = "2025-02-01"
-compatibility_flags = []
+compatibility_flags = ["nodejs_compat"]
 name="tagme"
 pages_build_output_dir = "public"
