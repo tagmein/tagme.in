@@ -486,10 +486,8 @@ article > div > .image-container {
  width: 100%;
 }
 
-article > div > .image-container.expanded,
-article
- > div
- > .image-container.image-article.expanded {
+.image-container.expanded,
+.image-container.image-article.expanded {
  align-items: center;
  cursor: zoom-out;
  display: flex;
@@ -508,7 +506,7 @@ article
  z-index: 10000;
 }
 
-article > div > .image-container.expanded img {
+.image-container.expanded img {
  max-height: 95dvh;
  max-width: 95dvw;
  object-fit: contain;
@@ -800,7 +798,7 @@ article {
  background-color: var(--color-bg-no-active);
 }
 
-article > div > .image-container.expanded {
+.image-container.expanded {
  background-color: var(--color-bg-dark);
 }
 

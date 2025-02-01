@@ -364,6 +364,7 @@ function addImageByUrl(
  imgSrc,
  classes = []
 ) {
+ const imageContainerReferencePosition = elem()
  const imageContainer = elem({
   classes: ['image-container', ...classes],
   children: [
@@ -382,6 +383,10 @@ function addImageByUrl(
       'expanded'
      )
     ) {
+     imageContainerReferencePosition.parentElement.insertBefore(
+      imageContainer,
+      imageContainerReferencePosition
+     )
      imageContainer.classList.remove('expanded')
      restoreScrollPosition()
      expandedElement = undefined
@@ -389,11 +394,15 @@ function addImageByUrl(
      captureScrollPosition()
      imageContainer.classList.add('expanded')
      expandedElement = imageContainer
+     document.body.appendChild(imageContainer)
     }
    },
   },
  })
  container.appendChild(imageContainer)
+ container.appendChild(
+  imageContainerReferencePosition
+ )
 }
 
 async function addOpenGraphLink(
