@@ -384,9 +384,11 @@ function exitThemeSelector() {
  } else {
   restoreLastKnownMode(-1)
  }
+ restoreScrollPosition()
 }
 
 function enterThemeSelector() {
+ captureScrollPosition()
  switchToMode('theme-selector')(false)
  setTimeout(() => {
   currentThemeButton = document.querySelector(

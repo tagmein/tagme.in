@@ -222,7 +222,6 @@ let lastScrollY = 0
 let addTimeout
 let removeTimeout
 body.addEventListener('scroll', () => {
- console.log('scroll', body.scrollTop)
  clearTimeout(addTimeout)
  clearTimeout(removeTimeout)
  if (body.scrollTop < lastScrollY) {
