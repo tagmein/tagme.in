@@ -1,11 +1,8 @@
 import { cloudflareKV } from './kv/cloudflareKV.js'
 import { diskKV } from './kv/diskKV.js'
 import { httpKV } from './kv/httpKV.js'
-import { vercelKV } from './kv/vercelKV.js'
 import { volatileKV } from './kv/volatileKV.js'
-import { cloudflareObjects } from './objects/cloudflareObjects.js'
-import { diskObjects } from './objects/diskObjects.js'
-import { vercelObjects } from './objects/vercelObjects.js'
+
 export interface CivilMemoryKV {
  delete(key: string): Promise<void>
  get(key: string): Promise<string | null>
@@ -39,15 +36,5 @@ export declare const civilMemoryKV: {
  >
  disk: Named<typeof diskKV, 'disk'>
  http: Named<typeof httpKV, 'http'>
- vercel: Named<typeof vercelKV, 'vercel'>
  volatile: Named<typeof volatileKV, 'volatile'>
 }
-export declare const civilMemoryObjects: {
- cloudflare: Named<
-  typeof cloudflareObjects,
-  'cloudflare'
- >
- disk: Named<typeof diskObjects, 'disk'>
- vercel: Named<typeof vercelObjects, 'vercel'>
-}
-export {}
