@@ -207,6 +207,19 @@ async function displayChannelMessageReplies(
   )
  )
 
+ if (
+  'error' in replyChannelData ||
+  typeof replyChannelData?.response
+   ?.messages !== 'object'
+ ) {
+  throw new Error(
+   replyChannelData.error ??
+    `Error seeking reply channel: ${JSON.stringify(
+     replyChannelData
+    )}`
+  )
+ }
+
  const formattedReplyMessageData =
   formatMessageData(
    replyChannelData.response.messages
@@ -1173,6 +1186,16 @@ function displayActivity() {
 
  let isVisible = false
 
+ const endOfNewsMessageElement = elem({
+  tagName: 'p',
+  textContent: 'End of news.',
+  classes: ['text-message'],
+ })
+
+ function endOfNews() {
+  element.appendChild(endOfNewsMessageElement)
+ }
+
  function toggle() {
   if (isVisible) {
    hide()
@@ -1218,26 +1241,22 @@ function displayActivity() {
    return
   }
   const chunk2 =
-   typeof chunk === 'number' ? chunk : nextChunk
+   typeof chunk === 'number' && !isNaN(chunk)
+    ? chunk
+    : nextChunk
   if (
    typeof chunk2 === 'number' &&
+   !isNaN(chunk2) &&
    chunk2 < 0
   ) {
    if (chunk2 < -1) {
     return
    }
-   element.appendChild(
-    elem({
-     tagName: 'p',
-     textContent: 'End of news.',
-     classes: ['text-message'],
-    })
-   )
+   endOfNews()
    nextChunk--
    return
   }
   isLoading = true
-  console.log('loading more news', chunk2)
   const news = await getNews(
    chunk2,
    function (chunk) {
@@ -1245,6 +1264,13 @@ function displayActivity() {
     isLoading = false
    }
   )
+  if (
+   chunk2 === undefined &&
+   (!news?.data || news.data.length === 0)
+  ) {
+   endOfNews()
+   return
+  }
   if (typeof callback === 'function') {
    callback()
   }
@@ -1252,9 +1278,9 @@ function displayActivity() {
    nextChunk = news.chunkId - 1
   }
   lastMessages.push(
-   ...news.data.map((newsMessage) =>
+   ...(news.data?.map?.((newsMessage) =>
     attachNewsMessage(element, newsMessage)
-   )
+   ) ?? [])
   )
   filterAgain()
   return nextChunk
@@ -1332,11 +1358,6 @@ function attachNewsMessage(
  { message, channel, seen }
 ) {
  const content = elem()
- console.log(
-  'attachNewsMessage',
-  channel,
-  message
- )
  const isReaction = channel.startsWith(
   'reactions:message-'
  )

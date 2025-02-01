@@ -23,15 +23,27 @@ const reactionOptionsLoaded = new Promise(
   setTimeout(async () => {
    const reactionsChannelContent =
     await networkChannelSeek('reactions', 0)
+   if (
+    'error' in reactionsChannelContent ||
+    typeof reactionsChannelContent?.response
+     ?.messages !== 'object'
+   ) {
+    throw new Error(
+     reactionsChannelContent.error ??
+      `Error seeking reactions channel: ${JSON.stringify(
+       reactionsChannelContent
+      )}`
+    )
+   }
    const updatedReactionOptions = Object.keys(
     reactionsChannelContent.response.messages
    )
     .filter((x) => x.startsWith('reaction'))
     .map((x) => x.slice('reaction'.length))
-   if (updatedReactionOptions.length >= 10) {
+   if (updatedReactionOptions.length > 0) {
     reactionOptions.splice(
      0,
-     Infinity,
+     updatedReactionOptions.length,
      ...updatedReactionOptions.slice(0, 10)
     )
    }

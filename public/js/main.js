@@ -64,11 +64,8 @@ const composeTextarea = elem({
    compose.classList.add('active')
   },
   input() {
-   const parametersToRemove = ['si']
-   const text =
-    channel === 'reactions'
-     ? `reaction${composeTextarea.value}`
-     : composeTextarea.value
+   const urlParametersToRemove = ['si'] // remove tracking parameters @todo: move to a function and add more parameters
+   const text = composeTextarea.value
    const urls =
     text.match(/\bhttps?:\/\/\S+/gi) || []
    composeTextarea.value = urls.reduce(
@@ -79,7 +76,7 @@ const composeTextarea = elem({
       const searchParams = new URLSearchParams(
        urlObj.search
       )
-      parametersToRemove.forEach((param) => {
+      urlParametersToRemove.forEach((param) => {
        if (searchParams.has(param)) {
         searchParams.delete(param)
         removed = true
@@ -130,16 +127,20 @@ const compose = elem({
   async submit(e) {
    e.preventDefault()
    const { messageChannel } = getUrlData()
+   const messageText =
+    messageChannel === 'reactions'
+     ? `reaction${composeTextarea.value}`
+     : composeTextarea.value
    if (
     (await withLoading(
      networkMessageSend(
       messageChannel,
-      composeTextarea.value,
+      messageText,
       1
      )
     )) !== false
    ) {
-    focusOnMessage = composeTextarea.value
+    focusOnMessage = messageText
     composeTextarea.value = ''
     compose.classList.remove('active')
     document.body.focus()
@@ -201,14 +202,14 @@ function scrolledPastBottom(
  exemptZeroScroll = false
 ) {
  if (
-  (!exemptZeroScroll && scrollY < 1) ||
+  (!exemptZeroScroll && body.scrollTop < 1) ||
   !element.checkVisibility()
  ) {
   return false
  }
  const bottom = Math.ceil(
   document.documentElement.scrollHeight -
-   scrollY -
+   body.scrollTop -
    document.documentElement.clientHeight
  )
  const elementBottom = Math.ceil(
@@ -221,24 +222,24 @@ function scrolledPastBottom(
 let lastScrollY = 0
 let addTimeout
 let removeTimeout
-addEventListener('scroll', () => {
+body.addEventListener('scroll', () => {
  clearTimeout(addTimeout)
  clearTimeout(removeTimeout)
- if (scrollY < lastScrollY) {
+ if (body.scrollTop < lastScrollY) {
   addTimeout = setTimeout(() =>
    body.classList.add('scroll-up')
   )
  } else {
   removeTimeout = setTimeout(
    () => body.classList.remove('scroll-up'),
-   1000
+   500
   )
  }
- lastScrollY = scrollY
- if (scrollY > 0) {
-  document.body.classList.remove('scroll-zero')
+ lastScrollY = body.scrollTop
+ if (lastScrollY > 0) {
+  body.classList.remove('scroll-zero')
  } else {
-  document.body.classList.add('scroll-zero')
+  body.classList.add('scroll-zero')
  }
  if (
   scrolledPastBottom(
@@ -299,15 +300,15 @@ async function route() {
   }
  }
  if (typeof messageText === 'string') {
-  document.body.classList.remove('on-channel')
-  document.body.classList.add('on-message')
+  body.classList.remove('on-channel')
+  body.classList.add('on-message')
   composeTextarea.setAttribute(
    'placeholder',
    COMPOSE_PLACEHOLDER_REPLY
   )
  } else {
-  document.body.classList.remove('on-message')
-  document.body.classList.add('on-channel')
+  body.classList.remove('on-message')
+  body.classList.add('on-channel')
   composeTextarea.setAttribute(
    'placeholder',
    COMPOSE_PLACEHOLDER_MESSAGE
@@ -326,6 +327,18 @@ async function route() {
  const channelData = await withLoading(
   networkChannelSeek(channel, getHourNumber())
  )
+ if (
+  'error' in channelData ||
+  typeof channelData?.response?.messages !==
+   'object'
+ ) {
+  throw new Error(
+   channelData.error ??
+    `Error seeking channel: ${JSON.stringify(
+     channelData
+    )}`
+  )
+ }
  const formattedMessageData = formatMessageData(
   channelData.response.messages
  )
@@ -384,14 +397,10 @@ function checkConsent() {
  if (
   localStorage.getItem(consentKey) === 'consent'
  ) {
-  document.body.classList.add(
-   'send-consent-granted'
-  )
+  body.classList.add('send-consent-granted')
  } else {
   {
-   document.body.classList.remove(
-    'send-consent-granted'
-   )
+   body.classList.remove('send-consent-granted')
   }
  }
 }
@@ -461,6 +470,6 @@ setTimeout(() => {
  }
  setTimeout(() => {
   hasCompletedStartup = true
-  document.body.removeAttribute('data-starting')
+  body.removeAttribute('data-starting')
  }, 500)
 })

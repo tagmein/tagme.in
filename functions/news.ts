@@ -51,7 +51,7 @@ export const onRequestGet: PagesFunction<
    return data
   } catch (e) {
    return JSON.stringify({
-    error: e.message ?? 'unknown error',
+    error: e.stack ?? 'unknown error', // todo: remove stack trace
    })
   }
  }

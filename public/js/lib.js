@@ -331,11 +331,40 @@ function addImageEmbed(container, text) {
  addImageByUrl(container, imgSrc)
 }
 
+function captureScrollPosition() {
+ const scrollPosition = document.body.scrollTop
+ localStorage.setItem(
+  'scrollPosition',
+  scrollPosition
+ )
+ document.body.scrollTo({
+  behavior: 'instant',
+  left: 0,
+  top: 0,
+ })
+ document.body.style.overflow = 'hidden'
+}
+
+function restoreScrollPosition() {
+ const scrollPosition = localStorage.getItem(
+  'scrollPosition'
+ )
+ if (scrollPosition) {
+  document.body.scrollTo({
+   behavior: 'instant',
+   left: 0,
+   top: scrollPosition,
+  })
+ }
+ document.body.style.overflow = 'auto'
+}
+
 function addImageByUrl(
  container,
  imgSrc,
  classes = []
 ) {
+ const imageContainerReferencePosition = elem()
  const imageContainer = elem({
   classes: ['image-container', ...classes],
   children: [
@@ -354,16 +383,26 @@ function addImageByUrl(
       'expanded'
      )
     ) {
+     imageContainerReferencePosition.parentElement.insertBefore(
+      imageContainer,
+      imageContainerReferencePosition
+     )
      imageContainer.classList.remove('expanded')
+     restoreScrollPosition()
      expandedElement = undefined
     } else {
+     captureScrollPosition()
      imageContainer.classList.add('expanded')
      expandedElement = imageContainer
+     document.body.appendChild(imageContainer)
     }
    },
   },
  })
  container.appendChild(imageContainer)
+ container.appendChild(
+  imageContainerReferencePosition
+ )
 }
 
 async function addOpenGraphLink(
@@ -855,7 +894,9 @@ async function networkChannelSeek(
   }
  }
  const response = await fetch(
-  `${networkRootUrl()}/seek?channel=${encodeURIComponent(
+  `${networkRootUrl(
+   'seek'
+  )}/seek?channel=${encodeURIComponent(
    channel
   )}&hour=${hour}`,
   { headers }
@@ -908,6 +949,12 @@ async function networkMessageSend(
 
  if (!resp.ok) {
   const error = await resp.text()
+  window.g = resp
+  window.h = error
+  console.error({
+   error,
+   url: `${networkRootUrl()}/send`,
+  })
   alert(error)
   return false
  }
@@ -951,7 +998,13 @@ async function networkMessageUnsend(
  return await resp.text()
 }
 
-function networkRootUrl() {
+function networkRootUrl(keyword) {
+ if (keyword === 'seek') {
+  return location.origin ===
+   'http://localhost:8000'
+   ? 'http://localhost:8787'
+   : ''
+ }
  return location.origin ===
   'http://localhost:8000'
   ? 'https://tagme.in'
@@ -970,7 +1023,7 @@ async function getNews(chunk, callback) {
  }
  const response = await fetch(
   `${networkRootUrl()}/news${
-   typeof chunk === 'number'
+   typeof chunk === 'number' && !isNaN(chunk)
     ? `?chunk=${chunk.toString(36)}`
     : ''
   }`,
@@ -1442,7 +1495,9 @@ async function registerSession(
 }
 
 function scrollToTop(top = 0) {
- scrollTo(0, top, { behavior: 'instant' })
+ document.body.scrollTo(0, top, {
+  behavior: 'instant',
+ })
  document.body.classList.remove('scroll-up')
  document.body.classList.add('scroll-zero')
 }

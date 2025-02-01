@@ -262,15 +262,6 @@ async function withLoading(promise) {
  }
 }
 
-const themeFilter = elem({
- dataset: {
-  themeBg: true,
- },
- classes: ['theme-filter'],
-})
-
-document.body.appendChild(themeFilter)
-
 const themeSelectorThemeListContainer = elem({
  classes: ['theme-selector-theme-list'],
  children: themeNames.map((themeName) =>
@@ -310,9 +301,9 @@ const currentThemeOpacity =
   ? parseFloat(currentThemeOpacityString)
   : 50
 
-themeFilter.style.opacity = (
- currentThemeOpacity / 100
-).toString(10)
+// themeFilter.style.opacity = (
+//  currentThemeOpacity / 100
+// ).toString(10)
 
 const themeSelectorOpacitySliderInput = elem({
  attributes: {
@@ -328,9 +319,9 @@ const themeSelectorOpacitySliderInput = elem({
     THEME_OPACITY_STORAGE_KEY,
     this.value
    )
-   themeFilter.style.opacity = (
-    this.value / 100
-   ).toString(10)
+   //  themeFilter.style.opacity = (
+   //   this.value / 100
+   //  ).toString(10)
   },
  },
  tagName: 'input',
@@ -377,7 +368,7 @@ const themeSelector = elem({
  classes: ['theme-selector'],
  children: [
   themeSelectorThemeListContainer,
-  themeSelectorOpacitySlider,
+  // themeSelectorOpacitySlider,
   themeSelectorResetButton,
   themeSelectorCloseButton,
  ],
@@ -393,9 +384,11 @@ function exitThemeSelector() {
  } else {
   restoreLastKnownMode(-1)
  }
+ restoreScrollPosition()
 }
 
 function enterThemeSelector() {
+ captureScrollPosition()
  switchToMode('theme-selector')(false)
  setTimeout(() => {
   currentThemeButton = document.querySelector(

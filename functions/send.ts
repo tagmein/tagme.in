@@ -144,7 +144,7 @@ export const onRequestPost: PagesFunction<Env> =
     .channel(channel)
     .send(message, velocity)
   } catch (error) {
-   return new Response(error.message, {
+   return new Response(error.stack, {
     status: 400,
    })
   }

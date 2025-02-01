@@ -1,5 +1,7 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
 import { civilMemoryKV } from '@tagmein/civil-memory'
+import { promises as fsPromises } from 'node:fs'
+import { join } from 'path/posix'
 import { Env } from './lib/env.js'
 import { randomId } from './lib/randomId.js'
 import {
@@ -48,9 +50,14 @@ async function validateRequestBody(
 
 export const onRequestPost: PagesFunction<Env> =
  async function ({ env, request }) {
-  const authKV = civilMemoryKV.cloudflare({
-   binding: env.TAGMEIN_AUTH_KV,
-  })
+  const authKV = env.TAGMEIN_LOCAL_KV
+   ? civilMemoryKV.http({
+      baseUrl:
+       'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-auth',
+     })
+   : civilMemoryKV.cloudflare({
+      binding: env.TAGMEIN_AUTH_KV,
+     })
   const {
    error,
    data: { id, key },
