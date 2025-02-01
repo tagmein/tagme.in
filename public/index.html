@@ -16,12 +16,14 @@
   <title>Tag Me In</title>
   <style>
    html {
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
    }
    body {
     background-color: #000;
     color: #fff;
+    height: 100%;
+    max-height: 100dvh;
+    overflow: auto;
    }
    body.light-mode {
     background-color: #fff;
@@ -40,7 +42,7 @@
   />
  </head>
 
- <body class="scroll-zero" data-starting></body>
+ <body class="scroll-zero " data-starting data-theme-bg></body>
   <!-- 1st, load lib js file -->
   <script
    type="text/javascript"

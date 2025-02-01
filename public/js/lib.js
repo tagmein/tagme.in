@@ -331,6 +331,34 @@ function addImageEmbed(container, text) {
  addImageByUrl(container, imgSrc)
 }
 
+function captureScrollPosition() {
+ const scrollPosition = document.body.scrollTop
+ localStorage.setItem(
+  'scrollPosition',
+  scrollPosition
+ )
+ document.body.scrollTo({
+  behavior: 'instant',
+  left: 0,
+  top: 0,
+ })
+ document.body.style.overflow = 'hidden'
+}
+
+function restoreScrollPosition() {
+ const scrollPosition = localStorage.getItem(
+  'scrollPosition'
+ )
+ if (scrollPosition) {
+  document.body.scrollTo({
+   behavior: 'instant',
+   left: 0,
+   top: scrollPosition,
+  })
+ }
+ document.body.style.overflow = 'auto'
+}
+
 function addImageByUrl(
  container,
  imgSrc,
@@ -355,8 +383,10 @@ function addImageByUrl(
      )
     ) {
      imageContainer.classList.remove('expanded')
+     restoreScrollPosition()
      expandedElement = undefined
     } else {
+     captureScrollPosition()
      imageContainer.classList.add('expanded')
      expandedElement = imageContainer
     }
@@ -1442,7 +1472,9 @@ async function registerSession(
 }
 
 function scrollToTop(top = 0) {
- scrollTo(0, top, { behavior: 'instant' })
+ document.body.scrollTo(0, top, {
+  behavior: 'instant',
+ })
  document.body.classList.remove('scroll-up')
  document.body.classList.add('scroll-zero')
 }

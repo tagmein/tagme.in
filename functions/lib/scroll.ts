@@ -48,7 +48,7 @@ export function scroll(kv: CivilMemoryKV) {
    })
    return template.replace(
     '"DATA"',
-    (await kv.get(chunkKey)) ?? '[]'
+    (await kv.get(chunkKey)) ?? '[]' // this technique avoids parsing the chunk simply to re-stringify it in the response
    )
   } else {
    const showNewsOlderThan =

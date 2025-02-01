@@ -97,12 +97,6 @@ body.light-mode {
  --color-shadow-accent: #7d9c7f;
 }
 
-body {
- font-family: Vera, sans-serif;
- line-height: 1.5;
- min-height: calc(100dvh - 148px);
-}
-
 .toolbar,
 footer,
 .article-tools .score,
@@ -137,11 +131,6 @@ textarea {
 body,
 html {
  margin: 0;
-}
-
-body {
- border-right: 1px solid
-  var(--color-border-transparent);
 }
 
 .app-header {
@@ -501,22 +490,28 @@ article > div > .image-container.expanded,
 article
  > div
  > .image-container.image-article.expanded {
+ align-items: center;
  cursor: zoom-out;
+ display: flex;
  height: 100dvh;
- max-height: 100dvh;
+ justify-content: center;
  left: 0;
- right: 0;
  margin: 0 !important;
- overflow: hidden;
+ max-height: 100dvh;
+ max-width: 100dvw;
+ overflow: auto;
  padding: 0;
  position: fixed;
+ right: 0;
  top: 0;
  width: 100dvw;
  z-index: 10000;
 }
 
 article > div > .image-container.expanded img {
- max-height: 100dvh;
+ max-height: 95dvh;
+ max-width: 95dvw;
+ object-fit: contain;
 }
 
 article > div code {
@@ -1847,17 +1842,14 @@ body[data-mode='theme-selector']
  progress {
  display: none;
 }
-body[data-mode='theme-selector'] {
- padding-top: 50px;
-}
 
 .theme-selector {
  display: none;
  flex-direction: row;
  gap: 10px;
- min-height: calc(100dvh - 148px);
+ min-height: calc(100dvh - 70px);
  padding: 10px;
- height: calc(100dvh - 148px);
+ height: calc(100dvh - 70px);
 }
 
 body[data-mode='theme-selector']
@@ -1866,6 +1858,14 @@ body[data-mode='theme-selector']
  flex-direction: column;
  gap: 10px;
  flex-grow: 1;
+ position: fixed;
+ top: 50px;
+ left: 0;
+ right: 0;
+ bottom: 0;
+ overflow: hidden;
+ background-color: var(--color-bg-medium);
+ z-index: 999;
 }
 
 body[data-mode='theme-selector']
@@ -1877,7 +1877,7 @@ body[data-mode='theme-selector']
  flex-flow: column wrap-reverse;
  flex-wrap: wrap;
  gap: 10px;
- height: calc(100dvh - 368px);
+ height: calc(100dvh - 328px);
  justify-content: flex-start;
  overflow-x: auto;
  overflow-y: hidden;
@@ -2315,8 +2315,12 @@ body.light-mode[data-theme='black']
 }
 
 body {
- transition: filter 1.5s ease;
  filter: brightness(1) contrast(1) blur(0);
+ font-family: Vera, sans-serif;
+ height: fit-content;
+ line-height: 1.5;
+ min-height: 100dvh;
+ transition: filter 1.5s ease;
 }
 
 body[data-starting] {

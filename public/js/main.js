@@ -201,14 +201,14 @@ function scrolledPastBottom(
  exemptZeroScroll = false
 ) {
  if (
-  (!exemptZeroScroll && scrollY < 1) ||
+  (!exemptZeroScroll && body.scrollTop < 1) ||
   !element.checkVisibility()
  ) {
   return false
  }
  const bottom = Math.ceil(
   document.documentElement.scrollHeight -
-   scrollY -
+   body.scrollTop -
    document.documentElement.clientHeight
  )
  const elementBottom = Math.ceil(
@@ -221,24 +221,25 @@ function scrolledPastBottom(
 let lastScrollY = 0
 let addTimeout
 let removeTimeout
-addEventListener('scroll', () => {
+body.addEventListener('scroll', () => {
+ console.log('scroll', body.scrollTop)
  clearTimeout(addTimeout)
  clearTimeout(removeTimeout)
- if (scrollY < lastScrollY) {
+ if (body.scrollTop < lastScrollY) {
   addTimeout = setTimeout(() =>
    body.classList.add('scroll-up')
   )
  } else {
   removeTimeout = setTimeout(
    () => body.classList.remove('scroll-up'),
-   1000
+   500
   )
  }
- lastScrollY = scrollY
- if (scrollY > 0) {
-  document.body.classList.remove('scroll-zero')
+ lastScrollY = body.scrollTop
+ if (lastScrollY > 0) {
+  body.classList.remove('scroll-zero')
  } else {
-  document.body.classList.add('scroll-zero')
+  body.classList.add('scroll-zero')
  }
  if (
   scrolledPastBottom(
@@ -299,15 +300,15 @@ async function route() {
   }
  }
  if (typeof messageText === 'string') {
-  document.body.classList.remove('on-channel')
-  document.body.classList.add('on-message')
+  body.classList.remove('on-channel')
+  body.classList.add('on-message')
   composeTextarea.setAttribute(
    'placeholder',
    COMPOSE_PLACEHOLDER_REPLY
   )
  } else {
-  document.body.classList.remove('on-message')
-  document.body.classList.add('on-channel')
+  body.classList.remove('on-message')
+  body.classList.add('on-channel')
   composeTextarea.setAttribute(
    'placeholder',
    COMPOSE_PLACEHOLDER_MESSAGE
@@ -384,14 +385,10 @@ function checkConsent() {
  if (
   localStorage.getItem(consentKey) === 'consent'
  ) {
-  document.body.classList.add(
-   'send-consent-granted'
-  )
+  body.classList.add('send-consent-granted')
  } else {
   {
-   document.body.classList.remove(
-    'send-consent-granted'
-   )
+   body.classList.remove('send-consent-granted')
   }
  }
 }
@@ -461,6 +458,6 @@ setTimeout(() => {
  }
  setTimeout(() => {
   hasCompletedStartup = true
-  document.body.removeAttribute('data-starting')
+  body.removeAttribute('data-starting')
  }, 500)
 })
