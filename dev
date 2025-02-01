@@ -1,1 +1,1 @@
-wrangler pages dev public --compatibility-date=2025-02-01
+wrangler pages dev public --compatibility-date=2025-02-01 --compatibility-flags nodejs_compat
