@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from '@tagmein/civil-memory'
+import { CivilMemoryKV } from './modules/civil-memory/index.js'
 import { scrollChannel } from './scrollChannel.js'
 
 const NEWS_ITEM_APPEARS_AFTER = 30 * 60 * 1000

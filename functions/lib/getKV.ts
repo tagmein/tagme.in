@@ -2,7 +2,7 @@ import { type EventContext } from '@cloudflare/workers-types'
 import {
  CivilMemoryKV,
  civilMemoryKV,
-} from '@tagmein/civil-memory'
+} from './modules/civil-memory/index.js'
 import { Env } from './env.js'
 import { sessionIsExpired } from './session.js'
 import { store } from './store.js'
