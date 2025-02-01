@@ -476,6 +476,53 @@ async function addOpenGraphLink(
  }
 }
 
+async function addMessageReplies(
+ channel,
+ container,
+ message
+) {
+ console.log('MESSAGE DATA', message.data)
+ const replies = message.data.replies
+ if (
+  !replies ||
+  typeof replies.count !== 'number' ||
+  replies.count === 0
+ ) {
+  return
+ }
+ const replyContainer = elem({
+  tagName: 'div',
+  classes: ['replies'],
+  children: [
+   elem({
+    tagName: 'h4',
+    textContent: `${replies.count ?? 'No'} ${
+     replies.count === 1 ? 'Reply' : 'Replies'
+    }`,
+   }),
+  ],
+ })
+
+ const formattedMessageReplies =
+  formatMessageData(message.data.replies.top)
+
+ const messageReplyChannel = `replies@${encodeURIComponent(
+  channel
+ )}:${encodeURIComponent(message.text)}`
+
+ attachMessages(
+  messageReplyChannel,
+  replyContainer,
+  formattedMessageReplies,
+  false,
+  'No replies. Be the first to write a reply!',
+  undefined,
+  false
+ )
+
+ container.appendChild(replyContainer)
+}
+
 function htmlEntities(text) {
  const parser = new DOMParser()
  const doc = parser.parseFromString(

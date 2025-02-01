@@ -220,7 +220,7 @@ async function displayChannelMessageReplies(
   )
  }
 
- const formattedReplyMessageData =
+ const formattedMessageReplyData =
   formatMessageData(
    replyChannelData.response.messages
   )
@@ -228,7 +228,7 @@ async function displayChannelMessageReplies(
  attachMessages(
   messageChannel,
   mainContent,
-  formattedReplyMessageData,
+  formattedMessageReplyData,
   true,
   'No replies. Be the first to write a reply!',
   undefined,
@@ -455,6 +455,7 @@ function attachMessage(
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
+ addMessageReplies(channel, content, message)
 
  const agreeButton = elem({
   classes: ['agree'],

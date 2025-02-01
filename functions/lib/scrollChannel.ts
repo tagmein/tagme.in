@@ -455,7 +455,7 @@ export function scrollChannel(
      [parentMessageId]: {
       ...parentMessageData[parentMessageId],
       replies: {
-       count: allReplies.length,
+       count: Object.keys(allReplies).length,
        top: top10Replies,
       },
      },
