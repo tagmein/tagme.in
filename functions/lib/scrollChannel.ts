@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from '@tagmein/civil-memory'
+import { CivilMemoryKV } from './modules/civil-memory/index.js'
 import { getHourNumber } from './getHourNumber.js'
 
 interface MessageData {

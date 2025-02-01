@@ -1,4 +1,4 @@
-import { CivilMemoryKV } from '@tagmein/civil-memory'
+import { CivilMemoryKV } from './modules/civil-memory/index.js'
 import { randomId } from './randomId.js'
 
 const LOGIN_REQUEST_EXPIRES_AFTER =

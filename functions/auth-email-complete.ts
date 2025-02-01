@@ -1,7 +1,5 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
-import { civilMemoryKV } from '@tagmein/civil-memory'
-import { promises as fsPromises } from 'node:fs'
-import { join } from 'node:path'
+import { civilMemoryKV } from './modules/civil-memory/index.js'
 import { Env } from './lib/env.js'
 import { getKV } from './lib/getKV.js'
 import { deleteLoginRequest } from './lib/loginRequest.js'

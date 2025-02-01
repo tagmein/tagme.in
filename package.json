@@ -1,7 +1,4 @@
 {
- "dependencies": {
-  "@tagmein/civil-memory": "^0.0.14"
- },
  "devDependencies": {
   "@cloudflare/workers-types": "^4.20250129.0",
   "@types/node": "^20.17.16"
