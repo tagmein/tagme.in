@@ -460,9 +460,6 @@ function attachMessage(
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
- if (includeReplies) {
-  addMessageReplies(channel, content, message)
- }
 
  const agreeButton = elem({
   classes: ['agree'],
@@ -822,6 +819,9 @@ function attachMessage(
    }
   }
   renderFooter()
+ }
+ if (includeReplies) {
+  addMessageReplies(channel, newsItem, message)
  }
  container.appendChild(newsItem)
  if (focusOnMessage === message.text) {
