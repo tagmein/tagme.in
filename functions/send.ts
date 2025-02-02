@@ -3,7 +3,7 @@ import { Env } from './lib/env.js'
 import { getKV } from './lib/getKV.js'
 import { scroll } from './lib/scroll.js'
 
-const MAX_CHANNEL_LENGTH = 250
+const MAX_CHANNEL_LENGTH = 65536
 const MIN_MESSAGE_LENGTH = 3
 const MAX_MESSAGE_LENGTH = 175
 
