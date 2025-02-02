@@ -494,6 +494,18 @@ async function addMessageReplies(
   classes: ['replies'],
   children: [
    elem({
+    attributes: {
+     title: 'Scroll to top',
+    },
+    events: {
+     click() {
+      replyContainer.parentElement.scrollTo({
+       behavior: 'smooth',
+       left: 0,
+       top: 0,
+      })
+     },
+    },
     tagName: 'h4',
     textContent: `${replies.count ?? 'No'} ${
      replies.count === 1 ? 'Reply' : 'Replies'
