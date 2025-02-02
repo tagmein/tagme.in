@@ -409,8 +409,9 @@ export function scrollChannel(
     const [parentChannelId, parentMessageId] =
      channelName.substring(8).split(':')
 
-    const [parentChannel] = [
+    const [parentChannel, parentMessage] = [
      parentChannelId,
+     parentMessageId,
     ].map(decodeURIComponent)
 
     const parentChannelNowKey = `scroll.channel.messages:${parentChannelId}#now`
@@ -452,8 +453,8 @@ export function scrollChannel(
 
     const updatedParentMessageData = {
      ...parentMessageData,
-     [parentMessageId]: {
-      ...parentMessageData[parentMessageId],
+     [parentMessage]: {
+      ...parentMessageData[parentMessage],
       replies: {
        count: Object.keys(allReplies).length,
        top: top10Replies,
