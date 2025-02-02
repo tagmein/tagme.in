@@ -897,10 +897,10 @@ function getUrlData() {
    )
  if (
   typeof channel === 'string' &&
-  channel.length > 25
+  channel.length > 512
  ) {
   politeAlert(
-   'channel must be 25 characters or less'
+   'channel must be 512 characters or less'
   )
   return { channel: '', messageChannel: '' }
  }
