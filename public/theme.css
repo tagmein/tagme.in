@@ -406,9 +406,10 @@ article blockquote {
  flex-grow: 0;
  flex-shrink: 0;
  gap: 2px;
- padding-top: 5px;
+ height: 100%;
  min-width: 148px;
  padding-right: 2px;
+ padding-top: 5px;
  z-index: 1;
 }
 
@@ -1252,9 +1253,7 @@ body[data-mode='other'] .mode-main {
 }
 
 .news {
- max-height: 50vh;
- overflow-x: hidden;
- overflow-y: auto;
+ margin-bottom: 22px;
  padding-bottom: 22px;
 }
 
@@ -1269,23 +1268,12 @@ body[data-mode='other'] .mode-main {
  transition: opacity 0.5s ease;
 }
 
-.news > article > div {
- display: flex;
- flex-direction: row;
-}
-
 .news > article:hover {
  opacity: 1;
 }
 
-.news > article > div > div {
+.news > article > div > div:first-child {
  flex-grow: 1;
-}
-
-.news > article > div > div.article-tools {
- flex-shrink: 0;
- height: 100%;
- overflow: hidden;
 }
 
 body[data-mode='activity']
@@ -2528,6 +2516,16 @@ div.reaction-reaction
  position: relative;
 }
 
+.replies > .news,
+.replies > a {
+ display: none;
+}
+
+.replies.expanded > .news,
+.replies.expanded > a {
+ display: block;
+}
+
 .replies > h4 {
  background-color: var(--color-bg-medium);
  border-radius: 10px;
@@ -2537,16 +2535,13 @@ div.reaction-reaction
  margin: 0 0 12px;
  opacity: 0.5;
  padding: 10px;
- position: sticky;
- top: 20px;
- z-index: 100;
 }
 
 .replies > h4:hover {
- background-color: #00000060;
+ background-color: #ffffff40;
  opacity: 1;
 }
 
 .replies > h4:active {
- background-color: #ffffff60;
+ background-color: #00000040;
 }
