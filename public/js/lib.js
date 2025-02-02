@@ -495,15 +495,13 @@ async function addMessageReplies(
   children: [
    elem({
     attributes: {
-     title: 'Scroll to top',
+     title: 'Toggle replies',
     },
     events: {
      click() {
-      replyContainer.parentElement.scrollTo({
-       behavior: 'smooth',
-       left: 0,
-       top: 0,
-      })
+      replyContainer.classList.toggle(
+       'expanded'
+      )
      },
     },
     tagName: 'h4',
