@@ -1274,6 +1274,7 @@ body[data-mode='other'] .mode-main {
 
 .news > article > div > div:first-child {
  flex-grow: 1;
+ flex-shrink: 1;
 }
 
 body[data-mode='activity']
