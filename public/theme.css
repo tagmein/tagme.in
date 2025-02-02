@@ -531,7 +531,7 @@ a.channel {
  display: inline-block;
  margin: 0 7px 15px;
  max-width: 290px;
- overflow: hidden;
+ overflow: visible;
  padding: 2px 9px;
  position: relative;
  text-decoration: none;
