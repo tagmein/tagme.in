@@ -456,7 +456,13 @@ function attachMessage(
  includeReplies = false
 ) {
  const content = elem()
- addTextBlocks(content, message.text)
+ addTextBlocks(
+  content,
+  channel === 'reactions' &&
+   message.text.startsWith('reaction')
+   ? message.text.substring(8)
+   : message.text
+ )
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
@@ -789,6 +795,19 @@ function attachMessage(
      events: {
       async click(e) {
        e.preventDefault()
+       if (
+        !confirm(
+         `Are you sure you want to unsend this message?\n\n${JSON.stringify(
+          `${message.text.substring(0, 100)}${
+           message.text.length > 100
+            ? '...'
+            : ''
+          }`
+         )}`
+        )
+       ) {
+        return
+       }
        await withLoading(
         networkMessageUnsend(
          channel,
@@ -799,11 +818,11 @@ function attachMessage(
        await new Promise((r) =>
         setTimeout(r, 1000)
        )
-       article.classList.add('unsent')
+       newsItem.classList.add('unsent')
        await new Promise((r) =>
         setTimeout(r, 1000)
        )
-       article.remove()
+       newsItem.remove()
       },
      },
      tagName: 'a',
