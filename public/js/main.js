@@ -32,10 +32,15 @@ const COMPOSE_PLACEHOLDER_MESSAGE =
 const COMPOSE_PLACEHOLDER_REPLY =
  'Write a reply (up to 175 characters)'
 
-async function updateComposeTextarea(channel) {
+async function updateComposeTextarea(
+ channel,
+ isReply
+) {
  composeTextarea.setAttribute(
   'placeholder',
-  channel === 'reactions'
+  isReply
+   ? COMPOSE_PLACEHOLDER_REPLY
+   : channel === 'reactions'
    ? ADD_REACTION_PLACEHOLDER_MESSAGE
    : COMPOSE_PLACEHOLDER_MESSAGE
  )
@@ -370,11 +375,12 @@ async function route() {
    formattedMessageData,
    messageText
   )
-  displayChannelMessageReplies(
+  await displayChannelMessageReplies(
    messageChannel,
    formattedMessageData,
    messageText
   ).catch((e) => console.error(e))
+  await updateComposeTextarea(channel, true)
  } else {
   displayChannelHome(
    channel,
@@ -383,9 +389,9 @@ async function route() {
     channelData.response.channels
    )
   )
+  await updateComposeTextarea(channel)
  }
  scrollToTop()
- await updateComposeTextarea(channel)
 }
 
 window.addEventListener('hashchange', route)
