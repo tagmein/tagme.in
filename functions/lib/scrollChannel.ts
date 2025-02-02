@@ -507,6 +507,74 @@ export function scrollChannel(
    if (
     currentPosition < MESSAGE_PERSIST_THRESHOLD
    ) {
+    async function updateParentMessageReplies() {
+     const isReply =
+      channelName.startsWith('replies@')
+     if (!isReply) {
+      return
+     }
+     const [parentChannelId, parentMessageId] =
+      channelName.substring(8).split(':')
+
+     const [parentChannel, parentMessage] = [
+      parentChannelId,
+      parentMessageId,
+     ].map(decodeURIComponent)
+
+     const parentChannelNowKey = `scroll.channel.messages:${parentChannelId}#now`
+     const parentChannelDataString =
+      await kv.get(parentChannelNowKey)
+
+     if (
+      typeof parentChannelDataString ===
+       'string' &&
+      parentChannelDataString.length > 4
+     ) {
+     } else {
+      throw new Error(
+       `Parent channel data not found: ${JSON.stringify(
+        parentChannel
+       )}`
+      )
+     }
+
+     const parentMessageData = JSON.parse(
+      parentChannelDataString
+     )
+
+     const allRepliesKey = `scroll.channel.messages:${encodeURIComponent(
+      `replies@${parentChannelId}:${parentMessageId}`
+     )}#now`
+
+     const allReplies = await seekMessages(
+      allRepliesKey
+     )
+
+     const top10Replies = Object.fromEntries(
+      Object.entries(allReplies)
+       .sort(
+        (a, b) => b[1].position - a[1].position
+       )
+       .slice(0, 10)
+     )
+
+     const updatedParentMessageData = {
+      ...parentMessageData,
+      [parentMessage]: {
+       ...parentMessageData[parentMessage],
+       replies: {
+        count: Object.keys(allReplies).length,
+        top: top10Replies,
+       },
+      },
+     }
+
+     await kv.set(
+      parentChannelNowKey,
+      JSON.stringify(updatedParentMessageData)
+     )
+    }
+
     await Promise.all([
      kv.delete(key.messagePosition),
      unrankMessage(message),
@@ -520,6 +588,13 @@ export function scrollChannel(
         ]
       : []),
     ])
+
+    await new Promise((resolve) =>
+     setTimeout(resolve, 100)
+    )
+
+    await updateParentMessageReplies()
+
     return true
    } else {
     throw new Error(

@@ -365,11 +365,10 @@ article {
  min-height: 80px;
  padding: 3px 150px 3px 15px;
  position: relative;
- transition: opacity 1s ease;
  width: 100%;
 }
 
-article.unsent {
+.news.unsent {
  opacity: 0;
 }
 
@@ -1255,6 +1254,7 @@ body[data-mode='other'] .mode-main {
 .news {
  margin-bottom: 22px;
  padding-bottom: 22px;
+ transition: opacity 1s ease;
 }
 
 .news > article {
