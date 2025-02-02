@@ -904,29 +904,6 @@ function getUrlData() {
   )
   return { channel: '', messageChannel: '' }
  }
- if (
-  typeof channel === 'string' &&
-  channel.includes('.')
- ) {
-  politeAlert('channel must not include "."')
-  return { channel: '', messageChannel: '' }
- }
- if (
-  typeof channel === 'string' &&
-  channel.includes(',')
- ) {
-  politeAlert('channel must not include ","')
-  return { channel: '', messageChannel: '' }
- }
- if (
-  typeof channel === 'string' &&
-  channel.includes('  ')
- ) {
-  politeAlert(
-   'channel must not include two spaces in a row'
-  )
-  return { channel: '', messageChannel: '' }
- }
  const message =
   typeof messageEncoded === 'string' &&
   messageEncoded.length > 1
