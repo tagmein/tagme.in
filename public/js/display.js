@@ -232,7 +232,8 @@ async function displayChannelMessageReplies(
   true,
   'No replies. Be the first to write a reply!',
   undefined,
-  true
+  true,
+  false
  )
 }
 
@@ -288,7 +289,8 @@ function displayChannelHome(
   true,
   undefined,
   sendToRealm,
-  false
+  true,
+  true
  )
  attachChannels(
   mainContent,
@@ -416,7 +418,8 @@ function attachMessages(
  includeFooter = true,
  emptyMessage = undefined,
  sendToRealm = undefined,
- copyToReply = false
+ copyToReply = false,
+ includeReplies = false
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -436,7 +439,8 @@ function attachMessages(
    includeFooter,
    sendToRealm,
    copyToReply,
-   index === '0'
+   index === '0',
+   includeReplies
   )
  }
 }
@@ -448,14 +452,17 @@ function attachMessage(
  includeFooter,
  sendToRealm,
  copyToReply,
- includeTourAttributes
+ includeTourAttributes,
+ includeReplies = false
 ) {
  const content = elem()
  addTextBlocks(content, message.text)
  addYouTubeEmbed(content, message.text)
  addImageEmbed(content, message.text)
  addOpenGraphLink(content, message.text)
- addMessageReplies(channel, content, message)
+ if (includeReplies) {
+  addMessageReplies(channel, content, message)
+ }
 
  const agreeButton = elem({
   classes: ['agree'],

@@ -481,7 +481,6 @@ async function addMessageReplies(
  container,
  message
 ) {
- console.log('MESSAGE DATA', message.data)
  const replies = message.data.replies
  if (
   !replies ||
@@ -517,9 +516,37 @@ async function addMessageReplies(
   false,
   'No replies. Be the first to write a reply!',
   undefined,
+  false,
   false
  )
 
+ const topReplyCount = Object.keys(
+  message.data.replies.top
+ ).length
+ const totalReplyCount =
+  message.data.replies.count
+ const additionalReplies =
+  totalReplyCount - topReplyCount
+ const additionalRepliesText =
+  additionalReplies === 1 ? 'reply' : 'replies'
+
+ if (totalReplyCount > topReplyCount) {
+  replyContainer.appendChild(
+   elem({
+    attributes: {
+     href: `/#/${encodeURIComponent(
+      channel
+     )}/${btoa(
+      encodeURIComponent(message.text)
+     )}`,
+    },
+    tagName: 'a',
+    textContent: `View ${additionalReplies.toString(
+     10
+    )} more ${additionalRepliesText}`,
+   })
+  )
+ }
  container.appendChild(replyContainer)
 }
 
