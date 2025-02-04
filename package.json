@@ -1,7 +1,10 @@
 {
  "devDependencies": {
   "@cloudflare/workers-types": "^4.20250129.0",
-  "@types/node": "^20.17.16"
+  "@types/express": "^5.0.0",
+  "@types/node": "^20.17.16",
+  "express": "^4.21.2",
+  "tsx": "^4.19.2"
  },
  "type": "module"
 }
