@@ -2,6 +2,10 @@ let realms = []
 
 let secondMostRecentRealm
 
+const allLabels = globalThis.STATUS_LABELS
+
+// console.log({ allLabels })
+
 const MESSAGE_PERSIST_THRESHOLD = 5
 
 const REACTION_PREFIX =
@@ -238,6 +242,31 @@ async function displayChannelMessageReplies(
  )
 }
 
+function displayChannelArticle(
+ articleElement,
+ channel,
+ message,
+ messageContentFormatter
+) {
+ console.log(
+  `Attaching message with formatter(${
+   messageContentFormatter?.(
+    'status:example'
+   ) ?? 'none'
+  })`
+ )
+ attachMessage(
+  channel,
+  articleElement,
+  message,
+  false,
+  undefined,
+  false,
+  false,
+  messageContentFormatter
+ )
+}
+
 function displayChannelHome(
  channel,
  formattedMessageData,
@@ -364,12 +393,23 @@ function displayChannelMessage(
 let lastAttachedChannels
 
 function attachChannels(container, channels) {
+ if (channels.length === 0) {
+  // console.log({
+  //  channelInputValue: channelInput.value,
+  //  channels,
+  // })
+  const channelName = channelInput.value.trim()
+  const isNamespaced = channelName.includes(':')
+  channels.push({
+   name: isNamespaced
+    ? channelName.split(':')[0] + ':'
+    : '',
+   score: 0,
+  })
+ }
  lastAttachedChannels = channels.filter(
   (c) => c.name.length <= 25
  )
- if (channels.length === 0) {
-  channels.push({ name: '', score: 0 })
- }
  container.appendChild(
   elem({
    attributes: {
@@ -454,7 +494,8 @@ function attachMessage(
  sendToRealm,
  copyToReply,
  includeTourAttributes,
- includeReplies = false
+ includeReplies = false,
+ messageContentFormatter = undefined
 ) {
  const content = elem()
  addTextBlocks(
@@ -462,6 +503,8 @@ function attachMessage(
   channel === 'reactions' &&
    message.text.startsWith('reaction')
    ? message.text.substring(8)
+   : messageContentFormatter
+   ? messageContentFormatter(message.text)
    : message.text
  )
  addYouTubeEmbed(content, message.text)
@@ -541,6 +584,9 @@ function attachMessage(
   tagName: 'button',
  })
  function renderScore() {
+  const messageScoreText = niceNumber(
+   message.score ?? 0
+  )
   const velocityText =
    message.data.velocity !== 0
     ? ` ${
@@ -555,7 +601,7 @@ function attachMessage(
       10
      ),
     },
-    textContent: `${niceNumber(message.score)}`,
+    textContent: `${messageScoreText}`,
    })
   )
   score.appendChild(
@@ -639,6 +685,13 @@ function attachMessage(
    const href = `/#/${encodeURIComponent(
     channel
    )}/${btoa(encodeURIComponent(message.text))}`
+   await labelMessage(
+    channel,
+    message,
+    messageFooter,
+    false,
+    allLabels
+   )
    const repliesLink = elem({
     attributes: {
      href,
@@ -682,10 +735,14 @@ function attachMessage(
      href,
     },
     events: {
-     click(e) {
+     async click(e) {
       e.preventDefault()
-      navigator.clipboard.writeText(
-       message.text
+      await labelMessage(
+       channel,
+       message,
+       messageFooter,
+       true,
+       allLabels
       )
       labelMessageLink.textContent =
        '✔ message labeled'
