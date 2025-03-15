@@ -333,7 +333,7 @@ async function route() {
   networkChannelSeek(channel, getHourNumber())
  )
  if (
-  'error' in channelData ||
+  (channelData && 'error' in channelData) ||
   typeof channelData?.response?.messages !==
    'object'
  ) {

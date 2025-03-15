@@ -407,9 +407,11 @@ article blockquote {
  gap: 2px;
  height: 100%;
  min-width: 148px;
+ min-height: 48px;
  padding-right: 2px;
  padding-top: 5px;
  z-index: 1;
+ overflow: visible;
 }
 
 .article-tools .article-tool-buttons,
@@ -675,21 +677,15 @@ footer {
 }
 
 .consent-prompt {
- border-top-left-radius: 10px;
- border-top-right-radius: 10px;
- bottom: -71px;
- box-shadow: 0 0 10px var(--color-shadow-dark);
+ border-radius: 10px;
+ box-shadow: inset 0 0 10px
+  var(--color-shadow-dark);
  box-sizing: border-box;
  cursor: pointer;
- left: 40px;
- margin: 0;
- min-height: 79px;
+ margin: 15px;
  padding: 15px;
- position: fixed;
- right: 40px;
+ position: static;
  text-align: center;
- transition: bottom 0.5s ease;
- z-index: 2;
 }
 
 .consent-prompt:hover {
@@ -704,12 +700,18 @@ footer {
 }
 
 .compose {
- width: 100%;
- opacity: 0.85;
- transition: 0.5s opacity ease;
- padding: 15px;
+ background-color: #80808040;
  box-sizing: border-box;
+ opacity: 0.85;
+ padding: 15px;
  position: relative;
+ transition: 0.5s opacity ease,
+  0.5s background-color ease;
+ width: 100%;
+}
+
+.compose:hover {
+ background-color: #80808080;
 }
 
 .compose textarea {
@@ -782,6 +784,10 @@ footer {
  );
 }
 
+.compose + .mode-main {
+ margin-top: 15px;
+}
+
 article {
  background-color: var(--color-bg-medium);
 }
@@ -833,10 +839,9 @@ article.highlight::after {
 }
 
 .message-footer {
- box-shadow: 0 4px 4px var(--color-shadow-dark);
  border-bottom-left-radius: 10px;
  border-bottom-right-radius: 10px;
- margin-bottom: 8px;
+ box-shadow: 0 4px 4px var(--color-shadow-dark);
  min-height: 23px;
  opacity: 0.65;
  padding: 8px;
@@ -1252,9 +1257,8 @@ body[data-mode='other'] .mode-main {
 }
 
 .news {
- margin-bottom: 22px;
- padding-bottom: 22px;
  transition: opacity 1s ease;
+ padding: 0px 4px;
 }
 
 .news > article {
@@ -2545,4 +2549,141 @@ div.reaction-reaction
 
 .replies > h4:active {
  background-color: #00000040;
+}
+
+.message-labels {
+ border-radius: 1em;
+ border: 1px solid #80808080;
+ display: inline-block;
+ font-size: 14px;
+ font-weight: bold;
+ gap: 0.25em;
+ margin-right: 0.5em;
+ max-width: 16em;
+ min-height: 1em;
+ min-width: 4em;
+ overflow: auto;
+ padding: 0.25em;
+ text-align: center;
+ vertical-align: -0.875em;
+ white-space: nowrap;
+ width: 8em;
+}
+
+.message-labels > span,
+.label-group .news > article > div > p > span {
+ background-color: #80808040;
+ border-radius: 0.25em;
+ padding: 0.25em;
+ white-space: nowrap;
+}
+
+.message-menu {
+ border-radius: 0.5em;
+ box-shadow: inset 0 0 1px #80808080;
+ margin: 0.5em;
+ padding: 0.5em 0.625em;
+}
+
+.message-menu > h2 {
+ color: #808080f0;
+ font-size: 14px;
+ letter-spacing: 1px;
+ margin-top: 0.25em;
+ overflow: hidden;
+ text-align: center;
+ text-transform: uppercase;
+ white-space: nowrap;
+}
+
+.message-menu > button {
+ border-radius: 10px;
+ border: 1px solid;
+ color: var(--color-text-secondary);
+ font-size: 14px;
+ letter-spacing: 1px;
+ margin: 0 auto 0.5em;
+ opacity: 0.825;
+ overflow: hidden;
+ padding: 10px;
+ text-align: center;
+ white-space: nowrap;
+ width: 100%;
+}
+
+.label-group {
+ border: 1px solid #80808080;
+ background-color: #00000040;
+ border-radius: 0.5em;
+ padding: 0 0.625em 0.5em;
+ margin: 0;
+}
+
+.label-group > h3 {
+ margin: 0;
+ padding: 0.5em 0 0.125em;
+}
+
+.label-group .reactions-container {
+ display: none !important;
+}
+
+.label-group .news > article {
+ border-radius: 10px !important;
+ flex-direction: row-reverse;
+ min-height: initial;
+ overflow: visible !important;
+ padding: 0 0 1.25em;
+ position: relative;
+}
+
+.label-group .news > article > div > p {
+ margin: 0;
+ padding: 0;
+}
+
+.label-group .news > article > div > p > span {
+ font-weight: bold;
+ font-size: 20px;
+}
+
+.label-group .news > a {
+ display: none;
+}
+
+.label-group .news > article > div {
+ justify-content: start;
+ display: flex;
+ align-items: end;
+}
+
+.label-group
+ .news
+ > article
+ > div.article-tools {
+ flex-direction: row-reverse;
+ padding-top: 0;
+}
+
+.label-group
+ .news
+ > article
+ > div.article-tools
+ .score {
+ font-size: 18px;
+}
+
+.label-group
+ .news
+ > article
+ > div.article-tools
+ .article-tool-buttons {
+ display: flex;
+ flex-direction: row;
+ gap: 2px;
+ margin-bottom: -5px;
+}
+
+main section.label-group > article {
+ min-height: unset;
 }

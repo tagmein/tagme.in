@@ -2,6 +2,10 @@ let realms = []
 
 let secondMostRecentRealm
 
+const allLabels = globalThis.STATUS_LABELS
+
+// console.log({ allLabels })
+
 const MESSAGE_PERSIST_THRESHOLD = 5
 
 const REACTION_PREFIX =
@@ -208,7 +212,8 @@ async function displayChannelMessageReplies(
  )
 
  if (
-  'error' in replyChannelData ||
+  (replyChannelData &&
+   'error' in replyChannelData) ||
   typeof replyChannelData?.response
    ?.messages !== 'object'
  ) {
@@ -233,7 +238,35 @@ async function displayChannelMessageReplies(
   'No replies. Be the first to write a reply!',
   undefined,
   true,
-  false
+  false,
+  true
+ )
+}
+
+function displayChannelArticle(
+ articleElement,
+ channel,
+ message,
+ messageContentFormatter
+) {
+ console.log(
+  `Attaching message with formatter(${
+   messageContentFormatter?.(
+    'status:example'
+   ) ?? 'none'
+  })`
+ )
+ attachMessage(
+  channel,
+  articleElement,
+  message,
+  false,
+  undefined,
+  false,
+  false,
+  false,
+  false,
+  messageContentFormatter
  )
 }
 
@@ -289,6 +322,7 @@ function displayChannelHome(
   true,
   undefined,
   sendToRealm,
+  false,
   true,
   true
  )
@@ -352,6 +386,7 @@ function displayChannelMessage(
    message,
    true,
    undefined,
+   true,
    true
   )
  } else {
@@ -363,12 +398,23 @@ function displayChannelMessage(
 let lastAttachedChannels
 
 function attachChannels(container, channels) {
+ if (channels.length === 0) {
+  // console.log({
+  //  channelInputValue: channelInput.value,
+  //  channels,
+  // })
+  const channelName = channelInput.value.trim()
+  const isNamespaced = channelName.includes(':')
+  channels.push({
+   name: isNamespaced
+    ? channelName.split(':')[0] + ':'
+    : '',
+   score: 0,
+  })
+ }
  lastAttachedChannels = channels.filter(
   (c) => c.name.length <= 25
  )
- if (channels.length === 0) {
-  channels.push({ name: '', score: 0 })
- }
  container.appendChild(
   elem({
    attributes: {
@@ -419,7 +465,8 @@ function attachMessages(
  emptyMessage = undefined,
  sendToRealm = undefined,
  copyToReply = false,
- includeReplies = false
+ includeReplies = false,
+ includeReactions = false
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -440,7 +487,8 @@ function attachMessages(
    sendToRealm,
    copyToReply,
    index === '0',
-   includeReplies
+   includeReplies,
+   includeReactions
   )
  }
 }
@@ -453,7 +501,9 @@ function attachMessage(
  sendToRealm,
  copyToReply,
  includeTourAttributes,
- includeReplies = false
+ includeReplies = false,
+ includeReactions = false,
+ messageContentFormatter = undefined
 ) {
  const content = elem()
  addTextBlocks(
@@ -461,6 +511,8 @@ function attachMessage(
   channel === 'reactions' &&
    message.text.startsWith('reaction')
    ? message.text.substring(8)
+   : messageContentFormatter
+   ? messageContentFormatter(message.text)
    : message.text
  )
  addYouTubeEmbed(content, message.text)
@@ -540,6 +592,9 @@ function attachMessage(
   tagName: 'button',
  })
  function renderScore() {
+  const messageScoreText = niceNumber(
+   message.score ?? 0
+  )
   const velocityText =
    message.data.velocity !== 0
     ? ` ${
@@ -554,7 +609,7 @@ function attachMessage(
       10
      ),
     },
-    textContent: `${niceNumber(message.score)}`,
+    textContent: `${messageScoreText}`,
    })
   )
   score.appendChild(
@@ -611,7 +666,13 @@ function attachMessage(
    style: { flexGrow: 1 },
   })
  )
- attachReactions(articleTools, channel, message)
+ if (includeReactions) {
+  attachReactions(
+   articleTools,
+   channel,
+   message
+  )
+ }
  const article = elem({
   children: [content, articleTools],
   tagName: 'article',
@@ -621,15 +682,38 @@ function attachMessage(
   children: [article, dateContainer],
  })
  if (includeFooter) {
+  function footerLinkSeparator() {
+   messageFooter.appendChild(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+  }
   const messageFooter = elem({
    classes: ['message-footer'],
   })
   newsItem.appendChild(messageFooter)
+  const labelsElement =
+   document.createElement('div')
+  labelsElement.classList.add('message-labels')
+  let lastLabel
   async function renderFooter() {
    messageFooter.innerHTML = ''
    const href = `/#/${encodeURIComponent(
     channel
    )}/${btoa(encodeURIComponent(message.text))}`
+   if (lastLabel) {
+    lastLabel.remove()
+   }
+   lastLabel = await labelMessage(
+    labelsElement,
+    channel,
+    message,
+    messageFooter,
+    false,
+    allLabels
+   )
    const repliesLink = elem({
     attributes: {
      href,
@@ -644,12 +728,7 @@ function attachMessage(
     textContent: 'View message',
    })
    messageFooter.appendChild(repliesLink)
-   messageFooter.appendChild(
-    elem({
-     tagName: 'span',
-     textContent: ' • ',
-    })
-   )
+   footerLinkSeparator()
    const copyMessageLink = elem({
     attributes: {
      href,
@@ -672,38 +751,37 @@ function attachMessage(
     textContent: 'copy message',
    })
    messageFooter.appendChild(copyMessageLink)
-   messageFooter.appendChild(
-    elem({
-     tagName: 'span',
-     textContent: ' • ',
-    })
-   )
-   const copyRepliesLink = elem({
+   footerLinkSeparator()
+   const labelMessageLink = elem({
     attributes: {
      href,
     },
     events: {
-     click(e) {
+     async click(e) {
       e.preventDefault()
-      navigator.clipboard.writeText(
-       `${location.origin}${href}`
+      if (lastLabel) {
+       lastLabel.remove()
+      }
+      lastLabel = await labelMessage(
+       labelsElement,
+       channel,
+       message,
+       messageFooter,
+       true,
+       allLabels
       )
-      copyRepliesLink.textContent =
-       '✔ link copied'
+      labelMessageLink.textContent =
+       '✔ message labeled'
       setTimeout(function () {
-       copyRepliesLink.textContent = 'copy link'
+       labelMessageLink.textContent =
+        'label message'
       }, 2e3)
      },
     },
-    dataset: includeTourAttributes
-     ? {
-        tour: 'Copy a link to this message.',
-       }
-     : undefined,
     tagName: 'a',
-    textContent: 'copy link',
+    textContent: 'label message',
    })
-   messageFooter.appendChild(copyRepliesLink)
+   messageFooter.appendChild(labelMessageLink)
    if (sendToRealm) {
     const label =
      sendToRealm === PUBLIC_SESSION_ID
@@ -747,36 +825,68 @@ function attachMessage(
     )
     messageFooter.appendChild(sendToLink)
    }
-   if (copyToReply) {
-    const copyToReplyLink = elem({
-     attributes: {
-      href,
+   const copyToReplyLink = elem({
+    attributes: {
+     href,
+    },
+    dataset: includeTourAttributes
+     ? {
+        tour: 'Copy message content to reply.',
+       }
+     : undefined,
+    events: {
+     click(e) {
+      e.preventDefault()
+      composeTextarea.focus()
+      composeTextarea.value = message.text
+      composeTextarea.selectionStart = 0
+      composeTextarea.selectionEnd =
+       composeTextarea.value.length
      },
-     dataset: includeTourAttributes
-      ? {
-         tour: 'Copy message content to reply.',
-        }
-      : undefined,
-     events: {
-      click(e) {
-       e.preventDefault()
-       composeTextarea.focus()
-       composeTextarea.value = message.text
-       composeTextarea.selectionStart =
-        composeTextarea.value.length
-      },
-     },
-     tagName: 'a',
-     textContent: 'copy message in reply',
+    },
+    tagName: 'a',
+    textContent: copyToReply
+     ? 'reply with message'
+     : 'new with message',
+   })
+   messageFooter.appendChild(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
     })
-    messageFooter.appendChild(
-     elem({
-      tagName: 'span',
-      textContent: ' • ',
-     })
-    )
-    messageFooter.appendChild(copyToReplyLink)
-   }
+   )
+   messageFooter.appendChild(copyToReplyLink)
+
+   footerLinkSeparator()
+   const copyViewMessageLink = elem({
+    attributes: {
+     href,
+    },
+    events: {
+     click(e) {
+      e.preventDefault()
+      navigator.clipboard.writeText(
+       `${location.origin}${href}`
+      )
+      copyViewMessageLink.textContent =
+       '✔ link copied'
+      setTimeout(function () {
+       copyViewMessageLink.textContent =
+        'copy link'
+      }, 2e3)
+     },
+    },
+    dataset: includeTourAttributes
+     ? {
+        tour: 'Copy a link to this message.',
+       }
+     : undefined,
+    tagName: 'a',
+    textContent: 'copy link',
+   })
+   messageFooter.appendChild(
+    copyViewMessageLink
+   )
    if (
     message.score < MESSAGE_PERSIST_THRESHOLD
    ) {
@@ -828,12 +938,7 @@ function attachMessage(
      tagName: 'a',
      textContent: 'unsend',
     })
-    messageFooter.appendChild(
-     elem({
-      tagName: 'span',
-      textContent: ' • ',
-     })
-    )
+    footerLinkSeparator()
     messageFooter.appendChild(unsendLink)
    }
   }

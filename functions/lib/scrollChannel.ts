@@ -1,14 +1,24 @@
 import { CivilMemoryKV } from '../modules/civil-memory/index.mjs'
 import { getHourNumber } from './getHourNumber.js'
 
-interface MessageData {
+interface LabelData {
  position: number
+ seen: number
  timestamp: number
  velocity: number
+}
+
+interface MessageData {
+ labels: { [key: string]: LabelData }
+ newsChunk: number
+ position: number
  replies: {
   count: number
   top: MessageData[]
  }
+ seen: number
+ timestamp: number
+ velocity: number
 }
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
@@ -79,6 +89,13 @@ export function scrollChannel(
    typeof namespace === 'string'
     ? encodeURIComponent(namespace)
     : undefined
+  // console.dir({
+  //  channel: 'channel',
+  //  channelName,
+  //  channelId,
+  //  namespace,
+  //  namespaceId,
+  // })
   const key = {
    channelActivityKH: `scroll.channel.activity.kh:${channelId}#${kHour}`,
    channelActivityMH: `scroll.channel.activity.mh:${channelId}#${mHour}`,
@@ -349,10 +366,7 @@ export function scrollChannel(
    ])
   }
 
-  async function send(
-   message: string,
-   velocity: number
-  ) {
+  async function getMessage(message: string) {
    const messageId = encodeURIComponent(message)
    const key = {
     messagePosition: `scroll.channel.message:${channelId}#${messageId}`,
@@ -373,6 +387,14 @@ export function scrollChannel(
          top: [],
         },
        }
+   return messageData
+  }
+
+  async function send(
+   message: string,
+   velocity: number
+  ) {
+   const messageData = await getMessage(message)
    const timeDelta =
     timestamp - messageData.timestamp
    const positionDelta =
@@ -389,6 +411,9 @@ export function scrollChannel(
      count: 0,
      top: [],
     },
+    labels: convertLabels(
+     messageData.labels ?? {}
+    ),
    }
    if (
     typeof newMessageData.newsChunk !== 'number'
@@ -398,6 +423,124 @@ export function scrollChannel(
       message,
       newMessageData.seen
      )
+   }
+
+   function convertLabels(x: {
+    [key: string]: MessageData
+   }) {
+    return Object.fromEntries(
+     Object.entries(x)
+      .filter((y) => y[0].startsWith('status:'))
+      .map(
+       ([messageText, messageData]: [
+        string,
+        MessageData
+       ]): [string, LabelData] => {
+        return [
+         messageText,
+         {
+          position: messageData.position,
+          seen: messageData.seen,
+          timestamp: messageData.timestamp,
+          velocity: messageData.velocity,
+         },
+        ]
+       }
+      )
+    )
+   }
+
+   async function updateParentMessageLabels(
+    message: string
+   ) {
+    if (!channelName.startsWith('labels@')) {
+     return
+    }
+    console.log('updateParentMessageLabels')
+    const [parentChannel, parentMessage] =
+     channelName
+      .substring('labels@'.length)
+      .split('#', 2)
+      .map(decodeURIComponent)
+
+    const parentChannelId = encodeURIComponent(
+     parentChannel
+    )
+    const parentMessageId = encodeURIComponent(
+     parentMessage
+    )
+    const parentMessageData = await channel(
+     parentChannel
+    ).getMessage(parentMessage)
+    const parentMessageLabels = await channel(
+     `labels@${parentChannelId}#${parentMessageId}`
+    ).seek()
+    // console.dir({
+    //  channel: `labels@${parentChannelId}#${parentMessageId}`,
+    //  parentMessageLabels,
+    // })
+    const timeDelta =
+     timestamp - parentMessageData.timestamp
+    const positionDelta =
+     (timeDelta * parentMessageData.velocity) /
+     ONE_HOUR_MS
+    const newParentMessageData = {
+     newsChunk: parentMessageData.newsChunk,
+     position:
+      parentMessageData.position +
+      positionDelta,
+     seen: parentMessageData.seen ?? Date.now(),
+     timestamp,
+     velocity,
+     replies: parentMessageData.replies ?? {
+      count: 0,
+      top: [],
+     },
+     labels: convertLabels(
+      parentMessageLabels.messages
+     ),
+    }
+
+    // console.dir(
+    //  {
+    //   rankMessage: 'RANK',
+    //   labelsChannel: `labels@${parentChannelId}#${parentMessageId}`,
+    //   parentChannel,
+    //   parentMessage,
+    //   newParentMessageData,
+    //  },
+    //  { depth: null }
+    // )
+
+    await channel(parentChannel).rankMessage(
+     parentMessage,
+     newParentMessageData
+    )
+
+    // console.dir({
+    //  message,
+    //  messageData,
+    //  channelName,
+    //  parentChannel,
+    //  parentMessage,
+    // })
+    /*
+      {
+        message: 'status:in progress',
+        messageData: {
+          newsChunk: 0,
+          position: 4.073648611111111,
+          seen: 1742067707094,
+          timestamp: 1742072065661,
+          velocity: 10,
+          replies: { count: 0, top: [] },
+          labels: {}
+        },
+        channelName: 'labels@tmi%3Afeat%2Flabels#I%20clicked%20%22label%20message%22%20and%20nothing%20happened.',
+        parentChannel: 'tmi:feat/labels',
+        parentMessage: 'I clicked "label message" and nothing happened.'
+      }
+    */
    }
 
    async function updateParentMessageReplies() {
@@ -467,12 +610,17 @@ export function scrollChannel(
      JSON.stringify(updatedParentMessageData)
     )
    }
+   const messageId = encodeURIComponent(message)
+   const key2 = {
+    messagePosition: `scroll.channel.message:${channelId}#${messageId}`,
+   }
    await Promise.all([
     kv.set(
-     key.messagePosition,
+     key2.messagePosition,
      JSON.stringify(newMessageData)
     ),
     rankMessage(message, newMessageData),
+    updateParentMessageLabels(message),
    ])
 
    await new Promise((resolve) =>
@@ -615,7 +763,7 @@ export function scrollChannel(
   function excludeOverlyNegativeMessages(messages: {
    [key: string]: MessageData
   }) {
-   console.error({ messages })
+   //  console.dir({ messages })
    return Object.fromEntries(
     Object.entries(messages).filter(
      ([_, messageData]) => {
@@ -657,6 +805,13 @@ export function scrollChannel(
    return { channels, messages }
   }
 
-  return { remove, send, seek, unsend }
+  return {
+   getMessage,
+   rankMessage,
+   remove,
+   seek,
+   send,
+   unsend,
+  }
  }
 }

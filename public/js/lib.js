@@ -527,7 +527,8 @@ async function addMessageReplies(
   'No replies. Be the first to write a reply!',
   undefined,
   false,
-  false
+  false,
+  true
  )
 
  const topReplyCount = Object.keys(
@@ -651,12 +652,14 @@ function calculateScore(data) {
  )
 }
 
+function formatMessageEntry([text, data]) {
+ const score = calculateScore(data)
+ return { data, score, text }
+}
+
 function formatMessageData(messages) {
  return Object.entries(messages)
-  .map(function ([text, data]) {
-   const score = calculateScore(data)
-   return { data, score, text }
-  })
+  .map(formatMessageEntry)
   .sort(function (a, b) {
    return b.score - a.score
   })
