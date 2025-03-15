@@ -2652,9 +2652,10 @@ div.reaction-reaction
 }
 
 .label-group .news > article > div {
- justify-content: start;
- display: flex;
  align-items: end;
+ display: flex;
+ flex-shrink: 1;
+ justify-content: start;
 }
 
 .label-group
@@ -2686,4 +2687,5 @@ div.reaction-reaction
 
 main section.label-group > article {
  min-height: unset;
+ padding: 10px 4px;
 }
