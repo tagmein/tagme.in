@@ -198,6 +198,9 @@ async function labelMessage(
 }
 
 function calculateTopLabel(labelsToCompare) {
+ if (typeof labelsToCompare !== 'object') {
+  return
+ }
  const calculatedScores = Object.entries(
   labelsToCompare
  )
