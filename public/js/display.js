@@ -238,7 +238,8 @@ async function displayChannelMessageReplies(
   'No replies. Be the first to write a reply!',
   undefined,
   true,
-  false
+  false,
+  true
  )
 }
 
@@ -261,6 +262,8 @@ function displayChannelArticle(
   message,
   false,
   undefined,
+  false,
+  false,
   false,
   false,
   messageContentFormatter
@@ -320,6 +323,7 @@ function displayChannelHome(
   undefined,
   sendToRealm,
   false,
+  true,
   true
  )
  attachChannels(
@@ -382,6 +386,7 @@ function displayChannelMessage(
    message,
    true,
    undefined,
+   true,
    true
   )
  } else {
@@ -460,7 +465,8 @@ function attachMessages(
  emptyMessage = undefined,
  sendToRealm = undefined,
  copyToReply = false,
- includeReplies = false
+ includeReplies = false,
+ includeReactions = false
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -481,7 +487,8 @@ function attachMessages(
    sendToRealm,
    copyToReply,
    index === '0',
-   includeReplies
+   includeReplies,
+   includeReactions
   )
  }
 }
@@ -495,6 +502,7 @@ function attachMessage(
  copyToReply,
  includeTourAttributes,
  includeReplies = false,
+ includeReactions = false,
  messageContentFormatter = undefined
 ) {
  const content = elem()
@@ -658,7 +666,13 @@ function attachMessage(
    style: { flexGrow: 1 },
   })
  )
- attachReactions(articleTools, channel, message)
+ if (includeReactions) {
+  attachReactions(
+   articleTools,
+   channel,
+   message
+  )
+ }
  const article = elem({
   children: [content, articleTools],
   tagName: 'article',

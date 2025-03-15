@@ -527,7 +527,8 @@ async function addMessageReplies(
   'No replies. Be the first to write a reply!',
   undefined,
   false,
-  false
+  false,
+  true
  )
 
  const topReplyCount = Object.keys(

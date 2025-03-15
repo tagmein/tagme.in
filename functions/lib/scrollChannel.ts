@@ -9,6 +9,9 @@ interface MessageData {
   count: number
   top: MessageData[]
  }
+ labels: {
+  status?: string
+ }
 }
 
 const MESSAGE_NEGATIVE_THRESHOLD = -10
@@ -389,6 +392,7 @@ export function scrollChannel(
      count: 0,
      top: [],
     },
+    labels: messageData.labels ?? {},
    }
    if (
     typeof newMessageData.newsChunk !== 'number'
@@ -398,6 +402,45 @@ export function scrollChannel(
       message,
       newMessageData.seen
      )
+   }
+
+   async function updateParentMessageLabels(
+    message: string,
+    messageData: MessageData
+   ) {
+    if (!channelName.startsWith('labels@')) {
+     return
+    }
+    console.log('updateParentMessageLabels')
+    const [parentChannel, parentMessage] =
+     channelName
+      .substring('labels@'.length)
+      .split('#', 2)
+      .map(decodeURIComponent)
+    // console.dir({
+    //  message,
+    //  messageData,
+    //  channelName,
+    //  parentChannel,
+    //  parentMessage,
+    // })
+    /*
+      {
+        message: 'status:in progress',
+        messageData: {
+          newsChunk: 0,
+          position: 4.073648611111111,
+          seen: 1742067707094,
+          timestamp: 1742072065661,
+          velocity: 10,
+          replies: { count: 0, top: [] },
+          labels: {}
+        },
+        channelName: 'labels@tmi%3Afeat%2Flabels#I%20clicked%20%22label%20message%22%20and%20nothing%20happened.',
+        parentChannel: 'tmi:feat/labels',
+        parentMessage: 'I clicked "label message" and nothing happened.'
+      }
+    */
    }
 
    async function updateParentMessageReplies() {
@@ -473,6 +516,10 @@ export function scrollChannel(
      JSON.stringify(newMessageData)
     ),
     rankMessage(message, newMessageData),
+    updateParentMessageLabels(
+     message,
+     newMessageData
+    ),
    ])
 
    await new Promise((resolve) =>

@@ -32,6 +32,19 @@ async function renderLabelsMenu(
  labelsMenuTitle.textContent =
   'Set message label'
  labelsMenu.appendChild(labelsMenuTitle)
+ const dismissLabelsMenu =
+  document.createElement('button')
+ dismissLabelsMenu.textContent =
+  'Dismiss Labels View'
+ dismissLabelsMenu.addEventListener(
+  'click',
+  function () {
+   labelsMenu.parentElement.removeChild(
+    labelsMenu
+   )
+  }
+ )
+ labelsMenu.appendChild(dismissLabelsMenu)
  const labelGroups = {}
  //  console.log(
  //   'RENDERING GROUP LABELS::: ' +
@@ -93,10 +106,17 @@ async function renderLabelsMenu(
   let highScoreOption = undefined
   for (const groupLabelOption of labelGroup.options) {
    const matchingOptionMessage =
-    formattedMessageData.find(
-     (x) => x.text === groupLabelOption
-    )
-   console.log({ matchingOptionMessage })
+    formattedMessageData.find((x) => {
+     //  console.log({
+     //   labelGroup,
+     //   formattedMessageData,
+     //   groupLabel,
+     //   groupLabelOption,
+     //   xText: x.text,
+     //  })
+     return x.text === groupLabelOption
+    })
+   //  console.log({ matchingOptionMessage })
    const groupLabelOptionMessage =
     matchingOptionMessage ?? {
      data: {
@@ -133,9 +153,10 @@ async function renderLabelsMenu(
     groupLabelOptionArticle
    )
   }
-  highScoreOption?.classList?.add?.(
-   'prominent-option'
-  )
+  if (highScoreOption) {
+   //  console.log(`High score ${highScore}`)
+   highScoreOption.dataset.themeBg = 'true'
+  }
  }
 }
 

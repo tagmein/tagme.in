@@ -2596,6 +2596,21 @@ div.reaction-reaction
  white-space: nowrap;
 }
 
+.message-menu > button {
+ border-radius: 10px;
+ border: 1px solid;
+ color: var(--color-text-secondary);
+ font-size: 14px;
+ letter-spacing: 1px;
+ margin: 0 auto 0.5em;
+ opacity: 0.825;
+ overflow: hidden;
+ padding: 10px;
+ text-align: center;
+ white-space: nowrap;
+ width: 100%;
+}
+
 .label-group {
  border: 1px solid #80808080;
  background-color: #00000040;
@@ -2614,12 +2629,12 @@ div.reaction-reaction
 }
 
 .label-group .news > article {
- position: relative;
+ border-radius: 10px !important;
+ flex-direction: row-reverse;
+ min-height: initial;
  overflow: visible !important;
-}
-
-.label-group > article:last-of-type {
- padding-bottom: 1.625em;
+ padding: 0 0 1.25em;
+ position: relative;
 }
 
 .label-group .news > article > div > p {
@@ -2630,10 +2645,6 @@ div.reaction-reaction
 .label-group .news > article > div > p > span {
  font-weight: bold;
  font-size: 20px;
-}
-
-.label-group .news > article {
- min-height: initial;
 }
 
 .label-group .news > a {
@@ -2673,14 +2684,6 @@ div.reaction-reaction
  margin-bottom: -5px;
 }
 
-.label-group .news > article {
- flex-direction: row-reverse;
-}
-
 main section.label-group > article {
  min-height: unset;
-}
-
-.prominent-option {
- background-color: var(--color-bg-medium-light);
 }
