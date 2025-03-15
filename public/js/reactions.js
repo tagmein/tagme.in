@@ -24,7 +24,8 @@ const reactionOptionsLoaded = new Promise(
    const reactionsChannelContent =
     await networkChannelSeek('reactions', 0)
    if (
-    'error' in reactionsChannelContent ||
+    (reactionsChannelContent &&
+     'error' in reactionsChannelContent) ||
     typeof reactionsChannelContent?.response
      ?.messages !== 'object'
    ) {

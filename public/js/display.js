@@ -208,7 +208,8 @@ async function displayChannelMessageReplies(
  )
 
  if (
-  'error' in replyChannelData ||
+  (replyChannelData &&
+   'error' in replyChannelData) ||
   typeof replyChannelData?.response
    ?.messages !== 'object'
  ) {
@@ -289,7 +290,7 @@ function displayChannelHome(
   true,
   undefined,
   sendToRealm,
-  true,
+  false,
   true
  )
  attachChannels(
@@ -621,6 +622,14 @@ function attachMessage(
   children: [article, dateContainer],
  })
  if (includeFooter) {
+  function footerLinkSeparator() {
+   messageFooter.appendChild(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+  }
   const messageFooter = elem({
    classes: ['message-footer'],
   })
@@ -644,12 +653,7 @@ function attachMessage(
     textContent: 'View message',
    })
    messageFooter.appendChild(repliesLink)
-   messageFooter.appendChild(
-    elem({
-     tagName: 'span',
-     textContent: ' • ',
-    })
-   )
+   footerLinkSeparator()
    const copyMessageLink = elem({
     attributes: {
      href,
@@ -672,13 +676,8 @@ function attachMessage(
     textContent: 'copy message',
    })
    messageFooter.appendChild(copyMessageLink)
-   messageFooter.appendChild(
-    elem({
-     tagName: 'span',
-     textContent: ' • ',
-    })
-   )
-   const copyRepliesLink = elem({
+   footerLinkSeparator()
+   const labelMessageLink = elem({
     attributes: {
      href,
     },
@@ -686,24 +685,20 @@ function attachMessage(
      click(e) {
       e.preventDefault()
       navigator.clipboard.writeText(
-       `${location.origin}${href}`
+       message.text
       )
-      copyRepliesLink.textContent =
-       '✔ link copied'
+      labelMessageLink.textContent =
+       '✔ message labeled'
       setTimeout(function () {
-       copyRepliesLink.textContent = 'copy link'
+       labelMessageLink.textContent =
+        'label message'
       }, 2e3)
      },
     },
-    dataset: includeTourAttributes
-     ? {
-        tour: 'Copy a link to this message.',
-       }
-     : undefined,
     tagName: 'a',
-    textContent: 'copy link',
+    textContent: 'label message',
    })
-   messageFooter.appendChild(copyRepliesLink)
+   messageFooter.appendChild(labelMessageLink)
    if (sendToRealm) {
     const label =
      sendToRealm === PUBLIC_SESSION_ID
@@ -747,36 +742,68 @@ function attachMessage(
     )
     messageFooter.appendChild(sendToLink)
    }
-   if (copyToReply) {
-    const copyToReplyLink = elem({
-     attributes: {
-      href,
+   const copyToReplyLink = elem({
+    attributes: {
+     href,
+    },
+    dataset: includeTourAttributes
+     ? {
+        tour: 'Copy message content to reply.',
+       }
+     : undefined,
+    events: {
+     click(e) {
+      e.preventDefault()
+      composeTextarea.focus()
+      composeTextarea.value = message.text
+      composeTextarea.selectionStart = 0
+      composeTextarea.selectionEnd =
+       composeTextarea.value.length
      },
-     dataset: includeTourAttributes
-      ? {
-         tour: 'Copy message content to reply.',
-        }
-      : undefined,
-     events: {
-      click(e) {
-       e.preventDefault()
-       composeTextarea.focus()
-       composeTextarea.value = message.text
-       composeTextarea.selectionStart =
-        composeTextarea.value.length
-      },
-     },
-     tagName: 'a',
-     textContent: 'copy message in reply',
+    },
+    tagName: 'a',
+    textContent: copyToReply
+     ? 'reply with message'
+     : 'new with message',
+   })
+   messageFooter.appendChild(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
     })
-    messageFooter.appendChild(
-     elem({
-      tagName: 'span',
-      textContent: ' • ',
-     })
-    )
-    messageFooter.appendChild(copyToReplyLink)
-   }
+   )
+   messageFooter.appendChild(copyToReplyLink)
+
+   footerLinkSeparator()
+   const copyViewMessageLink = elem({
+    attributes: {
+     href,
+    },
+    events: {
+     click(e) {
+      e.preventDefault()
+      navigator.clipboard.writeText(
+       `${location.origin}${href}`
+      )
+      copyViewMessageLink.textContent =
+       '✔ link copied'
+      setTimeout(function () {
+       copyViewMessageLink.textContent =
+        'copy link'
+      }, 2e3)
+     },
+    },
+    dataset: includeTourAttributes
+     ? {
+        tour: 'Copy a link to this message.',
+       }
+     : undefined,
+    tagName: 'a',
+    textContent: 'copy link',
+   })
+   messageFooter.appendChild(
+    copyViewMessageLink
+   )
    if (
     message.score < MESSAGE_PERSIST_THRESHOLD
    ) {
@@ -828,12 +855,7 @@ function attachMessage(
      tagName: 'a',
      textContent: 'unsend',
     })
-    messageFooter.appendChild(
-     elem({
-      tagName: 'span',
-      textContent: ' • ',
-     })
-    )
+    footerLinkSeparator()
     messageFooter.appendChild(unsendLink)
    }
   }

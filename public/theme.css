@@ -675,21 +675,15 @@ footer {
 }
 
 .consent-prompt {
- border-top-left-radius: 10px;
- border-top-right-radius: 10px;
- bottom: -71px;
- box-shadow: 0 0 10px var(--color-shadow-dark);
+ border-radius: 10px;
+ box-shadow: inset 0 0 10px
+  var(--color-shadow-dark);
  box-sizing: border-box;
  cursor: pointer;
- left: 40px;
- margin: 0;
- min-height: 79px;
+ margin: 15px;
  padding: 15px;
- position: fixed;
- right: 40px;
+ position: static;
  text-align: center;
- transition: bottom 0.5s ease;
- z-index: 2;
 }
 
 .consent-prompt:hover {
@@ -704,12 +698,18 @@ footer {
 }
 
 .compose {
- width: 100%;
- opacity: 0.85;
- transition: 0.5s opacity ease;
- padding: 15px;
+ background-color: #80808040;
  box-sizing: border-box;
+ opacity: 0.85;
+ padding: 15px;
  position: relative;
+ transition: 0.5s opacity ease,
+  0.5s background-color ease;
+ width: 100%;
+}
+
+.compose:hover {
+ background-color: #80808080;
 }
 
 .compose textarea {
@@ -782,6 +782,10 @@ footer {
  );
 }
 
+.compose + .mode-main {
+ margin-top: 15px;
+}
+
 article {
  background-color: var(--color-bg-medium);
 }
@@ -833,10 +837,9 @@ article.highlight::after {
 }
 
 .message-footer {
- box-shadow: 0 4px 4px var(--color-shadow-dark);
  border-bottom-left-radius: 10px;
  border-bottom-right-radius: 10px;
- margin-bottom: 8px;
+ box-shadow: 0 4px 4px var(--color-shadow-dark);
  min-height: 23px;
  opacity: 0.65;
  padding: 8px;
@@ -1252,9 +1255,8 @@ body[data-mode='other'] .mode-main {
 }
 
 .news {
- margin-bottom: 22px;
- padding-bottom: 22px;
  transition: opacity 1s ease;
+ padding: 0px 4px;
 }
 
 .news > article {
