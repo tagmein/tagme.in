@@ -694,12 +694,20 @@ function attachMessage(
    classes: ['message-footer'],
   })
   newsItem.appendChild(messageFooter)
+  const labelsElement =
+   document.createElement('div')
+  labelsElement.classList.add('message-labels')
+  let lastLabel
   async function renderFooter() {
    messageFooter.innerHTML = ''
    const href = `/#/${encodeURIComponent(
     channel
    )}/${btoa(encodeURIComponent(message.text))}`
-   await labelMessage(
+   if (lastLabel) {
+    lastLabel.remove()
+   }
+   lastLabel = await labelMessage(
+    labelsElement,
     channel,
     message,
     messageFooter,
@@ -751,7 +759,11 @@ function attachMessage(
     events: {
      async click(e) {
       e.preventDefault()
-      await labelMessage(
+      if (lastLabel) {
+       lastLabel.remove()
+      }
+      lastLabel = await labelMessage(
+       labelsElement,
        channel,
        message,
        messageFooter,

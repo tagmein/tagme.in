@@ -161,6 +161,7 @@ async function renderLabelsMenu(
 }
 
 async function labelMessage(
+ labelsElement,
  channel,
  message,
  messageFooter,
@@ -182,9 +183,10 @@ async function labelMessage(
   )
   return
  }
- const labelsElement =
-  document.createElement('div')
- labelsElement.classList.add('message-labels')
+ labelsElement.innerHTML = ''
+ message.statusLabel = calculateTopLabel(
+  message.data.labels
+ )
  const messageStatusLabel =
   document.createElement('span')
  messageStatusLabel.dataset.value =
@@ -192,4 +194,21 @@ async function labelMessage(
    message.statusLabel || 'no status'
  labelsElement.appendChild(messageStatusLabel)
  messageFooter.appendChild(labelsElement)
+ return labelsElement
+}
+
+function calculateTopLabel(labelsToCompare) {
+ const calculatedScores = Object.entries(
+  labelsToCompare
+ )
+  .filter((x) => x[0].startsWith('status:'))
+  .map((x) => {
+   return [x[0], calculateScore(x[1])]
+  })
+
+ //  console.dir({ calculatedScores })
+ return calculatedScores[0]?.[0]?.replace(
+  'status:',
+  ''
+ )
 }
