@@ -194,7 +194,6 @@ async function labelMessage(
    message.statusLabel || 'no status'
  labelsElement.appendChild(messageStatusLabel)
  messageFooter.appendChild(labelsElement)
- return labelsElement
 }
 
 function calculateTopLabel(labelsToCompare) {

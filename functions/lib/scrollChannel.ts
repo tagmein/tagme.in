@@ -456,7 +456,7 @@ export function scrollChannel(
     if (!channelName.startsWith('labels@')) {
      return
     }
-    console.log('updateParentMessageLabels')
+    // console.log('updateParentMessageLabels')
     const [parentChannel, parentMessage] =
      channelName
       .substring('labels@'.length)
