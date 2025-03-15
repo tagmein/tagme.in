@@ -207,8 +207,11 @@ function calculateTopLabel(labelsToCompare) {
   .map((x) => {
    return [x[0], calculateScore(x[1])]
   })
-
- //  console.dir({ calculatedScores })
+  .sort((a, b) => b[1] - a[1])
+ //  console.dir({
+ //   labelsToCompare,
+ //   calculatedScores,
+ //  })
  return calculatedScores[0]?.[0]?.replace(
   'status:',
   ''
