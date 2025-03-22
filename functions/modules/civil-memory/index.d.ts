@@ -1,5 +1,4 @@
 import { cloudflareKV } from './kv/cloudflareKV.js'
-import { diskKV } from './kv/diskKV.js'
 import { httpKV } from './kv/httpKV.js'
 import { volatileKV } from './kv/volatileKV.js'
 
@@ -34,7 +33,6 @@ export declare const civilMemoryKV: {
   typeof cloudflareKV,
   'cloudflare'
  >
- disk: Named<typeof diskKV, 'disk'>
  http: Named<typeof httpKV, 'http'>
  volatile: Named<typeof volatileKV, 'volatile'>
 }

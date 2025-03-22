@@ -8,6 +8,7 @@ function keyCompression(kv) {
  return (settings) => {
   const setupKv = kv(settings)
   return {
+   description: JSON.stringify(settings),
    get: async (key) =>
     setupKv.get(
      await compressKey(setupKv, key)

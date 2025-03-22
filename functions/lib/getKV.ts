@@ -16,20 +16,33 @@ export async function getKV(
   any,
   Record<string, unknown>
  >,
- allowPublic: boolean = true
+ allowPublic: boolean = true,
+ overrideKVUrl?: string
 ): Promise<CivilMemoryKV | undefined> {
+ if (
+  typeof overrideKVUrl === 'string' &&
+  overrideKVUrl.length > 0
+ ) {
+  return civilMemoryKV.http({
+   baseUrl: overrideKVUrl,
+  })
+ }
  const authorization = request.headers.get(
   'authorization'
  )
  if (typeof authorization === 'string') {
-  const authKV = env.TAGMEIN_LOCAL_KV
-   ? civilMemoryKV.http({
-      baseUrl:
-       'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-auth',
-     })
-   : civilMemoryKV.cloudflare({
-      binding: env.TAGMEIN_AUTH_KV,
-     })
+  const authKV =
+   env.TAGMEIN_LOCAL_KV === 'true'
+    ? civilMemoryKV.http({
+       baseUrl:
+        typeof env.TAGMEIN_LOCAL_KV_BASEURL ===
+        'string'
+         ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-auth`
+         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-auth',
+      })
+    : civilMemoryKV.cloudflare({
+       binding: env.TAGMEIN_AUTH_KV,
+      })
   const sessionKey = `session.accessToken#${authorization}`
   const sessionString = await authKV.get(
    sessionKey
@@ -44,14 +57,18 @@ export async function getKV(
   if (!session.email?.includes?.('@')) {
    return
   }
-  const privateKV = env.TAGMEIN_LOCAL_KV
-   ? civilMemoryKV.http({
-      baseUrl:
-       'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-private',
-     })
-   : civilMemoryKV.cloudflare({
-      binding: env.TAGMEIN_PRIVATE_KV,
-     })
+  const privateKV =
+   env.TAGMEIN_LOCAL_KV === 'true'
+    ? civilMemoryKV.http({
+       baseUrl:
+        typeof env.TAGMEIN_LOCAL_KV_BASEURL ===
+        'string'
+         ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-private`
+         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-private',
+      })
+    : civilMemoryKV.cloudflare({
+       binding: env.TAGMEIN_PRIVATE_KV,
+      })
   const realm = request.headers.get('x-realm')
   if (realm) {
    return getPermittedRealmNamespaceKV(
@@ -65,10 +82,13 @@ export async function getKV(
   )}]`
   return namespacedKV(privateKV, emailNamespace)
  } else if (allowPublic) {
-  return env.TAGMEIN_LOCAL_KV
+  return env.TAGMEIN_LOCAL_KV === 'true'
    ? civilMemoryKV.http({
       baseUrl:
-       'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-public',
+       typeof env.TAGMEIN_LOCAL_KV_BASEURL ===
+       'string'
+        ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-public`
+        : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-public',
      })
    : civilMemoryKV.cloudflare({
       binding: env.TAGMEIN_KV,
