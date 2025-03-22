@@ -294,16 +294,6 @@ async function route() {
   .join(' - ')
  activityContainer.clear()
  const activeSessionId = getActiveSessionId()
- if (activeSessionId !== PUBLIC_SESSION_ID) {
-  if (
-   await registerSession(
-    activeSessionId,
-    control
-   )
-  ) {
-   return
-  }
- }
  if (typeof messageText === 'string') {
   body.classList.remove('on-channel')
   body.classList.add('on-message')
@@ -344,31 +334,39 @@ async function route() {
     )}`
   )
  }
+
  const formattedMessageData = formatMessageData(
   channelData.response.messages
  )
- if (activeSessionId !== PUBLIC_SESSION_ID) {
+
+ const activeSession = getActiveSession()
+ if (localStorage.getItem('session-pause')) {
+  debugger
+ }
+ if (
+  activeSessionId !== PUBLIC_SESSION_ID &&
+  typeof activeSession?.email === 'string'
+ ) {
   renderRealm(
    realmControlContainer,
    activeSessionId
   )
- } else if (
-  activeSessionId === PUBLIC_SESSION_ID
- ) {
-  const tabs = tabStrip(
-   'discussion',
-   () => void 0
-  )
-  tabs.add(
-   'discussion',
-   'Discussion',
-   { switchTo() {} },
-   switchToMode('main')
-  )
-  tabStripContainer.innerHTML = ''
-  await tabs.activate()
-  tabStripContainer.appendChild(tabs.element)
+  return
  }
+
+ const tabs = tabStrip(
+  'discussion',
+  () => void 0
+ )
+ tabs.add(
+  'discussion',
+  'Discussion',
+  { switchTo() {} },
+  switchToMode('main')
+ )
+ tabStripContainer.innerHTML = ''
+ await tabs.activate()
+ tabStripContainer.appendChild(tabs.element)
  if (typeof messageText === 'string') {
   displayChannelMessage(
    channel,
@@ -395,7 +393,15 @@ async function route() {
 }
 
 window.addEventListener('hashchange', route)
-route().catch((e) => console.error(e))
+
+async function firstRoute() {
+ await route()
+}
+
+document.addEventListener(
+ 'DOMContentLoaded',
+ firstRoute
+)
 
 const consentKey = 'consent:ai-moderator'
 

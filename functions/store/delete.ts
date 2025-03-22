@@ -53,7 +53,10 @@ export const onRequestPost: PagesFunction<
   return new Response(error, { status: 400 })
  }
 
- const kv = await getKV(context, false)
+ const url = new URL(context.request.url)
+ const kvUrl = url.searchParams.get('kv')
+
+ const kv = await getKV(context, false, kvUrl)
 
  if (!kv) {
   return new Response(

@@ -41,11 +41,6 @@ The following environment variables may be set:
 - TAGMEIN_KV ......... cloudflare binding to primary kv store
 - TAGMEIN_AUTH_KV .... cloudflare binding to auth kv store
 - TAGMEIN_PRIVATE_KV . cloudflare binding to private kv store
-- TAGMEIN_LINKEDIN_REDIRECT_URI .. all these for linkedin connection
-- LINKEDIN_AUTH_URL
-- LINKEDIN_SCOPES
-- TAGMEIN_AUTH_LINKEDIN_CLIENT_ID
-- TAGMEIN_AUTH_LINKEDIN_CLIENT_SECRET
 
 If you visit exactly `http://localhost:8000`, the app will use the production APIs, simplifying front end development when no api changes are needed.
 
@@ -54,6 +49,24 @@ If you visit exactly `http://localhost:8000`, the app will use the production AP
 The software is open source, and easy to host on Cloudflare - just set up this repository as a Workers project. View the Workers docs at https://developers.cloudflare.com/workers/
 
 It might require functional updates to host on a platform that is not Cloudflare
+
+## Setting login code on Civil Memory for realms
+
+For example, if you want to connect Tag Me In to a running Civil Memory instance, and Tag Me In is requesting code "1234":
+
+```
+async function go() {
+ async function check (r) {
+  console.log(await r.status, await r.text())
+ }
+ await check(
+  await fetch(
+   '/?mode=disk&modeOptions.disk.basePath=./.kv-public&key=code', { method: 'post', body: '1234' }
+  )
+ );
+}
+go()
+```
 
 ## Contributing
 

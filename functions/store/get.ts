@@ -11,6 +11,7 @@ export const onRequestGet: PagesFunction<
   'collectionName'
  )
  const id = url.searchParams.get('id')
+ const kvUrl = url.searchParams.get('kv')
 
  if (
   typeof collectionName !== 'string' ||
@@ -22,7 +23,7 @@ export const onRequestGet: PagesFunction<
   )
  }
 
- const kv = await getKV(context, false)
+ const kv = await getKV(context, false, kvUrl)
 
  if (!kv) {
   return new Response(

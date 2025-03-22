@@ -51,9 +51,14 @@ function displayAppAccounts() {
 
  function addAccount(session) {
   const realmTabLabel = elem({
+   attributes: {
+    title: session.url,
+   },
    tagName: 'span',
    textContent:
-    session.name ?? session.email ?? '···',
+    session.name ??
+    new URL(session.url).origin ??
+    'Error',
   })
   function switchTo() {
    const sessionId = getActiveSessionId()

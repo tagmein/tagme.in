@@ -114,14 +114,21 @@ export const onRequestPost: PagesFunction<Env> =
     )
    }
 
+   const url = new URL(context.request.url)
+   const kvUrl = url.searchParams.get('kv')
+
    // Authenticate and get KV instance
-   const kv = await getKV({
-    env: {
-     ...env,
-     ASSETS: { fetch: globalThis.fetch },
-    },
-    request,
-   } as any)
+   const kv = await getKV(
+    {
+     env: {
+      ...env,
+      ASSETS: { fetch: globalThis.fetch },
+     },
+     request,
+    } as any,
+    true,
+    kvUrl
+   )
 
    if (!kv) {
     return new Response(

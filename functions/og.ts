@@ -12,6 +12,7 @@ export const onRequestGet: PagesFunction<
 > = async (context) => {
  const requestUrl = new URL(context.request.url)
  const url = requestUrl.searchParams.get('url')
+ const kvUrl = requestUrl.searchParams.get('kv')
  const refresh =
   requestUrl.searchParams.get('refresh')
 
@@ -32,7 +33,7 @@ export const onRequestGet: PagesFunction<
   )
  }
 
- const kv = await getKV(context)
+ const kv = await getKV(context, true, kvUrl)
 
  if (!kv) {
   return new Response(
@@ -49,6 +50,8 @@ export const onRequestGet: PagesFunction<
  const ogTagsKey = `og.url#${encodeURIComponent(
   url
  )}`
+
+ console.log(`open graph kv: ${kv.description}`)
 
  if (refresh !== 'true') {
   const cachedTags = await kv.get(ogTagsKey)

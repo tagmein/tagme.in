@@ -21,7 +21,8 @@ const port = Number(process.env.PORT || 8787)
 const env = {
  // Example: You can add your KV bindings or other environment variables here.
  // authKV: createLocalKV('auth'),
- TAGMEIN_LOCAL_KV: 'true',
+ // TAGMEIN_LOCAL_KV: 'true',
+ // TAGMEIN_LOCAL_KV_BASEURL: 'http://localhost:3333',
 }
 
 /**

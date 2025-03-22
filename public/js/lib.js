@@ -422,11 +422,19 @@ async function addOpenGraphLink(
   return // it's YouTube or an image
  }
 
+ const activeSession = getActiveSession()
+
  try {
   const tagResponse = await fetch(
    `${networkRootUrl()}/og?url=${encodeURIComponent(
     urlMatch[0]
-   )}`
+   )}${
+    activeSession?.url
+     ? `&kv=${encodeURIComponent(
+        activeSession?.url
+       )}`
+     : ''
+   }`
   )
   if (!tagResponse.ok) {
    throw new Error(tagResponse.statusText)
@@ -830,6 +838,9 @@ async function politeAlert(
 }
 
 function dialog(...children) {
+ function close() {
+  document.body.removeChild(dialogBox)
+ }
  const cancelButton = !children.includes(false)
  const compChildren = [
   elem({
@@ -842,9 +853,7 @@ function dialog(...children) {
   compChildren.push(
    elem({
     events: {
-     click() {
-      document.body.removeChild(dialogBox)
-     },
+     click: close,
     },
     tagName: 'button',
     textContent: 'Cancel',
@@ -881,10 +890,6 @@ function dialog(...children) {
   behavior: 'instant',
   block: 'center',
  })
-
- function close() {
-  document.body.removeChild(dialogBox)
- }
 
  return { close }
 }
@@ -950,6 +955,7 @@ async function networkChannelSeek(
 ) {
  const headers = {}
  const activeSession = getActiveSession()
+ console.log({ activeSession })
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
@@ -962,7 +968,13 @@ async function networkChannelSeek(
    'seek'
   )}/seek?channel=${encodeURIComponent(
    channel
-  )}&hour=${hour}`,
+  )}&hour=${hour}${
+   typeof activeSession?.url === 'string'
+    ? `&kv=${encodeURIComponent(
+       activeSession?.url
+      )}`
+    : ''
+  }`,
   { headers }
  )
  if (!response.ok) {
@@ -1003,7 +1015,13 @@ async function networkMessageSend(
   }
  }
  const resp = await fetch(
-  `${networkRootUrl()}/send`,
+  `${networkRootUrl()}/send${
+   typeof activeSession?.url === 'string'
+    ? `?kv=${encodeURIComponent(
+       activeSession?.url
+      )}`
+    : ''
+  }`,
   {
    method: 'POST',
    headers,
@@ -1047,7 +1065,13 @@ async function networkMessageUnsend(
   }
  }
  const resp = await fetch(
-  `${networkRootUrl()}/unsend`,
+  `${networkRootUrl()}/unsend${
+   typeof activeSession?.url === 'string'
+    ? `?kv=${encodeURIComponent(
+       activeSession?.url
+      )}`
+    : ''
+  }`,
   {
    method: 'POST',
    headers,
@@ -1085,10 +1109,20 @@ async function getNews(chunk, callback) {
    headers['X-Realm'] = activeSession.realm
   }
  }
+ const hasChunk =
+  typeof chunk === 'number' && !isNaN(chunk)
  const response = await fetch(
   `${networkRootUrl()}/news${
-   typeof chunk === 'number' && !isNaN(chunk)
+   hasChunk
     ? `?chunk=${chunk.toString(36)}`
+    : ''
+  }${
+   typeof activeSession?.url === 'string'
+    ? `${
+       hasChunk ? '&' : '?'
+      }kv=${encodeURIComponent(
+       activeSession?.url
+      )}`
     : ''
   }`,
   { headers }
@@ -1207,10 +1241,13 @@ function createSession() {
  const sendEmailButton = elem({
   attributes: {
    type: 'submit',
-   value: 'Send email',
+   value: 'Verify',
   },
   tagName: 'input',
  })
+ function closeModal() {
+  loginDialog.close()
+ }
  const loginDialog = dialog(
   elem({
    tagName: 'h2',
@@ -1218,19 +1255,34 @@ function createSession() {
   }),
   elem({
    tagName: 'h4',
-   textContent: 'Verify your email:',
+   textContent: 'Verify your kv server:',
   }),
   elem({
    tagName: 'p',
-   textContent: `➊ Enter email address and send`,
+   textContent: `➊ Enter compatible kv server url and verify ownership`,
+  }),
+  elem({
+   tagName: 'h5',
+   textContent: `KV Server Specification`,
+  }),
+  elem({
+   tagName: 'code',
+   textContent: `
+Read a value:   GET <url>?key=<key>
+Delete a value: DELETE <url>?key=<key>
+Set a value:    POST <url>?key=<key>
+                with value as request body
+`.trim(),
   }),
   elem({
    tagName: 'p',
-   textContent: `➋ Click the link in the email`,
+   textContent: `➋ Set the key "code" to ${JSON.stringify(
+    code
+   )}`,
   }),
   elem({
    tagName: 'p',
-   textContent: `➌ Enter code ${code}`,
+   textContent: `➌ Press Verify`,
   }),
   elem({
    tagName: 'form',
@@ -1238,8 +1290,8 @@ function createSession() {
     elem({
      attributes: {
       autofocus: true,
-      name: 'email',
-      placeholder: 'Enter email address',
+      name: 'url',
+      placeholder: 'Enter kv server URL',
       required: true,
       type: 'text',
      },
@@ -1254,7 +1306,7 @@ function createSession() {
       waitingMessage = elem({
        tagName: 'p',
        textContent:
-        'Please wait, sending email...',
+        'Please wait, checking kv server...',
       })
      }
      try {
@@ -1263,76 +1315,79 @@ function createSession() {
         continueButton
        )
       }
-      e.target.email.disabled = true
+      const serverUrl = new URL(
+       e.target.url.value
+      )
+      serverUrl.searchParams.set('key', 'code')
+      serverUrl.searchParams.set('mode', 'disk')
+      serverUrl.searchParams.set(
+       'modeOptions.disk.basePath',
+       './.kv-public'
+      )
+      const serverUrlString =
+       serverUrl.toString()
+      e.target.url.disabled = true
       sendEmailButton.disabled = true
       e.target.appendChild(waitingMessage)
       waitingMessage.textContent =
-       'Please wait, sending email...'
-      const id = await createSessionEmail(
-       e.target.email.value
+       'Please wait, giving you time to set the login value on your kv server...'
+      let result = await createSessionWithKVUrl(
+       serverUrlString,
+       code
       )
-      waitingMessage.textContent =
-       'Check your email inbox, the verification email should arrive momentarily...'
+      console.log({ result })
+      if (result.success) {
+       await new Promise((x) =>
+        setTimeout(x, 500)
+       )
+       waitingMessage.textContent =
+        '✅ Connected'
+       closeModal()
+       return
+      }
       await new Promise((x) =>
        setTimeout(x, 3000)
       )
-      waitingMessage.textContent =
-       'You must approve the login request within 5 minutes. Once you have approved the login request sent to your email, click the continue button:'
-      continueButton = elem({
-       tagName: 'button',
-       textContent: 'Continue',
-       events: {
-        async click(e) {
-         e.preventDefault()
-         const fetchBody = JSON.stringify({
-          id,
-         })
-         const response = await fetch(
-          `${networkRootUrl()}/auth-email-verify`,
-          {
-           method: 'POST',
-           body: fetchBody,
-           headers: {
-            'Content-Length':
-             fetchBody.length.toString(10),
-            'Content-Type': 'application/json',
-           },
-          }
-         )
-         if (!response.ok) {
-          await politeAlert(
-           `There was a problem: ${await response.text()}`
-          )
-          return
-         } else {
-          const responseBody =
-           await response.json()
-          if (
-           !responseBody ||
-           typeof responseBody.loginRequest
-            ?.code !== 'string'
-          ) {
-           await politeAlert(
-            'The log in request has not been approved'
-           )
-           return
-          }
-          if (
-           responseBody.loginRequest.code ==
-           code
-          ) {
-           await completeSessionEmail(id)
-           loginDialog.close()
-          } else {
-           await politeAlert(
-            `The code entered on approval was ${responseBody.loginRequest.code}, which did not match the code ${code} displayed above`
-           )
-          }
-         }
+      async function reCheckNow() {
+       if (continueButton?.parentElement) {
+        continueButton.parentElement.removeChild(
+         continueButton
+        )
+       }
+
+       waitingMessage.textContent = `Please wait, checking kv server now at ${e.target.url.value}...`
+       result = await createSessionWithKVUrl(
+        serverUrlString,
+        code
+       )
+       await new Promise((x) =>
+        setTimeout(x, 500)
+       )
+       if (result.success) {
+        waitingMessage.textContent =
+         '✅ Connected'
+        await new Promise((x) =>
+         setTimeout(x, 500)
+        )
+        closeModal()
+        return
+       }
+       waitingMessage.textContent =
+        result.error ?? 'Unknown error'
+       // check here, then allow continue if still not found / not correct code
+       continueButton = elem({
+        tagName: 'button',
+        textContent: 'Continue',
+        events: {
+         async click(e) {
+          e.preventDefault()
+          reCheckNow()
+         },
         },
-       },
-      })
-      e.target.appendChild(continueButton)
+       })
+       e.target.appendChild(continueButton)
+      }
+      await reCheckNow()
      } catch (e) {
       alert(
        e.message ??
@@ -1340,179 +1395,66 @@ function createSession() {
       )
       e.target.removeChild(waitingMessage)
      } finally {
-      e.target.email.disabled = false
+      e.target.url.disabled = false
       sendEmailButton.disabled = false
      }
     },
    },
-  }),
-  elem({
-   tagName: 'h4',
-   textContent: 'Or, verify with LinkedIn:',
-  }),
-  elem({
-   tagName: 'form',
-   children: [
-    elem({
-     events: {
-      click: createSessionLinkedIn,
-     },
-     tagName: 'button',
-     textContent: 'Verify with LinkedIn',
-    }),
-   ],
   })
  )
 }
 
-async function createSessionEmail(email) {
- const body = JSON.stringify({ email })
- const response = await fetch(
-  `${networkRootUrl()}/auth-email-init`,
-  {
-   method: 'POST',
-   body,
-   headers: {
-    'Content-Type': 'application/json',
-    'Content-Length': body.length,
-   },
-  }
- )
- if (!response.ok) {
-  throw new Error(await response.text())
- }
- const data = await response.json()
- if (!data.success) {
-  throw new Error(
-   data.message ?? JSON.stringify(data)
-  )
- }
- return data.id
-}
-
-async function completeSessionEmail(uniqueId) {
- const sessionId = randomId()
- const completeFetchBody = JSON.stringify({
-  id: uniqueId,
-  sessionId,
+async function createSessionWithKVUrl(
+ url,
+ expectedCode
+) {
+ console.log({
+  message: 'now checking url: ' + url,
  })
- const completeResponse = await fetch(
-  `${networkRootUrl()}/auth-email-complete`,
-  {
-   method: 'POST',
-   body: completeFetchBody,
-   headers: {
-    'Content-Length':
-     completeFetchBody.length.toString(10),
-    'Content-Type': 'application/json',
-   },
+ const response = await fetch(url)
+ if (!response.ok) {
+  return {
+   success: false,
+   error: `Got response code ${response.status}} ${response.statusText}`,
   }
- )
- if (!completeResponse.ok) {
-  await politeAlert(
-   `There was a problem: ${await completeResponse.text()}`
-  )
-  return
- } else {
-  const completeResponseBody =
-   await completeResponse.json()
-  if (
-   !completeResponseBody ||
-   typeof completeResponseBody.key !== 'string'
-  ) {
-   await politeAlert(
-    'The log in request was not completed'
-   )
-   return
+ }
+ const responseText = await response.text()
+ if (expectedCode !== responseText) {
+  return {
+   success: false,
+   error: `Expected ${JSON.stringify(
+    responseText
+   )} to be ${JSON.stringify(expectedCode)}`,
   }
-  const { loginRequest, key } =
-   completeResponseBody
-  const { email } = loginRequest
-  const newSession = {
-   id: sessionId,
-   email,
-   hash: location.hash,
-  }
-  writeSessions([...listSessions(), newSession])
-  const createdAppAccount =
-   appAccounts.add(newSession)
-  await registerSessionWithKey(sessionId, key)
-  createdAppAccount.switchTo()
+ }
+ const sessionId = randomId()
+ const newSession = {
+  id: sessionId,
+  url,
+  hash: location.hash,
+ }
+ writeSessions([...listSessions(), newSession])
+ const createdAppAccount =
+  appAccounts.add(newSession)
+ await registerSessionWithUrl(sessionId, url)
+ createdAppAccount.switchTo()
+ return {
+  success: true,
+  data: newSession,
  }
 }
 
-function createSessionLinkedIn() {
- const id = randomId()
- const { hash, origin } = location
- writeSessions([
-  ...listSessions(),
-  {
-   id,
-   hash,
-  },
- ])
- setActiveSessionId(id)
- location.href = `https://tagme.in/auth-linkedin-init?state=${encodeURIComponent(
-  JSON.stringify({ id, origin })
- )}`
-}
-
-function forkSession(session, realm, name) {
- const id = randomId()
- const { accessToken, email } = session
- const created = Date.now()
-
- const forkedSession = {
-  id,
-  hash: '',
-  accessToken,
-  created,
-  email,
-  realm,
-  name,
- }
-
- writeSessions([
-  ...listSessions(),
-  forkedSession,
- ])
-
- return forkedSession
-}
-
-async function registerSessionWithKey(
+async function registerSessionWithUrl(
  sessionId,
- key
+ url
 ) {
  const session = readSession(sessionId)
- if (session && !session.accessToken) {
-  const response = await fetch(
-   'https://tagme.in/auth-init',
-   {
-    method: 'POST',
-    body: JSON.stringify({
-     id: sessionId,
-     key,
-    }),
-    headers: {
-     'Content-Type': 'application/json',
-    },
-   }
-  )
-  const data = await response.json()
-  const newSession = {
-   ...session,
-   ...data,
-  }
-  writeSession(sessionId, newSession)
-  const realm = realms.find(
-   (x) => x.session.id === sessionId
-  )
-  realm.realmTabLabel.textContent =
-   newSession.email
-  location.hash = session.hash
-  return true
- }
+ const realm = realms.find(
+  (x) => x.session.id === sessionId
+ )
+ realm.realmTabLabel.textContent = session.url
+ location.hash = session.hash
+ return true
 }
 
 async function registerSession(
@@ -1520,42 +1462,14 @@ async function registerSession(
  control
 ) {
  const session = readSession(sessionId)
- if (session && !session.accessToken) {
-  if (!control.startsWith('#key=')) {
-   console.warn(
-    'control did not include key',
-    control
-   )
-   location.hash = session.hash
-   return true
-  }
-  const response = await fetch(
-   'https://tagme.in/auth-init',
-   {
-    method: 'POST',
-    body: JSON.stringify({
-     id: sessionId,
-     key: control.substring('#key='.length),
-    }),
-    headers: {
-     'Content-Type': 'application/json',
-    },
-   }
-  )
-  const data = await response.json()
-  const newSession = {
-   ...session,
-   ...data,
-  }
-  writeSession(sessionId, newSession)
-  const realm = realms.find(
-   (x) => x.session.id === sessionId
-  )
-  realm.realmTabLabel.textContent =
-   newSession.email
-  location.hash = session.hash
-  return true
- }
+ const realm = realms.find(
+  (x) => x.session.id === sessionId
+ )
+ realm.realmTabLabel.textContent = new URL(
+  session.url
+ ).host
+ location.hash = session.hash
+ return true
 }
 
 function scrollToTop(top = 0) {

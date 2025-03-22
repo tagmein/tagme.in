@@ -8,6 +8,7 @@ export const onRequestGet: PagesFunction<
 > = async (context) => {
  const url = new URL(context.request.url)
  const chunkId = url.searchParams.get('chunk')
+ const kvUrl = url.searchParams.get('kv')
  const includeNewMessages =
   url.searchParams.get('include') === 'new'
 
@@ -26,7 +27,7 @@ export const onRequestGet: PagesFunction<
   )
  }
 
- const kv = await getKV(context)
+ const kv = await getKV(context, true, kvUrl)
 
  if (!kv) {
   return new Response(
