@@ -75,7 +75,7 @@ async function fetchReactions() {
  try {
   const activeSession = getActiveSession()
   const response = await fetch(
-   `${networkRootUrl()}/reactions${
+   `${networkRootUrl(env)}/reactions${
     activeSession?.url
      ? `?kv=${encodeURIComponent(
         activeSession?.url
@@ -216,7 +216,7 @@ async function addReaction(
  try {
   const activeSession = getActiveSession()
   const response = await fetch(
-   `${networkRootUrl()}/reactions${
+   `${networkRootUrl(env)}/reactions${
     activeSession?.url
      ? `?kv=${encodeURIComponent(
         activeSession?.url
