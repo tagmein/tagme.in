@@ -3,9 +3,29 @@
  <head>
   <meta charset="utf-8" />
   <meta
+   id="meta:viewport"
    name="viewport"
    content="width=device-width, initial-scale=1"
   />
+  <script>
+   const metaViewport = document.getElementById(
+    'meta:viewport'
+   )
+   globalThis.setZoom = (
+    level /*: number*/ = 1
+   ) => {
+    localStorage.setItem('zoom', level)
+    metaViewport.setAttribute(
+     'content',
+     `width=device-width, initial-scale=${level}`
+    )
+   }
+   const lastSetZoom =
+    localStorage.getItem('zoom')
+   if (lastSetZoom !== null) {
+    globalThis.setZoom(parseFloat(lastSetZoom))
+   }
+  </script>
   <link
    id="favicon"
    rel="shortcut icon"
@@ -13,6 +33,15 @@
    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///8AAABVwtN+AAAAK0lEQVQI12P4/5/h/0eG/79B6O9thj+zGf5IM/wNZGC9z3AXjO7/R6D//wGWfRuJudGK0QAAAABJRU5ErkJggg=="
   />
   <link rel="manifest" href="manifest.json" />
+  <script>
+   globalThis.env = {
+    // TAGMEIN_LOCAL_KV: 'true',
+    // TAGMEIN_LOCAL_KV_BASEURL:
+    //  'https://tagme.in',
+    //  'http://localhost:8788',
+    //  'http://localhost:8787',
+   }
+  </script>
   <title>Tag Me In</title>
   <style>
    html {
@@ -245,6 +274,26 @@
      With kindness and hope in heart and mind,
     </p>
     <p>Nate</p>
+   </details>
+   <details>
+    <summary>Tools</summary>
+    <p>
+     Mobile only zoom level
+     <a onclick="setZoom(0.25)">¼</a>
+     •<a onclick="setZoom(1/3)">⅓</a> •<a
+      onclick="setZoom(0.5)"
+      >½</a
+     >
+     •<a onclick="setZoom(2/3)">⅔</a> •<a
+      onclick="setZoom(0.75)"
+      >¾</a
+     >
+     •<a onclick="setZoom(1)">1</a> •<a
+      onclick="setZoom(1.5)"
+      >1½</a
+     >
+     •<a onclick="setZoom(2)">2</a>
+    </p>
    </details>
   </footer>
   <noscript>JavaScript is required</noscript>

@@ -426,7 +426,9 @@ async function addOpenGraphLink(
 
  try {
   const tagResponse = await fetch(
-   `${networkRootUrl()}/og?url=${encodeURIComponent(
+   `${networkRootUrl(
+    env
+   )}/og?url=${encodeURIComponent(
     urlMatch[0]
    )}${
     activeSession?.url
@@ -955,7 +957,6 @@ async function networkChannelSeek(
 ) {
  const headers = {}
  const activeSession = getActiveSession()
- console.log({ activeSession })
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
@@ -965,7 +966,7 @@ async function networkChannelSeek(
  }
  const response = await fetch(
   `${networkRootUrl(
-   'seek'
+   env
   )}/seek?channel=${encodeURIComponent(
    channel
   )}&hour=${hour}${
@@ -1015,7 +1016,7 @@ async function networkMessageSend(
   }
  }
  const resp = await fetch(
-  `${networkRootUrl()}/send${
+  `${networkRootUrl(env)}/send${
    typeof activeSession?.url === 'string'
     ? `?kv=${encodeURIComponent(
        activeSession?.url
@@ -1035,7 +1036,7 @@ async function networkMessageSend(
   window.h = error
   console.error({
    error,
-   url: `${networkRootUrl()}/send`,
+   url: `${networkRootUrl(env)}/send`,
   })
   alert(error)
   return false
@@ -1065,7 +1066,7 @@ async function networkMessageUnsend(
   }
  }
  const resp = await fetch(
-  `${networkRootUrl()}/unsend${
+  `${networkRootUrl(env)}/unsend${
    typeof activeSession?.url === 'string'
     ? `?kv=${encodeURIComponent(
        activeSession?.url
@@ -1086,17 +1087,11 @@ async function networkMessageUnsend(
  return await resp.text()
 }
 
-function networkRootUrl(keyword) {
- if (keyword === 'seek') {
-  return location.origin ===
-   'http://localhost:8000'
-   ? 'http://localhost:8787'
-   : ''
- }
- return location.origin ===
-  'http://localhost:8000'
-  ? 'https://tagme.in'
-  : ''
+function networkRootUrl(env) {
+ return env.TAGMEIN_LOCAL_KV === 'true'
+  ? env.TAGMEIN_LOCAL_KV_BASEURL ??
+     'http://localhost:3333'
+  : 'https://tagme.in'
 }
 
 async function getNews(chunk, callback) {
@@ -1112,7 +1107,7 @@ async function getNews(chunk, callback) {
  const hasChunk =
   typeof chunk === 'number' && !isNaN(chunk)
  const response = await fetch(
-  `${networkRootUrl()}/news${
+  `${networkRootUrl(env)}/news${
    hasChunk
     ? `?chunk=${chunk.toString(36)}`
     : ''
