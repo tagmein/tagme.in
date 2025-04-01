@@ -1088,10 +1088,7 @@ async function networkMessageUnsend(
 }
 
 function networkRootUrl(env) {
- return env.TAGMEIN_LOCAL_KV === 'true'
-  ? env.TAGMEIN_LOCAL_KV_BASEURL ??
-     'http://localhost:3333'
-  : 'https://tagme.in'
+ return env.TAGMEIN_API_BASEURL ?? ''
 }
 
 async function getNews(chunk, callback) {

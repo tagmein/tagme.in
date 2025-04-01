@@ -6,5 +6,8 @@
   "express": "^4.21.2",
   "tsx": "^4.19.2"
  },
- "type": "module"
+ "type": "module",
+ "dependencies": {
+  "dotenv": "^16.4.7"
+ }
 }
