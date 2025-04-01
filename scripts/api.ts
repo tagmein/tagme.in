@@ -1,24 +1,7 @@
-import { config } from 'dotenv'
 import express from 'express'
 import fs from 'fs/promises'
-import path, { resolve } from 'path'
+import path from 'path'
 import { pathToFileURL } from 'url'
-
-/**
- * Load environment variables from .dev.vars file
- */
-const rootDir = resolve(process.cwd())
-const envFileName = '.dev.vars'
-const devVarsPath = resolve(
- rootDir,
- envFileName
-)
-console.log(
- `Reading environment variables from ${devVarsPath}`
-)
-config({
- path: devVarsPath,
-})
 
 /**
  * The Express app that will serve both our static files and API endpoints.
@@ -26,28 +9,20 @@ config({
 const app = express()
 
 /**
+ * Use the PORT environment variable, falling mback to 8787.
+ * Note: Express expects a number.
+ */
+const port = Number(process.env.PORT || 8787)
+
+/**
  * Simulated environment object.
- * Extend this object with your KV emulation and
- * other Cloudflare bindings as needed.
+ * Extend this object with your KV emulation and other Cloudflare bindings as needed.
  */
 const env = {
  // Example: You can add your KV bindings or other environment variables here.
  // authKV: createLocalKV('auth'),
- TAGMEIN_LOCAL_KV: process.env.TAGMEIN_LOCAL_KV,
- TAGMEIN_LOCAL_KV_BASEURL:
-  process.env.TAGMEIN_LOCAL_KV_BASEURL,
- PORT: 8787,
-}
-
-/**
- * Use the PORT environment variable, falling back to 8787.
- * Note: Express expects a number.
- */
-if (typeof process.env.PORT === 'string') {
- const portInteger = parseInt(process.env.PORT)
- if (!isNaN(portInteger)) {
-  env.PORT = portInteger
- }
+ // TAGMEIN_LOCAL_KV: 'true',
+ // TAGMEIN_LOCAL_KV_BASEURL: 'http://localhost:3333',
 }
 
 /**
@@ -270,17 +245,9 @@ async function main() {
  )
  app.use(express.static(publicDir))
 
- /**
-  * Report the final environment variable object
-  */
- console.log('Environment variables')
- console.dir(env, { depth: 2 })
-
  // Start the server.
- app.listen(env.PORT, () => {
-  console.log(
-   `Server running on http://127.0.0.1:${env.PORT}`
-  )
+ app.listen(port, () => {
+  console.log(`Server running on port ${port}`)
  })
 }
 
