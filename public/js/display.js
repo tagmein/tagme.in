@@ -47,6 +47,90 @@ function displayAppAccounts() {
   },
  })
 
+// Assuming you want to add the chat button near the realm tabs
+function displayAppAccounts() {
+  const globalRealmTab = elem({
+      classes: ['realm'],
+      children: [
+          icon('globe', 'sm'),
+          elem({
+              tagName: 'span',
+              textContent: 'Earth',
+          }),
+      ],
+      events: {
+          click() {
+              globalRealmTab.scrollIntoView({
+                  behavior: 'smooth',
+                  inline: 'nearest',
+              });
+              const sessionId = getActiveSessionId();
+              if (sessionId !== PUBLIC_SESSION_ID) {
+                  const activeRealm = realms.find(
+                      (r) => sessionId === r.session.id
+                  );
+                  if (activeRealm?.session.id !== PUBLIC_SESSION_ID) {
+                      secondMostRecentRealm = activeRealm.session.id;
+                  }
+                  const activeRealmTab =
+                      activeRealm?.realmTab ?? globalRealmTab;
+                  activeRealmTab.classList.remove('active');
+                  globalRealmTab.classList.add('active');
+              }
+              setActiveSessionId(PUBLIC_SESSION_ID);
+          },
+      },
+  });
+
+  // Create the Chat Button here and add it to the globalRealmTab
+  const chatButton = elem({
+      tagName: 'button',
+      textContent: '🗨️ Chat',
+      classes: ['btn-chat'],
+      events: {
+          click() {
+              openChatInterface();  // Call to open the chat interface
+          },
+      },
+  });
+
+  // Append the chat button to the realm navigation area
+  const realmTabHeader = document.querySelector('.realm-tab-header');
+  if (realmTabHeader) {
+      realmTabHeader.appendChild(chatButton); // Append the button to the header
+  }
+
+  function openChatInterface() {
+      const chatWindow = document.createElement('div');
+      chatWindow.classList.add('chat-window');
+      chatWindow.innerHTML = `
+          <div class="chat-header">
+              <span>AI Chat</span>
+              <button onclick="closeChatInterface()">X</button>
+              <button onclick="showChatMenu()">Menu</button>
+          </div>
+          <div class="chat-messages"></div>
+          <input type="text" id="chat-input" placeholder="Type a message...">
+          <button onclick="sendMessage()">Send</button>
+          <div class="chat-menu" style="display:none;">
+              <button onclick="deleteChat()">Delete Chat</button>
+              <button onclick="resetToTagMeIn()">Reset to Tag Me In chatbot</button>
+          </div>
+      `;
+      document.body.appendChild(chatWindow);
+  }
+
+  function closeChatInterface() {
+      const chatWindow = document.querySelector('.chat-window');
+      if (chatWindow) {
+          chatWindow.remove();
+      }
+  }
+
+  // Optional: Add more actions for the chat like sending messages, showing menu etc.
+}
+s
+
  function addAccount(session) {
   const realmTabLabel = elem({
    attributes: {
