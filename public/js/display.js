@@ -1694,11 +1694,14 @@ function attachNewsMessage(
    reactionMessage:
     reactionMessage.toLowerCase(),
   }
- } else if (isReply) {
-  addTextBlocks(content, message)
-  addYouTubeEmbed(content, message)
-  addImageEmbed(content, message)
-  addOpenGraphLink(content, message)
+ }
+
+ addTextBlocks(content, message)
+ addYouTubeEmbed(content, message)
+ addImageEmbed(content, message)
+ addOpenGraphLink(content, message)
+
+ if (isReply) {
   const [parentChannel, parentMessage] = channel
    .substring(8)
    .split(':')
