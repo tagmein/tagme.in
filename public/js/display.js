@@ -6,8 +6,8 @@ const allLabels = globalThis.STATUS_LABELS
 
 // console.log({ allLabels })
 
+const LABEL_PREFIX = 'labels@'
 const MESSAGE_PERSIST_THRESHOLD = 5
-
 const REACTION_PREFIX =
  'reactions:message-channel-message-'
 
@@ -1488,18 +1488,104 @@ function attachNewsMessage(
  { message, channel, seen }
 ) {
  const content = elem()
+ const isLabel =
+  channel.startsWith(LABEL_PREFIX)
  const isReaction = channel.startsWith(
   'reactions:message-'
  )
- addTextBlocks(content, message, (x) =>
-  isReaction && x.startsWith('reaction')
-   ? x.substring('reaction'.length)
-   : x
- )
- addYouTubeEmbed(content, message)
- addImageEmbed(content, message)
- addOpenGraphLink(content, message)
- if (isReaction) {
+ const isReply = channel.startsWith('replies@')
+ if (isLabel) {
+  const labelSpan = elem({
+   tagName: 'span',
+   textContent: message.replace('status:', ''),
+  })
+  content.classList.add('label')
+  content.classList.add('message-labels')
+  content.appendChild(labelSpan)
+  const [labelChannel, labelMessage] = channel
+   .substring(LABEL_PREFIX.length)
+   .split('#', 2)
+   .map(decodeURIComponent)
+
+  const messageLink = `/#/${encodeURIComponent(
+   labelChannel
+  )}/${btoa(encodeURIComponent(labelMessage))}`
+
+  const labelChannelContainer = elem({
+   attributes: {
+    href: messageLink,
+   },
+   classes: ['news-channel'],
+   events: {
+    click() {
+     const { channel: currentChannel } =
+      getUrlData()
+     focusOnMessage = message
+     if (labelChannel === currentChannel) {
+      route()
+     }
+    },
+   },
+   tagName: 'a',
+   textContent: `#${
+    labelChannel === ''
+     ? HOME_CHANNEL_ICON
+     : labelChannel
+   }`,
+  })
+  const labelContent = elem({
+   attributes: {
+    title:
+     'This is the message that was labeled',
+   },
+   children: [labelChannelContainer],
+   classes: ['labeled'],
+   tagName: 'blockquote',
+  })
+  addTextBlocks(labelContent, labelMessage)
+  addYouTubeEmbed(labelContent, labelMessage)
+  addImageEmbed(labelContent, labelMessage)
+  addOpenGraphLink(labelContent, labelMessage)
+  const dateContainer = elem({
+   attributes: {
+    href: messageLink,
+    title: new Date(seen).toString(),
+   },
+   classes: ['news-date'],
+   events: {
+    click() {
+     const { channel: currentChannel } =
+      getUrlData()
+     focusOnMessage = message
+     if (labelChannel === currentChannel) {
+      route()
+     }
+    },
+   },
+   tagName: 'a',
+   textContent: localDateTime(new Date(seen)),
+  })
+  const article = elem({
+   children: [content, labelContent],
+   tagName: 'article',
+  })
+  const newsItem = elem({
+   classes: ['news', 'label-message'],
+   children: [article, dateContainer],
+  })
+  container.appendChild(newsItem)
+  return {
+   channel: '#' + labelChannel.toLowerCase(),
+   element: newsItem,
+   message: message.toLowerCase(),
+   labelMessage: labelMessage.toLowerCase(),
+  }
+ } else if (isReaction) {
+  addTextBlocks(content, message, (x) =>
+   isReaction && x.startsWith('reaction')
+    ? x.substring('reaction'.length)
+    : x
+  )
   content.classList.add('reaction-reaction')
   /*
   Incoming channel name:
@@ -1608,9 +1694,11 @@ function attachNewsMessage(
    reactionMessage:
     reactionMessage.toLowerCase(),
   }
- }
- const isReply = channel.startsWith('replies@')
- if (isReply) {
+ } else if (isReply) {
+  addTextBlocks(content, message)
+  addYouTubeEmbed(content, message)
+  addImageEmbed(content, message)
+  addOpenGraphLink(content, message)
   const [parentChannel, parentMessage] = channel
    .substring(8)
    .split(':')
@@ -1641,6 +1729,10 @@ function attachNewsMessage(
    }`,
   })
   const parentContent = elem({
+   attributes: {
+    title:
+     'This is the message that was replied to',
+   },
    children: [parentChannelContainer],
    classes: ['reply'],
    tagName: 'blockquote',
