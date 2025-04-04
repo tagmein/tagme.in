@@ -1291,6 +1291,18 @@ body[data-mode='activity']
  text-overflow: ellipsis;
 }
 
+body[data-mode='activity']
+ .news
+ > article
+ > div.message-labels {
+ background-color: var(--color-bg-medium-dark);
+ display: block;
+ font-size: 120%;
+ margin: 10px 0;
+ overflow: hidden;
+ text-overflow: ellipsis;
+}
+
 .news-channel {
  float: left;
  margin-right: 4px;
@@ -1326,6 +1338,7 @@ main.mode-main article {
   var(--color-shadow-dark);
  display: block;
  font-size: 14px;
+ margin-bottom: 20px;
  margin-left: 1px;
  margin-right: 1px;
  padding: 8px;
@@ -1374,14 +1387,31 @@ body.light-mode .news-date::after {
  opacity: 1;
 }
 
-.reply {
+.reply,
+.labeled {
  margin-left: 50px;
  position: relative;
 }
 
 .reply::before {
- background-color: var(--color-bg-light);
  background-image: url(./icons/reply.svg);
+}
+
+.labeled::before {
+ background-image: url(./icons/label.svg);
+}
+
+body.light-mode .reply::before {
+ background-image: url(./icons/reply-light.svg);
+}
+
+body.light-mode .labeled::before {
+ background-image: url(./icons/label-light.svg);
+}
+
+.reply::before,
+.labeled::before {
+ background-color: var(--color-bg-light);
  border-radius: 20px;
  border: 2px solid var(--color-text-primary);
  content: '';
@@ -1393,10 +1423,6 @@ body.light-mode .news-date::after {
  position: absolute;
  top: 5px;
  width: 36px;
-}
-
-body.light-mode .reply::before {
- background-image: url(./icons/reply-light.svg);
 }
 
 body button.input-icon {
