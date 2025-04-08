@@ -1,35 +1,48 @@
-import { handleRequest } from "../api/handler";
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { civilMemoryKV } from '@tagmein/civil-memory';
 
-type Env = { GEMINI_API_KEY: string; };
+const app = new Hono();
 
-export const onRequest: PagesFunction<Env> = async (context) => {
-    const { request, env } = context;
-    const url = new URL(request.url);
-    const channel = url.searchParams.get("channel");
-    const message = url.searchParams.get("message");
+// Enable CORS for all routes
+app.use('*', cors());
 
-    // Error if no message is provided
-    if (!message) {
-        return new Response(JSON.stringify({ error: "Message is required" }), { status: 400 });
+// Root route
+app.get('/', (c) => {
+    console.log('Root route accessed');
+    return c.text('Hello, Hono!');
+});
+
+// Chat route
+app.get('/chat', async (c) => {
+    console.log('Chat route accessed');
+    const channel = c.req.query('channel') || 'default';
+    const message = c.req.query('message');
+
+    try {
+        const kv = civilMemoryKV.http({ baseUrl: process.env.CIVIL_MEMORY_BASE_URL || 'http://localhost:3333' });
+
+        // Fetch data in parallel
+        const [channelData, messageData, allMessages] = await Promise.all([
+            kv.get(`channel#${channel}`),
+            message ? kv.get(`message#${message}`) : Promise.resolve(null),
+            kv.get(`seek#${channel}#999999999`),
+        ]);
+
+        const response = {
+            channel,
+            message,
+            reply: `This is a simulated response for channel: ${channel}, message: ${message || 'N/A'}`,
+            context: allMessages || 'No messages found in the channel.',
+        };
+
+        console.log('Response:', response);
+        return c.json(response);
+    } catch (error) {
+        console.error("Error fetching data from civilMemoryKV:", error);
+        return c.json({ error: 'Failed to fetch data from civilMemoryKV' }, 500);
     }
+});
 
-    let prompt = channel ? `Context: Messages from channel ${channel}. User message: ${message}` : `User message: ${message}`;
-
-    // If a channel is specified, get previous messages for context
-    if (channel) {
-        const messagesResponse = await fetch(`https://api.example.com/seek?channel=${channel}&hour=999999999`);
-        const messages = await messagesResponse.json();
-        const channelMessages = messages.slice(0, 5).map(msg => msg.text).join("\n");
-        prompt += `\nPrevious channel messages:\n${channelMessages}`;
-    }
-
-    // Request to Gemini API
-    const response = await fetch("https://gemini.googleapis.com/v1/models/gemini-1:generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${env.GEMINI_API_KEY}` },
-        body: JSON.stringify({ prompt })
-    });
-
-    const result = await response.json();
-    return new Response(JSON.stringify({ response: result.choices?.[0]?.text || "No response" }), { status: 200 });
-};
+// Export the fetch handler for Cloudflare Workers
+export default app.fetch;
