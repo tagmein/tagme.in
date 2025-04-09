@@ -11,7 +11,7 @@ interface ListBody {
 }
 
 async function validateListBody(
- request: Request,
+ request: Request
 ): Promise<{ error?: string; data: ListBody }> {
  try {
   const data: ListBody = await request.json()
@@ -22,7 +22,7 @@ async function validateListBody(
   if (typeof data.collectionName !== 'string') {
    return {
     error: 'collectionName must be a string',
-    data,
+    data
    }
   }
 
@@ -33,7 +33,7 @@ async function validateListBody(
    return {
     error:
      'fieldList must be an array of strings',
-    data,
+    data
    }
   }
 
@@ -43,7 +43,7 @@ async function validateListBody(
   ) {
    return {
     error: 'skip must be a number',
-    data,
+    data
    }
   }
 
@@ -53,7 +53,7 @@ async function validateListBody(
   ) {
    return {
     error: 'limit must be a number',
-    data,
+    data
    }
   }
 
@@ -62,7 +62,7 @@ async function validateListBody(
   return {
    error:
     'unable to parse incoming JSON post body',
-   data: { collectionName: '' },
+   data: { collectionName: '' }
   }
  }
 }
@@ -76,8 +76,8 @@ export const onRequestPost: PagesFunction<
    collectionName,
    fieldList,
    skip,
-   limit,
-  },
+   limit
+  }
  } = await validateListBody(context.request)
 
  if (error) {
@@ -94,10 +94,10 @@ export const onRequestPost: PagesFunction<
    JSON.stringify({ error: 'not authorized' }),
    {
     headers: {
-     'Content-Type': 'application/json',
+     'Content-Type': 'application/json'
     },
-    status: 401,
-   },
+    status: 401
+   }
   )
  }
 
@@ -106,27 +106,27 @@ export const onRequestPost: PagesFunction<
    collectionName,
    fieldList,
    skip,
-   limit,
+   limit
   )
   return new Response(
    JSON.stringify({ items }),
    {
     headers: {
-     'Content-Type': 'application/json',
-    },
-   },
+     'Content-Type': 'application/json'
+    }
+   }
   )
  } catch (e) {
   return new Response(
    JSON.stringify({
-    error: e.message ?? 'unknown error',
+    error: e.message ?? 'unknown error'
    }),
    {
     headers: {
-     'Content-Type': 'application/json',
+     'Content-Type': 'application/json'
     },
-    status: 500,
-   },
+    status: 500
+   }
   )
  }
 }

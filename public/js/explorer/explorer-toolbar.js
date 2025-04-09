@@ -5,36 +5,36 @@ function explorerToolbar(
   onDelete,
   onViewModeChange,
   onNewItem,
-  onPageChange,
- },
+  onPageChange
+ }
 ) {
  const element = elem({
-  classes: ['explorer-toolbar'],
+  classes: ['explorer-toolbar']
  })
 
  const selectAllCheckbox = elem({
   attributes: {
-   type: 'checkbox',
+   type: 'checkbox'
   },
   tagName: 'input',
   classes: ['explorer-select-all'],
   events: {
    change: () => {
     onSelectAll(selectAllCheckbox.checked)
-   },
-  },
+   }
+  }
  })
  element.appendChild(selectAllCheckbox)
 
  const itemCountElement = elem({
   classes: ['explorer-item-count'],
-  textContent: 'Loading',
+  textContent: 'Loading'
  })
  element.appendChild(itemCountElement)
 
  const deleteButton = elem({
   attributes: {
-   disabled: true,
+   disabled: true
   },
   tagName: 'button',
   textContent: 'Delete',
@@ -42,62 +42,62 @@ function explorerToolbar(
   events: {
    click: () => {
     onDelete()
-   },
-  },
+   }
+  }
  })
  element.appendChild(deleteButton)
 
  const spacerLeft = elem({
-  classes: ['explorer-spacer'],
+  classes: ['explorer-spacer']
  })
  element.appendChild(spacerLeft)
 
  const paginationElement = elem({
-  classes: ['explorer-pagination'],
+  classes: ['explorer-pagination']
  })
 
  const previousPageButton = elem({
   attributes: {
-   disabled: true,
+   disabled: true
   },
   tagName: 'button',
   textContent: 'Previous',
   events: {
    click: () => {
     onPageChange(currentPage - 1)
-   },
-  },
+   }
+  }
  })
  paginationElement.appendChild(
-  previousPageButton,
+  previousPageButton
  )
 
  const pageNumberElement = elem({
   classes: ['explorer-page-number'],
-  textContent: 'Page 1',
+  textContent: 'Page 1'
  })
  paginationElement.appendChild(
-  pageNumberElement,
+  pageNumberElement
  )
 
  const nextPageButton = elem({
   attributes: {
-   disabled: true,
+   disabled: true
   },
   tagName: 'button',
   textContent: 'Next',
   events: {
    click: () => {
     onPageChange(currentPage + 1)
-   },
-  },
+   }
+  }
  })
  paginationElement.appendChild(nextPageButton)
 
  element.appendChild(paginationElement)
 
  const spacerRight = elem({
-  classes: ['explorer-spacer'],
+  classes: ['explorer-spacer']
  })
  element.appendChild(spacerRight)
 
@@ -114,7 +114,7 @@ function explorerToolbar(
 
  const emptyMode = elem({
   tagName: 'option',
-  textContent: '',
+  textContent: ''
  })
  const viewModeSelect = elem({
   tagName: 'select',
@@ -122,7 +122,7 @@ function explorerToolbar(
   events: {
    change: () => {
     onViewModeChange(viewModeSelect.value)
-   },
+   }
   },
   children: [
    emptyMode,
@@ -130,17 +130,17 @@ function explorerToolbar(
     tagName: 'option',
     textContent: 'List',
     attributes: {
-     value: 'list-view',
-    },
+     value: 'list-view'
+    }
    }),
    elem({
     tagName: 'option',
     textContent: 'Grid',
     attributes: {
-     value: 'grid-view',
-    },
-   }),
-  ],
+     value: 'grid-view'
+    }
+   })
+  ]
  })
  element.appendChild(viewModeSelect)
 
@@ -153,8 +153,8 @@ function explorerToolbar(
     if (name) {
      onNewItem(name)
     }
-   },
-  },
+   }
+  }
  })
  element.appendChild(newItemButton)
 
@@ -189,6 +189,6 @@ function explorerToolbar(
   updateItemCount,
   updatePagination,
   updateSelectAllCheckbox,
-  updateViewMode,
+  updateViewMode
  }
 }

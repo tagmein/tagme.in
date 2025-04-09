@@ -11,7 +11,7 @@ var __awaiter =
   }
   return new (P || (P = Promise))(function (
    resolve,
-   reject,
+   reject
   ) {
    function fulfilled(value) {
     try {
@@ -32,14 +32,14 @@ var __awaiter =
      ? resolve(result.value)
      : adopt(result.value).then(
         fulfilled,
-        rejected,
+        rejected
        )
    }
    step(
     (generator = generator.apply(
      thisArg,
-     _arguments || [],
-    )).next(),
+     _arguments || []
+    )).next()
    )
   })
  }
@@ -53,7 +53,7 @@ var __generator =
      return t[1]
     },
     trys: [],
-    ops: [],
+    ops: []
    },
    f,
    y,
@@ -62,7 +62,7 @@ var __generator =
     (typeof Iterator === 'function'
      ? Iterator
      : Object
-    ).prototype,
+    ).prototype
    )
   return (
    (g.next = verb(0)),
@@ -82,7 +82,7 @@ var __generator =
   function step(op) {
    if (f)
     throw new TypeError(
-     'Generator is already executing.',
+     'Generator is already executing.'
     )
    while ((g && ((g = 0), op[0] && (_ = 0)), _))
     try {
@@ -158,7 +158,7 @@ var __generator =
    if (op[0] & 5) throw op[1]
    return {
     value: op[0] ? op[1] : void 0,
-    done: true,
+    done: true
    }
   }
  }
@@ -189,7 +189,7 @@ export function volatileKV() {
        : _b.call(namespaceMap, keyName)
       return [2 /*return*/]
      })
-    },
+    }
    )
   },
   get: function (key) {
@@ -208,10 +208,10 @@ export function volatileKV() {
        return [2 /*return*/, null]
       return [
        2 /*return*/,
-       namespaceMap.get(keyName),
+       namespaceMap.get(keyName)
       ]
      })
-    },
+    }
    )
   },
   set: function (key, value) {
@@ -233,8 +233,8 @@ export function volatileKV() {
       namespaceMap.set(keyName, value)
       return [2 /*return*/]
      })
-    },
+    }
    )
-  },
+  }
  }
 }

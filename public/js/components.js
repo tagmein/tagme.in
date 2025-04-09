@@ -1,14 +1,14 @@
 function tabStrip(currentTabKey, setTabKey) {
  const element = elem({
-  classes: ['tab-strip'],
+  classes: ['tab-strip']
  })
  const tabsContainer = elem({
   classes: ['tabs-container'],
   children: [
    elem({
-    classes: ['tab-spacer'],
-   }),
-  ],
+    classes: ['tab-spacer']
+   })
+  ]
  })
  element.appendChild(tabsContainer)
 
@@ -18,7 +18,7 @@ function tabStrip(currentTabKey, setTabKey) {
   key,
   label,
   contentHandler,
-  switchToHandler,
+  switchToHandler
  ) {
   const tab = elem({
    classes: ['tab'],
@@ -26,30 +26,30 @@ function tabStrip(currentTabKey, setTabKey) {
    events: {
     async click() {
      await switchTo(tabObject)
-    },
-   },
+    }
+   }
   })
   tabsContainer.appendChild(tab)
   const tabObject = {
    key,
    tab,
    contentHandler,
-   switchToHandler,
+   switchToHandler
   }
   tabs.push(tabObject)
 
   return {
    switchTo: () => switchTo(tabObject),
-   remove: () => remove(tabObject),
+   remove: () => remove(tabObject)
   }
  }
 
  async function switchTo(
   tabObject,
-  switchTo = true,
+  switchTo = true
  ) {
   tabs.forEach(({ tab: t }) =>
-   t.classList.remove('active'),
+   t.classList.remove('active')
   )
   tabObject.tab.classList.add('active')
   tabObject.contentHandler.switchTo()
@@ -64,7 +64,7 @@ function tabStrip(currentTabKey, setTabKey) {
 
  function remove(tabObject) {
   const index = tabs.findIndex(
-   (t) => t === tabObject,
+   (t) => t === tabObject
   )
   if (index !== -1) {
    const { contentHandler } = tabs[index]
@@ -80,7 +80,7 @@ function tabStrip(currentTabKey, setTabKey) {
     if (newIndex >= 0) {
      const {
       tab: newTab,
-      contentHandler: newContentHandler,
+      contentHandler: newContentHandler
      } = tabs[newIndex]
      switchTo(newTab)
      newContentHandler.switchTo()
@@ -92,21 +92,21 @@ function tabStrip(currentTabKey, setTabKey) {
  async function activate() {
   tabsContainer.appendChild(
    elem({
-    classes: ['tab-spacer'],
-   }),
+    classes: ['tab-spacer']
+   })
   )
   const matchingTab = tabs.find(
-   (t) => t.key === currentTabKey,
+   (t) => t.key === currentTabKey
   )
   if (matchingTab) {
    await switchTo(
     matchingTab,
-    typeof lastKnownMode !== 'string',
+    typeof lastKnownMode !== 'string'
    )
   } else {
    await switchTo(
     tabs[0],
-    typeof lastKnownMode !== 'string',
+    typeof lastKnownMode !== 'string'
    )
   }
  }
@@ -114,13 +114,13 @@ function tabStrip(currentTabKey, setTabKey) {
  return {
   activate,
   add,
-  element,
+  element
  }
 }
 
 function tabContents() {
  const element = elem({
-  classes: ['tab-contents'],
+  classes: ['tab-contents']
  })
 
  let currentContent = null
@@ -164,13 +164,13 @@ function tabContents() {
 
   return {
    switchTo,
-   remove,
+   remove
   }
  }
 
  return {
   element,
-  add,
+  add
  }
 }
 
@@ -178,9 +178,9 @@ function icon(...names) {
  return elem({
   classes: [
    'icon',
-   ...names.map((name) => `icon-${name}`),
+   ...names.map((name) => `icon-${name}`)
   ],
-  tagName: 'span',
+  tagName: 'span'
  })
 }
 
@@ -194,7 +194,7 @@ const channelInput = elem({
   'data-tour':
    'See recently-visited channels, and switch to any channel.',
   maxlength: 25,
-  placeholder: 'Search channels',
+  placeholder: 'Search channels'
  },
  events: {
   blur() {
@@ -209,16 +209,16 @@ const channelInput = elem({
   },
   input() {
    autocompleteChannels.filter(
-    channelInput.value.trim(),
+    channelInput.value.trim()
    )
   },
   keydown({ key }) {
    if (key === 'Enter') {
     channelInput.blur()
    }
-  },
+  }
  },
- tagName: 'input',
+ tagName: 'input'
 })
 
 function cancelChannelInput() {
@@ -235,10 +235,10 @@ function cancelActivityFilterInput() {
 
 const loadingIndicator = elem({
  attributes: {
-  inditerminate: 'true',
+  inditerminate: 'true'
  },
  classes: ['loader'],
- tagName: 'progress',
+ tagName: 'progress'
 })
 
 let loaderCount = 0
@@ -251,7 +251,7 @@ async function withLoading(promise) {
   return data
  } catch (e) {
   await politeAlert(
-   e.message ?? e ?? 'Unknown error',
+   e.message ?? e ?? 'Unknown error'
   )
   return false
  } finally {
@@ -267,27 +267,27 @@ const themeSelectorThemeListContainer = elem({
  children: themeNames.map((themeName) =>
   elem({
    attributes: {
-    'data-theme': themeName,
+    'data-theme': themeName
    },
    children: [
-    document.createTextNode(themeName),
+    document.createTextNode(themeName)
    ],
    events: {
     click() {
      setTheme(themeName)
-    },
+    }
    },
-   tagName: 'button',
-  }),
- ),
+   tagName: 'button'
+  })
+ )
 })
 
 const themeSelectorOpacitySliderLabel = elem({
  classes: [
-  'theme-selector-opacity-slider-label',
+  'theme-selector-opacity-slider-label'
  ],
  tagName: 'label',
- textContent: 'Opacity',
+ textContent: 'Opacity'
 })
 
 const THEME_OPACITY_STORAGE_KEY =
@@ -308,31 +308,31 @@ const currentThemeOpacity =
 const themeSelectorOpacitySliderInput = elem({
  attributes: {
   type: 'range',
-  value: currentThemeOpacity,
+  value: currentThemeOpacity
  },
  classes: [
-  'theme-selector-opacity-slider-input',
+  'theme-selector-opacity-slider-input'
  ],
  events: {
   input() {
    localStorage.setItem(
     THEME_OPACITY_STORAGE_KEY,
-    this.value,
+    this.value
    )
    //  themeFilter.style.opacity = (
    //   this.value / 100
    //  ).toString(10)
-  },
+  }
  },
- tagName: 'input',
+ tagName: 'input'
 })
 
 const themeSelectorOpacitySlider = elem({
  classes: ['theme-selector-opacity-slider'],
  children: [
   themeSelectorOpacitySliderLabel,
-  themeSelectorOpacitySliderInput,
- ],
+  themeSelectorOpacitySliderInput
+ ]
 })
 
 const themeSelectorResetButton = elem({
@@ -340,28 +340,28 @@ const themeSelectorResetButton = elem({
  events: {
   click() {
    localStorage.removeItem(
-    THEME_OPACITY_STORAGE_KEY,
+    THEME_OPACITY_STORAGE_KEY
    )
    themeSelectorOpacitySliderInput.value = 50
    setTheme('none')
-  },
+  }
  },
  tagName: 'button',
- textContent: 'Reset to default',
+ textContent: 'Reset to default'
 })
 
 const themeSelectorCloseButton = elem({
  dataset: {
-  themeBg: true,
+  themeBg: true
  },
  classes: ['theme-selector-close-button'],
  events: {
   click() {
    exitThemeSelector()
-  },
+  }
  },
  tagName: 'button',
- textContent: 'Done',
+ textContent: 'Done'
 })
 
 const themeSelector = elem({
@@ -370,8 +370,8 @@ const themeSelector = elem({
   themeSelectorThemeListContainer,
   // themeSelectorOpacitySlider,
   themeSelectorResetButton,
-  themeSelectorCloseButton,
- ],
+  themeSelectorCloseButton
+ ]
 })
 
 function exitThemeSelector() {
@@ -394,11 +394,11 @@ function enterThemeSelector() {
   currentThemeButton = document.querySelector(
    `button[data-theme="${
     currentTheme ?? 'none'
-   }"]`,
+   }"]`
   )
   currentThemeButton.scrollIntoView({
    behavior: 'smooth',
-   block: 'center',
+   block: 'center'
   })
   currentThemeButton.focus()
  }, 100)

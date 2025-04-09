@@ -2,12 +2,12 @@ function explorerItem(
  item,
  store,
  onUpdate,
- itemAction,
+ itemAction
 ) {
  const element = elem({
   classes: ['explorer-item'],
   dataset: {
-   id: item.id,
+   id: item.id
   },
   events: {
    click: (event) => {
@@ -19,26 +19,26 @@ function explorerItem(
      element.classList.toggle('selected')
     } else {
      Array.from(
-      element.parentNode.children,
+      element.parentNode.children
      ).forEach((item) => {
       item.classList.remove('selected')
      })
      element.classList.add('selected')
     }
     onUpdate()
-   },
-  },
+   }
+  }
  })
 
  const nameElement = elem({
   classes: ['explorer-item-name'],
-  textContent: item.name,
+  textContent: item.name
  })
  element.appendChild(nameElement)
 
  const noteElement = elem({
   attributes: {
-   title: 'Edit note',
+   title: 'Edit note'
   },
   classes: ['explorer-item-note'],
   textContent: item.note,
@@ -46,18 +46,18 @@ function explorerItem(
    async click() {
     const newNote = prompt(
      `"${item.name}" note`,
-     item.note,
+     item.note
     )
     if (typeof newNote === 'string') {
      await store.patch(item.id, {
       ...item,
-      note: newNote,
+      note: newNote
      })
      item.note = newNote
      noteElement.textContent = newNote
     }
-   },
-  },
+   }
+  }
  })
  element.appendChild(noteElement)
 
@@ -69,8 +69,8 @@ function explorerItem(
    events: {
     click() {
      itemAction.handler(item)
-    },
-   },
+    }
+   }
   })
   element.appendChild(actionButton)
  }

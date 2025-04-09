@@ -3,7 +3,7 @@ class ChatInterface {
   this.chatWindow = null
   this.chatHistory =
    JSON.parse(
-    localStorage.getItem('chatHistory'),
+    localStorage.getItem('chatHistory')
    ) || []
   this.chatUrl =
    chatUrl ||
@@ -18,17 +18,17 @@ class ChatInterface {
 
  addChatButtonToHeader() {
   const header = document.querySelector(
-   '.app-header',
+   '.app-header'
   )
   if (!header) {
    console.error(
-    'Error: .app-header element not found.',
+    'Error: .app-header element not found.'
    )
    return
   }
 
   console.log(
-   'Adding chat button to .app-header...',
+   'Adding chat button to .app-header...'
   )
   const chatButton =
    document.createElement('button')
@@ -86,34 +86,34 @@ class ChatInterface {
 
   this.chatHistory.push({
    user: 'You',
-   text: message,
+   text: message
   })
   localStorage.setItem(
    'chatHistory',
-   JSON.stringify(this.chatHistory),
+   JSON.stringify(this.chatHistory)
   )
   this.updateChatUI()
   input.value = ''
 
   console.log(
    'Sending message to:',
-   this.chatUrl,
+   this.chatUrl
   )
 
   fetch(this.chatUrl, {
    method: 'POST',
    headers: {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
    },
    body: JSON.stringify({
     channel: 'default',
-    message: message,
-   }),
+    message: message
+   })
   })
    .then((res) => {
     if (!res.ok) {
      throw new Error(
-      `HTTP error! status: ${res.status}`,
+      `HTTP error! status: ${res.status}`
      )
     }
     return res.json()
@@ -122,22 +122,21 @@ class ChatInterface {
     if (data.reply) {
      this.chatHistory.push({
       user: 'AI',
-      text: data.reply,
+      text: data.reply
      })
      localStorage.setItem(
       'chatHistory',
-      JSON.stringify(this.chatHistory),
+      JSON.stringify(this.chatHistory)
      )
      this.updateChatUI()
     } else {
      console.error(
       'No reply field in response:',
-      data,
+      data
      )
      this.chatHistory.push({
       user: 'System',
-      text:
-       'No reply received from the server.',
+      text: 'No reply received from the server.'
      })
      this.updateChatUI()
     }
@@ -145,11 +144,11 @@ class ChatInterface {
    .catch((err) => {
     console.error(
      'Error sending message:',
-     err.message,
+     err.message
     )
     this.chatHistory.push({
      user: 'System',
-     text: `Failed to send message: ${err.message}`,
+     text: `Failed to send message: ${err.message}`
     })
     this.updateChatUI()
    })
@@ -158,7 +157,7 @@ class ChatInterface {
  loadChatHistory() {
   const chatMessages =
    this.chatWindow.querySelector(
-    '.chat-messages',
+    '.chat-messages'
    )
   chatMessages.innerHTML = ''
   this.chatHistory.forEach((msg) => {
@@ -188,7 +187,7 @@ class ChatInterface {
   this.chatHistory = []
   localStorage.setItem(
    'chatHistory',
-   JSON.stringify(this.chatHistory),
+   JSON.stringify(this.chatHistory)
   )
   this.loadChatHistory()
  }

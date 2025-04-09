@@ -2,7 +2,7 @@ const lightDarkModeButton = elem({
  attributes: {
   'data-tour':
    'Switch between light and dark mode.',
-  title: 'Switch light/dark mode',
+  title: 'Switch light/dark mode'
  },
  children: [icon('sun')],
  events: {
@@ -10,22 +10,22 @@ const lightDarkModeButton = elem({
    e.stopPropagation()
    if (
     document.body.classList.contains(
-     'light-mode',
+     'light-mode'
     )
    ) {
     setLightMode(false)
    } else {
     setLightMode(true)
    }
-  },
+  }
  },
- tagName: 'button',
+ tagName: 'button'
 })
 
 const fullScreenButton = elem({
  attributes: {
   'data-tour': 'Toggle full screen.',
-  title: 'Toggle full screen',
+  title: 'Toggle full screen'
  },
  children: [icon('in')],
  events: {
@@ -38,9 +38,9 @@ const fullScreenButton = elem({
    } else {
     document.exitFullscreen()
    }
-  },
+  }
  },
- tagName: 'button',
+ tagName: 'button'
 })
 
 function setLightMode(lightMode) {
@@ -63,7 +63,7 @@ if (
 const chatButton = elem({
  attributes: {
   'data-tour': 'Open the AI Chat interface.',
-  title: 'Open Chat',
+  title: 'Open Chat'
  },
  children: [icon('chat')], // Replace 'chat' with the appropriate icon name or SVG
  events: {
@@ -73,12 +73,12 @@ const chatButton = elem({
     chatInterface.openChat() // Opens the chat interface
    } else {
     console.error(
-     'ChatInterface is not defined. Ensure chat.js is loaded.',
+     'ChatInterface is not defined. Ensure chat.js is loaded.'
     )
    }
-  },
+  }
  },
- tagName: 'button',
+ tagName: 'button'
 })
 
 const mainToolbar = elem({
@@ -87,22 +87,22 @@ const mainToolbar = elem({
   elem({
    attributes: {
     'data-tour':
-     'Go to the home channel, or back to the channel when viewing a message.',
+     'Go to the home channel, or back to the channel when viewing a message.'
    },
    children: [
     elem({
      classes: [
       'icon',
       'icon-home',
-      'display-on-channel',
+      'display-on-channel'
      ],
-     tagName: 'span',
+     tagName: 'span'
     }),
     elem({
      classes: ['display-on-message'],
      children: [icon('back')],
-     tagName: 'span',
-    }),
+     tagName: 'span'
+    })
    ],
    events: {
     click() {
@@ -112,54 +112,54 @@ const mainToolbar = elem({
        ? `#/${encodeURIComponent(channel)}`
        : '#'
      scrollToTop()
-    },
+    }
    },
-   tagName: 'button',
+   tagName: 'button'
   }),
   channelInput,
   elem({
    classes: ['input-icon'],
    children: [icon('search')],
-   tagName: 'button',
+   tagName: 'button'
   }),
   elem({
    attributes: {
     'data-tour':
-     'Catch up on the latest messages across all channels in the realm.',
+     'Catch up on the latest messages across all channels in the realm.'
    },
    children: [
     elem({
      classes: ['icon', 'icon-news'],
-     tagName: 'span',
-    }),
+     tagName: 'span'
+    })
    ],
    events: {
     click() {
      activityContainer.toggle()
-    },
+    }
    },
-   tagName: 'button',
+   tagName: 'button'
   }),
-  chatButton, // Add the Chat Button here
- ],
+  chatButton // Add the Chat Button here
+ ]
 })
 
 const otherToolbar = elem({
- classes: ['toolbar', 'mode-other'],
+ classes: ['toolbar', 'mode-other']
 })
 
 const activityFilterInput = elem({
  attributes: {
   'data-tour': 'Search recent messages.',
   maxlength: 25,
-  placeholder: 'Search activity',
+  placeholder: 'Search activity'
  },
  events: {
   blur() {
    activityFilterInputFocused = false
    autocompleteActivitySearch.close()
    applyActivityFilter(
-    activityFilterInput.value.trim(),
+    activityFilterInput.value.trim()
    )
   },
   focus() {
@@ -170,23 +170,23 @@ const activityFilterInput = elem({
   },
   input() {
    autocompleteActivitySearch.filter(
-    activityFilterInput.value.trim(),
+    activityFilterInput.value.trim()
    )
   },
   keydown({ key }) {
    if (key === 'Enter') {
     activityFilterInput.blur()
    }
-  },
+  }
  },
- tagName: 'input',
+ tagName: 'input'
 })
 
 const autocompleteActivitySearch =
  displayAutocompleteActivitySearch(
   activityFilterInput,
   cancelActivityFilterInput,
-  applyActivityFilter,
+  applyActivityFilter
  )
 
 function applyActivityFilter(filterText) {
@@ -202,7 +202,7 @@ const activityToolbar = elem({
  children: [
   elem({
    attributes: {
-    'data-tour': 'Exit the news view.',
+    'data-tour': 'Exit the news view.'
    },
    children: [icon('close')],
    events: {
@@ -212,44 +212,44 @@ const activityToolbar = elem({
      } else {
       applyActivityFilter('')
      }
-    },
+    }
    },
-   tagName: 'button',
+   tagName: 'button'
   }),
   activityFilterInput,
   elem({
    classes: ['input-icon'],
    children: [icon('search')],
-   tagName: 'button',
+   tagName: 'button'
   }),
   elem({
    attributes: {
-    'data-tour': 'Exit the news view.',
+    'data-tour': 'Exit the news view.'
    },
    classes: ['icon-news-active'],
    children: [
     elem({
      classes: ['icon', 'icon-news'],
-     tagName: 'span',
-    }),
+     tagName: 'span'
+    })
    ],
    events: {
     click() {
      activityContainer.toggle()
-    },
+    }
    },
-   tagName: 'button',
-  }),
- ],
+   tagName: 'button'
+  })
+ ]
 })
 
 const tabStripContainer = elem({
- classes: ['tab-strip-container'],
+ classes: ['tab-strip-container']
 })
 
 const themeSelectorButton = elem({
  attributes: {
-  'data-tour': 'Switch theme.',
+  'data-tour': 'Switch theme.'
  },
  children: [icon('theme')],
  tagName: 'button',
@@ -264,8 +264,8 @@ const themeSelectorButton = elem({
    } else {
     enterThemeSelector()
    }
-  },
- },
+  }
+ }
 })
 
 const appAccounts = displayAppAccounts()
@@ -281,34 +281,34 @@ const appHeader = elem({
     elem({
      attributes: {
       'data-tour':
-       'Welcome to the Tag Me In tour! Click the logo to re-launch the tour at any time.',
+       'Welcome to the Tag Me In tour! Click the logo to re-launch the tour at any time.'
      },
      events: {
       click() {
        tour()
-      },
+      }
      },
      classes: ['brand'],
-     tagName: 'button',
+     tagName: 'button'
     }),
     elem({
      attributes: {
       'data-tour':
-       'Switch between public and private realms.',
+       'Switch between public and private realms.'
      },
      classes: ['app-accounts-container'],
-     children: [appAccounts.element],
+     children: [appAccounts.element]
     }),
     lightDarkModeButton,
     themeSelectorButton,
-    fullScreenButton,
-   ],
+    fullScreenButton
+   ]
   }),
   tabStripContainer,
   mainToolbar, // The main toolbar now includes the Chat Button
   otherToolbar,
   activityToolbar,
-  loadingIndicator,
+  loadingIndicator
  ],
  events: {
   click() {
@@ -318,6 +318,6 @@ const appHeader = elem({
    ) {
     exitThemeSelector()
    }
-  },
- },
+  }
+ }
 })

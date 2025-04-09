@@ -9,15 +9,15 @@
   />
   <script>
    const metaViewport = document.getElementById(
-    'meta:viewport',
+    'meta:viewport'
    )
    globalThis.setZoom = (
-    level /*: number*/ = 1,
+    level /*: number*/ = 1
    ) => {
     localStorage.setItem('zoom', level)
     metaViewport.setAttribute(
      'content',
-     `width=device-width, initial-scale=${level}`,
+     `width=device-width, initial-scale=${level}`
     )
    }
    const lastSetZoom =

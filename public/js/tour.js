@@ -9,9 +9,9 @@ function tour() {
  }
  tourIsActive = true
  const elements = Array.from(
-  document.querySelectorAll('*[data-tour]'),
+  document.querySelectorAll('*[data-tour]')
  ).filter(
-  (x) => x.getBoundingClientRect().width > 0,
+  (x) => x.getBoundingClientRect().width > 0
  )
 
  let tourPointer = 0
@@ -40,13 +40,13 @@ function tour() {
     false, // Omit cancel button
     elem({
      tagName: 'h2',
-     textContent: 'End of tour',
+     textContent: 'End of tour'
     }),
     elem({
      tagName: 'p',
      textContent:
       "You've reached the end of the Tag Me In tour." +
-      ' You can start the tour over, or start using Tag Me In.',
+      ' You can start the tour over, or start using Tag Me In.'
     }),
     elem({
      events: {
@@ -54,18 +54,18 @@ function tour() {
        tour()
        nextButton.focus()
        tourFinished.close()
-      },
+      }
      },
      tagName: 'button',
-     textContent: 'Restart tour',
+     textContent: 'Restart tour'
     }),
     elem({
      events: {
-      click: () => tourFinished.close(),
+      click: () => tourFinished.close()
      },
      tagName: 'button',
-     textContent: 'Done',
-    }),
+     textContent: 'Done'
+    })
    )
   } else {
    tourPointer++
@@ -77,56 +77,52 @@ function tour() {
   tagName: 'button',
   textContent: 'Exit',
   events: {
-   click: exitTour,
-  },
+   click: exitTour
+  }
  })
 
  const backButton = elem({
   tagName: 'button',
   textContent: 'Back',
   events: {
-   click: back,
-  },
+   click: back
+  }
  })
 
  const nextButton = elem({
   tagName: 'button',
   textContent: 'Next',
   events: {
-   click: next,
-  },
+   click: next
+  }
  })
 
  const tourButtons = elem({
   classes: ['tour-buttons'],
-  children: [
-   exitButton,
-   backButton,
-   nextButton,
-  ],
+  children: [exitButton, backButton, nextButton]
  })
 
  const tourMessage = elem({
-  tagName: 'p',
+  tagName: 'p'
  })
 
  const tourElement = elem({
   classes: ['tour-container'],
-  children: [tourMessage, tourButtons],
+  children: [tourMessage, tourButtons]
  })
 
  const tourSelf = elem({
-  children: [elem(), elem(), elem(), elem()],
+  children: [elem(), elem(), elem(), elem()]
  })
 
  const tourShade = elem({
   classes: ['tour-shade'],
-  children: [tourSelf],
+  children: [tourSelf]
  })
 
  function repositionTour() {
   for (const t of Array.from(
-   tourSelf.children,
+   tourSelf.children
   )) {
    t.style.display = 'none'
   }
@@ -150,10 +146,10 @@ function tour() {
           self.height -
           pad -
           scrollY,
-         innerHeight - box.top + pad,
-        ),
+         innerHeight - box.top + pad
+        )
        )}px`,
-       top: 'auto',
+       top: 'auto'
       }
     : {
        bottom: 'auto',
@@ -164,10 +160,10 @@ function tour() {
           innerHeight -
           self.height -
           pad,
-         box.bottom + pad,
-        ),
-       )}px`,
-      },
+         box.bottom + pad
+        )
+       )}px`
+      }
   )
   Object.assign(
    tourElement.style,
@@ -178,26 +174,26 @@ function tour() {
         pad,
         Math.min(
          innerWidth - self.width - pad,
-         innerWidth - box.right + pad,
-        ),
-       )}px`,
+         innerWidth - box.right + pad
+        )
+       )}px`
       }
     : {
        left: `${Math.max(
         pad,
         Math.min(
          innerWidth - self.width - pad,
-         box.left + pad,
-        ),
+         box.left + pad
+        )
        )}px`,
-       right: 'auto',
-      },
+       right: 'auto'
+      }
   )
   Object.assign(tourSelf.style, {
    left: `${box.left}px`,
    top: `${box.top}px`,
    height: `${box.height}px`,
-   width: `${box.width}px`,
+   width: `${box.width}px`
   })
   scrollX = 0
   document.body.scrollLeft = 0
@@ -208,7 +204,7 @@ function tour() {
   tourSelf.children[3].style.width =
    window.innerWidth - box.right + 'px'
   for (const t of Array.from(
-   tourSelf.children,
+   tourSelf.children
   )) {
    t.style.display = 'block'
   }
@@ -223,35 +219,35 @@ function tour() {
   currentElement.scrollIntoView({
    behavior: 'instant',
    block: 'start',
-   inline: 'start',
+   inline: 'start'
   })
   tourMessage.textContent =
    currentElement.getAttribute('data-tour')
   tourElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center',
+   block: 'center'
   })
   currentElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center',
+   block: 'center'
   })
   repositionTour()
   tourElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center',
+   block: 'center'
   })
   currentElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center',
+   block: 'center'
   })
   await new Promise((r) => setTimeout(r, 50))
   tourElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center',
+   block: 'center'
   })
   currentElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center',
+   block: 'center'
   })
   repositionTour()
  }

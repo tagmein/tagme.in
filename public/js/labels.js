@@ -5,7 +5,7 @@ globalThis.STATUS = {
  IN_REVIEW: 'in review',
  LATER: 'later',
  OPEN: 'open',
- STOPPED: 'stopped',
+ STOPPED: 'stopped'
 }
 
 function statusLabel(label) {
@@ -14,7 +14,7 @@ function statusLabel(label) {
 
 const statusLabels = (globalThis.STATUS_LABELS =
  Object.values(globalThis.STATUS).map(
-  statusLabel,
+  statusLabel
  ))
 
 const labelsMenu =
@@ -23,7 +23,7 @@ const labelsMenu =
 async function renderLabelsMenu(
  channel,
  message,
- labels,
+ labels
 ) {
  labelsMenu.innerHTML = ''
  const labelsMenuTitle =
@@ -40,9 +40,9 @@ async function renderLabelsMenu(
   'click',
   function () {
    labelsMenu.parentElement.removeChild(
-    labelsMenu,
+    labelsMenu
    )
-  },
+  }
  )
  labelsMenu.appendChild(dismissLabelsMenu)
  const labelGroups = {}
@@ -58,10 +58,10 @@ async function renderLabelsMenu(
     labelGroups[group] = {
      options: [],
      groupElement:
-      document.createElement('section'),
+      document.createElement('section')
     }
     labelsMenu.appendChild(
-     labelGroups[group].groupElement,
+     labelGroups[group].groupElement
     )
    }
    //  console.log('Pushing group option label', {
@@ -76,23 +76,23 @@ async function renderLabelsMenu(
  }
 
  const messageLabelsChannel = `labels@${encodeURIComponent(
-  channel,
+  channel
  )}#${encodeURIComponent(message.text)}`
 
  const labelsChannelData = await withLoading(
   networkChannelSeek(
    messageLabelsChannel,
-   getHourNumber(),
-  ),
+   getHourNumber()
+  )
  )
 
  const formattedMessageData = formatMessageData(
-  labelsChannelData.response.messages,
+  labelsChannelData.response.messages
  )
 
  for (const [
   groupLabel,
-  labelGroup,
+  labelGroup
  ] of Object.entries(labelGroups)) {
   const { groupElement } = labelGroup
   groupElement.classList.add('label-group')
@@ -125,10 +125,10 @@ async function renderLabelsMenu(
       seen: Date.now(),
       timestamp: Date.now(),
       velocity: 0,
-      replies: { count: 0, top: [] },
+      replies: { count: 0, top: [] }
      },
      text: groupLabelOption,
-     score: 0,
+     score: 0
     }
    const groupLabelOptionArticle =
     document.createElement('article')
@@ -139,7 +139,7 @@ async function renderLabelsMenu(
     highScoreOption = groupLabelOptionArticle
    }
    groupElement.appendChild(
-    groupLabelOptionArticle,
+    groupLabelOptionArticle
    )
    displayChannelArticle(
     groupLabelOptionArticle,
@@ -147,10 +147,10 @@ async function renderLabelsMenu(
     groupLabelOptionMessage,
     function (x) {
      return x.replace('status:', '')
-    },
+    }
    )
    groupElement.appendChild(
-    groupLabelOptionArticle,
+    groupLabelOptionArticle
    )
   }
   if (highScoreOption) {
@@ -166,7 +166,7 @@ async function labelMessage(
  message,
  messageFooter,
  isNew,
- allLabels,
+ allLabels
 ) {
  if (isNew) {
   messageFooter.appendChild(labelsMenu)
@@ -179,13 +179,13 @@ async function labelMessage(
   await renderLabelsMenu(
    channel,
    message,
-   allLabels,
+   allLabels
   )
   return
  }
  labelsElement.innerHTML = ''
  message.statusLabel = calculateTopLabel(
-  message.data.labels,
+  message.data.labels
  )
  message.eventualStatusLabel =
   calculateTopLabel(
@@ -290,7 +290,7 @@ function calculateTopLabel(
   return
  }
  const calculatedScores = Object.entries(
-  labelsToCompare,
+  labelsToCompare
  )
   .filter((x) => x[0].startsWith('status:'))
   .map((x) => {
@@ -306,7 +306,7 @@ function calculateTopLabel(
  //  })
  return calculatedScores[0]?.[0]?.replace(
   'status:',
-  '',
+  ''
  )
 }
 

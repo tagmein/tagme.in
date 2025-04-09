@@ -2,11 +2,11 @@ function networkStore(session, collectionName) {
  async function sendRequest(
   path,
   method,
-  body,
+  body
  ) {
   const headers = {
    Authorization: session.accessToken,
-   'Content-Type': 'application/json',
+   'Content-Type': 'application/json'
   }
   if (session.realm) {
    headers['X-Realm'] = session.realm
@@ -23,15 +23,15 @@ function networkStore(session, collectionName) {
     {
      method,
      headers,
-     body: postBody,
-    },
-   ),
+     body: postBody
+    }
+   )
   )
   if (!response.ok) {
    throw new Error(
     `${response.statusText}: ${withLoading(
-     await response.text(),
-    )}`,
+     await response.text()
+    )}`
    )
   }
   return response.json()
@@ -40,9 +40,9 @@ function networkStore(session, collectionName) {
  async function get(id) {
   const response = await sendRequest(
    `get?collectionName=${encodeURIComponent(
-    collectionName,
+    collectionName
    )}&id=${encodeURIComponent(id)}`,
-   'GET',
+   'GET'
   )
   if ('item' in response) {
    return response.item
@@ -52,7 +52,7 @@ function networkStore(session, collectionName) {
  async function _delete(id) {
   return sendRequest('delete', 'POST', {
    collectionName,
-   id,
+   id
   })
  }
 
@@ -60,7 +60,7 @@ function networkStore(session, collectionName) {
   return sendRequest('insert', 'POST', {
    collectionName,
    id,
-   item,
+   item
   })
  }
 
@@ -72,8 +72,8 @@ function networkStore(session, collectionName) {
     collectionName,
     fieldList,
     skip,
-    limit,
-   },
+    limit
+   }
   )
   if ('items' in response) {
    return response.items
@@ -84,7 +84,7 @@ function networkStore(session, collectionName) {
   return sendRequest('patch', 'POST', {
    collectionName,
    id,
-   item,
+   item
   })
  }
 
@@ -93,6 +93,6 @@ function networkStore(session, collectionName) {
   delete: _delete,
   insert,
   list,
-  patch,
+  patch
  }
 }

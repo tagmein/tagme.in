@@ -1,6 +1,6 @@
 import { CivilMemoryKV } from '../index.js'
 export declare function httpKV({
- baseUrl,
+ baseUrl
 }: {
  baseUrl: string
 }): CivilMemoryKV

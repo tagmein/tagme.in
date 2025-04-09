@@ -9,6 +9,6 @@ export function cloudflareKV(_a) {
   },
   set: function (key, value) {
    return binding.put(key, value)
-  },
+  }
  }
 }

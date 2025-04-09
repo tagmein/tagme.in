@@ -1,10 +1,10 @@
 function explorer(
  store,
  preferencesStore,
- { itemAction } = {},
+ { itemAction } = {}
 ) {
  const element = elem({
-  classes: ['explorer'],
+  classes: ['explorer']
  })
 
  let currentViewMode
@@ -13,12 +13,12 @@ function explorer(
   async onViewModeChange(mode) {
    itemsContainer.classList.remove(
     'list-view',
-    'grid-view',
+    'grid-view'
    )
    itemsContainer.classList.add(mode)
    if (mode !== currentViewMode) {
     await preferencesStore.patch('view-mode', {
-     value: mode,
+     value: mode
     })
     currentViewMode = mode
    }
@@ -27,20 +27,18 @@ function explorer(
    Array.from(itemsContainer.children).forEach(
     (item) => {
      item.classList.toggle('selected', selected)
-    },
+    }
    )
    updateToolbarState()
   },
   async onDelete() {
    const selectedItems = Array.from(
-    itemsContainer.querySelectorAll(
-     '.selected',
-    ),
+    itemsContainer.querySelectorAll('.selected')
    )
    await Promise.all(
     selectedItems.map((item) =>
-     store.delete(item.dataset.id),
-    ),
+     store.delete(item.dataset.id)
+    )
    )
    await loadItems()
    toolbarElement.updateSelectAllCheckbox(false)
@@ -52,16 +50,16 @@ function explorer(
   onPageChange(page) {
    currentPage = page
    loadItems()
-  },
+  }
  })
 
  otherToolbar.innerHTML = ''
  otherToolbar.appendChild(
-  toolbarElement.element,
+  toolbarElement.element
  )
 
  const itemsContainer = elem({
-  classes: ['explorer-items'],
+  classes: ['explorer-items']
  })
  element.appendChild(itemsContainer)
 
@@ -73,7 +71,7 @@ function explorer(
   const items = await store.list(
    ['id', 'name', 'note'],
    skip,
-   itemsPerPage,
+   itemsPerPage
   )
   itemsContainer.innerHTML = ''
 
@@ -82,7 +80,7 @@ function explorer(
     item,
     store,
     updateToolbarState,
-    itemAction,
+    itemAction
    )
    itemsContainer.appendChild(it.element)
   })
@@ -91,23 +89,23 @@ function explorer(
   toolbarElement.updateItemCount(items.length)
   toolbarElement.updatePagination(
    currentPage,
-   items.length === itemsPerPage,
+   items.length === itemsPerPage
   )
  }
 
  function updateToolbarState() {
   const selectedItems = Array.from(
-   itemsContainer.querySelectorAll('.selected'),
+   itemsContainer.querySelectorAll('.selected')
   )
   const allSelected =
    selectedItems.length ===
    itemsContainer.children.length
   toolbarElement.updateDeleteButton(
-   selectedItems.length > 0,
+   selectedItems.length > 0
   )
   toolbarElement.updateSelectAllCheckbox(
    itemsContainer.children.length > 0 &&
-    allSelected,
+    allSelected
   )
  }
 

@@ -10,7 +10,7 @@ interface PatchBody {
 }
 
 async function validatePatchBody(
- request: Request,
+ request: Request
 ): Promise<{
  error?: string
  data: PatchBody
@@ -24,7 +24,7 @@ async function validatePatchBody(
   if (typeof data.collectionName !== 'string') {
    return {
     error: 'collectionName must be a string',
-    data,
+    data
    }
   }
 
@@ -35,7 +35,7 @@ async function validatePatchBody(
   if (typeof data.item !== 'object') {
    return {
     error: 'item must be an object',
-    data,
+    data
    }
   }
 
@@ -47,8 +47,8 @@ async function validatePatchBody(
    data: {
     collectionName: '',
     id: '',
-    item: {},
-   },
+    item: {}
+   }
   }
  }
 }
@@ -58,7 +58,7 @@ export const onRequestPost: PagesFunction<
 > = async (context) => {
  const {
   error,
-  data: { collectionName, id, item },
+  data: { collectionName, id, item }
  } = await validatePatchBody(context.request)
 
  if (error) {
@@ -75,10 +75,10 @@ export const onRequestPost: PagesFunction<
    JSON.stringify({ error: 'not authorized' }),
    {
     headers: {
-     'Content-Type': 'application/json',
+     'Content-Type': 'application/json'
     },
-    status: 401,
-   },
+    status: 401
+   }
   )
  }
 
@@ -86,27 +86,27 @@ export const onRequestPost: PagesFunction<
   await store(kv).patch(
    collectionName,
    id,
-   item,
+   item
   )
   return new Response(
    JSON.stringify({ success: true }),
    {
     headers: {
-     'Content-Type': 'application/json',
-    },
-   },
+     'Content-Type': 'application/json'
+    }
+   }
   )
  } catch (e) {
   return new Response(
    JSON.stringify({
-    error: e.message ?? 'unknown error',
+    error: e.message ?? 'unknown error'
    }),
    {
     headers: {
-     'Content-Type': 'application/json',
+     'Content-Type': 'application/json'
     },
-    status: 500,
-   },
+    status: 500
+   }
   )
  }
 }
