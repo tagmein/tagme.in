@@ -29,7 +29,7 @@ export const onRequestGet: PagesFunction<
    'url parameter is invalid',
    {
     status: 400,
-   },
+   }
   )
  }
 
@@ -43,12 +43,12 @@ export const onRequestGet: PagesFunction<
    {
     headers,
     status: 401,
-   },
+   }
   )
  }
 
  const ogTagsKey = `og.url#${encodeURIComponent(
-  url,
+  url
  )}`
 
  console.log(`open graph kv: ${kv.description}`)
@@ -64,7 +64,7 @@ export const onRequestGet: PagesFunction<
  }
 
  const tagsString = JSON.stringify(
-  await extractTags(url),
+  await extractTags(url)
  )
 
  await kv.set(ogTagsKey, tagsString)

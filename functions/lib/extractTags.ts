@@ -1,7 +1,7 @@
 import { fetchWithTimeout } from './fetchWithTimeout.js'
 
 export async function extractTags(
- url: string,
+ url: string
 ): Promise<Record<string, string>> {
  const tags: Record<string, string> = {}
  try {

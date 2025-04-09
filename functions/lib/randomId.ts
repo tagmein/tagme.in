@@ -5,7 +5,7 @@ export function randomId() {
    (Math.random() * 1e6)
     .toString(36)
     .replace('.', '')
-    .slice(0, 4),
+    .slice(0, 4)
   )
   .join('')
 }

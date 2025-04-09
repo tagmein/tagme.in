@@ -4,7 +4,7 @@ function explorer(
  { itemAction } = {}
 ) {
  const element = elem({
-  classes: ['explorer']
+  classes: ['explorer'],
  })
 
  let currentViewMode
@@ -18,7 +18,7 @@ function explorer(
    itemsContainer.classList.add(mode)
    if (mode !== currentViewMode) {
     await preferencesStore.patch('view-mode', {
-     value: mode
+     value: mode,
     })
     currentViewMode = mode
    }
@@ -50,7 +50,7 @@ function explorer(
   onPageChange(page) {
    currentPage = page
    loadItems()
-  }
+  },
  })
 
  otherToolbar.innerHTML = ''
@@ -59,7 +59,7 @@ function explorer(
  )
 
  const itemsContainer = elem({
-  classes: ['explorer-items']
+  classes: ['explorer-items'],
  })
  element.appendChild(itemsContainer)
 

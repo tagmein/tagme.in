@@ -65,7 +65,7 @@ onmessage = (e) => {
  } catch (err) {
   postMessage('E' + err.message);  
  }
-}`
+}`,
 ])
 
 function sandbox(code) {

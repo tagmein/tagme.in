@@ -7,7 +7,7 @@ function explorerItem(
  const element = elem({
   classes: ['explorer-item'],
   dataset: {
-   id: item.id
+   id: item.id,
   },
   events: {
    click: (event) => {
@@ -26,19 +26,19 @@ function explorerItem(
      element.classList.add('selected')
     }
     onUpdate()
-   }
-  }
+   },
+  },
  })
 
  const nameElement = elem({
   classes: ['explorer-item-name'],
-  textContent: item.name
+  textContent: item.name,
  })
  element.appendChild(nameElement)
 
  const noteElement = elem({
   attributes: {
-   title: 'Edit note'
+   title: 'Edit note',
   },
   classes: ['explorer-item-note'],
   textContent: item.note,
@@ -51,13 +51,13 @@ function explorerItem(
     if (typeof newNote === 'string') {
      await store.patch(item.id, {
       ...item,
-      note: newNote
+      note: newNote,
      })
      item.note = newNote
      noteElement.textContent = newNote
     }
-   }
-  }
+   },
+  },
  })
  element.appendChild(noteElement)
 
@@ -69,8 +69,8 @@ function explorerItem(
    events: {
     click() {
      itemAction.handler(item)
-    }
-   }
+    },
+   },
   })
   element.appendChild(actionButton)
  }

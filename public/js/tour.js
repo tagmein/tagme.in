@@ -40,13 +40,13 @@ function tour() {
     false, // Omit cancel button
     elem({
      tagName: 'h2',
-     textContent: 'End of tour'
+     textContent: 'End of tour',
     }),
     elem({
      tagName: 'p',
      textContent:
       "You've reached the end of the Tag Me In tour." +
-      ' You can start the tour over, or start using Tag Me In.'
+      ' You can start the tour over, or start using Tag Me In.',
     }),
     elem({
      events: {
@@ -54,17 +54,17 @@ function tour() {
        tour()
        nextButton.focus()
        tourFinished.close()
-      }
+      },
      },
      tagName: 'button',
-     textContent: 'Restart tour'
+     textContent: 'Restart tour',
     }),
     elem({
      events: {
-      click: () => tourFinished.close()
+      click: () => tourFinished.close(),
      },
      tagName: 'button',
-     textContent: 'Done'
+     textContent: 'Done',
     })
    )
   } else {
@@ -77,47 +77,51 @@ function tour() {
   tagName: 'button',
   textContent: 'Exit',
   events: {
-   click: exitTour
-  }
+   click: exitTour,
+  },
  })
 
  const backButton = elem({
   tagName: 'button',
   textContent: 'Back',
   events: {
-   click: back
-  }
+   click: back,
+  },
  })
 
  const nextButton = elem({
   tagName: 'button',
   textContent: 'Next',
   events: {
-   click: next
-  }
+   click: next,
+  },
  })
 
  const tourButtons = elem({
   classes: ['tour-buttons'],
-  children: [exitButton, backButton, nextButton]
+  children: [
+   exitButton,
+   backButton,
+   nextButton,
+  ],
  })
 
  const tourMessage = elem({
-  tagName: 'p'
+  tagName: 'p',
  })
 
  const tourElement = elem({
   classes: ['tour-container'],
-  children: [tourMessage, tourButtons]
+  children: [tourMessage, tourButtons],
  })
 
  const tourSelf = elem({
-  children: [elem(), elem(), elem(), elem()]
+  children: [elem(), elem(), elem(), elem()],
  })
 
  const tourShade = elem({
   classes: ['tour-shade'],
-  children: [tourSelf]
+  children: [tourSelf],
  })
 
  function repositionTour() {
@@ -149,7 +153,7 @@ function tour() {
          innerHeight - box.top + pad
         )
        )}px`,
-       top: 'auto'
+       top: 'auto',
       }
     : {
        bottom: 'auto',
@@ -162,7 +166,7 @@ function tour() {
           pad,
          box.bottom + pad
         )
-       )}px`
+       )}px`,
       }
   )
   Object.assign(
@@ -176,7 +180,7 @@ function tour() {
          innerWidth - self.width - pad,
          innerWidth - box.right + pad
         )
-       )}px`
+       )}px`,
       }
     : {
        left: `${Math.max(
@@ -186,14 +190,14 @@ function tour() {
          box.left + pad
         )
        )}px`,
-       right: 'auto'
+       right: 'auto',
       }
   )
   Object.assign(tourSelf.style, {
    left: `${box.left}px`,
    top: `${box.top}px`,
    height: `${box.height}px`,
-   width: `${box.width}px`
+   width: `${box.width}px`,
   })
   scrollX = 0
   document.body.scrollLeft = 0
@@ -219,35 +223,35 @@ function tour() {
   currentElement.scrollIntoView({
    behavior: 'instant',
    block: 'start',
-   inline: 'start'
+   inline: 'start',
   })
   tourMessage.textContent =
    currentElement.getAttribute('data-tour')
   tourElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center'
+   block: 'center',
   })
   currentElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center'
+   block: 'center',
   })
   repositionTour()
   tourElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center'
+   block: 'center',
   })
   currentElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center'
+   block: 'center',
   })
   await new Promise((r) => setTimeout(r, 50))
   tourElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center'
+   block: 'center',
   })
   currentElement?.scrollIntoView({
    behavior: 'instant',
-   block: 'center'
+   block: 'center',
   })
   repositionTour()
  }

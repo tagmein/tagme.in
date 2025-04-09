@@ -9,7 +9,7 @@ interface DeleteBody {
 }
 
 async function validateDeleteBody(
- request: Request,
+ request: Request
 ): Promise<{
  error?: string
  data: DeleteBody
@@ -66,7 +66,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 401,
-   },
+   }
   )
  }
 
@@ -78,7 +78,7 @@ export const onRequestPost: PagesFunction<
     headers: {
      'Content-Type': 'application/json',
     },
-   },
+   }
   )
  } catch (e) {
   return new Response(
@@ -90,7 +90,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 500,
-   },
+   }
   )
  }
 }

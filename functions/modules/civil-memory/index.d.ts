@@ -15,14 +15,14 @@ export interface CivilMemoryObjectsObjectInfo {
 export interface CivilMemoryObjects {
  delete(key: string): Promise<void>
  get(
-  key: string,
+  key: string
  ): Promise<null | ReadableStream<Uint8Array>>
  info(
-  key: string,
+  key: string
  ): Promise<CivilMemoryObjectsObjectInfo>
  put(
   key: string,
-  value: ReadableStream<Uint8Array>,
+  value: ReadableStream<Uint8Array>
  ): Promise<void>
 }
 type Named<T, N extends string> = T & {

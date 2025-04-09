@@ -11,7 +11,7 @@ async function renderRealm(
   (await preferences.get('realm.tab'))?.value,
   (value) =>
    preferences.patch('realm.tab', {
-    value
+    value,
    })
  )
  const contents = tabContents()

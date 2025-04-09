@@ -24,7 +24,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
      'Access-Control-Allow-Origin': '*',
     },
-   },
+   }
   )
  }
 
@@ -45,13 +45,13 @@ export const onRequestPost: PagesFunction<
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
      },
-    },
+    }
    )
   }
 
   // Fetch channel messages from KV store
   const channelMessages = await kv.get(
-   `seek#${channel}#999999999`,
+   `seek#${channel}#999999999`
   )
   const contextMessages =
    channelMessages ||
@@ -79,12 +79,12 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
      'Access-Control-Allow-Origin': '*',
     },
-   },
+   }
   )
  } catch (error) {
   console.error(
    'Error generating AI response:',
-   error.message,
+   error.message
   )
   console.error('Stack Trace:', error.stack)
   return new Response(
@@ -98,7 +98,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
      'Access-Control-Allow-Origin': '*',
     },
-   },
+   }
   )
  }
 }

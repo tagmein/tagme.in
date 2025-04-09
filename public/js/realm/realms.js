@@ -27,8 +27,8 @@ function realmRealms(container, session) {
        )
       )
       .switchTo()
-    }
-   }
+    },
+   },
   }).element
  )
 }

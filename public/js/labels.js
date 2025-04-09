@@ -5,7 +5,7 @@ globalThis.STATUS = {
  IN_REVIEW: 'in review',
  LATER: 'later',
  OPEN: 'open',
- STOPPED: 'stopped'
+ STOPPED: 'stopped',
 }
 
 function statusLabel(label) {
@@ -58,7 +58,7 @@ async function renderLabelsMenu(
     labelGroups[group] = {
      options: [],
      groupElement:
-      document.createElement('section')
+      document.createElement('section'),
     }
     labelsMenu.appendChild(
      labelGroups[group].groupElement
@@ -92,7 +92,7 @@ async function renderLabelsMenu(
 
  for (const [
   groupLabel,
-  labelGroup
+  labelGroup,
  ] of Object.entries(labelGroups)) {
   const { groupElement } = labelGroup
   groupElement.classList.add('label-group')
@@ -125,10 +125,10 @@ async function renderLabelsMenu(
       seen: Date.now(),
       timestamp: Date.now(),
       velocity: 0,
-      replies: { count: 0, top: [] }
+      replies: { count: 0, top: [] },
      },
      text: groupLabelOption,
-     score: 0
+     score: 0,
     }
    const groupLabelOptionArticle =
     document.createElement('article')

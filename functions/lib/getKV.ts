@@ -17,7 +17,7 @@ export async function getKV(
   Record<string, unknown>
  >,
  allowPublic: boolean = true,
- overrideKVUrl?: string,
+ overrideKVUrl?: string
 ): Promise<CivilMemoryKV | undefined> {
  if (
   typeof overrideKVUrl === 'string' &&
@@ -28,7 +28,7 @@ export async function getKV(
   })
  }
  const authorization = request.headers.get(
-  'authorization',
+  'authorization'
  )
  if (typeof authorization === 'string') {
   const authKV =
@@ -73,11 +73,11 @@ export async function getKV(
    return getPermittedRealmNamespaceKV(
     privateKV,
     session.email,
-    realm,
+    realm
    )
   }
   const emailNamespace = `[email=${encodeURIComponent(
-   session.email,
+   session.email
   )}]`
   return namespacedKV(privateKV, emailNamespace)
  } else if (allowPublic) {
@@ -97,7 +97,7 @@ export async function getKV(
 
 function namespacedKV(
  kv: CivilMemoryKV,
- namespace: string,
+ namespace: string
 ) {
  return {
   delete(key: string) {
@@ -115,11 +115,11 @@ function namespacedKV(
 async function getPermittedRealmNamespaceKV(
  privateKV: CivilMemoryKV,
  email: string,
- realm: string,
+ realm: string
 ): Promise<CivilMemoryKV | undefined> {
  const realmKV = namespacedKV(
   privateKV,
-  `[realm=${encodeURIComponent(realm)}]`,
+  `[realm=${encodeURIComponent(realm)}]`
  )
  const [encodedEmail] = realm.split('#')
  const realmOwnerEmail =

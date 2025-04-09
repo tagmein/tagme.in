@@ -23,7 +23,7 @@ export const onRequestGet: PagesFunction<
  ) {
   return new Response(
    'chunk parameter must be a non-negative integer',
-   { status: 400 },
+   { status: 400 }
   )
  }
 
@@ -39,7 +39,7 @@ export const onRequestGet: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 401,
-   },
+   }
   )
  }
 
@@ -47,7 +47,7 @@ export const onRequestGet: PagesFunction<
   try {
    const data = await scroll(kv).news(
     chunk,
-    includeNewMessages,
+    includeNewMessages
    )
    return data
   } catch (e) {

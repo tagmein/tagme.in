@@ -6,7 +6,7 @@ function networkStore(session, collectionName) {
  ) {
   const headers = {
    Authorization: session.accessToken,
-   'Content-Type': 'application/json'
+   'Content-Type': 'application/json',
   }
   if (session.realm) {
    headers['X-Realm'] = session.realm
@@ -23,7 +23,7 @@ function networkStore(session, collectionName) {
     {
      method,
      headers,
-     body: postBody
+     body: postBody,
     }
    )
   )
@@ -52,7 +52,7 @@ function networkStore(session, collectionName) {
  async function _delete(id) {
   return sendRequest('delete', 'POST', {
    collectionName,
-   id
+   id,
   })
  }
 
@@ -60,7 +60,7 @@ function networkStore(session, collectionName) {
   return sendRequest('insert', 'POST', {
    collectionName,
    id,
-   item
+   item,
   })
  }
 
@@ -72,7 +72,7 @@ function networkStore(session, collectionName) {
     collectionName,
     fieldList,
     skip,
-    limit
+    limit,
    }
   )
   if ('items' in response) {
@@ -84,7 +84,7 @@ function networkStore(session, collectionName) {
   return sendRequest('patch', 'POST', {
    collectionName,
    id,
-   item
+   item,
   })
  }
 
@@ -93,6 +93,6 @@ function networkStore(session, collectionName) {
   delete: _delete,
   insert,
   list,
-  patch
+  patch,
  }
 }

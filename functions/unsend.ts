@@ -14,7 +14,7 @@ interface PostBody {
 }
 
 async function validateRequestBody(
- request: Request,
+ request: Request
 ): Promise<{ error?: string; data: PostBody }> {
  try {
   const data: PostBody = await request.json()
@@ -121,7 +121,7 @@ export const onRequestPost: PagesFunction<Env> =
       'Content-Type': 'application/json',
      },
      status: 401,
-    },
+    }
    )
   }
 

@@ -10,7 +10,7 @@ interface PatchBody {
 }
 
 async function validatePatchBody(
- request: Request,
+ request: Request
 ): Promise<{
  error?: string
  data: PatchBody
@@ -78,7 +78,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 401,
-   },
+   }
   )
  }
 
@@ -86,7 +86,7 @@ export const onRequestPost: PagesFunction<
   await store(kv).patch(
    collectionName,
    id,
-   item,
+   item
   )
   return new Response(
    JSON.stringify({ success: true }),
@@ -94,7 +94,7 @@ export const onRequestPost: PagesFunction<
     headers: {
      'Content-Type': 'application/json',
     },
-   },
+   }
   )
  } catch (e) {
   return new Response(
@@ -106,7 +106,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 500,
-   },
+   }
   )
  }
 }

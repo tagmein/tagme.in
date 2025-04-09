@@ -9,7 +9,7 @@ export interface SessionData {
 }
 
 export function sessionIsExpired(
- session?: SessionData,
+ session?: SessionData
 ): boolean {
  return (
   !session ||

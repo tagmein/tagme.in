@@ -8,7 +8,7 @@ const reactionOptions = [
  '👎',
  '🚀',
  '👏',
- '🤔'
+ '🤔',
 ]
 
 // Cache for reactions by message ID
@@ -86,11 +86,11 @@ async function fetchReactions() {
     method: 'POST',
     headers: {
      'Content-Type': 'application/json',
-     Accept: 'application/json'
+     Accept: 'application/json',
     },
     body: JSON.stringify({
-     getForMessageIds: uncachedMessageIds
-    })
+     getForMessageIds: uncachedMessageIds,
+    }),
    }
   )
 
@@ -161,12 +161,12 @@ function updateReactionDisplay(
     tagName: 'button',
     classes: ['reaction'],
     dataset: {
-     reaction
+     reaction,
     },
     attributes: {
      title: `Score: ${Math.round(
       score
-     ).toString(10)}`
+     ).toString(10)}`,
     },
     textContent: `${reaction} ${niceNumber(
      score
@@ -192,8 +192,8 @@ function updateReactionDisplay(
        reactionElement.style.pointerEvents =
         'auto'
       }
-     }
-    }
+     },
+    },
    })
    container.appendChild(reactionElement)
   })
@@ -227,12 +227,12 @@ async function addReaction(
     method: 'POST',
     headers: {
      Accept: 'application/json',
-     'Content-Type': 'application/json'
+     'Content-Type': 'application/json',
     },
     body: JSON.stringify({
      createForMessageId: messageId,
-     reaction: reaction
-    })
+     reaction: reaction,
+    }),
    }
   )
   if (!response.ok) {
@@ -267,8 +267,8 @@ function attachReactions(
   tagName: 'div',
   classes: ['reactions-list'],
   dataset: {
-   messageId
-  }
+   messageId,
+  },
  })
 
  // Queue this message for reaction fetching if not cached
@@ -360,14 +360,14 @@ function attachReactions(
       closePopup
      )
     }, 0)
-   }
-  }
+   },
+  },
  })
  container.appendChild(
   elem({
    tagName: 'div',
    classes: ['reactions-container'],
-   children: [reactions, addReactionButton]
+   children: [reactions, addReactionButton],
   })
  )
 
@@ -375,10 +375,10 @@ function attachReactions(
   await reactionOptionsLoaded
   const menu = elem({
    dataset: {
-    themeBg: true
+    themeBg: true,
    },
    tagName: 'div',
-   classes: ['reaction-popup']
+   classes: ['reaction-popup'],
   })
 
   reactionOptions.forEach((reaction) => {
@@ -421,7 +421,7 @@ function attachReactions(
       } else {
        reactionElement = elem({
         dataset: {
-         reaction
+         reaction,
         },
         tagName: 'button',
         classes: ['reaction', 'active'],

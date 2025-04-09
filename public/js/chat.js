@@ -86,7 +86,7 @@ class ChatInterface {
 
   this.chatHistory.push({
    user: 'You',
-   text: message
+   text: message,
   })
   localStorage.setItem(
    'chatHistory',
@@ -103,12 +103,12 @@ class ChatInterface {
   fetch(this.chatUrl, {
    method: 'POST',
    headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
    },
    body: JSON.stringify({
     channel: 'default',
-    message: message
-   })
+    message: message,
+   }),
   })
    .then((res) => {
     if (!res.ok) {
@@ -122,7 +122,7 @@ class ChatInterface {
     if (data.reply) {
      this.chatHistory.push({
       user: 'AI',
-      text: data.reply
+      text: data.reply,
      })
      localStorage.setItem(
       'chatHistory',
@@ -136,7 +136,8 @@ class ChatInterface {
      )
      this.chatHistory.push({
       user: 'System',
-      text: 'No reply received from the server.'
+      text:
+       'No reply received from the server.',
      })
      this.updateChatUI()
     }
@@ -148,7 +149,7 @@ class ChatInterface {
     )
     this.chatHistory.push({
      user: 'System',
-     text: `Failed to send message: ${err.message}`
+     text: `Failed to send message: ${err.message}`,
     })
     this.updateChatUI()
    })

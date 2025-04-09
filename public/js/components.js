@@ -1,14 +1,14 @@
 function tabStrip(currentTabKey, setTabKey) {
  const element = elem({
-  classes: ['tab-strip']
+  classes: ['tab-strip'],
  })
  const tabsContainer = elem({
   classes: ['tabs-container'],
   children: [
    elem({
-    classes: ['tab-spacer']
-   })
-  ]
+    classes: ['tab-spacer'],
+   }),
+  ],
  })
  element.appendChild(tabsContainer)
 
@@ -26,21 +26,21 @@ function tabStrip(currentTabKey, setTabKey) {
    events: {
     async click() {
      await switchTo(tabObject)
-    }
-   }
+    },
+   },
   })
   tabsContainer.appendChild(tab)
   const tabObject = {
    key,
    tab,
    contentHandler,
-   switchToHandler
+   switchToHandler,
   }
   tabs.push(tabObject)
 
   return {
    switchTo: () => switchTo(tabObject),
-   remove: () => remove(tabObject)
+   remove: () => remove(tabObject),
   }
  }
 
@@ -80,7 +80,7 @@ function tabStrip(currentTabKey, setTabKey) {
     if (newIndex >= 0) {
      const {
       tab: newTab,
-      contentHandler: newContentHandler
+      contentHandler: newContentHandler,
      } = tabs[newIndex]
      switchTo(newTab)
      newContentHandler.switchTo()
@@ -92,7 +92,7 @@ function tabStrip(currentTabKey, setTabKey) {
  async function activate() {
   tabsContainer.appendChild(
    elem({
-    classes: ['tab-spacer']
+    classes: ['tab-spacer'],
    })
   )
   const matchingTab = tabs.find(
@@ -114,13 +114,13 @@ function tabStrip(currentTabKey, setTabKey) {
  return {
   activate,
   add,
-  element
+  element,
  }
 }
 
 function tabContents() {
  const element = elem({
-  classes: ['tab-contents']
+  classes: ['tab-contents'],
  })
 
  let currentContent = null
@@ -164,13 +164,13 @@ function tabContents() {
 
   return {
    switchTo,
-   remove
+   remove,
   }
  }
 
  return {
   element,
-  add
+  add,
  }
 }
 
@@ -178,9 +178,9 @@ function icon(...names) {
  return elem({
   classes: [
    'icon',
-   ...names.map((name) => `icon-${name}`)
+   ...names.map((name) => `icon-${name}`),
   ],
-  tagName: 'span'
+  tagName: 'span',
  })
 }
 
@@ -194,7 +194,7 @@ const channelInput = elem({
   'data-tour':
    'See recently-visited channels, and switch to any channel.',
   maxlength: 25,
-  placeholder: 'Search channels'
+  placeholder: 'Search channels',
  },
  events: {
   blur() {
@@ -216,9 +216,9 @@ const channelInput = elem({
    if (key === 'Enter') {
     channelInput.blur()
    }
-  }
+  },
  },
- tagName: 'input'
+ tagName: 'input',
 })
 
 function cancelChannelInput() {
@@ -235,10 +235,10 @@ function cancelActivityFilterInput() {
 
 const loadingIndicator = elem({
  attributes: {
-  inditerminate: 'true'
+  inditerminate: 'true',
  },
  classes: ['loader'],
- tagName: 'progress'
+ tagName: 'progress',
 })
 
 let loaderCount = 0
@@ -267,27 +267,27 @@ const themeSelectorThemeListContainer = elem({
  children: themeNames.map((themeName) =>
   elem({
    attributes: {
-    'data-theme': themeName
+    'data-theme': themeName,
    },
    children: [
-    document.createTextNode(themeName)
+    document.createTextNode(themeName),
    ],
    events: {
     click() {
      setTheme(themeName)
-    }
+    },
    },
-   tagName: 'button'
+   tagName: 'button',
   })
- )
+ ),
 })
 
 const themeSelectorOpacitySliderLabel = elem({
  classes: [
-  'theme-selector-opacity-slider-label'
+  'theme-selector-opacity-slider-label',
  ],
  tagName: 'label',
- textContent: 'Opacity'
+ textContent: 'Opacity',
 })
 
 const THEME_OPACITY_STORAGE_KEY =
@@ -308,10 +308,10 @@ const currentThemeOpacity =
 const themeSelectorOpacitySliderInput = elem({
  attributes: {
   type: 'range',
-  value: currentThemeOpacity
+  value: currentThemeOpacity,
  },
  classes: [
-  'theme-selector-opacity-slider-input'
+  'theme-selector-opacity-slider-input',
  ],
  events: {
   input() {
@@ -322,17 +322,17 @@ const themeSelectorOpacitySliderInput = elem({
    //  themeFilter.style.opacity = (
    //   this.value / 100
    //  ).toString(10)
-  }
+  },
  },
- tagName: 'input'
+ tagName: 'input',
 })
 
 const themeSelectorOpacitySlider = elem({
  classes: ['theme-selector-opacity-slider'],
  children: [
   themeSelectorOpacitySliderLabel,
-  themeSelectorOpacitySliderInput
- ]
+  themeSelectorOpacitySliderInput,
+ ],
 })
 
 const themeSelectorResetButton = elem({
@@ -344,24 +344,24 @@ const themeSelectorResetButton = elem({
    )
    themeSelectorOpacitySliderInput.value = 50
    setTheme('none')
-  }
+  },
  },
  tagName: 'button',
- textContent: 'Reset to default'
+ textContent: 'Reset to default',
 })
 
 const themeSelectorCloseButton = elem({
  dataset: {
-  themeBg: true
+  themeBg: true,
  },
  classes: ['theme-selector-close-button'],
  events: {
   click() {
    exitThemeSelector()
-  }
+  },
  },
  tagName: 'button',
- textContent: 'Done'
+ textContent: 'Done',
 })
 
 const themeSelector = elem({
@@ -370,8 +370,8 @@ const themeSelector = elem({
   themeSelectorThemeListContainer,
   // themeSelectorOpacitySlider,
   themeSelectorResetButton,
-  themeSelectorCloseButton
- ]
+  themeSelectorCloseButton,
+ ],
 })
 
 function exitThemeSelector() {
@@ -398,7 +398,7 @@ function enterThemeSelector() {
   )
   currentThemeButton.scrollIntoView({
    behavior: 'smooth',
-   block: 'center'
+   block: 'center',
   })
   currentThemeButton.focus()
  }, 100)
