@@ -8,6 +8,8 @@
  },
  "type": "module",
  "dependencies": {
+  "@google-ai/generativelanguage": "^3.1.0",
+  "@google/genai": "^0.7.0",
   "@tagmein/civil-memory": "^0.0.14",
   "dotenv": "^16.4.7",
   "hono": "^4.7.6"

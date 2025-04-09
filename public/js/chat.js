@@ -1,8 +1,8 @@
 class ChatInterface {
-    constructor() {
+    constructor(chatUrl) {
         this.chatWindow = null;
         this.chatHistory = JSON.parse(localStorage.getItem("chatHistory")) || [];
-        this.chatUrl = localStorage.getItem("chatUrl") || "http://localhost:8787/chat";
+        this.chatUrl = chatUrl || localStorage.getItem("chatUrl") || "http://127.0.0.1:8787/chat";
         this.init();
     }
 
@@ -45,16 +45,7 @@ class ChatInterface {
             `;
             document.body.appendChild(this.chatWindow);
             this.loadChatHistory();
-
-            // Add event listener for Enter key
-            const input = document.getElementById("chat-input");
-            input.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") {
-                    this.sendMessage();
-                }
-            });
         } else {
-            // If chat window already exists, reset to the main chat interface
             this.chatWindow.innerHTML = `
                 <div class="chat-header">
                     <button onclick="chatInterface.showChatList()">📋</button>
@@ -70,46 +61,6 @@ class ChatInterface {
                 </div>
             `;
             this.loadChatHistory();
-
-            // Add event listener for Enter key
-            const input = document.getElementById("chat-input");
-            input.addEventListener("keydown", (event) => {
-                if (event.key === "Enter") {
-                    this.sendMessage();
-                }
-            });
-        }
-    }
-
-    showChatList() {
-        const chatList = [
-            { id: 1, name: "General Chat" },
-            { id: 2, name: "Support Chat" },
-            { id: 3, name: "Feedback Chat" },
-        ];
-
-        let chatListHtml = "<ul>";
-        chatList.forEach(chat => {
-            chatListHtml += `<li>${chat.name}</li>`;
-        });
-        chatListHtml += "</ul>";
-
-        const chatWindow = document.querySelector(".chat-window");
-        if (chatWindow) {
-            chatWindow.innerHTML = `
-                <div class="chat-header">
-                    <button onclick="chatInterface.openChat()">Back</button>
-                    <span>Chat List</span>
-                </div>
-                <div class="chat-list">${chatListHtml}</div>
-            `;
-        }
-    }
-
-    closeChat() {
-        if (this.chatWindow) {
-            this.chatWindow.remove();
-            this.chatWindow = null;
         }
     }
 
@@ -123,37 +74,46 @@ class ChatInterface {
         this.updateChatUI();
         input.value = "";
 
-        console.log("Sending message to:", `${this.chatUrl}?channel=default&message=${encodeURIComponent(message)}`);
+        console.log("Sending message to:", this.chatUrl);
 
-        fetch(`${this.chatUrl}?channel=default&message=${encodeURIComponent(message)}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                return res.json();
-            })
-            .then(data => {
-                if (data.reply) {
-                    this.chatHistory.push({ user: "AI", text: data.reply });
-                    localStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
-                    this.updateChatUI();
-                } else {
-                    console.error("No reply field in response:", data);
-                    this.chatHistory.push({ user: "System", text: "No reply received from the server." });
-                    this.updateChatUI();
-                }
-            })
-            .catch(err => {
-                console.error("Error sending message:", err.message);
-                this.chatHistory.push({ user: "System", text: "Failed to send message. Please try again." });
+        fetch(this.chatUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                channel: "default",
+                message: message,
+            }),
+        })
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((data) => {
+            if (data.reply) {
+                this.chatHistory.push({ user: "AI", text: data.reply });
+                localStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
                 this.updateChatUI();
-            });
+            } else {
+                console.error("No reply field in response:", data);
+                this.chatHistory.push({ user: "System", text: "No reply received from the server." });
+                this.updateChatUI();
+            }
+        })
+        .catch((err) => {
+            console.error("Error sending message:", err.message);
+            this.chatHistory.push({ user: "System", text: `Failed to send message: ${err.message}` });
+            this.updateChatUI();
+        });
     }
 
     loadChatHistory() {
         const chatMessages = this.chatWindow.querySelector(".chat-messages");
         chatMessages.innerHTML = "";
-        this.chatHistory.forEach(msg => {
+        this.chatHistory.forEach((msg) => {
             const messageDiv = document.createElement("div");
             messageDiv.textContent = `${msg.user}: ${msg.text}`;
             chatMessages.appendChild(messageDiv);
@@ -179,9 +139,10 @@ class ChatInterface {
 
     resetToTagMeIn() {
         localStorage.removeItem("chatUrl");
-        this.chatUrl = "http://localhost:8787/chat";
+        this.chatUrl = "http://127.0.0.1:8787/chat";
         this.updateChatUI();
     }
 }
 
+// Instantiate the ChatInterface with a custom URL if needed, or default
 const chatInterface = new ChatInterface();

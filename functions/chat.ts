@@ -1,48 +1,77 @@
-import { Hono } from 'hono';
-import { cors } from 'hono/cors';
-import { civilMemoryKV } from '@tagmein/civil-memory';
+import { type PagesFunction } from '@cloudflare/workers-types';
+import { Env } from './lib/env.js';
+import { getKV } from './lib/getKV.js';
+import { GoogleGenAI } from '@google/genai'; // Correct package
 
-const app = new Hono();
+// Initialize Google GenAI
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-// Enable CORS for all routes
-app.use('*', cors());
+export const onRequestPost: PagesFunction<Env> = async (context) => {
+    const kv = await getKV(context, true);
 
-// Root route
-app.get('/', (c) => {
-    console.log('Root route accessed');
-    return c.text('Hello, Hono!');
-});
-
-// Chat route
-app.get('/chat', async (c) => {
-    console.log('Chat route accessed');
-    const channel = c.req.query('channel') || 'default';
-    const message = c.req.query('message');
+    if (!kv) {
+        return new Response(
+            JSON.stringify({ error: 'Not authorized' }),
+            {
+                status: 401,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+            }
+        );
+    }
 
     try {
-        const kv = civilMemoryKV.http({ baseUrl: process.env.CIVIL_MEMORY_BASE_URL || 'http://localhost:3333' });
+        // Parse the request body
+        const body = await context.request.json();
+        const channel = body.channel || 'default';
+        const message = body.message;
 
-        // Fetch data in parallel
-        const [channelData, messageData, allMessages] = await Promise.all([
-            kv.get(`channel#${channel}`),
-            message ? kv.get(`message#${message}`) : Promise.resolve(null),
-            kv.get(`seek#${channel}#999999999`),
-        ]);
+        if (!message) {
+            return new Response(
+                JSON.stringify({ error: 'Message parameter is required' }),
+                {
+                    status: 400,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*',
+                    },
+                }
+            );
+        }
+
+        // Generate a response using Google GenAI
+        const aiResponse = await ai.models.generateContent({
+            model: 'gemini-2.0-flash-001',
+            contents: `Channel: ${channel}\nMessage: ${message}`,
+        });
 
         const response = {
             channel,
             message,
-            reply: `This is a simulated response for channel: ${channel}, message: ${message || 'N/A'}`,
-            context: allMessages || 'No messages found in the channel.',
+            reply: aiResponse.text || 'No response generated.',
         };
 
-        console.log('Response:', response);
-        return c.json(response);
+        return new Response(JSON.stringify(response), {
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+            },
+        });
     } catch (error) {
-        console.error("Error fetching data from civilMemoryKV:", error);
-        return c.json({ error: 'Failed to fetch data from civilMemoryKV' }, 500);
+        console.error('Error generating AI response:', error.message);
+        console.error('Stack Trace:', error.stack);
+        return new Response(
+            JSON.stringify({ error: 'Failed to generate AI response', details: error.message }),
+            {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                },
+            }
+        );
     }
-});
-
-// Export the fetch handler for Cloudflare Workers
-export default app.fetch;
+};
