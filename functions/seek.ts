@@ -17,28 +17,28 @@ export const onRequestGet: PagesFunction<
   if (typeof channel !== 'string') {
    return new Response(
     'missing channel parameter',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
   if (channel.length > 65536) {
    return new Response(
     'channel parameter must be 65536 characters or less',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
   if (channel !== channel.trim()) {
    return new Response(
     'channel parameter must not start or end with space',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
   if (typeof hourId !== 'string') {
    return new Response(
     'missing hour parameter',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
@@ -50,7 +50,7 @@ export const onRequestGet: PagesFunction<
   ) {
    return new Response(
     'hour parameter must be a non-negative integer',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
@@ -59,14 +59,14 @@ export const onRequestGet: PagesFunction<
   if (!kv) {
    return new Response(
     JSON.stringify({
-     error: 'not authorized'
+     error: 'not authorized',
     }),
     {
      headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
      },
-     status: 401
-    }
+     status: 401,
+    },
    )
   }
 
@@ -85,7 +85,7 @@ export const onRequestGet: PagesFunction<
     return {
      kv: kv.description,
      error:
-      e.stack ?? e.message ?? 'unknown error'
+      e.stack ?? e.message ?? 'unknown error',
     }
    }
   }
@@ -93,13 +93,13 @@ export const onRequestGet: PagesFunction<
   return new Response(
    JSON.stringify({
     success: true,
-    response: await scrollSeek()
+    response: await scrollSeek(),
    }),
    {
     headers: {
-     'Content-Type': 'application/json'
-    }
-   }
+     'Content-Type': 'application/json',
+    },
+   },
   )
  } catch (e) {
   throw new Error(e)
@@ -107,13 +107,13 @@ export const onRequestGet: PagesFunction<
   return new Response(
    JSON.stringify({
     success: false,
-    error: e.message
+    error: e.message,
    }),
    {
     headers: {
-     'Content-Type': 'application/json'
-    }
-   }
+     'Content-Type': 'application/json',
+    },
+   },
   )
  }
 }

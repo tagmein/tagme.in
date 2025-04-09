@@ -4,7 +4,7 @@ import { extractTags } from './lib/extractTags.js'
 import { getKV } from './lib/getKV.js'
 
 const headers = {
- 'Content-Type': 'application/json'
+ 'Content-Type': 'application/json',
 }
 
 export const onRequestGet: PagesFunction<
@@ -18,7 +18,7 @@ export const onRequestGet: PagesFunction<
 
  if (typeof url !== 'string') {
   return new Response('missing url parameter', {
-   status: 400
+   status: 400,
   })
  }
 
@@ -28,8 +28,8 @@ export const onRequestGet: PagesFunction<
   return new Response(
    'url parameter is invalid',
    {
-    status: 400
-   }
+    status: 400,
+   },
   )
  }
 
@@ -38,17 +38,17 @@ export const onRequestGet: PagesFunction<
  if (!kv) {
   return new Response(
    JSON.stringify({
-    error: 'not authorized'
+    error: 'not authorized',
    }),
    {
     headers,
-    status: 401
-   }
+    status: 401,
+   },
   )
  }
 
  const ogTagsKey = `og.url#${encodeURIComponent(
-  url
+  url,
  )}`
 
  console.log(`open graph kv: ${kv.description}`)
@@ -58,18 +58,18 @@ export const onRequestGet: PagesFunction<
 
   if (typeof cachedTags === 'string') {
    return new Response(cachedTags, {
-    headers
+    headers,
    })
   }
  }
 
  const tagsString = JSON.stringify(
-  await extractTags(url)
+  await extractTags(url),
  )
 
  await kv.set(ogTagsKey, tagsString)
 
  return new Response(tagsString, {
-  headers
+  headers,
  })
 }

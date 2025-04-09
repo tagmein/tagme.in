@@ -7,7 +7,7 @@ import { GoogleGenAI } from '@google/genai' // Correct package
 const GEMINI_API_KEY =
  process.env.GEMINI_API_KEY
 const ai = new GoogleGenAI({
- apiKey: GEMINI_API_KEY
+ apiKey: GEMINI_API_KEY,
 })
 
 export const onRequestPost: PagesFunction<
@@ -22,9 +22,9 @@ export const onRequestPost: PagesFunction<
     status: 401,
     headers: {
      'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*'
-    }
-   }
+     'Access-Control-Allow-Origin': '*',
+    },
+   },
   )
  }
 
@@ -37,21 +37,21 @@ export const onRequestPost: PagesFunction<
   if (!message) {
    return new Response(
     JSON.stringify({
-     error: 'Message parameter is required'
+     error: 'Message parameter is required',
     }),
     {
      status: 400,
      headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
-     }
-    }
+      'Access-Control-Allow-Origin': '*',
+     },
+    },
    )
   }
 
   // Fetch channel messages from KV store
   const channelMessages = await kv.get(
-   `seek#${channel}#999999999`
+   `seek#${channel}#999999999`,
   )
   const contextMessages =
    channelMessages ||
@@ -61,7 +61,7 @@ export const onRequestPost: PagesFunction<
   const aiResponse =
    await ai.models.generateContent({
     model: 'gemini-2.0-flash-001',
-    contents: `Channel: ${channel}\nMessage: ${message}\nContext: ${contextMessages}`
+    contents: `Channel: ${channel}\nMessage: ${message}\nContext: ${contextMessages}`,
    })
 
   const response = {
@@ -69,7 +69,7 @@ export const onRequestPost: PagesFunction<
    message,
    reply:
     aiResponse.text || 'No response generated.',
-   context: contextMessages
+   context: contextMessages,
   }
 
   return new Response(
@@ -77,28 +77,28 @@ export const onRequestPost: PagesFunction<
    {
     headers: {
      'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*'
-    }
-   }
+     'Access-Control-Allow-Origin': '*',
+    },
+   },
   )
  } catch (error) {
   console.error(
    'Error generating AI response:',
-   error.message
+   error.message,
   )
   console.error('Stack Trace:', error.stack)
   return new Response(
    JSON.stringify({
     error: 'Failed to generate AI response',
-    details: error.message
+    details: error.message,
    }),
    {
     status: 500,
     headers: {
      'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*'
-    }
-   }
+     'Access-Control-Allow-Origin': '*',
+    },
+   },
   )
  }
 }

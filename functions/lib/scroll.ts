@@ -13,12 +13,12 @@ export function scroll(kv: CivilMemoryKV) {
  const newsKey = {
   newsChunkId: `news.chunk#id`,
   newsChunkById: (id: number) =>
-   `news.chunk.id#${id.toString(36)}`
+   `news.chunk.id#${id.toString(36)}`,
  }
 
  async function getLatestNewsChunkId() {
   const latestChunkString = await kv.get(
-   newsKey.newsChunkId
+   newsKey.newsChunkId,
   )
   const latestChunkId =
    typeof latestChunkString === 'string'
@@ -32,12 +32,12 @@ export function scroll(kv: CivilMemoryKV) {
  const channel = scrollChannel(
   kv,
   newsKey,
-  getLatestNewsChunkId
+  getLatestNewsChunkId,
  )
 
  async function news(
   chunk: number | null,
-  includeNewMessages: boolean
+  includeNewMessages: boolean,
  ): Promise<string> {
   const chunkId =
    typeof chunk === 'number' && !isNaN(chunk)
@@ -48,11 +48,11 @@ export function scroll(kv: CivilMemoryKV) {
   if (includeNewMessages) {
    const template = JSON.stringify({
     chunkId,
-    data: 'DATA'
+    data: 'DATA',
    })
    return template.replace(
     '"DATA"',
-    (await kv.get(chunkKey)) ?? '[]' // this technique avoids parsing the chunk simply to re-stringify it in the response
+    (await kv.get(chunkKey)) ?? '[]', // this technique avoids parsing the chunk simply to re-stringify it in the response
    )
   } else {
    const showNewsOlderThan =
@@ -65,11 +65,11 @@ export function scroll(kv: CivilMemoryKV) {
      ? JSON.parse(newsChunkString)
      : []
    ).filter(
-    (n: NewsItem) => n.seen < showNewsOlderThan
+    (n: NewsItem) => n.seen < showNewsOlderThan,
    )
    return JSON.stringify({
     chunkId,
-    data: newsChunk
+    data: newsChunk,
    })
   }
  }

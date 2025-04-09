@@ -1,7 +1,7 @@
 import { type EventContext } from '@cloudflare/workers-types'
 import {
  CivilMemoryKV,
- civilMemoryKV
+ civilMemoryKV,
 } from '../modules/civil-memory/index.mjs'
 import { Env } from './env.js'
 import { sessionIsExpired } from './session.js'
@@ -10,25 +10,25 @@ import { store } from './store.js'
 export async function getKV(
  {
   env,
-  request
+  request,
  }: EventContext<
   Env,
   any,
   Record<string, unknown>
  >,
  allowPublic: boolean = true,
- overrideKVUrl?: string
+ overrideKVUrl?: string,
 ): Promise<CivilMemoryKV | undefined> {
  if (
   typeof overrideKVUrl === 'string' &&
   overrideKVUrl.length > 0
  ) {
   return civilMemoryKV.http({
-   baseUrl: overrideKVUrl
+   baseUrl: overrideKVUrl,
   })
  }
  const authorization = request.headers.get(
-  'authorization'
+  'authorization',
  )
  if (typeof authorization === 'string') {
   const authKV =
@@ -38,10 +38,10 @@ export async function getKV(
         typeof env.TAGMEIN_LOCAL_KV_BASEURL ===
         'string'
          ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-auth`
-         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-auth'
+         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-auth',
       })
     : civilMemoryKV.cloudflare({
-       binding: env.TAGMEIN_AUTH_KV
+       binding: env.TAGMEIN_AUTH_KV,
       })
   const sessionKey = `session.accessToken#${authorization}`
   const sessionString =
@@ -63,21 +63,21 @@ export async function getKV(
         typeof env.TAGMEIN_LOCAL_KV_BASEURL ===
         'string'
          ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-private`
-         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-private'
+         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-private',
       })
     : civilMemoryKV.cloudflare({
-       binding: env.TAGMEIN_PRIVATE_KV
+       binding: env.TAGMEIN_PRIVATE_KV,
       })
   const realm = request.headers.get('x-realm')
   if (realm) {
    return getPermittedRealmNamespaceKV(
     privateKV,
     session.email,
-    realm
+    realm,
    )
   }
   const emailNamespace = `[email=${encodeURIComponent(
-   session.email
+   session.email,
   )}]`
   return namespacedKV(privateKV, emailNamespace)
  } else if (allowPublic) {
@@ -87,17 +87,17 @@ export async function getKV(
        typeof env.TAGMEIN_LOCAL_KV_BASEURL ===
        'string'
         ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-public`
-        : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-public'
+        : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-public',
      })
    : civilMemoryKV.cloudflare({
-      binding: env.TAGMEIN_KV
+      binding: env.TAGMEIN_KV,
      })
  }
 }
 
 function namespacedKV(
  kv: CivilMemoryKV,
- namespace: string
+ namespace: string,
 ) {
  return {
   delete(key: string) {
@@ -108,18 +108,18 @@ function namespacedKV(
   },
   set(key: string, value: string) {
    return kv.set(`${namespace}${key}`, value)
-  }
+  },
  }
 }
 
 async function getPermittedRealmNamespaceKV(
  privateKV: CivilMemoryKV,
  email: string,
- realm: string
+ realm: string,
 ): Promise<CivilMemoryKV | undefined> {
  const realmKV = namespacedKV(
   privateKV,
-  `[realm=${encodeURIComponent(realm)}]`
+  `[realm=${encodeURIComponent(realm)}]`,
  )
  const [encodedEmail] = realm.split('#')
  const realmOwnerEmail =

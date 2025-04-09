@@ -9,7 +9,7 @@ interface DeleteBody {
 }
 
 async function validateDeleteBody(
- request: Request
+ request: Request,
 ): Promise<{
  error?: string
  data: DeleteBody
@@ -23,7 +23,7 @@ async function validateDeleteBody(
   if (typeof data.collectionName !== 'string') {
    return {
     error: 'collectionName must be a string',
-    data
+    data,
    }
   }
 
@@ -36,7 +36,7 @@ async function validateDeleteBody(
   return {
    error:
     'unable to parse incoming JSON post body',
-   data: { collectionName: '', id: '' }
+   data: { collectionName: '', id: '' },
   }
  }
 }
@@ -46,7 +46,7 @@ export const onRequestPost: PagesFunction<
 > = async (context) => {
  const {
   error,
-  data: { collectionName, id }
+  data: { collectionName, id },
  } = await validateDeleteBody(context.request)
 
  if (error) {
@@ -63,10 +63,10 @@ export const onRequestPost: PagesFunction<
    JSON.stringify({ error: 'not authorized' }),
    {
     headers: {
-     'Content-Type': 'application/json'
+     'Content-Type': 'application/json',
     },
-    status: 401
-   }
+    status: 401,
+   },
   )
  }
 
@@ -76,21 +76,21 @@ export const onRequestPost: PagesFunction<
    JSON.stringify({ success: true }),
    {
     headers: {
-     'Content-Type': 'application/json'
-    }
-   }
+     'Content-Type': 'application/json',
+    },
+   },
   )
  } catch (e) {
   return new Response(
    JSON.stringify({
-    error: e.message ?? 'unknown error'
+    error: e.message ?? 'unknown error',
    }),
    {
     headers: {
-     'Content-Type': 'application/json'
+     'Content-Type': 'application/json',
     },
-    status: 500
-   }
+    status: 500,
+   },
   )
  }
 }

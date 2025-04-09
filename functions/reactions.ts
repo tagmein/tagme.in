@@ -17,10 +17,10 @@ type RequestBody =
  | CreateReactionBody
 
 async function readRequestBody(
- request: Request
+ request: Request,
 ) {
  const contentType = request.headers.get(
-  'content-type'
+  'content-type',
  )
  if (!contentType) {
   throw new Error('Missing content-type header')
@@ -38,7 +38,7 @@ async function readRequestBody(
 }
 
 async function validateRequestBody(
- data: RequestBody
+ data: RequestBody,
 ): Promise<{
  error?: string
  data: RequestBody
@@ -50,13 +50,13 @@ async function validateRequestBody(
  ) {
   if (
    !data.getForMessageIds.every(
-    (id) => typeof id === 'string'
+    (id) => typeof id === 'string',
    )
   ) {
    return {
     error:
      'getForMessageIds must be an array of strings',
-    data
+    data,
    }
   }
   return { data: data as GetReactionsBody }
@@ -73,7 +73,7 @@ async function validateRequestBody(
    return {
     error:
      'reaction must be 25 characters or less',
-    data
+    data,
    }
   }
 
@@ -81,7 +81,7 @@ async function validateRequestBody(
    return {
     error:
      'reaction must not start or end with space',
-    data
+    data,
    }
   }
 
@@ -90,7 +90,7 @@ async function validateRequestBody(
 
  return {
   error: 'invalid request body format',
-  data
+  data,
  }
 }
 export const onRequestPost: PagesFunction<Env> =
@@ -108,9 +108,9 @@ export const onRequestPost: PagesFunction<Env> =
      {
       status: 400,
       headers: {
-       'Content-Type': 'application/json'
-      }
-     }
+       'Content-Type': 'application/json',
+      },
+     },
     )
    }
 
@@ -122,25 +122,25 @@ export const onRequestPost: PagesFunction<Env> =
     {
      env: {
       ...env,
-      ASSETS: { fetch: globalThis.fetch }
+      ASSETS: { fetch: globalThis.fetch },
      },
-     request
+     request,
     } as any,
     true,
-    kvUrl
+    kvUrl,
    )
 
    if (!kv) {
     return new Response(
      JSON.stringify({
-      error: 'not authorized'
+      error: 'not authorized',
      }),
      {
       status: 401,
       headers: {
-       'Content-Type': 'application/json'
-      }
-     }
+       'Content-Type': 'application/json',
+      },
+     },
     )
    }
 
@@ -156,19 +156,19 @@ export const onRequestPost: PagesFunction<Env> =
         .seek()
        return {
         messageId,
-        reactions: messageReactions.messages
+        reactions: messageReactions.messages,
        }
-      }
-     )
+      },
+     ),
     )
 
     return new Response(
      JSON.stringify({ reactions }),
      {
       headers: {
-       'Content-Type': 'application/json'
-      }
-     }
+       'Content-Type': 'application/json',
+      },
+     },
     )
    } else {
     const messageId = data.createForMessageId
@@ -180,26 +180,26 @@ export const onRequestPost: PagesFunction<Env> =
 
     return new Response(
      JSON.stringify({
-      message: 'reaction added'
+      message: 'reaction added',
      }),
      {
       headers: {
-       'Content-Type': 'application/json'
-      }
-     }
+       'Content-Type': 'application/json',
+      },
+     },
     )
    }
   } catch (error) {
    return new Response(
     JSON.stringify({
-     error: error.message
+     error: error.message,
     }),
     {
      status: 400,
      headers: {
-      'Content-Type': 'application/json'
-     }
-    }
+      'Content-Type': 'application/json',
+     },
+    },
    )
   }
  }

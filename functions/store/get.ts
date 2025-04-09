@@ -8,7 +8,7 @@ export const onRequestGet: PagesFunction<
 > = async (context) => {
  const url = new URL(context.request.url)
  const collectionName = url.searchParams.get(
-  'collectionName'
+  'collectionName',
  )
  const id = url.searchParams.get('id')
  const kvUrl = url.searchParams.get('kv')
@@ -19,7 +19,7 @@ export const onRequestGet: PagesFunction<
  ) {
   return new Response(
    'Invalid query parameters',
-   { status: 400 }
+   { status: 400 },
   )
  }
 
@@ -30,37 +30,37 @@ export const onRequestGet: PagesFunction<
    JSON.stringify({ error: 'not authorized' }),
    {
     headers: {
-     'Content-Type': 'application/json'
+     'Content-Type': 'application/json',
     },
-    status: 401
-   }
+    status: 401,
+   },
   )
  }
 
  try {
   const item = await store(kv).get(
    collectionName,
-   id
+   id,
   )
   return new Response(
    JSON.stringify({ item }),
    {
     headers: {
-     'Content-Type': 'application/json'
-    }
-   }
+     'Content-Type': 'application/json',
+    },
+   },
   )
  } catch (e) {
   return new Response(
    JSON.stringify({
-    error: e.message ?? 'unknown error'
+    error: e.message ?? 'unknown error',
    }),
    {
     headers: {
-     'Content-Type': 'application/json'
+     'Content-Type': 'application/json',
     },
-    status: 500
-   }
+    status: 500,
+   },
   )
  }
 }

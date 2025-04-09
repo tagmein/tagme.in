@@ -23,7 +23,7 @@ export const onRequestGet: PagesFunction<
  ) {
   return new Response(
    'chunk parameter must be a non-negative integer',
-   { status: 400 }
+   { status: 400 },
   )
  }
 
@@ -32,14 +32,14 @@ export const onRequestGet: PagesFunction<
  if (!kv) {
   return new Response(
    JSON.stringify({
-    error: 'not authorized'
+    error: 'not authorized',
    }),
    {
     headers: {
-     'Content-Type': 'application/json'
+     'Content-Type': 'application/json',
     },
-    status: 401
-   }
+    status: 401,
+   },
   )
  }
 
@@ -47,19 +47,19 @@ export const onRequestGet: PagesFunction<
   try {
    const data = await scroll(kv).news(
     chunk,
-    includeNewMessages
+    includeNewMessages,
    )
    return data
   } catch (e) {
    return JSON.stringify({
-    error: e.stack ?? 'unknown error' // todo: remove stack trace
+    error: e.stack ?? 'unknown error', // todo: remove stack trace
    })
   }
  }
 
  return new Response(await scrollNews(), {
   headers: {
-   'Content-Type': 'application/json'
-  }
+   'Content-Type': 'application/json',
+  },
  })
 }
