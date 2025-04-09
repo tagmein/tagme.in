@@ -28,7 +28,7 @@ function displayAppAccounts() {
     const sessionId = getActiveSessionId()
     if (sessionId !== PUBLIC_SESSION_ID) {
      const activeRealm = realms.find(
-      (r) => sessionId === r.session.id
+      (r) => sessionId === r.session.id,
      )
      if (
       activeRealm?.session.id !==
@@ -61,13 +61,13 @@ function displayAppAccounts() {
   function switchTo() {
    const sessionId = getActiveSessionId()
    const activeRealm = realms.find(
-    (r) => sessionId === r.session.id
+    (r) => sessionId === r.session.id,
    )
    const activeRealmTab =
     activeRealm?.realmTab ?? globalRealmTab
    activeRealmTab.classList.remove('active')
    const switchToRealm = realms.find(
-    (r) => session.id === r.session.id
+    (r) => session.id === r.session.id,
    )
    if (switchToRealm) {
     const secondRealmCandidate =
@@ -79,7 +79,7 @@ function displayAppAccounts() {
     }
     setActiveSessionId(session.id)
     switchToRealm.realmTab.classList.add(
-     'active'
+     'active',
     )
     switchToRealm.realmTab.scrollIntoView({
      behavior: 'smooth',
@@ -106,7 +106,7 @@ function displayAppAccounts() {
        removeSession(session.id)
        if (activeSessionId === session.id) {
         const index = sessions.findIndex(
-         (x) => x.id === session.id
+         (x) => x.id === session.id,
         )
         const switchToSessionId =
          sessions[index - 1]?.id ??
@@ -115,7 +115,8 @@ function displayAppAccounts() {
          typeof switchToSessionId === 'string'
           ? realms.find(
              (r) =>
-              switchToSessionId === r.session.id
+              switchToSessionId ===
+              r.session.id,
             )
           : undefined
         const activeRealmTab =
@@ -124,7 +125,7 @@ function displayAppAccounts() {
         secondMostRecentRealm = undefined
         setActiveSessionId(
          activeRealm?.session?.id ??
-          PUBLIC_SESSION_ID
+          PUBLIC_SESSION_ID,
         )
        }
       },
@@ -164,12 +165,12 @@ function displayAppAccounts() {
  })
 
  realms = listSessions().map((session) =>
-  addAccount(session)
+  addAccount(session),
  )
 
  const sessionId = getActiveSessionId()
  const activeRealm = realms.find(
-  (r) => sessionId === r.session.id
+  (r) => sessionId === r.session.id,
  )
 
  const activeRealmTab =
@@ -195,12 +196,12 @@ function displayAppAccounts() {
 async function displayChannelMessageReplies(
  messageChannel,
  formattedChannelMessageData,
- messageText
+ messageText,
 ) {
  mainContent.innerHTML = ''
  const message =
   formattedChannelMessageData.find(
-   (x) => x.text === messageText
+   (x) => x.text === messageText,
   )
  if (!message) {
   mainContent.innerHTML =
@@ -210,8 +211,8 @@ async function displayChannelMessageReplies(
  const replyChannelData = await withLoading(
   networkChannelSeek(
    messageChannel,
-   getHourNumber()
-  )
+   getHourNumber(),
+  ),
  )
 
  if (
@@ -223,14 +224,14 @@ async function displayChannelMessageReplies(
   throw new Error(
    replyChannelData.error ??
     `Error seeking reply channel: ${JSON.stringify(
-     replyChannelData
-    )}`
+     replyChannelData,
+    )}`,
   )
  }
 
  const formattedMessageReplyData =
   formatMessageData(
-   replyChannelData.response.messages
+   replyChannelData.response.messages,
   )
 
  attachMessages(
@@ -242,7 +243,7 @@ async function displayChannelMessageReplies(
   undefined,
   true,
   false,
-  true
+  true,
  )
 }
 
@@ -250,14 +251,14 @@ function displayChannelArticle(
  articleElement,
  channel,
  message,
- messageContentFormatter
+ messageContentFormatter,
 ) {
  console.log(
   `Attaching message with formatter(${
    messageContentFormatter?.(
-    'status:example'
+    'status:example',
    ) ?? 'none'
-  })`
+  })`,
  )
  attachMessage(
   channel,
@@ -269,14 +270,14 @@ function displayChannelArticle(
   false,
   false,
   false,
-  messageContentFormatter
+  messageContentFormatter,
  )
 }
 
 function displayChannelHome(
  channel,
  formattedMessageData,
- formattedChannelData
+ formattedChannelData,
 ) {
  messageContent.innerHTML = ''
  mainContent.innerHTML = ''
@@ -366,11 +367,11 @@ function displayChannelHome(
   sendToRealm,
   false,
   true,
-  true
+  true,
  )
  attachChannels(
   mainContent,
-  formattedChannelData
+  formattedChannelData,
  )
 
  // Display installed scripts above the compose area
@@ -380,10 +381,10 @@ function displayChannelHome(
 function displayChannelMessage(
  channel,
  formattedMessageData,
- messageText
+ messageText,
 ) {
  const message = formattedMessageData.find(
-  (x) => x.text === messageText
+  (x) => x.text === messageText,
  )
  messageContent.innerHTML = ''
  if (message) {
@@ -412,7 +413,7 @@ function displayChannelMessage(
      elem({
       attributes: {
        href: `/#/${encodeURIComponent(
-        channel
+        channel,
        )}`,
       },
       tagName: 'a',
@@ -423,7 +424,7 @@ function displayChannelMessage(
       }`,
      }),
     ],
-   })
+   }),
   )
   attachMessage(
    channel,
@@ -432,7 +433,7 @@ function displayChannelMessage(
    true,
    undefined,
    true,
-   true
+   true,
   )
  } else {
   messageContent.innerHTML =
@@ -460,7 +461,7 @@ function attachChannels(container, channels) {
   })
  }
  lastAttachedChannels = channels.filter(
-  (c) => c.name.length <= 25
+  (c) => c.name.length <= 25,
  )
  container.appendChild(
   elem({
@@ -490,17 +491,17 @@ function attachChannels(container, channels) {
        elem({
         attributes: {
          title: Math.round(c.score).toString(
-          10
+          10,
          ),
         },
         tagName: 'span',
         textContent: niceNumber(c.score),
        }),
       ],
-     })
-    )
+     }),
+    ),
    ),
-  })
+  }),
  )
 }
 
@@ -513,7 +514,7 @@ function attachMessages(
  sendToRealm = undefined,
  copyToReply = false,
  includeReplies = false,
- includeReactions = false
+ includeReactions = false,
 ) {
  if (messages.length === 0) {
   mainContent.appendChild(
@@ -522,7 +523,7 @@ function attachMessages(
     textContent:
      emptyMessage ??
      'This channel has no content. Be the first to write a message!',
-   })
+   }),
   )
  }
  for (const index in messages) {
@@ -535,7 +536,7 @@ function attachMessages(
    copyToReply,
    index === '0',
    includeReplies,
-   includeReactions
+   includeReactions,
   )
  }
 }
@@ -550,7 +551,7 @@ function attachMessage(
  includeTourAttributes,
  includeReplies = false,
  includeReactions = false,
- messageContentFormatter = undefined
+ messageContentFormatter = undefined,
 ) {
  const content = elem()
 
@@ -625,20 +626,20 @@ function attachMessage(
    async click() {
     message.data.velocity = Math.min(
      message.data.velocity + 1,
-     10
+     10,
     )
     if (
      (await withLoading(
       networkMessageSend(
        channel,
        message.text,
-       message.data.velocity
-      )
+       message.data.velocity,
+      ),
      )) !== false
     ) {
      agreeButton.classList.add('agreed')
      disagreeButton.classList.remove(
-      'disagreed'
+      'disagreed',
      )
      renderScore()
     }
@@ -662,15 +663,15 @@ function attachMessage(
    async click() {
     message.data.velocity = Math.max(
      message.data.velocity - 1,
-     -10
+     -10,
     )
     if (
      (await withLoading(
       networkMessageSend(
        channel,
        message.text,
-       message.data.velocity
-      )
+       message.data.velocity,
+      ),
      )) !== false
     ) {
      agreeButton.classList.remove('agreed')
@@ -683,7 +684,7 @@ function attachMessage(
  })
  function renderScore() {
   const messageScoreText = niceNumber(
-   message.score ?? 0
+   message.score ?? 0,
   )
   const velocityText =
    message.data.velocity !== 0
@@ -698,13 +699,13 @@ function attachMessage(
      title: message.score.toPrecision(3),
     },
     textContent: `${messageScoreText}`,
-   })
+   }),
   )
   score.appendChild(
    elem({
     classes: ['velocity'],
     textContent: velocityText,
-   })
+   }),
   )
  }
  const score = elem({
@@ -718,13 +719,13 @@ function attachMessage(
  })
  renderScore()
  const messageLink = `/#/${encodeURIComponent(
-  channel
+  channel,
  )}/${btoa(encodeURIComponent(message.text))}`
  const dateContainer = elem({
   attributes: {
    href: messageLink,
    title: new Date(
-    message.data.seen
+    message.data.seen,
    ).toString(),
   },
   classes: ['news-date'],
@@ -738,7 +739,7 @@ function attachMessage(
   },
   tagName: 'a',
   textContent: localDateTime(
-   new Date(message.data.seen)
+   new Date(message.data.seen),
   ),
  })
  const articleToolButtons = elem({
@@ -752,13 +753,13 @@ function attachMessage(
  articleTools.appendChild(
   elem({
    style: { flexGrow: 1 },
-  })
+  }),
  )
  if (includeReactions) {
   attachReactions(
    articleTools,
    channel,
-   message
+   message,
   )
  }
  const article = elem({
@@ -775,7 +776,7 @@ function attachMessage(
     elem({
      tagName: 'span',
      textContent: ' • ',
-    })
+    }),
    )
   }
   const messageFooter = elem({
@@ -788,7 +789,7 @@ function attachMessage(
   async function renderFooter() {
    messageFooter.innerHTML = ''
    const href = `/#/${encodeURIComponent(
-    channel
+    channel,
    )}/${btoa(encodeURIComponent(message.text))}`
    await labelMessage(
     labelsElement,
@@ -796,7 +797,7 @@ function attachMessage(
     message,
     messageFooter,
     false,
-    allLabels
+    allLabels,
    )
    if (channel !== SCRIPT_CHANNEL) {
     const repliesLink = elem({
@@ -823,7 +824,7 @@ function attachMessage(
      click(e) {
       e.preventDefault()
       navigator.clipboard.writeText(
-       message.text
+       message.text,
       )
       copyMessageLink.textContent =
        '✔ message copied'
@@ -851,7 +852,7 @@ function attachMessage(
        message,
        messageFooter,
        true,
-       allLabels
+       allLabels,
       )
       labelMessageLink.textContent =
        '✔ message labeled'
@@ -891,8 +892,8 @@ function attachMessage(
          Math.max(1, message.data.velocity),
          sendToRealm === PUBLIC_SESSION_ID
           ? PUBLIC_SESSION_ID
-          : sendToRealm.id
-        )
+          : sendToRealm.id,
+        ),
        )
        sendToLink.textContent = `✔ sent to ${label}`
       },
@@ -904,7 +905,7 @@ function attachMessage(
      elem({
       tagName: 'span',
       textContent: ' • ',
-     })
+     }),
     )
     messageFooter.appendChild(sendToLink)
    }
@@ -936,7 +937,7 @@ function attachMessage(
     elem({
      tagName: 'span',
      textContent: ' • ',
-    })
+    }),
    )
    messageFooter.appendChild(copyToReplyLink)
 
@@ -997,8 +998,8 @@ function attachMessage(
            message.text.length > 100
             ? '...'
             : ''
-          }`
-         )}`
+          }`,
+         )}`,
         )
        ) {
         return
@@ -1006,16 +1007,16 @@ function attachMessage(
        await withLoading(
         networkMessageUnsend(
          channel,
-         message.text
-        )
+         message.text,
+        ),
        )
        unsendLink.textContent = `✔ unsent`
        await new Promise((r) =>
-        setTimeout(r, 1000)
+        setTimeout(r, 1000),
        )
        newsItem.classList.add('unsent')
        await new Promise((r) =>
-        setTimeout(r, 1000)
+        setTimeout(r, 1000),
        )
        newsItem.remove()
       },
@@ -1047,14 +1048,14 @@ function attachMessage(
 
 function displayAutocompleteChannels(
  channelInput,
- cancelChannelInput
+ cancelChannelInput,
 ) {
  let channelHistory
  function readChannelHistory() {
   if (!channelHistory) {
    channelHistory = read(
     'tmi:channel-history',
-    {}
+    {},
    )
   }
   return channelHistory
@@ -1078,7 +1079,7 @@ function displayAutocompleteChannels(
     clearTimeout(closeTimeout)
     openTimeout = setTimeout(
      () => channelInput.focus(),
-     250
+     250,
     )
    },
   },
@@ -1116,7 +1117,7 @@ function displayAutocompleteChannels(
    historyEntry,
   ] of historyEntries) {
    historyEntry.style.display = terms.every(
-    (term) => historyChannel.includes(term)
+    (term) => historyChannel.includes(term),
    )
     ? 'block'
     : 'none'
@@ -1132,7 +1133,7 @@ function displayAutocompleteChannels(
   channelHistoryListElement.innerHTML = ''
   historyEntries = []
   for (const [channel] of Object.entries(
-   readChannelHistory()
+   readChannelHistory(),
   )
    .filter(([channel]) => channel.length <= 25)
    .sort(function ([, a], [, b]) {
@@ -1169,7 +1170,7 @@ function displayAutocompleteChannels(
     ],
    })
    channelHistoryListElement.appendChild(
-    historyEntry
+    historyEntry,
    )
    historyEntries.push([
     channel.toLowerCase(),
@@ -1200,13 +1201,13 @@ function displayAutocompleteChannels(
      ],
     })
     channelHistoryListElement.appendChild(
-     historyEntry
+     historyEntry,
     )
     historyEntries.push([
      channel.toLowerCase(),
      historyEntry,
     ])
-   }
+   },
   )
   document.body.appendChild(historyElement)
   isOpen = true
@@ -1232,14 +1233,14 @@ function displayAutocompleteChannels(
 function displayAutocompleteActivitySearch(
  filterInput,
  cancelFilterInput,
- applyFilter
+ applyFilter,
 ) {
  let filterHistory
  function readFilterHistory() {
   if (!filterHistory) {
    filterHistory = read(
     'tmi:activity-filter-history',
-    {}
+    {},
    )
   }
   return filterHistory
@@ -1263,7 +1264,7 @@ function displayAutocompleteActivitySearch(
     clearTimeout(closeTimeout)
     openTimeout = setTimeout(
      () => filterInput.focus(),
-     250
+     250,
     )
    },
   },
@@ -1301,7 +1302,7 @@ function displayAutocompleteActivitySearch(
    historyEntry,
   ] of historyEntries) {
    historyEntry.style.display = terms.every(
-    (term) => historyChannel.includes(term)
+    (term) => historyChannel.includes(term),
    )
     ? 'block'
     : 'none'
@@ -1317,7 +1318,7 @@ function displayAutocompleteActivitySearch(
   filterHistoryListElement.innerHTML = ''
   historyEntries = []
   for (const [filter] of Object.entries(
-   readFilterHistory()
+   readFilterHistory(),
   ).sort(function ([, a], [, b]) {
    return b - a
   })) {
@@ -1356,7 +1357,7 @@ function displayAutocompleteActivitySearch(
     ],
    })
    filterHistoryListElement.appendChild(
-    historyEntry
+    historyEntry,
    )
    historyEntries.push([
     filter.toLowerCase(),
@@ -1428,7 +1429,7 @@ function displayActivity() {
   isVisible = true
   document.body.setAttribute(
    'data-mode',
-   'activity'
+   'activity',
   )
   await load()
   fakeScroll()
@@ -1479,7 +1480,7 @@ function displayActivity() {
    function (chunk) {
     nextChunk = chunk - 1
     isLoading = false
-   }
+   },
   )
   if (
    chunk2 === undefined &&
@@ -1496,8 +1497,8 @@ function displayActivity() {
   }
   lastMessages.push(
    ...(news.data?.map?.((newsMessage) =>
-    attachNewsMessage(element, newsMessage)
-   ) ?? [])
+    attachNewsMessage(element, newsMessage),
+   ) ?? []),
   )
   filterAgain()
   return nextChunk
@@ -1519,7 +1520,7 @@ function displayActivity() {
    if (
     !scrolledPastBottom(
      activityContainer.element,
-     true
+     true,
     )
    ) {
     break
@@ -1541,7 +1542,7 @@ function displayActivity() {
         (term) =>
          channel.includes(term) ||
          message.includes(term) ||
-         parentMessage?.includes(term)
+         parentMessage?.includes(term),
        )
    element.style.display =
     messageIncludesAllTerms ? 'block' : 'none'
@@ -1572,13 +1573,13 @@ function localDateTime(dt) {
 
 function attachNewsMessage(
  container,
- { message, channel, seen }
+ { message, channel, seen },
 ) {
  const content = elem()
  const isLabel =
   channel.startsWith(LABEL_PREFIX)
  const isReaction = channel.startsWith(
-  'reactions:message-'
+  'reactions:message-',
  )
  const isReply = channel.startsWith('replies@')
  if (isLabel) {
@@ -1688,7 +1689,7 @@ function attachNewsMessage(
   if (!channel.startsWith(REACTION_PREFIX)) {
    console.error(
     'Unknown reaction channel',
-    channel
+    channel,
    )
    return elem({
     tagName: 'p',
@@ -1698,9 +1699,9 @@ function attachNewsMessage(
   }
 
   const messageLink = `/#/${encodeURIComponent(
-   reactionChannel
+   reactionChannel,
   )}/${btoa(
-   encodeURIComponent(reactionMessage)
+   encodeURIComponent(reactionMessage),
   )}`
 
   const reactionChannelContainer = elem({
@@ -1732,19 +1733,19 @@ function attachNewsMessage(
   })
   addTextBlocks(
    reactionContent,
-   reactionMessage
+   reactionMessage,
   )
   addYouTubeEmbed(
    reactionContent,
-   reactionMessage
+   reactionMessage,
   )
   addImageEmbed(
    reactionContent,
-   reactionMessage
+   reactionMessage,
   )
   addOpenGraphLink(
    reactionContent,
-   reactionMessage
+   reactionMessage,
   )
   const dateContainer = elem({
    attributes: {
@@ -1794,7 +1795,7 @@ function attachNewsMessage(
    .split(':')
    .map(decodeURIComponent)
   const messageLink = `/#/${encodeURIComponent(
-   parentChannel
+   parentChannel,
   )}/${btoa(encodeURIComponent(parentMessage))}`
   const parentChannelContainer = elem({
    attributes: {

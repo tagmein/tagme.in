@@ -32,12 +32,12 @@ const reactionOptionsLoaded = new Promise(
     throw new Error(
      reactionsChannelContent.error ??
       `Error seeking reactions channel: ${JSON.stringify(
-       reactionsChannelContent
-      )}`
+       reactionsChannelContent,
+      )}`,
     )
    }
    const updatedReactionOptions = Object.keys(
-    reactionsChannelContent.response.messages
+    reactionsChannelContent.response.messages,
    )
     .filter((x) => x.startsWith('reaction'))
     .map((x) => x.slice('reaction'.length))
@@ -45,12 +45,12 @@ const reactionOptionsLoaded = new Promise(
     reactionOptions.splice(
      0,
      updatedReactionOptions.length,
-     ...updatedReactionOptions.slice(0, 10)
+     ...updatedReactionOptions.slice(0, 10),
     )
    }
    resolve(reactionOptions)
   }, 1000)
- }
+ },
 )
 
 async function fetchReactions() {
@@ -59,13 +59,13 @@ async function fetchReactions() {
  }
 
  const messageIds = Array.from(
-  pendingReactionRequests
+  pendingReactionRequests,
  )
  pendingReactionRequests.clear()
 
  // Filter out cached message IDs
  const uncachedMessageIds = messageIds.filter(
-  (id) => !reactionCache.has(id)
+  (id) => !reactionCache.has(id),
  )
 
  if (uncachedMessageIds.length === 0) {
@@ -78,7 +78,7 @@ async function fetchReactions() {
    `${networkRootUrl(env)}/reactions${
     activeSession?.url
      ? `?kv=${encodeURIComponent(
-        activeSession?.url
+        activeSession?.url,
        )}`
      : ''
    }`,
@@ -91,7 +91,7 @@ async function fetchReactions() {
     body: JSON.stringify({
      getForMessageIds: uncachedMessageIds,
     }),
-   }
+   },
   )
 
   if (!response.ok)
@@ -101,7 +101,7 @@ async function fetchReactions() {
 
   function getReactionContainers(messageId) {
    return document.querySelectorAll(
-    `[data-message-id="${messageId}"]`
+    `[data-message-id="${messageId}"]`,
    )
   }
 
@@ -118,16 +118,16 @@ async function fetchReactions() {
       updateReactionDisplay(
        messageId,
        container,
-       reactions
+       reactions,
       )
      }
     }
-   }
+   },
   )
  } catch (err) {
   console.error(
    'Error fetching reactions:',
-   err
+   err,
   )
  }
 }
@@ -135,7 +135,7 @@ async function fetchReactions() {
 function updateReactionDisplay(
  messageId,
  container,
- reactions
+ reactions,
 ) {
  // Clear existing reactions
  container.innerHTML = ''
@@ -150,7 +150,7 @@ function updateReactionDisplay(
      (reactionScores[emoji] || 0) +
      (1 + calculateScore(data))
    }
-  }
+  },
  )
 
  // Create reaction elements
@@ -165,11 +165,11 @@ function updateReactionDisplay(
     },
     attributes: {
      title: `Score: ${Math.round(
-      score
+      score,
      ).toString(10)}`,
     },
     textContent: `${reaction} ${niceNumber(
-     score
+     score,
     )}`,
     events: {
      click: async () => {
@@ -182,10 +182,10 @@ function updateReactionDisplay(
       } catch (err) {
        console.error(
         'Error adding reaction:',
-        err
+        err,
        )
        reactionElement.classList.remove(
-        'active'
+        'active',
        )
       } finally {
        reactionElement.style.opacity = 1
@@ -205,13 +205,13 @@ function queueReactionFetch(messageId) {
  clearTimeout(reactionFetchTimeout)
  reactionFetchTimeout = setTimeout(
   fetchReactions,
-  500
+  500,
  )
 }
 
 async function addReaction(
  messageId,
- reaction
+ reaction,
 ) {
  try {
   const activeSession = getActiveSession()
@@ -219,7 +219,7 @@ async function addReaction(
    `${networkRootUrl(env)}/reactions${
     activeSession?.url
      ? `?kv=${encodeURIComponent(
-        activeSession?.url
+        activeSession?.url,
        )}`
      : ''
    }`,
@@ -233,12 +233,12 @@ async function addReaction(
      createForMessageId: messageId,
      reaction: reaction,
     }),
-   }
+   },
   )
   if (!response.ok) {
    throw new Error(
     'Failed to add reaction: HTTP ' +
-     response.status
+     response.status,
    )
   }
  } catch (err) {
@@ -249,18 +249,18 @@ async function addReaction(
 
 function reactionMessageId(channel, message) {
  return `channel-message-${encodeURIComponent(
-  channel
+  channel,
  )}--${encodeURIComponent(message.text)}`
 }
 
 function attachReactions(
  container,
  channel,
- message
+ message,
 ) {
  const messageId = reactionMessageId(
   channel,
-  message
+  message,
  )
 
  const reactions = elem({
@@ -279,7 +279,7 @@ function attachReactions(
   updateReactionDisplay(
    messageId,
    reactions,
-   reactionCache.get(messageId)
+   reactionCache.get(messageId),
   )
  }
 
@@ -334,17 +334,30 @@ function attachReactions(
     const popup = await createPopupMenu()
     popupMenuElement = popup.element
     addReactionButton.parentElement.appendChild(
-     popupMenuElement
+     popupMenuElement,
     )
-    document.body.style.pointerEvents = 'none' // Disable body pointer events
 
-    currentClosePopupListener =
-     closeReactionPopup
+    const closePopup = (e) => {
+     if (!popupMenuElement) {
+      document.removeEventListener(
+       'click',
+       closePopup,
+      )
+      return
+     }
+     if (!popupMenuElement.contains(e.target)) {
+      popupMenuElement.remove()
+      document.removeEventListener(
+       'click',
+       closePopup,
+      )
+     }
+    }
+
     setTimeout(() => {
      document.addEventListener(
       'click',
-      closeReactionPopup,
-      true
+      closePopup,
      )
     }, 0)
    },
@@ -355,7 +368,7 @@ function attachReactions(
    tagName: 'div',
    classes: ['reactions-container'],
    children: [reactions, addReactionButton],
-  })
+  }),
  )
 
  async function createPopupMenu() {
@@ -400,7 +413,7 @@ function attachReactions(
 
       // Optimistically find or create the element
       reactionElement = reactions.querySelector(
-       `[data-reaction="${reaction}"]`
+       `[data-reaction="${reaction}"]`,
       )
       if (reactionElement) {
        reactionElement.style.opacity = 1
@@ -429,7 +442,7 @@ function attachReactions(
       } catch (err) {
        console.error(
         'Error adding reaction:',
-        err
+        err,
        )
        // On error, remove the optimistically added/activated element
        if (reactionElement) {

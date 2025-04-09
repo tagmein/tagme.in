@@ -1,3 +1,0 @@
-name = "tagmein-chat"
-main = "functions/chat.ts" # Path to your entry file
-compatibility_date = "2025-04-08" # Use the current date

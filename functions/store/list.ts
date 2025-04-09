@@ -11,7 +11,7 @@ interface ListBody {
 }
 
 async function validateListBody(
- request: Request
+ request: Request,
 ): Promise<{ error?: string; data: ListBody }> {
  try {
   const data: ListBody = await request.json()
@@ -97,7 +97,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 401,
-   }
+   },
   )
  }
 
@@ -106,7 +106,7 @@ export const onRequestPost: PagesFunction<
    collectionName,
    fieldList,
    skip,
-   limit
+   limit,
   )
   return new Response(
    JSON.stringify({ items }),
@@ -114,7 +114,7 @@ export const onRequestPost: PagesFunction<
     headers: {
      'Content-Type': 'application/json',
     },
-   }
+   },
   )
  } catch (e) {
   return new Response(
@@ -126,7 +126,7 @@ export const onRequestPost: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 500,
-   }
+   },
   )
  }
 }

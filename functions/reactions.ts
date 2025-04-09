@@ -17,10 +17,10 @@ type RequestBody =
  | CreateReactionBody
 
 async function readRequestBody(
- request: Request
+ request: Request,
 ) {
  const contentType = request.headers.get(
-  'content-type'
+  'content-type',
  )
  if (!contentType) {
   throw new Error('Missing content-type header')
@@ -38,7 +38,7 @@ async function readRequestBody(
 }
 
 async function validateRequestBody(
- data: RequestBody
+ data: RequestBody,
 ): Promise<{
  error?: string
  data: RequestBody
@@ -50,7 +50,7 @@ async function validateRequestBody(
  ) {
   if (
    !data.getForMessageIds.every(
-    (id) => typeof id === 'string'
+    (id) => typeof id === 'string',
    )
   ) {
    return {
@@ -110,7 +110,7 @@ export const onRequestPost: PagesFunction<Env> =
       headers: {
        'Content-Type': 'application/json',
       },
-     }
+     },
     )
    }
 
@@ -127,7 +127,7 @@ export const onRequestPost: PagesFunction<Env> =
      request,
     } as any,
     true,
-    kvUrl
+    kvUrl,
    )
 
    if (!kv) {
@@ -140,7 +140,7 @@ export const onRequestPost: PagesFunction<Env> =
       headers: {
        'Content-Type': 'application/json',
       },
-     }
+     },
     )
    }
 
@@ -158,8 +158,8 @@ export const onRequestPost: PagesFunction<Env> =
         messageId,
         reactions: messageReactions.messages,
        }
-      }
-     )
+      },
+     ),
     )
 
     return new Response(
@@ -168,7 +168,7 @@ export const onRequestPost: PagesFunction<Env> =
       headers: {
        'Content-Type': 'application/json',
       },
-     }
+     },
     )
    } else {
     const messageId = data.createForMessageId
@@ -186,7 +186,7 @@ export const onRequestPost: PagesFunction<Env> =
       headers: {
        'Content-Type': 'application/json',
       },
-     }
+     },
     )
    }
   } catch (error) {
@@ -199,7 +199,7 @@ export const onRequestPost: PagesFunction<Env> =
      headers: {
       'Content-Type': 'application/json',
      },
-    }
+    },
    )
   }
  }

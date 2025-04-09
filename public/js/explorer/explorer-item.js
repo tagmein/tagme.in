@@ -2,7 +2,7 @@ function explorerItem(
  item,
  store,
  onUpdate,
- itemAction
+ itemAction,
 ) {
  const element = elem({
   classes: ['explorer-item'],
@@ -19,7 +19,7 @@ function explorerItem(
      element.classList.toggle('selected')
     } else {
      Array.from(
-      element.parentNode.children
+      element.parentNode.children,
      ).forEach((item) => {
       item.classList.remove('selected')
      })
@@ -46,7 +46,7 @@ function explorerItem(
    async click() {
     const newNote = prompt(
      `"${item.name}" note`,
-     item.note
+     item.note,
     )
     if (typeof newNote === 'string') {
      await store.patch(item.id, {

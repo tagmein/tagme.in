@@ -18,7 +18,7 @@ export function scroll(kv: CivilMemoryKV) {
 
  async function getLatestNewsChunkId() {
   const latestChunkString = await kv.get(
-   newsKey.newsChunkId
+   newsKey.newsChunkId,
   )
   const latestChunkId =
    typeof latestChunkString === 'string'
@@ -32,12 +32,12 @@ export function scroll(kv: CivilMemoryKV) {
  const channel = scrollChannel(
   kv,
   newsKey,
-  getLatestNewsChunkId
+  getLatestNewsChunkId,
  )
 
  async function news(
   chunk: number | null,
-  includeNewMessages: boolean
+  includeNewMessages: boolean,
  ): Promise<string> {
   const chunkId =
    typeof chunk === 'number' && !isNaN(chunk)
@@ -52,21 +52,20 @@ export function scroll(kv: CivilMemoryKV) {
    })
    return template.replace(
     '"DATA"',
-    (await kv.get(chunkKey)) ?? '[]' // this technique avoids parsing the chunk simply to re-stringify it in the response
+    (await kv.get(chunkKey)) ?? '[]', // this technique avoids parsing the chunk simply to re-stringify it in the response
    )
   } else {
    const showNewsOlderThan =
     Date.now() - NEWS_ITEM_APPEARS_AFTER
-   const newsChunkString = await kv.get(
-    chunkKey
-   )
+   const newsChunkString =
+    await kv.get(chunkKey)
    const newsChunk = (
     typeof newsChunkString === 'string' &&
     newsChunkString.length > 4
      ? JSON.parse(newsChunkString)
      : []
    ).filter(
-    (n: NewsItem) => n.seen < showNewsOlderThan
+    (n: NewsItem) => n.seen < showNewsOlderThan,
    )
    return JSON.stringify({
     chunkId,

@@ -17,28 +17,28 @@ export const onRequestGet: PagesFunction<
   if (typeof channel !== 'string') {
    return new Response(
     'missing channel parameter',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
   if (channel.length > 65536) {
    return new Response(
     'channel parameter must be 65536 characters or less',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
   if (channel !== channel.trim()) {
    return new Response(
     'channel parameter must not start or end with space',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
   if (typeof hourId !== 'string') {
    return new Response(
     'missing hour parameter',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
@@ -50,7 +50,7 @@ export const onRequestGet: PagesFunction<
   ) {
    return new Response(
     'hour parameter must be a non-negative integer',
-    { status: 400 }
+    { status: 400 },
    )
   }
 
@@ -66,7 +66,7 @@ export const onRequestGet: PagesFunction<
       'Content-Type': 'application/json',
      },
      status: 401,
-    }
+    },
    )
   }
 
@@ -99,7 +99,7 @@ export const onRequestGet: PagesFunction<
     headers: {
      'Content-Type': 'application/json',
     },
-   }
+   },
   )
  } catch (e) {
   throw new Error(e)
@@ -113,7 +113,7 @@ export const onRequestGet: PagesFunction<
     headers: {
      'Content-Type': 'application/json',
     },
-   }
+   },
   )
  }
 }

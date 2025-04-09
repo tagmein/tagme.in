@@ -2,7 +2,7 @@ function networkStore(session, collectionName) {
  async function sendRequest(
   path,
   method,
-  body
+  body,
  ) {
   const headers = {
    Authorization: session.accessToken,
@@ -24,14 +24,14 @@ function networkStore(session, collectionName) {
      method,
      headers,
      body: postBody,
-    }
-   )
+    },
+   ),
   )
   if (!response.ok) {
    throw new Error(
     `${response.statusText}: ${withLoading(
-     await response.text()
-    )}`
+     await response.text(),
+    )}`,
    )
   }
   return response.json()
@@ -40,9 +40,9 @@ function networkStore(session, collectionName) {
  async function get(id) {
   const response = await sendRequest(
    `get?collectionName=${encodeURIComponent(
-    collectionName
+    collectionName,
    )}&id=${encodeURIComponent(id)}`,
-   'GET'
+   'GET',
   )
   if ('item' in response) {
    return response.item
@@ -73,7 +73,7 @@ function networkStore(session, collectionName) {
     fieldList,
     skip,
     limit,
-   }
+   },
   )
   if ('items' in response) {
    return response.items

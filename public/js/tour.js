@@ -9,9 +9,9 @@ function tour() {
  }
  tourIsActive = true
  const elements = Array.from(
-  document.querySelectorAll('*[data-tour]')
+  document.querySelectorAll('*[data-tour]'),
  ).filter(
-  (x) => x.getBoundingClientRect().width > 0
+  (x) => x.getBoundingClientRect().width > 0,
  )
 
  let tourPointer = 0
@@ -65,7 +65,7 @@ function tour() {
      },
      tagName: 'button',
      textContent: 'Done',
-    })
+    }),
    )
   } else {
    tourPointer++
@@ -126,7 +126,7 @@ function tour() {
 
  function repositionTour() {
   for (const t of Array.from(
-   tourSelf.children
+   tourSelf.children,
   )) {
    t.style.display = 'none'
   }
@@ -150,8 +150,8 @@ function tour() {
           self.height -
           pad -
           scrollY,
-         innerHeight - box.top + pad
-        )
+         innerHeight - box.top + pad,
+        ),
        )}px`,
        top: 'auto',
       }
@@ -164,10 +164,10 @@ function tour() {
           innerHeight -
           self.height -
           pad,
-         box.bottom + pad
-        )
+         box.bottom + pad,
+        ),
        )}px`,
-      }
+      },
   )
   Object.assign(
    tourElement.style,
@@ -178,8 +178,8 @@ function tour() {
         pad,
         Math.min(
          innerWidth - self.width - pad,
-         innerWidth - box.right + pad
-        )
+         innerWidth - box.right + pad,
+        ),
        )}px`,
       }
     : {
@@ -187,11 +187,11 @@ function tour() {
         pad,
         Math.min(
          innerWidth - self.width - pad,
-         box.left + pad
-        )
+         box.left + pad,
+        ),
        )}px`,
        right: 'auto',
-      }
+      },
   )
   Object.assign(tourSelf.style, {
    left: `${box.left}px`,
@@ -208,7 +208,7 @@ function tour() {
   tourSelf.children[3].style.width =
    window.innerWidth - box.right + 'px'
   for (const t of Array.from(
-   tourSelf.children
+   tourSelf.children,
   )) {
    t.style.display = 'block'
   }

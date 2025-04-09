@@ -6,7 +6,7 @@ function explorerToolbar(
   onViewModeChange,
   onNewItem,
   onPageChange,
- }
+ },
 ) {
  const element = elem({
   classes: ['explorer-toolbar'],
@@ -69,7 +69,7 @@ function explorerToolbar(
   },
  })
  paginationElement.appendChild(
-  previousPageButton
+  previousPageButton,
  )
 
  const pageNumberElement = elem({
@@ -77,7 +77,7 @@ function explorerToolbar(
   textContent: 'Page 1',
  })
  paginationElement.appendChild(
-  pageNumberElement
+  pageNumberElement,
  )
 
  const nextPageButton = elem({

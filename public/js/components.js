@@ -18,7 +18,7 @@ function tabStrip(currentTabKey, setTabKey) {
   key,
   label,
   contentHandler,
-  switchToHandler
+  switchToHandler,
  ) {
   const tab = elem({
    classes: ['tab'],
@@ -46,10 +46,10 @@ function tabStrip(currentTabKey, setTabKey) {
 
  async function switchTo(
   tabObject,
-  switchTo = true
+  switchTo = true,
  ) {
   tabs.forEach(({ tab: t }) =>
-   t.classList.remove('active')
+   t.classList.remove('active'),
   )
   tabObject.tab.classList.add('active')
   tabObject.contentHandler.switchTo()
@@ -64,7 +64,7 @@ function tabStrip(currentTabKey, setTabKey) {
 
  function remove(tabObject) {
   const index = tabs.findIndex(
-   (t) => t === tabObject
+   (t) => t === tabObject,
   )
   if (index !== -1) {
    const { contentHandler } = tabs[index]
@@ -93,20 +93,20 @@ function tabStrip(currentTabKey, setTabKey) {
   tabsContainer.appendChild(
    elem({
     classes: ['tab-spacer'],
-   })
+   }),
   )
   const matchingTab = tabs.find(
-   (t) => t.key === currentTabKey
+   (t) => t.key === currentTabKey,
   )
   if (matchingTab) {
    await switchTo(
     matchingTab,
-    typeof lastKnownMode !== 'string'
+    typeof lastKnownMode !== 'string',
    )
   } else {
    await switchTo(
     tabs[0],
-    typeof lastKnownMode !== 'string'
+    typeof lastKnownMode !== 'string',
    )
   }
  }
@@ -209,7 +209,7 @@ const channelInput = elem({
   },
   input() {
    autocompleteChannels.filter(
-    channelInput.value.trim()
+    channelInput.value.trim(),
    )
   },
   keydown({ key }) {
@@ -251,7 +251,7 @@ async function withLoading(promise) {
   return data
  } catch (e) {
   await politeAlert(
-   e.message ?? e ?? 'Unknown error'
+   e.message ?? e ?? 'Unknown error',
   )
   return false
  } finally {
@@ -278,7 +278,7 @@ const themeSelectorThemeListContainer = elem({
     },
    },
    tagName: 'button',
-  })
+  }),
  ),
 })
 
@@ -317,7 +317,7 @@ const themeSelectorOpacitySliderInput = elem({
   input() {
    localStorage.setItem(
     THEME_OPACITY_STORAGE_KEY,
-    this.value
+    this.value,
    )
    //  themeFilter.style.opacity = (
    //   this.value / 100
@@ -340,7 +340,7 @@ const themeSelectorResetButton = elem({
  events: {
   click() {
    localStorage.removeItem(
-    THEME_OPACITY_STORAGE_KEY
+    THEME_OPACITY_STORAGE_KEY,
    )
    themeSelectorOpacitySliderInput.value = 50
    setTheme('none')
@@ -394,7 +394,7 @@ function enterThemeSelector() {
   currentThemeButton = document.querySelector(
    `button[data-theme="${
     currentTheme ?? 'none'
-   }"]`
+   }"]`,
   )
   currentThemeButton.scrollIntoView({
    behavior: 'smooth',

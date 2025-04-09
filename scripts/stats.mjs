@@ -135,12 +135,12 @@ function injectStats(stats, filePath) {
   filePath,
   readFileSync(filePath, 'utf8').replace(
    /<p id="stats">[^<]*<\/p>/,
-   `<p id="stats">${statsText}</p>`
-  )
+   `<p id="stats">${statsText}</p>`,
+  ),
  )
 }
 
 injectStats(
  stats(process.cwd()),
- join(process.cwd(), 'public', 'index.html')
+ join(process.cwd(), 'public', 'index.html'),
 )

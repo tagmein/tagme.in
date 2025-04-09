@@ -42,16 +42,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
             );
         }
 
+        // Fetch channel messages from KV store
+        const channelMessages = await kv.get(`seek#${channel}#999999999`);
+        const contextMessages = channelMessages || 'No messages found in the channel.';
+
         // Generate a response using Google GenAI
         const aiResponse = await ai.models.generateContent({
             model: 'gemini-2.0-flash-001',
-            contents: `Channel: ${channel}\nMessage: ${message}`,
+            contents: `Channel: ${channel}\nMessage: ${message}\nContext: ${contextMessages}`,
         });
 
         const response = {
             channel,
             message,
             reply: aiResponse.text || 'No response generated.',
+            context: contextMessages,
         };
 
         return new Response(JSON.stringify(response), {

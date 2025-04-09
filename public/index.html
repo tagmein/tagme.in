@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
  <head>
   <meta charset="utf-8" />
@@ -9,15 +9,15 @@
   />
   <script>
    const metaViewport = document.getElementById(
-    'meta:viewport'
+    'meta:viewport',
    )
    globalThis.setZoom = (
-    level /*: number*/ = 1
+    level /*: number*/ = 1,
    ) => {
     localStorage.setItem('zoom', level)
     metaViewport.setAttribute(
      'content',
-     `width=device-width, initial-scale=${level}`
+     `width=device-width, initial-scale=${level}`,
     )
    }
    const lastSetZoom =
@@ -33,7 +33,7 @@
    href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///8AAABVwtN+AAAAK0lEQVQI12P4/5/h/0eG/79B6O9thj+zGf5IM/wNZGC9z3AXjO7/R6D//wGWfRuJudGK0QAAAABJRU5ErkJggg=="
   />
   <link rel="manifest" href="manifest.json" />
-  
+
   <script>
    globalThis.env = {
     // TAGMEIN_API_BASEURL:
@@ -92,9 +92,7 @@
   data-theme-bg
  >
   <!-- Add the .app-header element -->
-  <div class="app-header">
-   
-  </div>
+  <div class="app-header"></div>
 
   <!-- 1st, load lib js file -->
   <script
@@ -182,12 +180,13 @@
   <!-- Include Chat JavaScript -->
   <script
    type="text/javascript"
-   src="./js/chat.js"></script>
+   src="./js/chat.js"
+  ></script>
   <div class="realm-tab-header">
-    <!-- The chat button will be dynamically added here -->
+   <!-- The chat button will be dynamically added here -->
   </div>
   <div id="chat-interface" class="hidden">
-    <!-- Chat interface content will be dynamically added here -->
+   <!-- Chat interface content will be dynamically added here -->
   </div>
   <footer id="footer">
    <h1>
@@ -262,7 +261,11 @@
      and Gemini AI (the theme selector pallete
      icon, and the message label icon).
     </p>
-    <p id="stats">Written in 511 lines of HTML, 2609 lines of TypeScript, 6284 lines of JavaScript, and 2564 lines of CSS</p>
+    <p id="stats">
+     Written in 501 lines of HTML, 2759 lines of
+     TypeScript, 5682 lines of JavaScript, and
+     2509 lines of CSS
+    </p>
     <p>
      All data is stored on Cloudflare via
      <a

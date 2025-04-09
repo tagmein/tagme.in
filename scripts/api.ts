@@ -11,10 +11,10 @@ const rootDir = resolve(process.cwd())
 const envFileName = '.dev.vars'
 const devVarsPath = resolve(
  rootDir,
- envFileName
+ envFileName,
 )
 console.log(
- `Reading environment variables from ${devVarsPath}`
+ `Reading environment variables from ${devVarsPath}`,
 )
 config({
  path: devVarsPath,
@@ -61,7 +61,7 @@ async function adaptCfHandler(
   params: any
  }) => Promise<Response>,
  req: express.Request,
- res: express.Response
+ res: express.Response,
 ) {
  // Construct the URL for the Cloudflare Request
  const protocol = req.protocol
@@ -71,7 +71,7 @@ async function adaptCfHandler(
  // Copy headers from the Express request into a new Headers instance
  const headers = new Headers()
  for (const [key, value] of Object.entries(
-  req.headers
+  req.headers,
  )) {
   if (Array.isArray(value)) {
    headers.set(key, value.join(', '))
@@ -110,9 +110,8 @@ async function adaptCfHandler(
 
  try {
   // Invoke the Cloudflare function handler.
-  const cfResponse: Response = await cfHandler(
-   context
-  )
+  const cfResponse: Response =
+   await cfHandler(context)
 
   // Set the HTTP status code from the Cloudflare Response.
   res.status(cfResponse.status)
@@ -129,7 +128,7 @@ async function adaptCfHandler(
  } catch (err) {
   console.error(
    'Error in Cloudflare handler:',
-   err
+   err,
   )
   res.status(500).send('Internal Server Error')
  }
@@ -143,11 +142,11 @@ function cfExpressHandler(
   request: Request
   env: any
   params: any
- }) => Promise<Response>
+ }) => Promise<Response>,
 ) {
  return (
   req: express.Request,
-  res: express.Response
+  res: express.Response,
  ) => {
   adaptCfHandler(cfHandler, req, res)
  }
@@ -164,7 +163,7 @@ function cfExpressHandler(
 async function loadCfFunctions() {
  const functionsDir = path.join(
   process.cwd(),
-  'functions'
+  'functions',
  )
  let files: string[] = []
  try {
@@ -172,7 +171,7 @@ async function loadCfFunctions() {
  } catch (err) {
   console.error(
    'Error reading functions directory:',
-   err
+   err,
   )
   return
  }
@@ -188,7 +187,7 @@ async function loadCfFunctions() {
   const routePath = '/' + baseName
   const modulePath = path.join(
    functionsDir,
-   file
+   file,
   )
   try {
    // Dynamically import the module. Convert the file path to a file:// URL.
@@ -198,11 +197,11 @@ async function loadCfFunctions() {
 
    if (mod.onRequest) {
     console.log(
-     `Registering route [ALL] ${routePath} from onRequest export`
+     `Registering route [ALL] ${routePath} from onRequest export`,
     )
     app.all(
      routePath,
-     cfExpressHandler(mod.onRequest)
+     cfExpressHandler(mod.onRequest),
     )
    } else {
     // Map method-specific exports.
@@ -231,25 +230,25 @@ async function loadCfFunctions() {
     ] of Object.entries(methodMapping)) {
      if (mod[exportName]) {
       console.log(
-       `Registering route [${httpMethod.toUpperCase()}] ${routePath} from ${exportName} export`
+       `Registering route [${httpMethod.toUpperCase()}] ${routePath} from ${exportName} export`,
       )
       app[httpMethod](
        routePath,
-       cfExpressHandler(mod[exportName])
+       cfExpressHandler(mod[exportName]),
       )
       registered = true
      }
     }
     if (!registered) {
      console.warn(
-      `No valid Cloudflare function export found in ${file}`
+      `No valid Cloudflare function export found in ${file}`,
      )
     }
    }
   } catch (err) {
    console.error(
     `Error loading module ${file}:`,
-    err
+    err,
    )
   }
  }
@@ -266,7 +265,7 @@ async function main() {
  // Serve static files from the /public directory.
  const publicDir = path.join(
   process.cwd(),
-  'public'
+  'public',
  )
  app.use(express.static(publicDir))
 
@@ -279,7 +278,7 @@ async function main() {
  // Start the server.
  app.listen(env.PORT, () => {
   console.log(
-   `Server running on http://127.0.0.1:${env.PORT}`
+   `Server running on http://127.0.0.1:${env.PORT}`,
   )
  })
 }

@@ -8,7 +8,7 @@ export const onRequestGet: PagesFunction<
 > = async (context) => {
  const url = new URL(context.request.url)
  const collectionName = url.searchParams.get(
-  'collectionName'
+  'collectionName',
  )
  const id = url.searchParams.get('id')
  const kvUrl = url.searchParams.get('kv')
@@ -19,7 +19,7 @@ export const onRequestGet: PagesFunction<
  ) {
   return new Response(
    'Invalid query parameters',
-   { status: 400 }
+   { status: 400 },
   )
  }
 
@@ -33,14 +33,14 @@ export const onRequestGet: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 401,
-   }
+   },
   )
  }
 
  try {
   const item = await store(kv).get(
    collectionName,
-   id
+   id,
   )
   return new Response(
    JSON.stringify({ item }),
@@ -48,7 +48,7 @@ export const onRequestGet: PagesFunction<
     headers: {
      'Content-Type': 'application/json',
     },
-   }
+   },
   )
  } catch (e) {
   return new Response(
@@ -60,7 +60,7 @@ export const onRequestGet: PagesFunction<
      'Content-Type': 'application/json',
     },
     status: 500,
-   }
+   },
   )
  }
 }

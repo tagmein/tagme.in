@@ -1,11 +1,11 @@
 function realmRealms(container, session) {
  const store = networkStore(
   session,
-  'system.realms'
+  'system.realms',
  )
  const preferencesStore = networkStore(
   session,
-  'system.preferences.patterns'
+  'system.preferences.patterns',
  )
  container.appendChild(
   explorer(store, preferencesStore, {
@@ -19,17 +19,17 @@ function realmRealms(container, session) {
         session.realm
          ? extendRealm(session.realm, item.id)
          : `${encodeURIComponent(
-            session.email
+            session.email,
            )}#${encodeURIComponent(
-            JSON.stringify([item.id])
+            JSON.stringify([item.id]),
            )}`,
-        item.id
-       )
+        item.id,
+       ),
       )
       .switchTo()
     },
    },
-  }).element
+  }).element,
  )
 }
 
@@ -37,9 +37,9 @@ function extendRealm(realm, id) {
  const [emailEncoded, idsEncoded] =
   realm.split('#')
  const ids = JSON.parse(
-  decodeURIComponent(idsEncoded)
+  decodeURIComponent(idsEncoded),
  )
  return `${emailEncoded}#${encodeURIComponent(
-  JSON.stringify([...ids, id])
+  JSON.stringify([...ids, id]),
  )}`
 }

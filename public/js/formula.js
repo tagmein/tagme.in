@@ -8,7 +8,7 @@ function formula(element, value) {
  }
  source.addEventListener(
   'mouseover',
-  cancelHideSource
+  cancelHideSource,
  )
  function showSource() {
   cancelHideSource()
@@ -18,7 +18,7 @@ function formula(element, value) {
  function hideSource() {
   hideSourceTimeout = setTimeout(
    hideSourceNow,
-   5e2
+   5e2,
   )
  }
  function hideSourceNow() {
@@ -29,11 +29,11 @@ function formula(element, value) {
  }
  element.addEventListener(
   'mouseenter',
-  showSource
+  showSource,
  )
  element.addEventListener(
   'mouseleave',
-  hideSource
+  hideSource,
  )
  element.classList.add('formula')
  element.classList.add('formula-pending')
@@ -77,7 +77,7 @@ function sandbox(code) {
 
  return new Promise((resolve, reject) => {
   const worker = new Worker(
-   URL.createObjectURL(workerBlob)
+   URL.createObjectURL(workerBlob),
   )
 
   let workerTimeout

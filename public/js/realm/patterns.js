@@ -1,13 +1,13 @@
 function realmPatterns(container, session) {
  const store = networkStore(
   session,
-  'system.patterns'
+  'system.patterns',
  )
  const preferencesStore = networkStore(
   session,
-  'system.preferences.realms'
+  'system.preferences.realms',
  )
  container.appendChild(
-  explorer(store, preferencesStore).element
+  explorer(store, preferencesStore).element,
  )
 }
