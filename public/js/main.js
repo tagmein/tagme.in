@@ -42,11 +42,17 @@ async function updateComposeTextarea(
    ? COMPOSE_PLACEHOLDER_REPLY
    : channel === 'reactions'
    ? ADD_REACTION_PLACEHOLDER_MESSAGE
+   : channel === SCRIPT_CHANNEL
+   ? 'Write script code (up to 100000 characters)'
    : COMPOSE_PLACEHOLDER_MESSAGE
  )
  composeTextarea.setAttribute(
   'maxlength',
-  channel === 'reactions' ? 25 : 175
+  channel === 'reactions'
+   ? 25
+   : channel === SCRIPT_CHANNEL
+   ? 100000
+   : 175
  )
 }
 
@@ -101,6 +107,42 @@ const composeTextarea = elem({
  },
  tagName: 'textarea',
 })
+
+// --- Resize Observer for SCRIPT_CHANNEL textarea height persistence ---
+let debounceTimeout
+const scriptTextareaResizeObserver =
+ new ResizeObserver((entries) => {
+  for (let entry of entries) {
+   // Only act if the observed element is the composeTextarea
+   if (entry.target === composeTextarea) {
+    // Debounce the saving operation
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+     // Check if we are currently on the SCRIPT_CHANNEL
+     if (
+      getUrlData().channel === SCRIPT_CHANNEL
+     ) {
+      const height =
+       composeTextarea.offsetHeight // Get the actual rendered height
+      if (height > 0) {
+       // Only save valid heights
+       localStorage.setItem(
+        '𝓢.height',
+        `${height}px`
+       )
+       // console.log(`Saved S channel height: ${height}px`);
+      }
+     }
+    }, 300) // Debounce duration (300ms)
+   }
+  }
+ })
+
+// Start observing the textarea
+scriptTextareaResizeObserver.observe(
+ composeTextarea
+)
+// -------------------------------------------------------------------
 
 const realmControlContainer = elem({
  classes: ['realm-control', 'mode-other'],
@@ -171,6 +213,12 @@ const mainContent = elem({
  tagName: 'main',
 })
 
+const scriptOutputReelContainer = elem({
+ id: 'script-output-reel-container', // Give it an ID for potential styling/reference
+ classes: ['script-output-reel'], // Keep the reel class for flex layout
+ // This container will be cleared and populated by displayInstalledScripts
+})
+
 const consentPrompt = elem({
  attributes: {
   'data-tour':
@@ -195,6 +243,7 @@ body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
 body.appendChild(realmControlContainer)
 body.appendChild(messageContent)
+body.appendChild(scriptOutputReelContainer)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
 body.appendChild(mainContent)
@@ -293,6 +342,26 @@ async function route() {
   .filter((v) => v !== '')
   .join(' - ')
  activityContainer.clear()
+ body.setAttribute('data-channel', channel)
+
+ // --- Apply specific styles/behavior for SCRIPT_CHANNEL ---
+ if (channel === SCRIPT_CHANNEL) {
+  // Load and apply persisted height for the textarea
+  const savedHeight =
+   localStorage.getItem('𝓢.height')
+  if (savedHeight) {
+   composeTextarea.style.height = savedHeight
+   // console.log(`Applied S channel height: ${savedHeight}`);
+  } else {
+   // Reset to default if no saved height (or rely on CSS min-height)
+   composeTextarea.style.height = '' // Reset inline style
+  }
+ } else {
+  // Ensure height is reset when navigating away from S channel
+  composeTextarea.style.height = ''
+ }
+ // -------------------------------------------------------
+
  const activeSessionId = getActiveSessionId()
  if (typeof messageText === 'string') {
   body.classList.remove('on-channel')
@@ -301,6 +370,10 @@ async function route() {
    'placeholder',
    COMPOSE_PLACEHOLDER_REPLY
   )
+  if (channel === SCRIPT_CHANNEL) {
+   location.hash = `#/${SCRIPT_CHANNEL}`
+   return
+  }
  } else {
   body.classList.remove('on-message')
   body.classList.add('on-channel')

@@ -6,6 +6,7 @@ import { scroll } from './lib/scroll.js'
 const MAX_CHANNEL_LENGTH = 65536
 const MIN_MESSAGE_LENGTH = 3
 const MAX_MESSAGE_LENGTH = 175
+const MAX_SCRIPT_LENGTH = 100000
 
 interface PostBody {
  channel: string
@@ -43,6 +44,11 @@ async function validateRequestBody(
    }
   }
 
+  const maxLength =
+   data.channel === '𝓢'
+    ? MAX_SCRIPT_LENGTH
+    : MAX_MESSAGE_LENGTH
+
   if (
    data.message.length < MIN_MESSAGE_LENGTH
   ) {
@@ -52,11 +58,9 @@ async function validateRequestBody(
    }
   }
 
-  if (
-   data.message.length > MAX_MESSAGE_LENGTH
-  ) {
+  if (data.message.length > maxLength) {
    return {
-    error: `message must be ${MAX_MESSAGE_LENGTH} characters or less`,
+    error: `message must be ${maxLength} characters or less`,
     data,
    }
   }

@@ -4,8 +4,6 @@ let secondMostRecentRealm
 
 const allLabels = globalThis.STATUS_LABELS
 
-// console.log({ allLabels })
-
 const LABEL_PREFIX = 'labels@'
 const MESSAGE_PERSIST_THRESHOLD = 5
 const REACTION_PREFIX =
@@ -282,44 +280,70 @@ function displayChannelHome(
 ) {
  messageContent.innerHTML = ''
  mainContent.innerHTML = ''
- messageContent.appendChild(
-  elem({
-   children: [
-    elem({
-     tagName: 'span',
-     textContent: 'Channel ',
-    }),
-    elem({
-     attributes: {
-      href: `/#/${encodeURIComponent(channel)}`,
-     },
-     tagName: 'a',
-     textContent: `#${
-      channel.length > 0
-       ? channel
-       : HOME_CHANNEL_ICON
-     }`,
-    }),
-    elem({
-     tagName: 'span',
-     textContent: ` has ${
-      formattedMessageData.length === 1
-       ? 'one'
-       : formattedMessageData.length
-     } message${
-      formattedMessageData.length === 1
-       ? ''
-       : 's'
-     }`,
-    }),
-   ],
-  })
- )
+
+ const channelHeader = elem({
+  classes: ['channel-header'],
+ })
+ messageContent.appendChild(channelHeader)
+
+ const descriptionElement = elem({
+  children: [
+   elem({
+    tagName: 'span',
+    textContent: 'Channel ',
+   }),
+   elem({
+    attributes: {
+     href: `/#/${encodeURIComponent(channel)}`,
+    },
+    tagName: 'a',
+    textContent: `#${
+     channel.length > 0
+      ? channel
+      : HOME_CHANNEL_ICON
+    }`,
+   }),
+   elem({
+    tagName: 'span',
+    textContent: ` has ${
+     formattedMessageData.length === 1
+      ? 'one'
+      : formattedMessageData.length
+    } message${
+     formattedMessageData.length === 1
+      ? ''
+      : 's'
+    }`,
+   }),
+  ],
+ })
+ channelHeader.appendChild(descriptionElement)
+
  const sendToRealm = secondMostRecentRealm
   ? secondMostRecentRealm === PUBLIC_SESSION_ID
     ? PUBLIC_SESSION_ID
     : readSession(secondMostRecentRealm)
   : undefined
+
+ if (channel !== SCRIPT_CHANNEL) {
+  const scriptsButton = elem({
+   tagName: 'button',
+   classes: ['channel-scripts-button'],
+   textContent: '𝓢 scripts',
+   attributes: {
+    title:
+     'Manage installed scripts for this channel',
+   },
+   events: {
+    click: (e) => {
+     e.stopPropagation() // Prevent potential parent clicks
+     renderScriptsMenu(channel, messageContent) // Render menu in message content area
+    },
+   },
+  })
+  channelHeader.appendChild(scriptsButton) // Add button to the header container
+ }
+
  attachMessages(
   channel,
   mainContent,
@@ -335,6 +359,9 @@ function displayChannelHome(
   mainContent,
   formattedChannelData
  )
+
+ // Display installed scripts above the compose area
+ displayInstalledScripts(channel, compose)
 }
 
 function displayChannelMessage(
@@ -398,6 +425,8 @@ function displayChannelMessage(
   messageContent.innerHTML =
    '<h3 style="padding: 0 30px">Not found</h3>'
  }
+ // Display installed scripts above the compose area
+ displayInstalledScripts(channel, compose)
 }
 
 let lastAttachedChannels
@@ -511,18 +540,61 @@ function attachMessage(
  messageContentFormatter = undefined
 ) {
  const content = elem()
- addTextBlocks(
-  content,
-  channel === 'reactions' &&
-   message.text.startsWith('reaction')
-   ? message.text.substring(8)
-   : messageContentFormatter
-   ? messageContentFormatter(message.text)
-   : message.text
- )
- addYouTubeEmbed(content, message.text)
- addImageEmbed(content, message.text)
- addOpenGraphLink(content, message.text)
+
+ // --- Special rendering for SCRIPT_CHANNEL messages ---
+ if (channel === SCRIPT_CHANNEL) {
+  const scriptTextarea = elem({
+   tagName: 'textarea',
+   attributes: {
+    readOnly: true, // Make it non-editable
+   },
+   style: {
+    width: '100%',
+    height: 'auto', // Start with auto height
+    minHeight: '50px', // Minimum height
+    maxHeight: '360px', // Maximum height
+    boxSizing: 'border-box',
+    resize: 'none', // Disable manual resize
+    border: '1px solid var(--border-color)', // Add a subtle border
+    background: 'var(--bg-alt)', // Match background
+    color: 'inherit', // Inherit text color
+    padding: '5px',
+    // Apply monospace styles consistent with compose area and CSS
+    fontFamily: 'monospace',
+    fontSize: '85%',
+    lineHeight: '1.5',
+    overflowY: 'auto', // Add scroll if content exceeds maxHeight
+   },
+  })
+  scriptTextarea.value = message.text // Set the script text
+  content.appendChild(scriptTextarea)
+
+  // Adjust height after setting value to fit content up to max-height
+  // Use a small timeout to ensure rendering before calculating scrollHeight
+  setTimeout(() => {
+   scriptTextarea.style.height = 'auto' // Reset height to calculate natural height
+   const scrollH = scriptTextarea.scrollHeight
+   const maxH = 360
+   scriptTextarea.style.height = `${Math.min(
+    scrollH,
+    maxH
+   )}px`
+  }, 0)
+ } else {
+  // --- Default message rendering ---
+  addTextBlocks(
+   content,
+   channel === 'reactions' &&
+    message.text.startsWith('reaction')
+    ? message.text.substring(8)
+    : messageContentFormatter
+    ? messageContentFormatter(message.text)
+    : message.text
+  )
+  addYouTubeEmbed(content, message.text)
+  addImageEmbed(content, message.text)
+  addOpenGraphLink(content, message.text)
+ }
 
  const agreeButton = elem({
   classes: ['agree'],
@@ -715,21 +787,23 @@ function attachMessage(
     false,
     allLabels
    )
-   const repliesLink = elem({
-    attributes: {
-     href,
-    },
-    dataset: includeTourAttributes
-     ? {
-        tour:
-         'View the message, including any replies. You can also reply to the message from here.',
-       }
-     : undefined,
-    tagName: 'a',
-    textContent: 'View message',
-   })
-   messageFooter.appendChild(repliesLink)
-   footerLinkSeparator()
+   if (channel !== SCRIPT_CHANNEL) {
+    const repliesLink = elem({
+     attributes: {
+      href,
+     },
+     dataset: includeTourAttributes
+      ? {
+         tour:
+          'View the message, including any replies. You can also reply to the message from here.',
+        }
+      : undefined,
+     tagName: 'a',
+     textContent: 'View message',
+    })
+    messageFooter.appendChild(repliesLink)
+    footerLinkSeparator()
+   }
    const copyMessageLink = elem({
     attributes: {
      href,
@@ -856,35 +930,37 @@ function attachMessage(
    messageFooter.appendChild(copyToReplyLink)
 
    footerLinkSeparator()
-   const copyViewMessageLink = elem({
-    attributes: {
-     href,
-    },
-    events: {
-     click(e) {
-      e.preventDefault()
-      navigator.clipboard.writeText(
-       `${location.origin}${href}`
-      )
-      copyViewMessageLink.textContent =
-       '✔ link copied'
-      setTimeout(function () {
-       copyViewMessageLink.textContent =
-        'copy link'
-      }, 2e3)
+   if (channel !== SCRIPT_CHANNEL) {
+    const copyViewMessageLink = elem({
+     attributes: {
+      href,
      },
-    },
-    dataset: includeTourAttributes
-     ? {
-        tour: 'Copy a link to this message.',
-       }
-     : undefined,
-    tagName: 'a',
-    textContent: 'copy link',
-   })
-   messageFooter.appendChild(
-    copyViewMessageLink
-   )
+     events: {
+      click(e) {
+       e.preventDefault()
+       navigator.clipboard.writeText(
+        `${location.origin}${href}`
+       )
+       copyViewMessageLink.textContent =
+        '✔ link copied'
+       setTimeout(function () {
+        copyViewMessageLink.textContent =
+         'copy link'
+       }, 2e3)
+      },
+     },
+     dataset: includeTourAttributes
+      ? {
+         tour: 'Copy a link to this message.',
+        }
+      : undefined,
+     tagName: 'a',
+     textContent: 'copy link',
+    })
+    messageFooter.appendChild(
+     copyViewMessageLink
+    )
+   }
    if (
     message.score < MESSAGE_PERSIST_THRESHOLD
    ) {
