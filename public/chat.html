@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <meta
+   name="viewport"
+   content="width=device-width, initial-scale=1"
+  />
+  <title>Chat - Tag Me In</title>
+  <link
+   rel="stylesheet"
+   href="./css/chat.css"
+  />
+  <link
+   rel="stylesheet"
+   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  />
+ </head>
+ <body>
+  <div class="chat-window">
+   <div class="chat-header">
+    <h3>Chat</h3>
+    <div class="chat-header-buttons">
+     <button class="chat-menu-button">
+      <i class="fas fa-ellipsis-v"></i>
+     </button>
+    </div>
+   </div>
+
+   <div class="chat-menu">
+    <button
+     id="delete-chat"
+     class="chat-menu-item"
+    >
+     <i class="fas fa-trash"></i>
+     Delete Chat
+    </button>
+    <button id="set-url" class="chat-menu-item">
+     <i class="fas fa-link"></i>
+     Set URL
+    </button>
+    <button
+     id="reset-fields"
+     class="chat-menu-item"
+    >
+     <i class="fas fa-undo"></i>
+     Reset Fields
+    </button>
+   </div>
+
+   <div class="chat-messages">
+    <!-- Messages will be added here dynamically -->
+   </div>
+
+   <div class="chat-input-container">
+    <input
+     type="text"
+     id="chat-input"
+     placeholder="Type your message..."
+    />
+    <button id="send-button">
+     <i class="fas fa-paper-plane"></i>
+    </button>
+   </div>
+  </div>
+
+  <script src="./js/chat.js"></script>
+ </body>
+</html>
