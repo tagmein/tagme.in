@@ -2,6 +2,9 @@ const SCRIPT_CHANNEL = '𝓢'
 const SCRIPT_PREFIX = '𝓢@'
 const MAX_SCRIPT_PREVIEW_LENGTH = 100
 
+// Add this near the top, after the constants
+let isDisplayingScripts = false
+
 /**
  * Renders the menu for installing/uninstalling scripts for the current channel.
  * Fetches available scripts from the '𝓢' channel and current installations
@@ -277,146 +280,169 @@ async function renderScriptsMenu(
  */
 async function displayInstalledScripts(
  channel,
- targetContainer
+ targetContainer // Note: This parameter seems unused as the global scriptOutputReelContainer is always targeted.
 ) {
- // Use the globally defined scriptOutputReelContainer from main.js
- // Clear the existing content of the persistent reel container
- scriptOutputReelContainer.innerHTML = ''
-
- const installedScriptsChannel = `${SCRIPT_PREFIX}${encodeURIComponent(
-  channel
- )}`
- const installedScriptsData = await withLoading(
-  networkChannelSeek(
-   installedScriptsChannel,
-   getHourNumber()
-  )
- )
-
- if (
-  !installedScriptsData ||
-  'error' in installedScriptsData ||
-  typeof installedScriptsData?.response
-   ?.messages !== 'object'
- ) {
-  console.error(
-   `Error seeking installed scripts channel: ${installedScriptsChannel}`,
-   installedScriptsData?.error ??
-    installedScriptsData
+ // Prevent concurrent executions
+ if (isDisplayingScripts) {
+  console.warn(
+   'displayInstalledScripts called while already running. Skipping.'
   )
   return
  }
+ isDisplayingScripts = true
 
- const installedScriptMessages =
-  formatMessageData(
-   installedScriptsData.response.messages
-  ).filter((msg) => msg.score > 0) // Only consider installed scripts (score > 0)
+ try {
+  // Use the globally defined scriptOutputReelContainer from main.js
+  // Clear the existing content of the persistent reel container
+  scriptOutputReelContainer.innerHTML = ''
 
- if (installedScriptMessages.length === 0) {
-  return // No installed scripts
- }
-
- // Fetch all scripts from the main '𝓢' channel
- const allScriptsData = await withLoading(
-  networkChannelSeek(
-   SCRIPT_CHANNEL,
-   getHourNumber(),
-   true
-  ) // Use seekMessages equivalent (true flag might indicate full message fetch if available, or use appropriate method)
- )
-
- if (
-  !allScriptsData ||
-  'error' in allScriptsData ||
-  typeof allScriptsData?.response?.messages !==
-   'object'
- ) {
-  console.error(
-   `Error seeking script channel: ${SCRIPT_CHANNEL}`,
-   allScriptsData?.error ?? allScriptsData
-  )
-  return
- }
-
- const allScriptMessages = formatMessageData(
-  allScriptsData.response.messages
- )
-
- // Create a map for quick lookup of full script text
- const fullScriptMap = new Map(
-  allScriptMessages.map((msg) => [
-   msg.text.substring(
-    0,
-    MAX_SCRIPT_PREVIEW_LENGTH
-   ),
-   msg.text,
-  ])
- )
-
- // Sort installed scripts by score (descending)
- installedScriptMessages.sort(
-  (a, b) => b.score - a.score
- )
-
- for (const installedScript of installedScriptMessages) {
-  const scriptPreview = installedScript.text // This is the preview text (first 100 chars)
-  const fullScriptText = fullScriptMap.get(
-   scriptPreview
-  )
-
-  if (fullScriptText) {
-   const outputCard = elem({
-    classes: ['script-output-card'],
-    style: {
-     width: '360px',
-     height: '240px',
-     padding: '10px',
-     borderRadius: '10px',
-     border: '2px solid #80808080',
-     margin: '5px', // Add some margin for spacing in the reel
-     overflow: 'auto', // Add scroll for overflow
-    },
-   })
-
-   try {
-    const scriptResult = runScript(
-     fullScriptText,
-     channel
-    ) // Pass channel context
-
-    if (typeof scriptResult === 'string') {
-     outputCard.textContent = scriptResult
-    } else if (
-     scriptResult instanceof Element
-    ) {
-     outputCard.appendChild(scriptResult)
-    } else if (scriptResult !== undefined) {
-     outputCard.textContent = `Script returned non-renderable type: ${typeof scriptResult}`
-    }
-    // If scriptResult is undefined, card remains empty
-   } catch (error) {
-    console.error(
-     `Error executing script:
-${fullScriptText}
-`,
-     error
+  const installedScriptsChannel = `${SCRIPT_PREFIX}${encodeURIComponent(
+   channel
+  )}`
+  // Make sure to await the async call
+  const installedScriptsData =
+   await withLoading(
+    networkChannelSeek(
+     installedScriptsChannel,
+     getHourNumber()
     )
-    outputCard.textContent = `Script Error: ${error.message}`
-    outputCard.style.color = 'red'
-    outputCard.style.whiteSpace = 'pre-wrap' // Show error details
-   }
-
-   scriptOutputReelContainer.appendChild(
-    outputCard
-   ) // Append card to the persistent container
-  } else {
-   console.warn(
-    `Full script not found for preview: ${scriptPreview}`
    )
-  }
- }
 
- // No need to insert the reel, it's already in the DOM
+  if (
+   !installedScriptsData ||
+   'error' in installedScriptsData ||
+   typeof installedScriptsData?.response
+    ?.messages !== 'object'
+  ) {
+   console.error(
+    `Error seeking installed scripts channel: ${installedScriptsChannel}`,
+    installedScriptsData?.error ??
+     installedScriptsData
+   )
+   // No need to explicitly set flag false here, finally handles it
+   return
+  }
+
+  const installedScriptMessages =
+   formatMessageData(
+    installedScriptsData.response.messages
+   ).filter((msg) => msg.score > 0) // Only consider installed scripts (score > 0)
+
+  if (installedScriptMessages.length === 0) {
+   // No need to explicitly set flag false here, finally handles it
+   return // No installed scripts
+  }
+
+  // Fetch all scripts from the main '𝓢' channel
+  const allScriptsData = await withLoading(
+   networkChannelSeek(
+    SCRIPT_CHANNEL,
+    getHourNumber(),
+    true
+   ) // Use seekMessages equivalent (true flag might indicate full message fetch if available, or use appropriate method)
+  )
+
+  if (
+   !allScriptsData ||
+   'error' in allScriptsData ||
+   typeof allScriptsData?.response?.messages !==
+    'object'
+  ) {
+   console.error(
+    `Error seeking script channel: ${SCRIPT_CHANNEL}`,
+    allScriptsData?.error ?? allScriptsData
+   )
+   // No need to explicitly set flag false here, finally handles it
+   return
+  }
+
+  const allScriptMessages = formatMessageData(
+   allScriptsData.response.messages
+  )
+
+  // Create a map for quick lookup of full script text
+  const fullScriptMap = new Map(
+   allScriptMessages.map((msg) => [
+    msg.text.substring(
+     0,
+     MAX_SCRIPT_PREVIEW_LENGTH
+    ),
+    msg.text,
+   ])
+  )
+
+  // Sort installed scripts by score (descending)
+  installedScriptMessages.sort(
+   (a, b) => b.score - a.score
+  )
+
+  for (const installedScript of installedScriptMessages) {
+   const scriptPreview = installedScript.text // This is the preview text (first 100 chars)
+   const fullScriptText = fullScriptMap.get(
+    scriptPreview
+   )
+
+   if (fullScriptText) {
+    const outputCard = elem({
+     classes: ['script-output-card'],
+     style: {
+      width: '360px',
+      height: '240px',
+      padding: '10px',
+      borderRadius: '10px',
+      border: '2px solid #80808080',
+      margin: '5px', // Add some margin for spacing in the reel
+      overflow: 'auto', // Add scroll for overflow
+     },
+    })
+
+    try {
+     const scriptResult = runScript(
+      fullScriptText,
+      channel
+     ) // Pass channel context
+
+     if (typeof scriptResult === 'string') {
+      outputCard.textContent = scriptResult
+     } else if (
+      scriptResult instanceof Element
+     ) {
+      outputCard.appendChild(scriptResult)
+     } else if (scriptResult !== undefined) {
+      outputCard.textContent = `Script returned non-renderable type: ${typeof scriptResult}`
+     }
+     // If scriptResult is undefined, card remains empty
+    } catch (error) {
+     console.error(
+      `Error executing script:\n${fullScriptText}\n`,
+      error
+     )
+     outputCard.textContent = `Script Error: ${error.message}`
+     outputCard.style.color = 'red'
+     outputCard.style.whiteSpace = 'pre-wrap' // Show error details
+    }
+
+    scriptOutputReelContainer.appendChild(
+     outputCard
+    ) // Append card to the persistent container
+   } else {
+    console.warn(
+     `Full script not found for preview: ${scriptPreview}`
+    )
+   }
+  }
+
+  // No need to insert the reel, it's already in the DOM
+ } catch (error) {
+  // Catch potential errors during the async operations or processing
+  console.error(
+   'Error during displayInstalledScripts:',
+   error
+  )
+ } finally {
+  // Ensure the flag is always reset, even if errors occur or we return early
+  isDisplayingScripts = false
+ }
 }
 
 /**
