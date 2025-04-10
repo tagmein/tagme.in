@@ -41,18 +41,18 @@ async function updateComposeTextarea(
   isReply
    ? COMPOSE_PLACEHOLDER_REPLY
    : channel === 'reactions'
-   ? ADD_REACTION_PLACEHOLDER_MESSAGE
-   : channel === SCRIPT_CHANNEL
-   ? 'Write script code (up to 100000 characters)'
-   : COMPOSE_PLACEHOLDER_MESSAGE
+     ? ADD_REACTION_PLACEHOLDER_MESSAGE
+     : channel === SCRIPT_CHANNEL
+       ? 'Write script code (up to 100000 characters)'
+       : COMPOSE_PLACEHOLDER_MESSAGE
  )
  composeTextarea.setAttribute(
   'maxlength',
   channel === 'reactions'
    ? 25
    : channel === SCRIPT_CHANNEL
-   ? 100000
-   : 175
+     ? 100000
+     : 175
  )
 }
 
@@ -108,41 +108,45 @@ const composeTextarea = elem({
  tagName: 'textarea',
 })
 
-// --- Resize Observer for SCRIPT_CHANNEL textarea height persistence ---
-let debounceTimeout
-const scriptTextareaResizeObserver =
- new ResizeObserver((entries) => {
-  for (let entry of entries) {
-   // Only act if the observed element is the composeTextarea
-   if (entry.target === composeTextarea) {
-    // Debounce the saving operation
-    clearTimeout(debounceTimeout)
-    debounceTimeout = setTimeout(() => {
-     // Check if we are currently on the SCRIPT_CHANNEL
+// Add event listener for sending messages with CMD+Enter or CTRL+Enter
+composeTextarea.addEventListener(
+ 'keydown',
+ function (event) {
+  // Check if Enter key is pressed with CMD or CTRL
+  if (
+   event.key === 'Enter' &&
+   (event.metaKey || event.ctrlKey)
+  ) {
+   event.preventDefault() // Prevent the default action (new line)
+   const { messageChannel } = getUrlData()
+   const messageText =
+    messageChannel === 'reactions'
+     ? `reaction${composeTextarea.value}`
+     : composeTextarea.value
+
+   // Call your existing send message logic
+   if (messageText) {
+    ;(async () => {
      if (
-      getUrlData().channel === SCRIPT_CHANNEL
-     ) {
-      const height =
-       composeTextarea.offsetHeight // Get the actual rendered height
-      if (height > 0) {
-       // Only save valid heights
-       localStorage.setItem(
-        '𝓢.height',
-        `${height}px`
+      (await withLoading(
+       networkMessageSend(
+        messageChannel,
+        messageText,
+        1
        )
-       // console.log(`Saved S channel height: ${height}px`);
-      }
+      )) !== false
+     ) {
+      focusOnMessage = messageText
+      composeTextarea.value = ''
+      compose.classList.remove('active')
+      document.body.focus()
+      route()
      }
-    }, 300) // Debounce duration (300ms)
+    })()
    }
   }
- })
-
-// Start observing the textarea
-scriptTextareaResizeObserver.observe(
- composeTextarea
+ }
 )
-// -------------------------------------------------------------------
 
 const realmControlContainer = elem({
  classes: ['realm-control', 'mode-other'],
