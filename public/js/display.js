@@ -337,7 +337,20 @@ function displayChannelHome(
    events: {
     click: (e) => {
      e.stopPropagation() // Prevent potential parent clicks
-     renderScriptsMenu(channel, messageContent) // Render menu in message content area
+
+     // Check if a script menu already exists in the target container
+     const existingMenu =
+      messageContent.querySelector(
+       '.message-menu.script-menu'
+      )
+
+     if (existingMenu) {
+      // If it exists, remove it
+      existingMenu.remove()
+     } else {
+      // If it doesn't exist, render it
+      renderScriptsMenu(channel, messageContent) // Render menu in message content area
+     }
     },
    },
   })
