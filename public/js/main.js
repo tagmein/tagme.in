@@ -41,18 +41,18 @@ async function updateComposeTextarea(
   isReply
    ? COMPOSE_PLACEHOLDER_REPLY
    : channel === 'reactions'
-   ? ADD_REACTION_PLACEHOLDER_MESSAGE
-   : channel === SCRIPT_CHANNEL
-   ? 'Write script code (up to 100000 characters)'
-   : COMPOSE_PLACEHOLDER_MESSAGE
+     ? ADD_REACTION_PLACEHOLDER_MESSAGE
+     : channel === SCRIPT_CHANNEL
+       ? 'Write script code (up to 100000 characters)'
+       : COMPOSE_PLACEHOLDER_MESSAGE
  )
  composeTextarea.setAttribute(
   'maxlength',
   channel === 'reactions'
    ? 25
    : channel === SCRIPT_CHANNEL
-   ? 100000
-   : 175
+     ? 100000
+     : 175
  )
 }
 
@@ -143,6 +143,45 @@ scriptTextareaResizeObserver.observe(
  composeTextarea
 )
 // -------------------------------------------------------------------
+// Add event listener for sending messages with CMD+Enter or CTRL+Enter
+composeTextarea.addEventListener(
+ 'keydown',
+ function (event) {
+  // Check if Enter key is pressed with CMD or CTRL
+  if (
+   event.key === 'Enter' &&
+   (event.metaKey || event.ctrlKey)
+  ) {
+   event.preventDefault() // Prevent the default action (new line)
+   const { messageChannel } = getUrlData()
+   const messageText =
+    messageChannel === 'reactions'
+     ? `reaction${composeTextarea.value}`
+     : composeTextarea.value
+
+   // Call your existing send message logic
+   if (messageText) {
+    ;(async () => {
+     if (
+      (await withLoading(
+       networkMessageSend(
+        messageChannel,
+        messageText,
+        1
+       )
+      )) !== false
+     ) {
+      focusOnMessage = messageText
+      composeTextarea.value = ''
+      compose.classList.remove('active')
+      document.body.focus()
+      route()
+     }
+    })()
+   }
+  }
+ }
+)
 
 const realmControlContainer = elem({
  classes: ['realm-control', 'mode-other'],
