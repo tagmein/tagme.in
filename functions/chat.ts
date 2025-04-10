@@ -1,190 +1,227 @@
-import { type PagesFunction } from '@cloudflare/workers-types'
-import { Env } from './lib/env.js'
-import { getKV } from './lib/getKV.js'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai';
+import { type PagesFunction, Response as WorkerResponse } from '@cloudflare/workers-types';
+import { Env } from './lib/env.js';
+import { getKV } from './lib/getKV.js';
+import { scroll } from './lib/scroll.js';
+import { TaskManager } from './services/TaskManager.js';
+import { Task, TaskStatus, TaskCategory } from './types/Task.js';
 
-// Initialize Google GenAI
-const { GEMINI_API_KEY } = process.env
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 if (!GEMINI_API_KEY) {
- throw new Error(
-  'GEMINI_API_KEY is not set in the environment variables.'
- )
+  throw new Error('GEMINI_API_KEY is not set in the environment variables.');
 }
 
-const genAI = new GoogleGenerativeAI(
- GEMINI_API_KEY
-)
+const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-export const onRequestPost: PagesFunction<
- Env
-> = async (context) => {
- const kv = await getKV(context, true)
+// Define the expected structure of the request
+interface ChatRequest {
+  channel?: string;
+  message: string;
+  model?: string;
+  userId?: string;
+}
 
- if (!kv) {
-  return new Response(
-   JSON.stringify({ error: 'Not authorized' }),
-   {
-    status: 401,
-    headers: {
-     'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*',
-    },
-   }
-  )
- }
+// Task-related prompt templates
+const TASK_PROMPT_TEMPLATE = `You are a task management assistant. Please help manage the following request:
+{userMessage}
 
- try {
-  const body = await context.request.json()
-  const channel = body.channel || 'default'
-  const messageId = body.messageId // Optional parameter for specific message ID
-  const userMessage = body.message
+Available actions:
+- Create a new task
+- Update existing task
+- List tasks
+- Delete task
+- Generate daily report
+- Get location-based reminders
+- Get task insights
 
-  if (!userMessage) {
-   return new Response(
-    JSON.stringify({
-     error: 'Message parameter is required',
-    }),
-    {
-     status: 400,
-     headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-     },
-    }
-   )
+Current tasks context:
+{tasksContext}
+
+Please respond with a structured action in JSON format:
+{
+  "action": "createTask|updateTask|listTasks|deleteTask|generateReport|getReminders|getInsights",
+  "parameters": {
+    // Action specific parameters
+  }
+}`;
+
+async function handleTaskCommand(taskManager: TaskManager, userMessage: string, tasksContext: string): Promise<any> {
+  const model = ai.generateContent({
+    model: 'gemini-pro',
+    contents: [{ parts: [{ text: prompt }] }]
+  });
+  
+  const prompt = TASK_PROMPT_TEMPLATE
+    .replace('{userMessage}', userMessage)
+    .replace('{tasksContext}', tasksContext);
+
+  const result = await model;
+
+  const actionData = JSON.parse(result.text);
+  
+  switch (actionData.action) {
+    case 'createTask':
+      return await taskManager.createTask(actionData.parameters);
+    case 'updateTask':
+      return await taskManager.updateTask(actionData.parameters.taskId, actionData.parameters.updates);
+    case 'listTasks':
+      return await taskManager.listTasks(actionData.parameters);
+    case 'deleteTask':
+      return await taskManager.deleteTask(actionData.parameters.taskId);
+    case 'generateReport':
+      return await taskManager.generateDailyReport(actionData.parameters.date);
+    case 'getReminders':
+      return await taskManager.getTasksNearLocation(
+        actionData.parameters.latitude,
+        actionData.parameters.longitude,
+        actionData.parameters.radius
+      );
+    case 'getInsights':
+      const tasks = await taskManager.listTasks();
+      return { insights: taskManager['generateInsights'](tasks) };
+    default:
+      throw new Error('Unknown task action');
+  }
+}
+
+export const onRequestGet: PagesFunction<Env> = async (context): Promise<WorkerResponse> => {
+  const url = new URL(context.request.url);
+  const channel = url.searchParams.get('channel') || 'default';
+  const message = url.searchParams.get('message');
+  const userId = url.searchParams.get('userId') || 'default';
+
+  if (!message) {
+    return new Response(JSON.stringify({ error: 'Message parameter is required' }), {
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    }) as unknown as WorkerResponse;
   }
 
-  let contextMessages =
-   'No messages found in the channel.'
+  return handleChatRequest(context, { channel, message, userId });
+};
 
-  // Fetch specific message and its replies if messageId is provided
-  if (messageId) {
-   const specificMessage = await kv.get(
-    `message#${channel}#${messageId}`
-   )
-   const replies = await kv.get(
-    `replies#${channel}#${messageId}`
-   )
-   contextMessages = specificMessage
-    ? `Message: ${specificMessage}\nReplies: ${replies || 'No replies found.'}`
-    : 'Message not found.'
-  } else {
-   // Fetch all channel messages if no specific messageId is provided
-   const channelMessages = await kv.get(
-    `seek#${channel}#999999999`
-   )
-   contextMessages =
-    channelMessages ||
-    'No messages found in the channel.'
-  }
-
-  // Use the Gemini API to generate a response
-  const modelName = 'gemini-pro' // Corrected model name
-  const model = genAI.getGenerativeModel({
-   model: modelName,
-  })
-
-  console.log('Requesting Gemini API with:', {
-   modelName,
-   prompt: `Channel: ${channel}\nMessage: ${userMessage}\nContext: ${contextMessages}`,
-  })
-
-  let result
+export const onRequestPost: PagesFunction<Env> = async (context): Promise<WorkerResponse> => {
   try {
-   result = await model.generateContent({
-    contents: [
-     {
-      parts: [
-       {
-        text: `Channel: ${channel}\nMessage: ${userMessage}\nContext: ${contextMessages}`,
-       },
-      ],
-     },
-    ],
-   })
-  } catch (fetchError) {
-   console.error(
-    'Error fetching from Gemini API:',
-    fetchError.message
-   )
-   return new Response(
-    JSON.stringify({
-     error: 'Failed to fetch from Gemini API',
-     details: fetchError.message,
-    }),
-    {
-     status: 502,
-     headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-     },
+    const body: ChatRequest = await context.request.json();
+    return handleChatRequest(context, body);
+  } catch (error) {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+      status: 400,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    }) as unknown as WorkerResponse;
+  }
+};
+
+async function handleChatRequest(context: any, params: ChatRequest): Promise<WorkerResponse> {
+  const kv = await getKV(context, true);
+
+  if (!kv) {
+    return new Response(JSON.stringify({ error: 'Not authorized' }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    }) as unknown as WorkerResponse;
+  }
+
+  try {
+    const channel = params.channel || 'default';
+    const userMessage = params.message;
+    const requestedModel = params.model || 'gemini-pro';
+    const userId = params.userId || 'default';
+
+    if (!userMessage) {
+      return new Response(JSON.stringify({ error: 'Message parameter is required' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }) as unknown as WorkerResponse;
     }
-   )
+
+    // Initialize TaskManager
+    const taskManager = new TaskManager(kv, userId);
+
+    // Check if the message is task-related
+    const isTaskRelated = /task|todo|remind|schedule|due|priority/i.test(userMessage);
+
+    let response;
+    if (isTaskRelated) {
+      // Get current tasks for context
+      const currentTasks = await taskManager.listTasks();
+      const tasksContext = JSON.stringify(currentTasks);
+      
+      try {
+        const taskResponse = await handleTaskCommand(taskManager, userMessage, tasksContext);
+        response = {
+          success: true,
+          channel,
+          message: userMessage,
+          reply: 'Task operation completed successfully',
+          taskResult: taskResponse,
+        };
+      } catch (error) {
+        response = {
+          success: false,
+          channel,
+          message: userMessage,
+          reply: 'Failed to process task command',
+          error: error.message,
+        };
+      }
+    } else {
+      // Handle regular chat messages
+      const result = await ai.generateContent({
+        model: 'gemini-pro',
+        contents: [{ parts: [{ text: userMessage }] }]
+      });
+
+      response = {
+        success: true,
+        channel,
+        message: userMessage,
+        reply: result.text,
+      };
+    }
+
+    return new Response(JSON.stringify(response), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    }) as unknown as WorkerResponse;
+  } catch (error) {
+    console.error('Error handling request:', error);
+    return new Response(JSON.stringify({
+      error: 'Failed to process request',
+      details: error.message
+    }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    }) as unknown as WorkerResponse;
   }
-
-  // Extract the response text
-  const responseText =
-   result?.candidates?.[0]?.output ||
-   'No response generated.'
-
-  // Suggested content: Extract facts or key points from the response
-  const suggestedContent =
-   extractSuggestedContent(responseText)
-
-  const response = {
-   channel,
-   message: userMessage,
-   reply: responseText,
-   context: contextMessages,
-   suggestedContent, // Include suggested content in the response
-  }
-
-  return new Response(
-   JSON.stringify(response),
-   {
-    headers: {
-     'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*',
-    },
-   }
-  )
- } catch (error) {
-  console.error(
-   'Error generating AI response:',
-   error.message
-  )
-  console.error('Stack Trace:', error.stack)
-  return new Response(
-   JSON.stringify({
-    error: 'Failed to generate AI response',
-    details: error.message,
-   }),
-   {
-    status: 500,
-    headers: {
-     'Content-Type': 'application/json',
-     'Access-Control-Allow-Origin': '*',
-    },
-   }
-  )
- }
 }
 
 // Helper function to extract suggested content (facts) from the AI response
-function extractSuggestedContent(
- responseText: string
-): string[] {
- // Example logic: Extract sentences that contain numbers or specific keywords
- const facts = responseText
-  .split('.')
-  .map((sentence) => sentence.trim())
-  .filter(
-   (sentence) =>
-    /\d/.test(sentence) || // Contains numbers
-    /(important|key|notable|fact|suggest|recommend)/i.test(
-     sentence
-    ) // Contains keywords
-  )
- return facts
+function extractSuggestedContent(responseText: string): string[] {
+  const facts = responseText
+    .split('.')
+    .map((sentence) => sentence.trim())
+    .filter((sentence) =>
+      /\d/.test(sentence) || // Contains numbers
+      /(important|key|notable|fact|suggest|recommend)/i.test(sentence) // Contains keywords
+    );
+  return facts;
 }
