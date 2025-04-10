@@ -196,3 +196,9 @@
  background: #e0e0e0;
  border-color: #bbb;
 }
+
+.loading-indicator {
+    font-style: italic;
+    color: #666;
+    margin: 10px 0;
+}
