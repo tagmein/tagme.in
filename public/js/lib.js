@@ -1230,7 +1230,7 @@ function createSession() {
    ).toString(10)
   )
   .join('')
- const sendEmailButton = elem({
+ const verifyButton = elem({
   attributes: {
    type: 'submit',
    value: 'Verify',
@@ -1289,7 +1289,7 @@ Set a value:    POST <url>?key=<key>
      },
      tagName: 'input',
     }),
-    sendEmailButton,
+    verifyButton,
    ],
    events: {
     async submit(e) {
@@ -1319,7 +1319,7 @@ Set a value:    POST <url>?key=<key>
       const serverUrlString =
        serverUrl.toString()
       e.target.url.disabled = true
-      sendEmailButton.disabled = true
+      verifyButton.disabled = true
       e.target.appendChild(waitingMessage)
       waitingMessage.textContent =
        'Please wait, giving you time to set the login value on your kv server...'
@@ -1388,7 +1388,7 @@ Set a value:    POST <url>?key=<key>
       e.target.removeChild(waitingMessage)
      } finally {
       e.target.url.disabled = false
-      sendEmailButton.disabled = false
+      verifyButton.disabled = false
      }
     },
    },
