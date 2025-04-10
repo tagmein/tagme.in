@@ -108,6 +108,41 @@ const composeTextarea = elem({
  tagName: 'textarea',
 })
 
+// --- Resize Observer for SCRIPT_CHANNEL textarea height persistence ---
+let debounceTimeout
+const scriptTextareaResizeObserver =
+ new ResizeObserver((entries) => {
+  for (let entry of entries) {
+   // Only act if the observed element is the composeTextarea
+   if (entry.target === composeTextarea) {
+    // Debounce the saving operation
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+     // Check if we are currently on the SCRIPT_CHANNEL
+     if (
+      getUrlData().channel === SCRIPT_CHANNEL
+     ) {
+      const height =
+       composeTextarea.offsetHeight // Get the actual rendered height
+      if (height > 0) {
+       // Only save valid heights
+       localStorage.setItem(
+        '𝓢.height',
+        `${height}px`
+       )
+       // console.log(`Saved S channel height: ${height}px`);
+      }
+     }
+    }, 300) // Debounce duration (300ms)
+   }
+  }
+ })
+
+// Start observing the textarea
+scriptTextareaResizeObserver.observe(
+ composeTextarea
+)
+// -------------------------------------------------------------------
 // Add event listener for sending messages with CMD+Enter or CTRL+Enter
 composeTextarea.addEventListener(
  'keydown',
