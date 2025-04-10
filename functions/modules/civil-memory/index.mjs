@@ -30,8 +30,10 @@ async function compressKey(kv, key) {
  if (key.length <= 212) {
   return key
  }
- const shard = key.slice(0, 200)
- const remainder = key.slice(200)
+ const shard = encodeURIComponent(
+  key.slice(0, 100)
+ )
+ const remainder = key.slice(100)
  const lookupKey = `lookup#${shard}`
  const lookup = await kv.get(lookupKey)
  let lookupData = {}
@@ -49,6 +51,11 @@ async function compressKey(kv, key) {
  };${Date.now()};${Math.random()
   .toString(36)
   .slice(2)}]`
+ console.log(
+  'compressedKey',
+  compressedKey,
+  lookupKey
+ )
  lookupData[remainder] = compressedKey
  await kv.set(
   lookupKey,

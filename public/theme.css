@@ -736,14 +736,14 @@ footer {
 .compose button.submit {
  background-color: transparent;
  border-radius: 7px;
- bottom: 19px;
+ bottom: 29px;
  box-sizing: border-box;
  cursor: pointer;
  height: 78px;
  line-height: 22px;
  padding: 19px 15px 15px;
  position: absolute;
- right: 15px;
+ right: 25px;
  text-align: center;
  transition: 0.5s opacity ease,
   0.2s background-color ease;
@@ -2577,141 +2577,37 @@ div.reaction-reaction
  background-color: #00000040;
 }
 
-.message-labels {
- border-radius: 1em;
- border: 1px solid #80808080;
- display: inline-block;
- font-size: 14px;
- font-weight: bold;
- gap: 0.25em;
- margin-right: 0.5em;
- max-width: 16em;
- min-height: 1em;
- min-width: 4em;
- overflow: auto;
- padding: 0.25em;
- text-align: center;
- vertical-align: -0.875em;
- white-space: nowrap;
- width: 8em;
+.channel-header {
+ align-items: center;
+ display: flex;
+ gap: 10px;
+ justify-content: center;
+ justify-content: space-between;
+ padding: 10px 0;
 }
 
-.message-labels > span,
-.label-group .news > article > div > p > span {
- background-color: #80808040;
- border-radius: 0.25em;
- padding: 0.25em;
- white-space: nowrap;
-}
-
-.message-menu {
- border-radius: 0.5em;
- box-shadow: inset 0 0 1px #80808080;
- margin: 0.5em;
- padding: 0.5em 0.625em;
-}
-
-.message-menu > h2 {
- color: #808080f0;
- font-size: 14px;
- letter-spacing: 1px;
- margin-top: 0.25em;
- overflow: hidden;
- text-align: center;
- text-transform: uppercase;
- white-space: nowrap;
-}
-
-.message-menu > button {
+.channel-scripts-button {
+ background-color: var(--color-bg-medium);
  border-radius: 10px;
- border: 1px solid;
- color: var(--color-text-secondary);
+ cursor: pointer;
  font-size: 14px;
- letter-spacing: 1px;
- margin: 0 auto 0.5em;
- opacity: 0.825;
- overflow: hidden;
- padding: 10px;
- text-align: center;
- white-space: nowrap;
- width: 100%;
-}
-
-.label-group {
- border: 1px solid #80808080;
- background-color: #00000040;
- border-radius: 0.5em;
- padding: 0 0.625em 0.5em;
- margin: 0;
-}
-
-.label-group > h3 {
- margin: 0;
- padding: 0.5em 0 0.125em;
-}
-
-.label-group .reactions-container {
- display: none !important;
-}
-
-.label-group .news > article {
- border-radius: 10px !important;
- flex-direction: row-reverse;
- min-height: initial;
- overflow: visible !important;
- padding: 0 0 1.25em;
- position: relative;
-}
-
-.label-group .news > article > div > p {
- margin: 0;
- padding: 0;
-}
-
-.label-group .news > article > div > p > span {
  font-weight: bold;
- font-size: 20px;
+ opacity: 0.5;
 }
 
-.label-group .news > a {
- display: none;
+.channel-scripts-button:hover {
+ background-color: #ffffff40;
+ opacity: 1;
 }
 
-.label-group .news > article > div {
- align-items: end;
- display: flex;
- flex-shrink: 1;
- justify-content: start;
+.channel-scripts-button:active {
+ background-color: #00000040;
 }
 
-.label-group
- .news
- > article
- > div.article-tools {
- flex-direction: row-reverse;
- padding-top: 0;
-}
-
-.label-group
- .news
- > article
- > div.article-tools
- .score {
- font-size: 18px;
-}
-
-.label-group
- .news
- > article
- > div.article-tools
- .article-tool-buttons {
- display: flex;
- flex-direction: row;
- gap: 2px;
- margin-bottom: -5px;
-}
-
-main section.label-group > article {
- min-height: unset;
- padding: 10px 4px;
+.global-script-score {
+ background-color: var(--color-bg-medium);
+ border-radius: 10px;
+ cursor: help;
+ font-size: 14px;
+ font-weight: bold;
 }

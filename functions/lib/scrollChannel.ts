@@ -1,6 +1,8 @@
 import { CivilMemoryKV } from '../modules/civil-memory/index.mjs'
 import { getHourNumber } from './getHourNumber.js'
 
+const SCRIPT_PREFIX = '𝓢@'
+
 interface LabelData {
  position: number
  seen: number
@@ -317,7 +319,11 @@ export function scrollChannel(
      newChannelMessageRankString
     ),
     active(),
-    storeChannelRank(channelScore),
+    channelName.startsWith('labels@') ||
+    channelName.startsWith('replies@') ||
+    channelName.startsWith(SCRIPT_PREFIX)
+     ? Promise.resolve()
+     : storeChannelRank(channelScore),
    ])
   }
 
@@ -362,12 +368,20 @@ export function scrollChannel(
      newChannelMessageRankString
     ),
     active(),
-    storeChannelRank(channelScore),
+    channelName.startsWith('labels@') ||
+    channelName.startsWith('replies@') ||
+    channelName.startsWith(SCRIPT_PREFIX)
+     ? Promise.resolve()
+     : storeChannelRank(channelScore),
    ])
   }
 
   async function getMessage(message: string) {
-   const messageId = encodeURIComponent(message)
+   const messageId = encodeURIComponent(
+    channelName === '𝓢'
+     ? message.slice(0, 100)
+     : message
+   )
    const key = {
     messagePosition: `scroll.channel.message:${channelId}#${messageId}`,
    }
