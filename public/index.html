@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
  <head>
   <meta charset="utf-8" />
@@ -91,8 +91,22 @@
   data-starting
   data-theme-bg
  >
-  <!-- Add the .app-header element -->
-  <div class="app-header"></div>
+  <div class="app-body">
+   <div class="app-body-main">
+    <div class="wrapper-main">
+     <div class="app-container">
+      <div class="app-sidebar">
+       <div class="sidebar-nav">
+        <!-- ... existing code ... -->
+       </div>
+      </div>
+      <div class="app-main">
+       <!-- ... existing code ... -->
+      </div>
+     </div>
+    </div>
+   </div>
+  </div>
 
   <!-- 1st, load lib js file -->
   <script
@@ -350,5 +364,8 @@
    type="text/javascript"
    src="./js/main.js?bh"
   ></script>
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
  </body>
 </html>

@@ -4,13 +4,11 @@
   "@types/express": "^5.0.0",
   "@types/node": "^20.17.16",
   "express": "^4.21.2",
-  "prettier": "^3.5.3",
   "tsx": "^4.19.2"
  },
  "type": "module",
  "dependencies": {
-  "@google/generative-ai": "^0.2.1",
-  "dotenv": "^16.4.7",
-  "stream": "^0.0.2"
+  "@google/genai": "^0.8.0",
+  "dotenv": "^16.4.7"
  }
 }
