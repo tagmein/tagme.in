@@ -283,8 +283,29 @@ function attachReactions(
   )
  }
 
- let isOpening = false
- let isOpeningTimeout = null
+ // State variables scoped to this specific message instance
+ let popupMenuElement = null
+ let currentClosePopupListener = null // Store the current listener function instance
+
+ function closeReactionPopup(e) {
+  if (popupMenuElement) {
+   if (!popupMenuElement.contains(e.target)) {
+    e.stopPropagation()
+    e.preventDefault()
+    popupMenuElement.remove()
+    popupMenuElement = null
+    document.body.style.pointerEvents = 'auto' // Restore body pointer events
+    if (currentClosePopupListener) {
+     document.removeEventListener(
+      'click',
+      currentClosePopupListener,
+      true
+     )
+     currentClosePopupListener = null
+    }
+   }
+  }
+ }
 
  const addReactionButton = elem({
   children: [icon('no')],
@@ -293,46 +314,37 @@ function attachReactions(
   textContent: 'React',
   events: {
    click: async function () {
-    if (isOpening) {
-     return
-    }
-    isOpening = true
-    clearTimeout(isOpeningTimeout)
-    isOpeningTimeout = setTimeout(() => {
-     isOpening = false
-    }, 250)
-
+    // --- Cleanup existing popup and listener --- >
     if (popupMenuElement) {
      popupMenuElement.remove()
+     popupMenuElement = null
+     document.body.style.pointerEvents = 'auto' // Restore body pointer events
     }
+    if (currentClosePopupListener) {
+     document.removeEventListener(
+      'click',
+      currentClosePopupListener,
+      true
+     )
+     currentClosePopupListener = null
+    }
+    // --- End Cleanup ---
 
+    // Create and display the new popup
     const popup = await createPopupMenu()
     popupMenuElement = popup.element
     addReactionButton.parentElement.appendChild(
      popupMenuElement
     )
+    document.body.style.pointerEvents = 'none' // Disable body pointer events
 
-    const closePopup = (e) => {
-     if (!popupMenuElement) {
-      document.removeEventListener(
-       'click',
-       closePopup
-      )
-      return
-     }
-     if (!popupMenuElement.contains(e.target)) {
-      popupMenuElement.remove()
-      document.removeEventListener(
-       'click',
-       closePopup
-      )
-     }
-    }
-
+    currentClosePopupListener =
+     closeReactionPopup
     setTimeout(() => {
      document.addEventListener(
       'click',
-      closePopup
+      closeReactionPopup,
+      true
      )
     }, 0)
    },
@@ -345,8 +357,6 @@ function attachReactions(
    children: [reactions, addReactionButton],
   })
  )
-
- let popupMenuElement = null
 
  async function createPopupMenu() {
   await reactionOptionsLoaded
@@ -366,6 +376,29 @@ function attachReactions(
     textContent: reaction,
     events: {
      click: async () => {
+      const popupInstanceBeingClosed =
+       popupMenuElement
+      const listenerToRemove =
+       currentClosePopupListener
+
+      // --- IMMEDIATE CLEANUP of the CAPTURE LISTENER & BODY --- >
+      document.body.style.pointerEvents = 'auto' // Restore body pointer events
+      if (listenerToRemove) {
+       document.removeEventListener(
+        'click',
+        listenerToRemove,
+        true
+       )
+       if (
+        currentClosePopupListener ===
+        listenerToRemove
+       ) {
+        currentClosePopupListener = null
+       }
+      }
+      // --- End Cleanup ---
+
+      // Optimistically find or create the element
       reactionElement = reactions.querySelector(
        `[data-reaction="${reaction}"]`
       )
@@ -381,24 +414,45 @@ function attachReactions(
         classes: ['reaction', 'active'],
         textContent: `${reaction} 1`,
         style: {
-         opacity: 0.5,
+         opacity: 0.5, // Indicate temporary state
         },
        })
        reactions.appendChild(reactionElement)
       }
+
       try {
        await addReaction(messageId, reaction)
-       reactionElement.style.opacity = 1
+       // On success, ensure opacity is full (might already be)
+       if (reactionElement) {
+        reactionElement.style.opacity = 1
+       }
       } catch (err) {
        console.error(
         'Error adding reaction:',
         err
        )
-       reactionElement.remove()
+       // On error, remove the optimistically added/activated element
+       if (reactionElement) {
+        reactionElement.remove()
+        reactionElement = null // Clear reference if removed
+       }
+      } finally {
+       // --- FINAL CLEANUP of Popup Element and State ---
+       if (popupInstanceBeingClosed) {
+        popupInstanceBeingClosed.remove()
+        if (
+         popupMenuElement ===
+         popupInstanceBeingClosed
+        ) {
+         popupMenuElement = null
+        }
+        // Ensure body events are restored if cleanup happens here
+        // (Should be redundant due to immediate cleanup above, but safe)
+        document.body.style.pointerEvents =
+         'auto'
+       }
+       // --- End Final Cleanup ---
       }
-
-      popupMenuElement.remove()
-      popupMenuElement = null
      },
     },
    })

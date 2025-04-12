@@ -36,7 +36,7 @@ async function renderScriptsMenu(
    // Scripts will be added here
    elem({
     tagName: 'button',
-    textContent: 'Dismiss',
+    textContent: 'Dismiss Scripts View',
     events: {
      click: () => menu.remove(),
     },
