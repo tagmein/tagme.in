@@ -695,9 +695,7 @@ function attachMessage(
   score.appendChild(
    elem({
     attributes: {
-     title: Math.round(message.score).toString(
-      10
-     ),
+     title: message.score.toPrecision(3),
     },
     textContent: `${messageScoreText}`,
    })

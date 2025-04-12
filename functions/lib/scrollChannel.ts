@@ -483,35 +483,35 @@ export function scrollChannel(
     const parentMessageId = encodeURIComponent(
      parentMessage
     )
+    // Fetch the *current* data for the parent message
     const parentMessageData = await channel(
      parentChannel
     ).getMessage(parentMessage)
+
+    // Fetch the *latest* state of all labels for this parent message
+    const labelsChannelName = `labels@${parentChannelId}#${parentMessageId}`
     const parentMessageLabels = await channel(
-     `labels@${parentChannelId}#${parentMessageId}`
-    ).seek()
+     labelsChannelName
+    ).seek() // seek() returns { messages: { [messageText]: MessageData } }
+
     // console.dir({
     //  channel: `labels@${parentChannelId}#${parentMessageId}`,
     //  parentMessageLabels,
     // })
-    const timeDelta =
-     timestamp - parentMessageData.timestamp
-    const positionDelta =
-     (timeDelta * parentMessageData.velocity) /
-     ONE_HOUR_MS
-    const newParentMessageData = {
-     newsChunk: parentMessageData.newsChunk,
-     position:
-      parentMessageData.position +
-      positionDelta,
-     seen: parentMessageData.seen ?? Date.now(),
-     timestamp,
-     velocity,
-     replies: parentMessageData.replies ?? {
-      count: 0,
-      top: [],
-     },
+
+    // Construct the updated parent message data
+    // Keep the original position, timestamp, velocity, replies, newsChunk etc.
+    // ONLY update the 'labels' field.
+    const newParentMessageData: MessageData = {
+     ...parentMessageData, // Keep existing fields like newsChunk, replies
+     position: parentMessageData.position, // Keep original position
+     seen: Date.now(), // Update seen time to now, indicating label activity
+     timestamp: parentMessageData.timestamp, // Keep original timestamp
+     velocity: parentMessageData.velocity, // Keep original velocity
+     // --- Only update the labels field ---
      labels: convertLabels(
-      parentMessageLabels.messages
+      // convertLabels extracts relevant fields
+      parentMessageLabels.messages ?? {}
      ),
     }
 
@@ -526,6 +526,7 @@ export function scrollChannel(
     //  { depth: null }
     // )
 
+    // Re-rank the parent message in its own channel with the updated labels
     await channel(parentChannel).rankMessage(
      parentMessage,
      newParentMessageData

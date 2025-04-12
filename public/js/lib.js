@@ -580,10 +580,6 @@ function htmlEntities(text) {
  return doc.body.textContent
 }
 
-function begin2024GMT() {
- return new Date('January 1, 2024 00:00:00 GMT')
-}
-
 function debounce(fn, delay = 500) {
  let timeout
  return function () {
@@ -653,8 +649,44 @@ function formatChannelData(channels) {
   })
 }
 
-function calculateScore(data) {
- const now = Date.now()
+const begin2024 = new Date(
+ 'January 1, 2024 00:00:00 GMT'
+)
+
+function getHourNumber() {
+ const now = new Date()
+ return Math.floor(
+  (now.getTime() - begin2024.getTime()) /
+   ONE_HOUR_MS
+ )
+}
+
+function getHourTimestamp(hourNumber) {
+ return (
+  begin2024.getTime() + hourNumber * ONE_HOUR_MS
+ )
+}
+
+function calculateScore(data, hourToEvaluate) {
+ const now =
+  typeof hourToEvaluate === 'number'
+   ? getHourTimestamp(hourToEvaluate)
+   : Date.now()
+
+ console.log(
+  `Calcuated score for ${
+   hourToEvaluate ?? 'now'
+  }`,
+  {
+   position: data.position,
+   velocity: data.velocity,
+   timestamp: data.timestamp,
+   score:
+    data.position +
+    (data.velocity * (now - data.timestamp)) /
+     ONE_HOUR_MS,
+  }
+ )
  return (
   data.position +
   (data.velocity * (now - data.timestamp)) /
@@ -677,7 +709,7 @@ function formatMessageData(messages) {
 
 function getDateTime(hoursSince2024) {
  const resultDate = new Date(
-  begin2024GMT().getTime() +
+  begin2024.getTime() +
    hoursSince2024 * 60 * 60 * 1000
  )
  return [
@@ -710,10 +742,9 @@ function getDaysInMonth(year, month) {
 
 function getHourNumber() {
  const now = new Date()
- const msPerHour = 1000 * 60 * 60
  return Math.floor(
-  (now.getTime() - begin2024GMT().getTime()) /
-   msPerHour
+  (now.getTime() - begin2024.getTime()) /
+   ONE_HOUR_MS
  )
 }
 
@@ -937,7 +968,7 @@ function hoursSinceStartOf2024(
  day,
  hour
 ) {
- const startDate = begin2024GMT()
+ const startDate = begin2024
 
  const date = new Date(
   year,
