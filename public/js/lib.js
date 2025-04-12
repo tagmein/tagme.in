@@ -377,7 +377,10 @@ function addImageByUrl(
    }),
   ],
   events: {
-   click() {
+   click(e) {
+    if (e.target.tagName === 'BUTTON') {
+     return // Don't toggle expand if clicking navigation buttons
+    }
     if (
      imageContainer.classList.contains(
       'expanded'
@@ -395,6 +398,61 @@ function addImageByUrl(
      imageContainer.classList.add('expanded')
      expandedElement = imageContainer
      document.body.appendChild(imageContainer)
+
+     // Find all images in the channel
+     const allImages = Array.from(
+      document.querySelectorAll(
+       '.image-container'
+      )
+     )
+     const currentIndex = allImages.indexOf(
+      imageContainer
+     )
+
+     // Add gallery navigation controls
+     const prevButton = elem({
+      tagName: 'button',
+      classes: ['gallery-nav', 'prev'],
+      textContent: '←',
+      events: {
+       click(e) {
+        e.stopPropagation()
+        const prevIndex =
+         (currentIndex - 1 + allImages.length) %
+         allImages.length
+        const prevImage = allImages[prevIndex]
+        if (prevImage) {
+         imageContainer.classList.remove(
+          'expanded'
+         )
+         prevImage.click()
+        }
+       },
+      },
+     })
+
+     const nextButton = elem({
+      tagName: 'button',
+      classes: ['gallery-nav', 'next'],
+      textContent: '→',
+      events: {
+       click(e) {
+        e.stopPropagation()
+        const nextIndex =
+         (currentIndex + 1) % allImages.length
+        const nextImage = allImages[nextIndex]
+        if (nextImage) {
+         imageContainer.classList.remove(
+          'expanded'
+         )
+         nextImage.click()
+        }
+       },
+      },
+     })
+
+     imageContainer.appendChild(prevButton)
+     imageContainer.appendChild(nextButton)
     }
    },
   },
