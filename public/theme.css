@@ -527,6 +527,15 @@ article > div > .image-container {
  -webkit-user-select: none;
 }
 
+.image-container.expanded .gallery-nav.prev {
+ left: 20px;
+ transform: translateY(-50%) rotate(180deg);
+}
+
+.image-container.expanded .gallery-nav.next {
+ right: 20px;
+}
+
 .image-container.expanded .gallery-close {
  position: absolute;
  top: 20px;
@@ -551,14 +560,6 @@ article > div > .image-container {
 .image-container.expanded .gallery-nav:hover,
 .image-container.expanded .gallery-close:hover {
  opacity: 1;
-}
-
-.image-container.expanded .gallery-nav.prev {
- left: 20px;
-}
-
-.image-container.expanded .gallery-nav.next {
- right: 20px;
 }
 
 .image-container.expanded img {

@@ -439,7 +439,7 @@ function addImageByUrl(
      const prevButton = elem({
       tagName: 'button',
       classes: ['gallery-nav', 'prev'],
-      textContent: '←',
+      textContent: '➜',
       events: {
        click(e) {
         e.stopPropagation()
@@ -471,7 +471,7 @@ function addImageByUrl(
      const nextButton = elem({
       tagName: 'button',
       classes: ['gallery-nav', 'next'],
-      textContent: '→',
+      textContent: '➜',
       events: {
        click(e) {
         e.stopPropagation()
