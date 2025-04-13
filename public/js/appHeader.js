@@ -59,6 +59,28 @@ if (
  setLightMode(true)
 }
 
+// Create the Chat Button
+const chatButton = elem({
+ attributes: {
+  'data-tour': 'Open the AI Chat interface.',
+  title: 'Open Chat',
+ },
+ children: [icon('chat')], // Replace 'chat' with the appropriate icon name or SVG
+ events: {
+  click() {
+   // Ensure the ChatInterface is initialized and open the chat
+   if (typeof chatInterface !== 'undefined') {
+    chatInterface.openChat() // Opens the chat interface
+   } else {
+    console.error(
+     'ChatInterface is not defined. Ensure chat.js is loaded.'
+    )
+   }
+  },
+ },
+ tagName: 'button',
+})
+
 const mainToolbar = elem({
  classes: ['toolbar', 'mode-main'],
  children: [
@@ -118,6 +140,7 @@ const mainToolbar = elem({
    },
    tagName: 'button',
   }),
+  chatButton, // Add the Chat Button here
  ],
 })
 
@@ -282,7 +305,7 @@ const appHeader = elem({
    ],
   }),
   tabStripContainer,
-  mainToolbar,
+  mainToolbar, // The main toolbar now includes the Chat Button
   otherToolbar,
   activityToolbar,
   loadingIndicator,

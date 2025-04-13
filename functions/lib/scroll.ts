@@ -57,9 +57,8 @@ export function scroll(kv: CivilMemoryKV) {
   } else {
    const showNewsOlderThan =
     Date.now() - NEWS_ITEM_APPEARS_AFTER
-   const newsChunkString = await kv.get(
-    chunkKey
-   )
+   const newsChunkString =
+    await kv.get(chunkKey)
    const newsChunk = (
     typeof newsChunkString === 'string' &&
     newsChunkString.length > 4
