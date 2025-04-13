@@ -1,3 +1,6 @@
+let currentGalleryIndex = 0
+let allGalleryImages = []
+
 const lastKnownModeAtStartup =
  localStorage.getItem('mode')
 
@@ -377,7 +380,10 @@ function addImageByUrl(
    }),
   ],
   events: {
-   click() {
+   click(e) {
+    if (e.target.tagName === 'BUTTON') {
+     return // Don't toggle expand if clicking navigation buttons
+    }
     if (
      imageContainer.classList.contains(
       'expanded'
@@ -390,11 +396,111 @@ function addImageByUrl(
      imageContainer.classList.remove('expanded')
      restoreScrollPosition()
      expandedElement = undefined
+     // Reload the page when image is closed
+     window.location.reload()
     } else {
      captureScrollPosition()
      imageContainer.classList.add('expanded')
      expandedElement = imageContainer
      document.body.appendChild(imageContainer)
+
+     // Update the current index when an image is clicked
+     allGalleryImages = Array.from(
+      document.querySelectorAll(
+       '.image-container'
+      )
+     )
+     currentGalleryIndex =
+      allGalleryImages.indexOf(imageContainer)
+
+     // Add close button
+     const closeButton = elem({
+      tagName: 'button',
+      classes: ['gallery-close'],
+      textContent: '×',
+      events: {
+       click(e) {
+        e.stopPropagation()
+        imageContainerReferencePosition.parentElement.insertBefore(
+         imageContainer,
+         imageContainerReferencePosition
+        )
+        imageContainer.classList.remove(
+         'expanded'
+        )
+        restoreScrollPosition()
+        expandedElement = undefined
+        window.location.reload()
+       },
+      },
+     })
+
+     // Add gallery navigation controls
+     const prevButton = elem({
+      tagName: 'button',
+      classes: ['gallery-nav', 'prev'],
+      textContent: '←',
+      events: {
+       click(e) {
+        e.stopPropagation()
+        currentGalleryIndex =
+         (currentGalleryIndex -
+          1 +
+          allGalleryImages.length) %
+         allGalleryImages.length
+        const prevImage =
+         allGalleryImages[currentGalleryIndex]
+        if (prevImage) {
+         // Remove expanded class from current image
+         imageContainer.classList.remove(
+          'expanded'
+         )
+         // Move controls to new image
+         prevImage.appendChild(closeButton)
+         prevImage.appendChild(prevButton)
+         prevImage.appendChild(nextButton)
+         // Expand new image
+         prevImage.classList.add('expanded')
+         document.body.appendChild(prevImage)
+         expandedElement = prevImage
+        }
+       },
+      },
+     })
+
+     const nextButton = elem({
+      tagName: 'button',
+      classes: ['gallery-nav', 'next'],
+      textContent: '→',
+      events: {
+       click(e) {
+        e.stopPropagation()
+        currentGalleryIndex =
+         (currentGalleryIndex + 1) %
+         allGalleryImages.length
+        const nextImage =
+         allGalleryImages[currentGalleryIndex]
+        if (nextImage) {
+         // Remove expanded class from current image
+         imageContainer.classList.remove(
+          'expanded'
+         )
+         // Move controls to new image
+         nextImage.appendChild(closeButton)
+         nextImage.appendChild(prevButton)
+         nextImage.appendChild(nextButton)
+         // Expand new image
+         nextImage.classList.add('expanded')
+         document.body.appendChild(nextImage)
+         expandedElement = nextImage
+        }
+       },
+      },
+     })
+
+     imageContainer.appendChild(closeButton)
+     imageContainer.appendChild(prevButton)
+     imageContainer.appendChild(nextButton)
     }
    },
   },
@@ -580,6 +686,10 @@ function htmlEntities(text) {
  return doc.body.textContent
 }
 
+function begin2024GMT() {
+ return new Date('January 1, 2024 00:00:00 GMT')
+}
+
 function debounce(fn, delay = 500) {
  let timeout
  return function () {
@@ -649,44 +759,8 @@ function formatChannelData(channels) {
   })
 }
 
-const begin2024 = new Date(
- 'January 1, 2024 00:00:00 GMT'
-)
-
-function getHourNumber() {
- const now = new Date()
- return Math.floor(
-  (now.getTime() - begin2024.getTime()) /
-   ONE_HOUR_MS
- )
-}
-
-function getHourTimestamp(hourNumber) {
- return (
-  begin2024.getTime() + hourNumber * ONE_HOUR_MS
- )
-}
-
-function calculateScore(data, hourToEvaluate) {
- const now =
-  typeof hourToEvaluate === 'number'
-   ? getHourTimestamp(hourToEvaluate)
-   : Date.now()
-
- console.log(
-  `Calcuated score for ${
-   hourToEvaluate ?? 'now'
-  }`,
-  {
-   position: data.position,
-   velocity: data.velocity,
-   timestamp: data.timestamp,
-   score:
-    data.position +
-    (data.velocity * (now - data.timestamp)) /
-     ONE_HOUR_MS,
-  }
- )
+function calculateScore(data) {
+ const now = Date.now()
  return (
   data.position +
   (data.velocity * (now - data.timestamp)) /
@@ -709,7 +783,7 @@ function formatMessageData(messages) {
 
 function getDateTime(hoursSince2024) {
  const resultDate = new Date(
-  begin2024.getTime() +
+  begin2024GMT().getTime() +
    hoursSince2024 * 60 * 60 * 1000
  )
  return [
@@ -742,9 +816,10 @@ function getDaysInMonth(year, month) {
 
 function getHourNumber() {
  const now = new Date()
+ const msPerHour = 1000 * 60 * 60
  return Math.floor(
-  (now.getTime() - begin2024.getTime()) /
-   ONE_HOUR_MS
+  (now.getTime() - begin2024GMT().getTime()) /
+   msPerHour
  )
 }
 
@@ -968,7 +1043,7 @@ function hoursSinceStartOf2024(
  day,
  hour
 ) {
- const startDate = begin2024
+ const startDate = begin2024GMT()
 
  const date = new Date(
   year,
