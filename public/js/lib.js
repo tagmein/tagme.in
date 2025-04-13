@@ -413,7 +413,7 @@ function addImageByUrl(
      currentGalleryIndex =
       allGalleryImages.indexOf(imageContainer)
 
-    
+     // Add close button
      const closeButton = elem({
       tagName: 'button',
       classes: ['gallery-close'],
@@ -439,7 +439,7 @@ function addImageByUrl(
      const prevButton = elem({
       tagName: 'button',
       classes: ['gallery-nav', 'prev'],
-      textContent: '➜',
+      textContent: '←',
       events: {
        click(e) {
         e.stopPropagation()
@@ -455,10 +455,11 @@ function addImageByUrl(
          imageContainer.classList.remove(
           'expanded'
          )
-         
+         // Move controls to new image
          prevImage.appendChild(closeButton)
          prevImage.appendChild(prevButton)
-   
+         prevImage.appendChild(nextButton)
+         // Expand new image
          prevImage.classList.add('expanded')
          document.body.appendChild(prevImage)
          expandedElement = prevImage
@@ -470,7 +471,7 @@ function addImageByUrl(
      const nextButton = elem({
       tagName: 'button',
       classes: ['gallery-nav', 'next'],
-      textContent: '➜',
+      textContent: '→',
       events: {
        click(e) {
         e.stopPropagation()
@@ -487,7 +488,8 @@ function addImageByUrl(
          // Move controls to new image
          nextImage.appendChild(closeButton)
          nextImage.appendChild(prevButton)
-     
+         nextImage.appendChild(nextButton)
+         // Expand new image
          nextImage.classList.add('expanded')
          document.body.appendChild(nextImage)
          expandedElement = nextImage
@@ -684,6 +686,10 @@ function htmlEntities(text) {
  return doc.body.textContent
 }
 
+function begin2024GMT() {
+ return new Date('January 1, 2024 00:00:00 GMT')
+}
+
 function debounce(fn, delay = 500) {
  let timeout
  return function () {
@@ -753,44 +759,8 @@ function formatChannelData(channels) {
   })
 }
 
-const begin2024 = new Date(
- 'January 1, 2024 00:00:00 GMT'
-)
-
-function getHourNumber() {
- const now = new Date()
- return Math.floor(
-  (now.getTime() - begin2024.getTime()) /
-   ONE_HOUR_MS
- )
-}
-
-function getHourTimestamp(hourNumber) {
- return (
-  begin2024.getTime() + hourNumber * ONE_HOUR_MS
- )
-}
-
-function calculateScore(data, hourToEvaluate) {
- const now =
-  typeof hourToEvaluate === 'number'
-   ? getHourTimestamp(hourToEvaluate)
-   : Date.now()
-
- console.log(
-  `Calcuated score for ${
-   hourToEvaluate ?? 'now'
-  }`,
-  {
-   position: data.position,
-   velocity: data.velocity,
-   timestamp: data.timestamp,
-   score:
-    data.position +
-    (data.velocity * (now - data.timestamp)) /
-     ONE_HOUR_MS,
-  }
- )
+function calculateScore(data) {
+ const now = Date.now()
  return (
   data.position +
   (data.velocity * (now - data.timestamp)) /
@@ -813,7 +783,7 @@ function formatMessageData(messages) {
 
 function getDateTime(hoursSince2024) {
  const resultDate = new Date(
-  begin2024.getTime() +
+  begin2024GMT().getTime() +
    hoursSince2024 * 60 * 60 * 1000
  )
  return [
@@ -846,9 +816,10 @@ function getDaysInMonth(year, month) {
 
 function getHourNumber() {
  const now = new Date()
+ const msPerHour = 1000 * 60 * 60
  return Math.floor(
-  (now.getTime() - begin2024.getTime()) /
-   ONE_HOUR_MS
+  (now.getTime() - begin2024GMT().getTime()) /
+   msPerHour
  )
 }
 
@@ -1072,7 +1043,7 @@ function hoursSinceStartOf2024(
  day,
  hour
 ) {
- const startDate = begin2024
+ const startDate = begin2024GMT()
 
  const date = new Date(
   year,
