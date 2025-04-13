@@ -451,10 +451,18 @@ function addImageByUrl(
         const prevImage =
          allGalleryImages[currentGalleryIndex]
         if (prevImage) {
+         // Remove expanded class from current image
          imageContainer.classList.remove(
           'expanded'
          )
-         prevImage.click()
+         // Move controls to new image
+         prevImage.appendChild(closeButton)
+         prevImage.appendChild(prevButton)
+         prevImage.appendChild(nextButton)
+         // Expand new image
+         prevImage.classList.add('expanded')
+         document.body.appendChild(prevImage)
+         expandedElement = prevImage
         }
        },
       },
@@ -473,10 +481,18 @@ function addImageByUrl(
         const nextImage =
          allGalleryImages[currentGalleryIndex]
         if (nextImage) {
+         // Remove expanded class from current image
          imageContainer.classList.remove(
           'expanded'
          )
-         nextImage.click()
+         // Move controls to new image
+         nextImage.appendChild(closeButton)
+         nextImage.appendChild(prevButton)
+         nextImage.appendChild(nextButton)
+         // Expand new image
+         nextImage.classList.add('expanded')
+         document.body.appendChild(nextImage)
+         expandedElement = nextImage
         }
        },
       },
