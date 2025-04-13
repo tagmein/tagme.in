@@ -1,3 +1,6 @@
+let currentGalleryIndex = 0
+let allGalleryImages = []
+
 const lastKnownModeAtStartup =
  localStorage.getItem('mode')
 
@@ -393,21 +396,44 @@ function addImageByUrl(
      imageContainer.classList.remove('expanded')
      restoreScrollPosition()
      expandedElement = undefined
+     // Reload the page when image is closed
+     window.location.reload()
     } else {
      captureScrollPosition()
      imageContainer.classList.add('expanded')
      expandedElement = imageContainer
      document.body.appendChild(imageContainer)
 
-     // Find all images in the channel
-     const allImages = Array.from(
+     // Update the current index when an image is clicked
+     allGalleryImages = Array.from(
       document.querySelectorAll(
        '.image-container'
       )
      )
-     const currentIndex = allImages.indexOf(
-      imageContainer
-     )
+     currentGalleryIndex =
+      allGalleryImages.indexOf(imageContainer)
+
+     // Add close button
+     const closeButton = elem({
+      tagName: 'button',
+      classes: ['gallery-close'],
+      textContent: '×',
+      events: {
+       click(e) {
+        e.stopPropagation()
+        imageContainerReferencePosition.parentElement.insertBefore(
+         imageContainer,
+         imageContainerReferencePosition
+        )
+        imageContainer.classList.remove(
+         'expanded'
+        )
+        restoreScrollPosition()
+        expandedElement = undefined
+        window.location.reload()
+       },
+      },
+     })
 
      // Add gallery navigation controls
      const prevButton = elem({
@@ -417,10 +443,13 @@ function addImageByUrl(
       events: {
        click(e) {
         e.stopPropagation()
-        const prevIndex =
-         (currentIndex - 1 + allImages.length) %
-         allImages.length
-        const prevImage = allImages[prevIndex]
+        currentGalleryIndex =
+         (currentGalleryIndex -
+          1 +
+          allGalleryImages.length) %
+         allGalleryImages.length
+        const prevImage =
+         allGalleryImages[currentGalleryIndex]
         if (prevImage) {
          imageContainer.classList.remove(
           'expanded'
@@ -438,9 +467,11 @@ function addImageByUrl(
       events: {
        click(e) {
         e.stopPropagation()
-        const nextIndex =
-         (currentIndex + 1) % allImages.length
-        const nextImage = allImages[nextIndex]
+        currentGalleryIndex =
+         (currentGalleryIndex + 1) %
+         allGalleryImages.length
+        const nextImage =
+         allGalleryImages[currentGalleryIndex]
         if (nextImage) {
          imageContainer.classList.remove(
           'expanded'
@@ -451,6 +482,7 @@ function addImageByUrl(
       },
      })
 
+     imageContainer.appendChild(closeButton)
      imageContainer.appendChild(prevButton)
      imageContainer.appendChild(nextButton)
     }
