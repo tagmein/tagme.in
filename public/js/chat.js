@@ -171,7 +171,7 @@ class ChatInterface {
         // Make chat interface accessible globally for task management
         window.chatInterface = this;
         
-        // Add event listener for DOM content loaded to initialize close button functionality
+        // Add event listener for close button clicks
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('chat-close-btn')) {
                 this.closeChat();
@@ -179,50 +179,75 @@ class ChatInterface {
         });
     }
 
-    // Add close chat method
+    // Modify close chat method
     closeChat() {
         if (this.chatContainer) {
+            // Hide the chat container
             this.chatContainer.style.display = 'none';
+            
+            // Clear any active states
+            this.isRecording = false;
+            this.menuVisible = false;
+            
+            // Stop any active recording or recognition
+            if (this.recognition) {
+                this.recognition.stop();
+            }
+            if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                this.mediaRecorder.stop();
+            }
+            
+            // Clear recording timer if active
+            if (this.recordingTimer) {
+                clearTimeout(this.recordingTimer);
+                this.recordingTimer = null;
+            }
+            
+            // Remove any open menus or popups
+            const menus = this.chatContainer.querySelectorAll('.chat-menu, .chat-history-list');
+            menus.forEach(menu => menu.remove());
+            
+            // Clear input field
+            const messageInput = this.chatContainer.querySelector('.message-input');
+            if (messageInput) {
+                messageInput.value = '';
+            }
+
+            // Remove any task management related containers
+            const containers = this.chatContainer.querySelectorAll(
+                '.task-form-container, .tasks-list-container, .schedule-container, .reminder-container, .reports-container'
+            );
+            containers.forEach(container => container.remove());
         }
     }
 
     async openChat(context = {}) {
-        // Get the chat container element
-        this.chatContainer = document.getElementById('chat-container');
-        
-        // If the chat container doesn't exist, create it
+        // Initialize chat container if it doesn't exist
         if (!this.chatContainer) {
             this.chatContainer = document.createElement('div');
             this.chatContainer.id = 'chat-container';
             document.body.appendChild(this.chatContainer);
         }
         
-        // Clear any existing content
+        // Generate a unique chat ID based on channel and timestamp
+        const timestamp = Date.now();
+        this.currentChannel = context.channel || 'default';
+        this.currentChat = `${this.currentChannel}_${timestamp}`;
+        
+        // Clear the container and set up the interface
         this.chatContainer.innerHTML = '';
-        this.chatContainer.className = 'chat-container';
-        
-        // Set the current channel from context
-        if (context.channel) {
-            this.currentChannel = context.channel;
-            console.log(`Opening chat in channel: ${this.currentChannel}`);
-        }
-        
-        // Force name popup to appear if requested in the context
-        if (context.askName) {
-            localStorage.removeItem('chatUserName');
-            this.userName = '';
-        }
-
-        // Ask for user's name if not already set
-        if (!this.userName) {
-            await this.askForUserName();
-        }
-
-        // Create the chat interface
         this.createChatInterface(context);
         
-        // Ensure the chat container is visible
+        // Make sure the chat container is visible
         this.chatContainer.style.display = 'flex';
+        
+        // Initialize empty message history for this chat if it doesn't exist
+        if (!this.messageHistory[this.currentChat]) {
+            this.messageHistory[this.currentChat] = [];
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('chatHistory', JSON.stringify(this.messageHistory));
     }
 
     async createChatInterface(context = {}) {
@@ -437,11 +462,28 @@ class ChatInterface {
         menuButton.onclick = () => this.toggleMenu();
         buttonsContainer.appendChild(menuButton);
 
-        // Add close button on far right
+        // Add close button on far right with explicit styling
         const closeButton = document.createElement('button');
         closeButton.className = 'chat-close-btn';
         closeButton.innerHTML = '✖';
-        closeButton.onclick = () => this.closeChat();
+        closeButton.style.cssText = `
+            background: #4CAF50;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            margin-left: 8px;
+        `;
+        closeButton.onmouseover = () => {
+            closeButton.style.backgroundColor = '#45a049';
+        };
+        closeButton.onmouseout = () => {
+            closeButton.style.backgroundColor = '#4CAF50';
+        };
+        closeButton.onclick = () => this.closeChat();  // Use the class method directly
         buttonsContainer.appendChild(closeButton);
         
         header.appendChild(buttonsContainer);
@@ -470,14 +512,15 @@ class ChatInterface {
         const chats = this.listChats();
         chats.forEach(chat => {
             const chatItem = document.createElement('div');
-            chatItem.className = 'chat-item';
+            chatItem.className = 'chat-history-item';
             if (chat.id === this.currentChat) {
                 chatItem.classList.add('active');
             }
             
-            const chatName = document.createElement('span');
-            chatName.textContent = chat.name;
-            chatItem.appendChild(chatName);
+            const nameEl = document.createElement('div');
+            nameEl.className = 'chat-history-name';
+            nameEl.textContent = chat.name;
+            chatItem.appendChild(nameEl);
             
             // Make chat items clickable
             chatItem.onclick = () => {
@@ -614,148 +657,237 @@ class ChatInterface {
     }
 
     startRecording() {
-        try {
-            const voiceButton = this.chatContainer.querySelector('.voice-button');
-            if (voiceButton) {
-                voiceButton.innerHTML = '⏹️'; // Stop icon
-                voiceButton.classList.add('recording');
-            }
-            
-            this.isRecording = true;
-            
-            // Get the message input element
-            const messageInput = this.inputArea.querySelector('.message-input');
-            
-            // Create recording indicator and add it in-line with the input area
-            const recordingIndicator = document.createElement('div');
-            recordingIndicator.className = 'recording-indicator';
-            recordingIndicator.innerHTML = '<span class="recording-dot"></span> Recording...';
-            recordingIndicator.style.position = 'absolute';
-            recordingIndicator.style.top = '-25px';
-            recordingIndicator.style.left = '10px';
-            recordingIndicator.style.fontSize = '12px';
-            recordingIndicator.style.color = '#ff4a4a';
-            recordingIndicator.style.fontWeight = 'bold';
-            this.inputArea.style.position = 'relative'; // Ensure relative positioning for absolute positioning to work
-            this.inputArea.appendChild(recordingIndicator);
-            
-            if (messageInput) {
-                messageInput.placeholder = 'Your speech will appear here...';
-            }
-            
-            // Set up speech recognition
-            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                this.recognition = new SpeechRecognition();
+        // Initialize speech recognition with cross-browser support
+        if (!this.recognition) {
+            try {
+                // Check for all possible Speech Recognition APIs
+                window.SpeechRecognition = window.SpeechRecognition || 
+                                         window.webkitSpeechRecognition ||
+                                         window.mozSpeechRecognition ||
+                                         window.msSpeechRecognition;
+
+                // If no implementation is available, fallback to a simple recording indicator
+                if (!window.SpeechRecognition) {
+                    this.handleUnsupportedBrowser();
+                    return;
+                }
+
+                this.recognition = new window.SpeechRecognition();
+
+                // Configure recognition settings
                 this.recognition.continuous = true;
                 this.recognition.interimResults = true;
-                
+                this.recognition.maxAlternatives = 1;
+                this.recognition.lang = 'en-US';
+
+                // Handle recognition results
                 this.recognition.onresult = (event) => {
-                    let finalTranscript = '';
+                    const messageInput = this.inputArea.querySelector('.message-input');
                     let interimTranscript = '';
-                    
-                    for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            finalTranscript += transcript;
-                        } else {
-                            interimTranscript += transcript;
+                    let finalTranscript = '';
+
+                    try {
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript += transcript;
+                            } else {
+                                interimTranscript += transcript;
+                            }
                         }
-                    }
-                    
-                    // Update the input field with the transcription
-                    if (messageInput) {
-                        messageInput.value = finalTranscript + interimTranscript;
+
+                        // Update input field with transcribed text
+                        if (messageInput) {
+                            messageInput.value = finalTranscript + interimTranscript;
+                        }
+                    } catch (error) {
+                        console.error('Error processing speech results:', error);
+                        this.handleRecognitionError('Error processing speech');
                     }
                 };
-                
+
+                // Handle recognition errors with detailed feedback
                 this.recognition.onerror = (event) => {
                     console.error('Speech recognition error:', event.error);
-                    this.addMessage(`Speech recognition error: ${event.error}. Please try typing instead.`, 'System');
+                    this.handleRecognitionError(event.error);
                 };
-                
-                // Start recognition
-                this.recognition.start();
-                console.log('Speech recognition started');
-            } else {
-                console.log('Speech recognition not supported');
-                this.addMessage('Speech recognition is not supported in your browser. Please try typing instead.', 'System');
+
+                // Handle end of recognition
+                this.recognition.onend = () => {
+                    if (this.isRecording) {
+                        // Try to restart recognition if it ends unexpectedly
+                        try {
+                            this.recognition.start();
+                        } catch (error) {
+                            console.error('Error restarting recognition:', error);
+                            this.stopRecording();
+                            this.handleRecognitionError('Recognition stopped unexpectedly');
+                        }
+                    }
+                };
+
+            } catch (error) {
+                console.error('Error initializing speech recognition:', error);
+                this.handleUnsupportedBrowser();
+                return;
             }
-            
-            // Set a timer to auto-stop recording after the maximum duration
+        }
+
+        try {
+            // Update UI to show recording state
+            this.updateRecordingUI(true);
+
+            // Start recording
+            this.isRecording = true;
+            this.recognition.start();
+            console.log('Speech recognition started');
+
+            // Set auto-stop timer
             this.recordingTimer = setTimeout(() => {
                 this.stopRecording();
             }, this.recordingMaxTime);
+
         } catch (error) {
             console.error('Error starting recording:', error);
-            this.addMessage('Error starting recording. Please try typing instead.', 'System');
+            this.handleRecognitionError('Error starting recording');
             this.isRecording = false;
         }
     }
-    
-    stopRecording() {
-        try {
-            this.isRecording = false;
-            
-            // Update UI
-            const voiceButton = this.chatContainer.querySelector('.voice-button');
-            if (voiceButton) {
-                voiceButton.innerHTML = '🎤';
+
+    // Add new helper methods for better error handling and UI updates
+    handleUnsupportedBrowser() {
+        this.addMessage('Voice recording is not supported in your browser. For the best experience, please use one of these browsers:\n\n• Google Chrome\n• Microsoft Edge\n• Safari (iOS/MacOS)\n• Firefox (with speech recognition enabled)\n\nAlternatively, you can type your message directly.', 'System');
+        
+        // Update UI to show unsupported state
+        const voiceButton = this.chatContainer.querySelector('.voice-button');
+        if (voiceButton) {
+            voiceButton.style.opacity = '0.5';
+            voiceButton.title = 'Voice recording not supported in this browser';
+        }
+    }
+
+    handleRecognitionError(error) {
+        let message = 'Error with voice recording: ';
+        
+        switch(error) {
+            case 'not-allowed':
+                message += 'Please allow microphone access to use voice recording.';
+                break;
+            case 'no-speech':
+                message += 'No speech was detected. Please try again.';
+                break;
+            case 'audio-capture':
+                message += 'No microphone was found. Please check your microphone settings.';
+                break;
+            case 'network':
+                message += 'Network error occurred. Please check your internet connection.';
+                break;
+            case 'aborted':
+                message += 'Recording was aborted. Please try again.';
+                break;
+            default:
+                message += 'An error occurred. Please try again or type your message.';
+        }
+        
+        this.addMessage(message, 'System');
+    }
+
+    updateRecordingUI(isStarting) {
+        const voiceButton = this.chatContainer.querySelector('.voice-button');
+        if (voiceButton) {
+            if (isStarting) {
+                voiceButton.innerHTML = '⏹️'; // Stop icon
+                voiceButton.classList.add('recording');
+                voiceButton.style.backgroundColor = '#ff4a4a';
+            } else {
+                voiceButton.innerHTML = '🎤'; // Mic icon
                 voiceButton.classList.remove('recording');
+                voiceButton.style.backgroundColor = '';
             }
-            
-            // Stop speech recognition if it was running
-            if (this.recognition) {
-                this.recognition.stop();
-                console.log('Speech recognition stopped');
+        }
+
+        // Update recording indicator
+        if (isStarting) {
+            const recordingIndicator = document.createElement('div');
+            recordingIndicator.className = 'recording-indicator';
+            recordingIndicator.innerHTML = '<span class="recording-dot"></span> Recording...';
+            recordingIndicator.style.cssText = `
+                position: absolute;
+                top: -25px;
+                left: 10px;
+                font-size: 12px;
+                color: #ff4a4a;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            `;
+
+            // Add pulsing dot animation if not already present
+            if (!document.querySelector('style[data-recording-styles]')) {
+                const style = document.createElement('style');
+                style.setAttribute('data-recording-styles', '');
+                style.textContent = `
+                    .recording-dot {
+                        width: 8px;
+                        height: 8px;
+                        background-color: #ff4a4a;
+                        border-radius: 50%;
+                        animation: pulse 1.5s infinite;
+                    }
+                    @keyframes pulse {
+                        0% { opacity: 1; }
+                        50% { opacity: 0.3; }
+                        100% { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
             }
-            
-            // Restore input field placeholder
+
+            this.inputArea.style.position = 'relative';
+            this.inputArea.appendChild(recordingIndicator);
+
+            // Update input placeholder
             const messageInput = this.inputArea.querySelector('.message-input');
             if (messageInput) {
-                messageInput.placeholder = 'Type your message...';
+                messageInput.placeholder = 'Listening...';
             }
-            
-            // Clear the timer
-            if (this.recordingTimer) {
-                clearTimeout(this.recordingTimer);
-                this.recordingTimer = null;
+        }
+    }
+
+    // Update stopRecording method for better cleanup
+    stopRecording() {
+        this.isRecording = false;
+        
+        // Update UI
+        this.updateRecordingUI(false);
+        
+        // Stop speech recognition
+        if (this.recognition) {
+            try {
+                this.recognition.stop();
+            } catch (error) {
+                console.error('Error stopping recognition:', error);
             }
-            
-            // Remove recording indicators
-            const recordingIndicator = this.inputArea.querySelector('.recording-indicator');
-            if (recordingIndicator) {
-                recordingIndicator.remove();
-            }
-            
-            // Get the message from input that was transcribed
-            if (messageInput && messageInput.value.trim()) {
-                const messageText = messageInput.value.trim();
-                
-                // Add the message to the chat
-                this.addMessage(messageText, 'You');
-                
-                // Send the message to the AI
-                this.sendMessage({
-                    channel: this.currentChannel,
-                    message: messageText
-                });
-                
-                // Clear the input field
-                messageInput.value = '';
-            } else {
-                // No transcription was successful, use a fallback message
-                const fallbackMessage = `[Voice request about ${this.currentChannel}]`;
-                this.addMessage(fallbackMessage, 'You');
-                
-                this.sendMessage({
-                    channel: this.currentChannel,
-                    message: `I tried to use voice input about ${this.currentChannel}, but no text was transcribed. Please help me with information about ${this.currentChannel}.`
-                });
-            }
-        } catch (error) {
-            console.error('Error stopping recording:', error);
-            this.addMessage('Error processing recording.', 'System');
+            this.recognition = null;
+        }
+        
+        // Restore input field placeholder
+        const messageInput = this.inputArea.querySelector('.message-input');
+        if (messageInput) {
+            messageInput.placeholder = 'Type your message...';
+        }
+        
+        // Clear the timer
+        if (this.recordingTimer) {
+            clearTimeout(this.recordingTimer);
+            this.recordingTimer = null;
+        }
+        
+        // Remove recording indicator
+        const recordingIndicator = this.inputArea.querySelector('.recording-indicator');
+        if (recordingIndicator) {
+            recordingIndicator.remove();
         }
     }
     
@@ -912,100 +1044,28 @@ class ChatInterface {
     }
 
     async sendMessage(context) {
-        // If we're in task manager mode
-        if (context.channel === 'task-manager') {
-            const input = context.message;
-            
-            // If this is the first interaction or we're starting over
-            if (input === "Initialize task manager and wait for user selection") {
-                this.taskManager.currentStep = 'initial';
-                this.taskManager.lastInteraction = new Date();
-                return;
-            }
-
-            // Handle task creation flow
-            const response = await this.handleTaskCreation(this.taskManager.currentStep, input);
-            if (response) {
-                this.addMessage(response.message, "TagMe Task Manager");
-                this.taskManager.currentStep = response.nextStep;
-                
-                if (response.suggestions) {
-                    this.displaySuggestedContent(response.suggestions);
-                }
-                
-                if (response.task) {
-                    this.taskManager.tasks.push(response.task);
-                    this.saveTaskData();
-                }
-                return;
-            }
-        }
-
-        // If not in task manager mode, proceed with regular chat
-        const messagesArea = this.chatContainer.querySelector('.messages-area');
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.className = 'loading-indicator';
-        loadingIndicator.textContent = 'Thinking...';
-        messagesArea.appendChild(loadingIndicator);
-
         try {
-            // Check if we're using Gemini 1.5 Flash model
-            if (localStorage.getItem('geminiModel') === 'gemini-1.5-flash' && this.chatURL === '/gemini') {
-                // Add model param to context
-                context.model = 'gemini-1.5-flash';
-            }
-            
-            console.log('Sending request to:', this.chatURL);
-            console.log('Request payload:', context);
-
-            // Build URL with query params if it's a GET request
-            let url = this.chatURL;
-            const isGetRequest = this.chatURL.includes('/chat') && !this.chatURL.includes('/api/');
-            
-            if (isGetRequest) {
-                const params = new URLSearchParams();
-                if (context.channel) params.append('channel', context.channel);
-                if (context.message) params.append('message', context.message);
-                url = `${url}?${params.toString()}`;
-            }
-
-            const response = await fetch(url, {
-                method: isGetRequest ? 'GET' : 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                body: isGetRequest ? undefined : JSON.stringify(context),
+                body: JSON.stringify({
+                    message: context.message,
+                    type: context.type || 'chat',
+                    channelId: this.currentChannel?.id || 'default'
+                })
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error('Failed to send message');
             }
 
-            const jsonResponse = await response.json();
-            console.log('API Response:', jsonResponse);
-            
-            if (jsonResponse.error) {
-                throw new Error(jsonResponse.error);
-            }
-            
-            // Process response
-            if (jsonResponse.reply) {
-                this.addMessage(jsonResponse.reply, 'TagMeInBot');
-                
-                // Display suggested content if available
-                if (jsonResponse.suggestedContent) {
-                    this.displaySuggestedContent(jsonResponse.suggestedContent);
-                }
-            }
-
-            loadingIndicator.remove();
-            return jsonResponse;
+            const data = await response.json();
+            return data;
         } catch (error) {
             console.error('Error sending message:', error);
-            this.addMessage(`Error: ${error.message}`, "Tagmein");
-            loadingIndicator.remove();
-            return null;
+            throw error;
         }
     }
 
@@ -1140,14 +1200,139 @@ class ChatInterface {
     formatMessage(text) {
         if (!text) return '';
         
-        // Convert URLs to clickable links
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
-        const formattedText = text.replace(urlRegex, url => {
+        // Convert URLs to clickable links - both markdown style and plain URLs
+        text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+        text = text.replace(/(https?:\/\/[^\s]+)/g, url => {
             return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
         });
+
+        // Code blocks with language specification: ```language\ncode\n```
+        text = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, language, code) => {
+            return `<pre class="code-block ${language}"><code>${code.trim()}</code></pre>`;
+        });
         
-        // Replace newlines with <br> tags
-        return formattedText.replace(/\n/g, '<br>');
+        // Headers: # Header (up to ######)
+        text = text.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, content) => {
+            const level = hashes.length;
+            return `<h${level} style="margin: 0.8em 0 0.5em 0; font-weight: 600;">${content}</h${level}>`;
+        });
+
+        // Bold: **text**
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Italic: *text*
+        text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        
+        // Unordered lists: * item or - item
+        text = text.replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>');
+        text = text.replace(/(<li>.*<\/li>)/s, '<ul style="margin: 0.5em 0; padding-left: 20px;">$1</ul>');
+
+        // Add markdown styles if they don't exist yet
+        if (!document.querySelector('style[data-markdown-styles]')) {
+            const style = document.createElement('style');
+            style.setAttribute('data-markdown-styles', '');
+            style.textContent = `
+                .message-text code {
+                    background-color: white;
+                    padding: 2px 4px;
+                    border-radius: 3px;
+                    font-family: monospace;
+                    font-size: 0.9em;
+                    color: #a0a0a0;  /* Light grey for light mode */
+                }
+                .message-text pre.code-block {
+                    background-color: white;
+                    padding: 16px;
+                    border-radius: 6px;
+                    overflow-x: auto;
+                    margin: 0.8em 0;
+                    border: 1px solid #e1e4e8;
+                    color: #a0a0a0;  /* Light grey for light mode */
+                }
+                
+                /* Dark mode styles */
+                @media (prefers-color-scheme: dark) {
+                    .message-text code {
+                        background-color: #000000;
+                        color: white;
+                    }
+                    .message-text pre.code-block {
+                        background-color: #000000;
+                        border-color: #333333;
+                        color: white;
+                    }
+                }
+                
+                /* For explicitly set dark mode class */
+                .dark-mode .message-text code,
+                .dark-theme .message-text code {
+                    background-color: #000000;
+                    color: white;
+                }
+                .dark-mode .message-text pre.code-block,
+                .dark-theme .message-text pre.code-block {
+                    background-color: #000000;
+                    border-color: #333333;
+                    color: white;
+                }
+                
+                .message-text h1, .message-text h2, .message-text h3,
+                .message-text h4, .message-text h5, .message-text h6 {
+                    color: #24292e;
+                    line-height: 1.25;
+                }
+                .message-text ul {
+                    list-style-type: disc;
+                }
+                .message-text a {
+                    color: #0366d6;
+                    text-decoration: none;
+                }
+                .message-text a:hover {
+                    text-decoration: underline;
+                }
+                .message-text strong {
+                    font-weight: 600;
+                }
+                .message-text em {
+                    font-style: italic;
+                }
+                
+                /* Dark mode text colors */
+                @media (prefers-color-scheme: dark) {
+                    .message-text h1, .message-text h2, .message-text h3,
+                    .message-text h4, .message-text h5, .message-text h6 {
+                        color: #e6e6e6;
+                    }
+                    .message-text a {
+                        color: #58a6ff;
+                    }
+                }
+                
+                .dark-mode .message-text h1, 
+                .dark-mode .message-text h2, 
+                .dark-mode .message-text h3,
+                .dark-mode .message-text h4, 
+                .dark-mode .message-text h5, 
+                .dark-mode .message-text h6,
+                .dark-theme .message-text h1, 
+                .dark-theme .message-text h2, 
+                .dark-theme .message-text h3,
+                .dark-theme .message-text h4, 
+                .dark-theme .message-text h5, 
+                .dark-theme .message-text h6 {
+                    color: #e6e6e6;
+                }
+                .dark-mode .message-text a,
+                .dark-theme .message-text a {
+                    color: #58a6ff;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // Replace newlines with <br> tags (after markdown parsing)
+        return text.replace(/\n/g, '<br>');
     }
 
     toggleMenu() {
@@ -1158,104 +1343,92 @@ class ChatInterface {
         } else {
             menu = document.createElement('div');
             menu.className = 'chat-menu';
+            menu.style.cssText = `
+                position: absolute;
+                top: 60px;
+                right: 10px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                padding: 10px;
+                z-index: 1000;
+                min-width: 200px;
+            `;
 
-            // Add TagMe Task Manager option at the top
-            const taskManager = document.createElement('button');
-            taskManager.className = 'chat-menu-item task-manager-btn';
-            taskManager.innerHTML = '📋 TagMe Task Manager';
-            taskManager.style.display = 'flex';
-            taskManager.style.alignItems = 'center';
-            taskManager.style.gap = '8px';
-            taskManager.style.color = '#7d5fff';
-            taskManager.style.fontWeight = 'bold';
-            taskManager.onclick = () => {
-                const userName = this.userName || 'there';
-                const currentTime = new Date();
-                const greeting = currentTime.getHours() < 12 ? 'Good morning' : 
-                               currentTime.getHours() < 18 ? 'Good afternoon' : 
-                               'Good evening';
-                
-                // Initial greeting and task creation prompt
-                this.addMessage(`${greeting}, ${userName}! 👋\n\nLet's plan your day together. Would you like to:\n\n1. Add tasks for today\n2. View existing tasks\n3. Generate a daily schedule\n4. Set task reminders\n\nJust type the number or tell me what you'd like to do.`, "TagMe Task Manager");
-                
-                // Add suggested quick replies
-                const suggestions = [
-                    "1 - Add new tasks",
-                    "2 - View my tasks",
-                    "3 - Create schedule",
-                    "4 - Set reminders"
-                ];
-                this.displaySuggestedContent(suggestions);
-
-                // Set up task creation handler
-                this.sendMessage({
-                    channel: 'task-manager',
-                    message: "Initialize task manager and wait for user selection"
-                });
-
-                menu.remove();
-                this.menuVisible = false;
-            };
-            menu.appendChild(taskManager);
-
-            // Add separator
-            const separator = document.createElement('div');
-            separator.className = 'menu-separator';
-            separator.style.margin = '8px 0';
-            separator.style.borderBottom = '1px solid #e0e0e0';
-            menu.appendChild(separator);
-
-            // Existing menu items
-            const createChannel = document.createElement('button');
-            createChannel.textContent = 'Create Your Channel';
-            createChannel.onclick = () => {
-                window.open('https://tagme.in/create-channel', '_blank');
-                menu.remove();
-                this.menuVisible = false;
-            };
-            menu.appendChild(createChannel);
-
-            const setChatURL = document.createElement('button');
-            setChatURL.textContent = 'Set Chat URL';
-            setChatURL.onclick = () => {
-                const newURL = prompt('Enter new chat URL:', this.chatURL);
-                if (newURL) {
-                    this.chatURL = newURL;
+            const menuItems = [
+                { text: 'Create Your Channel', action: () => window.open('https://tagme.in/create-channel', '_blank') },
+                { text: 'Set Chat URL', action: () => {
+                    const newURL = prompt('Enter new chat URL:', this.chatURL);
+                    if (newURL) {
+                        this.chatURL = newURL;
+                        localStorage.setItem('chatURL', this.chatURL);
+                        alert(`Chat URL updated to: ${this.chatURL}`);
+                    }
+                }},
+                { text: 'Reset to Tag Me In chatbot', action: () => {
+                    this.chatURL = '/api/chat';
                     localStorage.setItem('chatURL', this.chatURL);
-                    alert(`Chat URL updated to: ${this.chatURL}`);
-                }
-            };
-            menu.appendChild(setChatURL);
+                    alert('Chat URL reset to Tag Me In endpoint');
+                }},
+                { text: 'Change Your Name', action: async () => {
+                    menu.remove();
+                    this.menuVisible = false;
+                    localStorage.removeItem('chatUserName');
+                    this.userName = '';
+                    await this.askForUserName();
+                }},
+                { text: 'Delete Chat', action: () => {
+                    this.messageHistory = {};
+                    localStorage.removeItem('chatHistory');
+                    this.chatContainer.querySelector('.messages-area').innerHTML = '';
+                    alert('Chat history deleted.');
+                }},
+                { text: '🔧 Scripts', action: () => {
+                    menu.remove();
+                    this.menuVisible = false;
+                    if (!this.scriptManager) {
+                        this.scriptManager = {
+                            scripts: JSON.parse(localStorage.getItem('tagme_scripts') || '[]'),
+                            saveScripts: function() {
+                                localStorage.setItem('tagme_scripts', JSON.stringify(this.scripts));
+                            }
+                        };
+                    }
+                    this.showScriptsManager();
+                }}
+            ];
 
-            const resetChatURL = document.createElement('button');
-            resetChatURL.textContent = 'Reset to Tag Me In chatbot';
-            resetChatURL.onclick = () => {
-                this.chatURL = '/api/chat';
-                localStorage.setItem('chatURL', this.chatURL);
-                alert('Chat URL reset to Tag Me In endpoint');
-            };
-            menu.appendChild(resetChatURL);
-            
-            const changeName = document.createElement('button');
-            changeName.textContent = 'Change Your Name';
-            changeName.onclick = async () => {
-                menu.remove();
-                this.menuVisible = false;
-                localStorage.removeItem('chatUserName');
-                this.userName = '';
-                await this.askForUserName();
-            };
-            menu.appendChild(changeName);
-
-            const deleteChat = document.createElement('button');
-            deleteChat.textContent = 'Delete Chat';
-            deleteChat.onclick = () => {
-                this.messageHistory = {};
-                localStorage.removeItem('chatHistory');
-                this.chatContainer.querySelector('.messages-area').innerHTML = '';
-                alert('Chat history deleted.');
-            };
-            menu.appendChild(deleteChat);
+            menuItems.forEach(item => {
+                const button = document.createElement('button');
+                button.textContent = item.text;
+                button.style.cssText = `
+                    display: block;
+                    width: 100%;
+                    padding: 8px 12px;
+                    margin: 4px 0;
+                    border: none;
+                    border-radius: 4px;
+                    background: none;
+                    color: #333;
+                    text-align: left;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                `;
+                button.onmouseover = () => {
+                    button.style.backgroundColor = '#f0f0f0';
+                };
+                button.onmouseout = () => {
+                    button.style.backgroundColor = 'transparent';
+                };
+                button.onclick = () => {
+                    item.action();
+                    if (item.text !== 'Change Your Name' && item.text !== '🔧 Scripts') {
+                        menu.remove();
+                        this.menuVisible = false;
+                    }
+                };
+                menu.appendChild(button);
+            });
 
             this.chatContainer.appendChild(menu);
             this.menuVisible = true;
@@ -1358,41 +1531,65 @@ class ChatInterface {
     listAllConversations() {
         const conversations = [];
         
-        // Get all chat histories from localStorage
-        if (this.messageHistory) {
-            for (const chatId in this.messageHistory) {
-                if (this.messageHistory[chatId] && this.messageHistory[chatId].length > 0) {
-                    // Extract channel from chatId
-                    const parts = chatId.split('_');
-                    const channel = parts[0];
-                    
-                    // Get the first user message for a name
-                    let chatName = '';
-                    for (const message of this.messageHistory[chatId]) {
-                        if (message.sender === 'You') {
-                            chatName = message.text;
-                            break;
-                        }
-                    }
-                    
-                    // Fallback to first message if no user messages
-                    if (!chatName && this.messageHistory[chatId][0]) {
-                        chatName = this.messageHistory[chatId][0].text;
-                    }
-                    
-                    // Truncate if too long
-                    chatName = chatName.length > 25 ? chatName.substring(0, 25) + '...' : chatName;
-                    
-                    // Get the timestamp of the last message
-                    const lastMessageTime = this.messageHistory[chatId][this.messageHistory[chatId].length - 1].timestamp;
-                    
-                    conversations.push({
-                        id: chatId,
-                        name: chatName,
-                        channel: channel,
-                        lastMessage: lastMessageTime
-                    });
+        // Load message history from localStorage if not already loaded
+        if (!this.messageHistory || Object.keys(this.messageHistory).length === 0) {
+            const storedHistory = localStorage.getItem('chatHistory');
+            if (storedHistory) {
+                try {
+                    this.messageHistory = JSON.parse(storedHistory);
+                } catch (error) {
+                    console.error('Error parsing chat history:', error);
+                    this.messageHistory = {};
+                    return conversations;
                 }
+            } else {
+                this.messageHistory = {};
+                return conversations;
+            }
+        }
+        
+        // Process message history
+        for (const chatId in this.messageHistory) {
+            if (this.messageHistory[chatId] && Array.isArray(this.messageHistory[chatId]) && this.messageHistory[chatId].length > 0) {
+                // Extract channel from chatId
+                const parts = chatId.split('_');
+                const channel = parts[0];
+                
+                // Get the first user message for a name
+                let chatName = '';
+                for (const message of this.messageHistory[chatId]) {
+                    if (message && message.sender === 'You' && message.text) {
+                        chatName = message.text;
+                        break;
+                    }
+                }
+                
+                // Fallback to first message if no user messages
+                if (!chatName && this.messageHistory[chatId][0] && this.messageHistory[chatId][0].text) {
+                    chatName = this.messageHistory[chatId][0].text;
+                }
+                
+                // Use a default name if still empty
+                if (!chatName) {
+                    chatName = `Chat ${channel}`;
+                }
+                
+                // Truncate if too long
+                chatName = chatName.length > 25 ? chatName.substring(0, 25) + '...' : chatName;
+                
+                // Get the timestamp of the last message
+                let lastMessageTime = new Date().toISOString();
+                const lastMessage = this.messageHistory[chatId][this.messageHistory[chatId].length - 1];
+                if (lastMessage && lastMessage.timestamp) {
+                    lastMessageTime = lastMessage.timestamp;
+                }
+                
+                conversations.push({
+                    id: chatId,
+                    name: chatName,
+                    channel: channel,
+                    lastMessage: lastMessageTime
+                });
             }
         }
         
@@ -2277,24 +2474,88 @@ class ChatInterface {
         
         const menuHeader = document.createElement('div');
         menuHeader.className = 'menu-header';
-        menuHeader.innerHTML = '<h3>📋 TagMe Menu</h3>';
-        menuContainer.appendChild(menuHeader);
-
-        const menuItems = [
-            { text: '➕ Add New Task', action: () => this.showTaskForm() },
-            { text: '📋 View Tasks', action: () => this.showTasksList() },
-            { text: '📅 Daily Schedule', action: () => this.showDailySchedule() },
-            { text: '⏰ Set Reminders', action: () => this.showReminders() },
-            { text: '📊 View Reports', action: () => this.showReports() }
+        menuHeader.innerHTML = '<h3>📋 Menu</h3>';
+        
+        const menuContent = document.createElement('div');
+        menuContent.className = 'menu-content';
+        
+        const menuButtons = [
+            { icon: '➕', text: 'Add New Task', action: () => this.showTaskForm() },
+            { icon: '📋', text: 'View Tasks', action: () => this.showTasksList() },
+            { icon: '📅', text: 'Daily Schedule', action: () => this.showDailySchedule() },
+            { icon: '⏰', text: 'Set Reminders', action: () => this.showReminders() },
+            { icon: '📊', text: 'View Reports', action: () => this.showReports() },
+            { icon: '🔧', text: 'Scripts', action: () => this.showScriptsManager() }
         ];
 
-        menuItems.forEach(item => {
+        menuButtons.forEach(item => {
             const button = document.createElement('button');
             button.className = 'menu-button';
-            button.textContent = item.text;
+            button.innerHTML = `<span class="menu-icon">${item.icon}</span>${item.text}`;
             button.onclick = item.action;
-            menuContainer.appendChild(button);
+            menuContent.appendChild(button);
         });
+
+        menuContainer.appendChild(menuHeader);
+        menuContainer.appendChild(menuContent);
+
+        // Add styles for the menu
+        const menuStyles = `
+            .main-menu-container {
+                background: white;
+                border-radius: 8px;
+                padding: 15px;
+                margin: 10px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .menu-header {
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #7d5fff;
+            }
+
+            .menu-header h3 {
+                margin: 0;
+                color: #333;
+                font-size: 1.2em;
+            }
+
+            .menu-content {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .menu-button {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px;
+                border: none;
+                border-radius: 6px;
+                background: #f8f9fa;
+                color: #333;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: left;
+                font-size: 1em;
+            }
+
+            .menu-button:hover {
+                background: #7d5fff;
+                color: white;
+            }
+
+            .menu-icon {
+                font-size: 1.2em;
+                min-width: 24px;
+            }
+        `;
+
+        const style = document.createElement('style');
+        style.textContent = menuStyles;
+        document.head.appendChild(style);
 
         return menuContainer;
     }
@@ -2451,6 +2712,7 @@ class ChatInterface {
             ${this.getScheduleStyles()}
             ${this.getReminderStyles()}
             ${this.getReportStyles()}
+            ${this.getScriptStyles()}
         `;
         document.head.appendChild(style);
     }
@@ -2633,6 +2895,97 @@ class ChatInterface {
         `;
     }
 
+    getScriptStyles() {
+        return `
+            .scripts-container {
+                background: #1a1a1a;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                color: #ffffff;
+            }
+
+            .scripts-header {
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #7d5fff;
+            }
+
+            .scripts-header h3 {
+                color: #ffffff;
+                margin: 0;
+            }
+
+            .scripts-header p {
+                color: #cccccc;
+                margin-top: 5px;
+            }
+
+            .scripts-actions {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .scripts-actions button {
+                flex: 1;
+                padding: 12px;
+                border: none;
+                border-radius: 4px;
+                background: #2d2d2d;
+                color: #ffffff;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+            .scripts-actions button:hover {
+                background: #7d5fff;
+                transform: translateY(-2px);
+            }
+
+            .scripts-help {
+                background: #2d2d2d;
+                padding: 15px;
+                border-radius: 4px;
+                margin-top: 20px;
+            }
+
+            .scripts-help h4 {
+                color: #ffffff;
+                margin-top: 0;
+                margin-bottom: 10px;
+            }
+
+            .scripts-help ul {
+                margin: 0;
+                padding-left: 20px;
+                list-style-type: none;
+            }
+
+            .scripts-help li {
+                margin-bottom: 8px;
+                color: #cccccc;
+                position: relative;
+                padding-left: 15px;
+            }
+
+            .scripts-help li:before {
+                content: "•";
+                position: absolute;
+                left: 0;
+                color: #7d5fff;
+            }
+
+            .scripts-examples {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #3d3d3d;
+            }
+        `;
+    }
+
     initializeChatInterface() {
         // Create chat container
         this.chatContainer = document.createElement('div');
@@ -2670,7 +3023,7 @@ class ChatInterface {
         
         // Remove any existing containers
         const existingContainers = this.messagesArea.querySelectorAll(
-            '.task-form-container, .tasks-list-container, .schedule-container, .reminder-container, .reports-container'
+            '.task-form-container, .tasks-list-container, .schedule-container, .reminder-container, .reports-container, .scripts-container'
         );
         existingContainers.forEach(container => container.remove());
 
@@ -2713,6 +3066,337 @@ class ChatInterface {
             }
         `;
         document.head.appendChild(style);
+    }
+
+    handleScriptRequest(command) {
+        if (!this.scriptManager) {
+            this.scriptManager = {
+                scripts: JSON.parse(localStorage.getItem('tagme_scripts') || '[]'),
+                saveScripts: function() {
+                    localStorage.setItem('tagme_scripts', JSON.stringify(this.scripts));
+                }
+            };
+        }
+
+        const generateMatch = command.match(/^generate script:\s*(.+)/i);
+        const listMatch = command.match(/^list scripts/i);
+        const runMatch = command.match(/^run script:\s*(\d+)/i);
+        const deleteMatch = command.match(/^delete script:\s*(\d+)/i);
+
+        const channelId = this.currentChannel?.id || 'default';
+        const channelScripts = JSON.parse(localStorage.getItem(`channel_${channelId}_scripts`) || '[]');
+
+        if (generateMatch) {
+            const prompt = generateMatch[1];
+            this.generateScriptWithGemini(prompt);
+            return;
+        }
+
+        if (listMatch) {
+            if (channelScripts.length === 0) {
+                this.addMessage("No scripts installed in this channel. Generate one using 'generate script: description'", 'System');
+            } else {
+                const scriptList = channelScripts.map(script => 
+                    `📜 ${script.name} (ID: ${script.id})\n\`\`\`javascript\n${script.code}\n\`\`\``
+                ).join('\n\n');
+                this.addMessage(`Installed Scripts in Current Channel:\n\n${scriptList}`, 'System');
+            }
+            return;
+        }
+
+        if (runMatch) {
+            const scriptId = runMatch[1];
+            const script = channelScripts.find(s => s.id === scriptId);
+            if (script) {
+                try {
+                    eval(script.code);
+                    this.addMessage(`Script "${script.name}" executed successfully!`, 'System');
+                } catch (error) {
+                    this.addMessage(`Error executing script: ${error.message}`, 'System');
+                }
+            } else {
+                this.addMessage(`Script with ID ${scriptId} not found in this channel.`, 'System');
+            }
+            return;
+        }
+
+        if (deleteMatch) {
+            const scriptId = deleteMatch[1];
+            const scriptIndex = channelScripts.findIndex(s => s.id === scriptId);
+            if (scriptIndex !== -1) {
+                channelScripts.splice(scriptIndex, 1);
+                localStorage.setItem(`channel_${channelId}_scripts`, JSON.stringify(channelScripts));
+                this.addMessage(`Script deleted successfully from the channel!`, 'System');
+            } else {
+                this.addMessage(`Script with ID ${scriptId} not found in this channel.`, 'System');
+            }
+            return;
+        }
+
+        this.addMessage('Available commands:\n- generate script: description\n- list scripts\n- run script: ID\n- delete script: ID', 'System');
+    }
+
+    async generateScriptWithGemini(prompt) {
+        try {
+            this.addMessage(`Generating script for: "${prompt}"...`, 'System');
+            
+            // Create a basic script template based on the prompt
+            const defaultScript = {
+                id: Date.now().toString(),
+                name: prompt.slice(0, 30) + (prompt.length > 30 ? '...' : ''),
+                code: `// Generated script for: ${prompt}\n` +
+                     `function run${prompt.replace(/[^a-zA-Z0-9]/g, '')}() {\n` +
+                     `    // Create container for the script\n` +
+                     `    const container = document.createElement('div');\n` +
+                     `    container.className = 'script-container';\n` +
+                     `    container.style.cssText = 'padding: 15px; background: #f5f5f5; border-radius: 8px; margin: 10px 0;';\n\n` +
+                     `    // Add title\n` +
+                     `    const title = document.createElement('h3');\n` +
+                     `    title.textContent = '${prompt}';\n` +
+                     `    container.appendChild(title);\n\n` +
+                     `    // Add content area\n` +
+                     `    const content = document.createElement('div');\n` +
+                     `    content.className = 'script-content';\n` +
+                     `    container.appendChild(content);\n\n` +
+                     `    // Add the container to the messages area\n` +
+                     `    const messagesArea = document.querySelector('.messages-area');\n` +
+                     `    if (messagesArea) {\n` +
+                     `        messagesArea.appendChild(container);\n` +
+                     `        messagesArea.scrollTop = messagesArea.scrollHeight;\n` +
+                     `    }\n` +
+                     `}\n\n` +
+                     `// Execute the script\n` +
+                     `run${prompt.replace(/[^a-zA-Z0-9]/g, '')}();`,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                // Try to send the request through the chat interface
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Generate a JavaScript script for: ${prompt}. The script should be self-contained and ready to run in the chat environment.`,
+                        type: 'script_generation',
+                        channelId: this.currentChannel?.id || 'default'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data && data.content) {
+                    // Update the script code with the AI-generated content
+                    defaultScript.code = data.content.trim();
+                }
+            } catch (error) {
+                console.warn('Failed to get AI-generated script, using default template:', error);
+                // Continue with the default script
+            }
+
+            // Save to channel scripts
+            const channelId = this.currentChannel?.id || 'default';
+            const channelScripts = JSON.parse(localStorage.getItem(`channel_${channelId}_scripts`) || '[]');
+            channelScripts.push(defaultScript);
+            localStorage.setItem(`channel_${channelId}_scripts`, JSON.stringify(channelScripts));
+
+            this.addMessage(`✨ Script generated and installed in channel!\n\n📜 Name: ${defaultScript.name}\n🔑 ID: ${defaultScript.id}\n\n💻 Generated Code:\n\`\`\`javascript\n${defaultScript.code}\n\`\`\`\n\nCommands:\n- Run: \`run script: ${defaultScript.id}\`\n- Delete: \`delete script: ${defaultScript.id}\``, 'System');
+            
+            // Try to run the script immediately
+            try {
+                eval(defaultScript.code);
+            } catch (error) {
+                console.error('Error running script:', error);
+                this.addMessage(`⚠️ Note: The script was saved but encountered an error when running: ${error.message}`, 'System');
+            }
+
+        } catch (error) {
+            this.addMessage(`❌ Error handling script generation: ${error.message}`, 'System');
+            console.error('Script generation error:', error);
+        }
+    }
+
+    initializeGemini() {
+        // Check for API key in localStorage first
+        this.apiKey = localStorage.getItem('gemini_api_key');
+        
+        if (!this.apiKey) {
+            // Prompt user for API key
+            const apiKey = prompt('Please enter your Gemini API key to enable script generation:');
+            if (apiKey) {
+                this.apiKey = apiKey;
+                localStorage.setItem('gemini_api_key', apiKey);
+            }
+        }
+    }
+
+    showScriptsManager() {
+        const messagesArea = this.chatContainer.querySelector('.messages-area');
+        const existingContainer = messagesArea.querySelector('.scripts-container');
+        if (existingContainer) {
+            existingContainer.remove();
+        }
+
+        const scriptsContainer = document.createElement('div');
+        scriptsContainer.className = 'scripts-container';
+        
+        // Header
+        const header = document.createElement('div');
+        header.className = 'scripts-header';
+        header.innerHTML = `
+            <h3>Scripts Manager</h3>
+            <p>Create interactive scripts powered by Gemini AI</p>
+        `;
+        scriptsContainer.appendChild(header);
+
+        // Actions
+        const actions = document.createElement('div');
+        actions.className = 'scripts-actions';
+        
+        const generateButton = document.createElement('button');
+        generateButton.textContent = '✨ Generate with AI';
+        generateButton.onclick = () => {
+            const scriptPrompt = window.prompt('Describe the script you want to create:');
+            if (scriptPrompt) {
+                this.handleScriptRequest(`generate script: ${scriptPrompt}`);
+            }
+        };
+
+        const listButton = document.createElement('button');
+        listButton.textContent = '📋 Installed Scripts';
+        listButton.onclick = () => {
+            this.handleScriptRequest('list scripts');
+        };
+
+        actions.appendChild(generateButton);
+        actions.appendChild(listButton);
+        scriptsContainer.appendChild(actions);
+
+        // Help section
+        const help = document.createElement('div');
+        help.className = 'scripts-help';
+        help.innerHTML = `
+            <h4>Available Commands</h4>
+            <ul>
+                <li>generate script: description - Create a new script using AI</li>
+                <li>list scripts - Show installed scripts</li>
+                <li>run script: ID - Execute a script</li>
+                <li>delete script: ID - Remove script</li>
+            </ul>
+            <div class="scripts-examples">
+                <h4>Example Prompts</h4>
+                <ul>
+                    <li>Create a poll system for voting</li>
+                    <li>Make a simple quiz game</li>
+                    <li>Create a countdown timer</li>
+                </ul>
+            </div>
+        `;
+        scriptsContainer.appendChild(help);
+
+        // Add styles
+        const styles = document.createElement('style');
+        styles.textContent = this.getScriptStyles();
+        document.head.appendChild(styles);
+
+        messagesArea.appendChild(scriptsContainer);
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    getScriptStyles() {
+        return `
+            .scripts-container {
+                background: #1a1a1a;
+                border-radius: 8px;
+                padding: 20px;
+                margin: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                color: #ffffff;
+            }
+
+            .scripts-header {
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #7d5fff;
+            }
+
+            .scripts-header h3 {
+                color: #ffffff;
+                margin: 0;
+            }
+
+            .scripts-header p {
+                color: #cccccc;
+                margin-top: 5px;
+            }
+
+            .scripts-actions {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            .scripts-actions button {
+                flex: 1;
+                padding: 12px;
+                border: none;
+                border-radius: 4px;
+                background: #2d2d2d;
+                color: #ffffff;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+            .scripts-actions button:hover {
+                background: #7d5fff;
+                transform: translateY(-2px);
+            }
+
+            .scripts-help {
+                background: #2d2d2d;
+                padding: 15px;
+                border-radius: 4px;
+                margin-top: 20px;
+            }
+
+            .scripts-help h4 {
+                color: #ffffff;
+                margin-top: 0;
+                margin-bottom: 10px;
+            }
+
+            .scripts-help ul {
+                margin: 0;
+                padding-left: 20px;
+                list-style-type: none;
+            }
+
+            .scripts-help li {
+                margin-bottom: 8px;
+                color: #cccccc;
+                position: relative;
+                padding-left: 15px;
+            }
+
+            .scripts-help li:before {
+                content: "•";
+                position: absolute;
+                left: 0;
+                color: #7d5fff;
+            }
+
+            .scripts-examples {
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #3d3d3d;
+            }
+        `;
     }
 }
 
