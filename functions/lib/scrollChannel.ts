@@ -64,9 +64,8 @@ export function scrollChannel(
    )
    const newChunkKey =
     newsKey.newsChunkById(newChunkId)
-   const newChunkString = await kv.get(
-    newChunkKey
-   )
+   const newChunkString =
+    await kv.get(newChunkKey)
    const newChunkData =
     typeof newChunkString === 'string' &&
     newChunkString.length > 4
@@ -448,7 +447,7 @@ export function scrollChannel(
       .map(
        ([messageText, messageData]: [
         string,
-        MessageData
+        MessageData,
        ]): [string, LabelData] => {
         return [
          messageText,
