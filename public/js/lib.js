@@ -413,7 +413,7 @@ function addImageByUrl(
      currentGalleryIndex =
       allGalleryImages.indexOf(imageContainer)
 
-     // Add close button
+    
      const closeButton = elem({
       tagName: 'button',
       classes: ['gallery-close'],
@@ -455,11 +455,10 @@ function addImageByUrl(
          imageContainer.classList.remove(
           'expanded'
          )
-         // Move controls to new image
+         
          prevImage.appendChild(closeButton)
          prevImage.appendChild(prevButton)
-         prevImage.appendChild(nextButton)
-         // Expand new image
+   
          prevImage.classList.add('expanded')
          document.body.appendChild(prevImage)
          expandedElement = prevImage
@@ -488,8 +487,7 @@ function addImageByUrl(
          // Move controls to new image
          nextImage.appendChild(closeButton)
          nextImage.appendChild(prevButton)
-         nextImage.appendChild(nextButton)
-         // Expand new image
+     
          nextImage.classList.add('expanded')
          document.body.appendChild(nextImage)
          expandedElement = nextImage
