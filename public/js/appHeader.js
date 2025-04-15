@@ -59,6 +59,28 @@ if (
  setLightMode(true)
 }
 
+// Create the Chat Button
+const chatButton = elem({
+ attributes: {
+  'data-tour': 'Open the AI Chat interface.',
+  title: 'Open Chat',
+ },
+ children: [icon('chat')], // Replace 'chat' with the appropriate icon name or SVG
+ events: {
+  click() {
+   // Ensure the ChatInterface is initialized and open the chat
+   if (typeof chatInterface !== 'undefined') {
+    chatInterface.openChat() // Opens the chat interface
+   } else {
+    console.error(
+     'ChatInterface is not defined. Ensure chat.js is loaded.'
+    )
+   }
+  },
+ },
+ tagName: 'button',
+})
+
 const mainToolbar = elem({
  classes: ['toolbar', 'mode-main'],
  children: [
@@ -118,6 +140,7 @@ const mainToolbar = elem({
    },
    tagName: 'button',
   }),
+  chatButton, // Add the Chat Button here
  ],
 })
 
@@ -174,6 +197,49 @@ function applyActivityFilter(filterText) {
  scrollToTop()
 }
 
+// Create date picker for activity log
+const activityDatePicker = elem({
+ attributes: {
+  'data-tour': 'Select a date to jump to in the activity log.',
+  type: 'date',
+  placeholder: 'Select date',
+ },
+ classes: ['activity-date-picker'],
+ tagName: 'input',
+})
+
+// Create GO button for date picker
+const activityDateGoButton = elem({
+ attributes: {
+  'data-tour': 'Jump to the selected date in the activity log.',
+ },
+ classes: ['activity-date-go-button'],
+ children: [
+  elem({
+   tagName: 'span',
+   textContent: 'GO',
+  }),
+ ],
+ events: {
+  click() {
+   const selectedDate = activityDatePicker.value;
+   if (selectedDate) {
+    activityContainer.scrollToDate(new Date(selectedDate));
+   }
+  },
+ },
+ tagName: 'button',
+})
+
+// Create date picker container
+const activityDatePickerContainer = elem({
+ classes: ['activity-date-picker-container'],
+ children: [
+  activityDatePicker,
+  activityDateGoButton,
+ ],
+})
+
 const activityToolbar = elem({
  classes: ['toolbar', 'mode-activity'],
  children: [
@@ -218,6 +284,20 @@ const activityToolbar = elem({
    tagName: 'button',
   }),
  ],
+})
+
+// Create a separate container for the date picker that will be positioned below the search bar
+const activityToolbarExtended = elem({
+ classes: ['toolbar-extended', 'mode-activity'],
+ children: [activityDatePickerContainer],
+})
+
+// Add the extended toolbar to the app header
+document.addEventListener('DOMContentLoaded', () => {
+ const appHeader = document.querySelector('.app-header')
+ if (appHeader) {
+  appHeader.appendChild(activityToolbarExtended)
+ }
 })
 
 const tabStripContainer = elem({
@@ -282,7 +362,7 @@ const appHeader = elem({
    ],
   }),
   tabStripContainer,
-  mainToolbar,
+  mainToolbar, // The main toolbar now includes the Chat Button
   otherToolbar,
   activityToolbar,
   loadingIndicator,

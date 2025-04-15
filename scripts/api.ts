@@ -110,9 +110,8 @@ async function adaptCfHandler(
 
  try {
   // Invoke the Cloudflare function handler.
-  const cfResponse: Response = await cfHandler(
-   context
-  )
+  const cfResponse: Response =
+   await cfHandler(context)
 
   // Set the HTTP status code from the Cloudflare Response.
   res.status(cfResponse.status)

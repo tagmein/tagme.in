@@ -336,15 +336,28 @@ function attachReactions(
     addReactionButton.parentElement.appendChild(
      popupMenuElement
     )
-    document.body.style.pointerEvents = 'none' // Disable body pointer events
 
-    currentClosePopupListener =
-     closeReactionPopup
+    const closePopup = (e) => {
+     if (!popupMenuElement) {
+      document.removeEventListener(
+       'click',
+       closePopup
+      )
+      return
+     }
+     if (!popupMenuElement.contains(e.target)) {
+      popupMenuElement.remove()
+      document.removeEventListener(
+       'click',
+       closePopup
+      )
+     }
+    }
+
     setTimeout(() => {
      document.addEventListener(
       'click',
-      closeReactionPopup,
-      true
+      closePopup
      )
     }, 0)
    },
