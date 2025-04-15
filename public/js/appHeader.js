@@ -197,6 +197,49 @@ function applyActivityFilter(filterText) {
  scrollToTop()
 }
 
+// Create date picker for activity log
+const activityDatePicker = elem({
+ attributes: {
+  'data-tour': 'Select a date to jump to in the activity log.',
+  type: 'date',
+  placeholder: 'Select date',
+ },
+ classes: ['activity-date-picker'],
+ tagName: 'input',
+})
+
+// Create GO button for date picker
+const activityDateGoButton = elem({
+ attributes: {
+  'data-tour': 'Jump to the selected date in the activity log.',
+ },
+ classes: ['activity-date-go-button'],
+ children: [
+  elem({
+   tagName: 'span',
+   textContent: 'GO',
+  }),
+ ],
+ events: {
+  click() {
+   const selectedDate = activityDatePicker.value;
+   if (selectedDate) {
+    activityContainer.scrollToDate(new Date(selectedDate));
+   }
+  },
+ },
+ tagName: 'button',
+})
+
+// Create date picker container
+const activityDatePickerContainer = elem({
+ classes: ['activity-date-picker-container'],
+ children: [
+  activityDatePicker,
+  activityDateGoButton,
+ ],
+})
+
 const activityToolbar = elem({
  classes: ['toolbar', 'mode-activity'],
  children: [
@@ -241,6 +284,20 @@ const activityToolbar = elem({
    tagName: 'button',
   }),
  ],
+})
+
+// Create a separate container for the date picker that will be positioned below the search bar
+const activityToolbarExtended = elem({
+ classes: ['toolbar-extended', 'mode-activity'],
+ children: [activityDatePickerContainer],
+})
+
+// Add the extended toolbar to the app header
+document.addEventListener('DOMContentLoaded', () => {
+ const appHeader = document.querySelector('.app-header')
+ if (appHeader) {
+  appHeader.appendChild(activityToolbarExtended)
+ }
 })
 
 const tabStripContainer = elem({

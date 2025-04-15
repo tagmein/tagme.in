@@ -1204,7 +1204,7 @@ body.light-mode .icon-yes {
  min-height: 100dvh;
  padding: 8px;
  right: 0;
- top: 147px;
+ top: 185px; /* Increased to accommodate the date picker toolbar */
  z-index: 1;
 }
 
@@ -1218,6 +1218,97 @@ body.light-mode .icon-yes {
  padding: 32px;
 }
 
+/* Date picker styles */
+.toolbar-extended {
+ display: none;
+ padding: 5px 10px;
+ background-color: var(--color-bg-medium-dark);
+ border-bottom: 1px solid var(--color-border-dark);
+}
+
+body[data-mode='activity'] .toolbar-extended.mode-activity {
+ display: flex;
+ justify-content: center;
+ width: 100%;
+}
+
+.activity-date-picker-container {
+ display: flex;
+ align-items: center;
+ background-color: var(--color-bg-medium-dark);
+ border-radius: 5px;
+ padding: 5px;
+ width: 100%;
+ max-width: 300px;
+ justify-content: space-between;
+}
+
+.activity-date-picker {
+ background-color: var(--color-bg-medium);
+ color: var(--color-text-primary);
+ border: 1px solid var(--color-border-dark);
+ border-radius: 4px;
+ padding: 6px 8px;
+ font-size: 14px;
+ margin-right: 5px;
+ flex-grow: 1;
+}
+
+.activity-date-go-button {
+ background-color: var(--color-bg-secondary);
+ color: var(--color-text-primary);
+ border: none;
+ border-radius: 4px;
+ padding: 6px 12px;
+ font-size: 14px;
+ font-weight: bold;
+ cursor: pointer;
+ transition: background-color 0.2s ease;
+ min-width: 50px;
+}
+
+.activity-date-go-button:hover {
+ background-color: var(--color-bg-secondary-hover);
+}
+
+/* Date search notification */
+.date-search-notification {
+ position: fixed;
+ top: 20px;
+ left: 50%;
+ transform: translateX(-50%);
+ background-color: var(--color-bg-medium-dark);
+ color: var(--color-text-primary);
+ padding: 10px 20px;
+ border-radius: 5px;
+ box-shadow: 0 0 10px var(--color-shadow-dark);
+ z-index: 1000;
+ transition: opacity 0.5s ease;
+}
+
+.date-search-success {
+ background-color: var(--color-bg-secondary);
+}
+
+.date-search-error {
+ background-color: var(--color-bg-no-active);
+}
+
+.date-search-loading {
+ background-color: var(--color-bg-accent);
+}
+
+/* Highlight for the matched date item */
+.date-match-highlight {
+ animation: highlight-pulse 3s ease;
+}
+
+@keyframes highlight-pulse {
+ 0% { background-color: transparent; }
+ 20% { background-color: var(--color-bg-highlight); }
+ 100% { background-color: transparent; }
+}
+
 .text-message {
  padding: 0 15px;
 }
@@ -1229,7 +1320,7 @@ body.light-mode .icon-yes {
 
 body.scroll-zero .activity-container,
 body.scroll-up .activity-container {
- top: 147px;
+ top: 185px;
 }
 
 .activity-container,

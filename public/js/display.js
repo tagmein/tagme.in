@@ -1447,6 +1447,161 @@ function displayActivity() {
  }
 
  let lastScrollPosition = 0
+ 
+ // Function to scroll to a specific date in the activity log
+ async function scrollToDate(targetDate) {
+  if (!isVisible) {
+   await show()
+  }
+  
+  // Make sure targetDate is a Date object
+  if (!(targetDate instanceof Date) || isNaN(targetDate.getTime())) {
+   console.error('Invalid date provided to scrollToDate:', targetDate)
+   return
+  }
+  
+  // Set time to beginning of day for consistent comparison
+  const targetDateStart = new Date(targetDate)
+  targetDateStart.setHours(0, 0, 0, 0)
+  
+  // First, check if we need to load more content
+  let foundMatchingItem = false
+  let attempts = 0
+  const MAX_LOAD_ATTEMPTS = 10 // Prevent infinite loading
+  
+  // Function to check if we've found a message on or before the target date
+  function checkForDateMatch() {
+   const newsItems = element.querySelectorAll('.news')
+   let closestItem = null
+   let closestDate = null
+   
+   // First pass: find the closest date on or before the target date
+   for (const newsItem of newsItems) {
+    const dateElement = newsItem.querySelector('.news-date')
+    if (dateElement) {
+     // Extract date from the title attribute which contains the full date string
+     const dateStr = dateElement.getAttribute('title')
+     if (dateStr) {
+      const itemDate = new Date(dateStr)
+      
+      // If this item is on or before the target date and is closer than our current closest
+      if (itemDate <= targetDateStart && (!closestDate || itemDate > closestDate)) {
+       closestItem = newsItem
+       closestDate = itemDate
+      }
+     }
+    }
+   }
+   
+   // If we found a matching item, scroll to it
+   if (closestItem) {
+    foundMatchingItem = true
+    
+    // Highlight the item briefly to make it more noticeable
+    closestItem.classList.add('date-match-highlight')
+    setTimeout(() => {
+     closestItem.classList.remove('date-match-highlight')
+    }, 3000)
+    
+    // Scroll this item into view
+    closestItem.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    
+    // Show a success notification
+    const notification = elem({
+     tagName: 'div',
+     classes: ['date-search-notification', 'date-search-success'],
+     textContent: `Found activity from ${closestDate.toLocaleDateString()}.`,
+    })
+    
+    document.body.appendChild(notification)
+    
+    // Remove the notification after a few seconds
+    setTimeout(() => {
+     notification.style.opacity = '0'
+     setTimeout(() => {
+      document.body.removeChild(notification)
+     }, 500)
+    }, 3000)
+    
+    return true
+   }
+   
+   return false
+  }
+  
+  // First check if we already have matching content loaded
+  if (checkForDateMatch()) {
+   return
+  }
+  
+  // If not found, load more content and check again
+  while (!foundMatchingItem && attempts < MAX_LOAD_ATTEMPTS) {
+   attempts++
+   
+   // Show loading indicator
+   const loadingNotification = elem({
+    tagName: 'div',
+    classes: ['date-search-notification', 'date-search-loading'],
+    textContent: `Loading more activity...`,
+   })
+   
+   document.body.appendChild(loadingNotification)
+   
+   try {
+    // Load more content
+    const nextChunkResult = await loadMore()
+    
+    // Remove loading notification
+    loadingNotification.style.opacity = '0'
+    setTimeout(() => {
+     document.body.removeChild(loadingNotification)
+    }, 500)
+    
+    // If we've reached the end of content or there's no more to load
+    if (nextChunkResult === undefined || nextChunkResult < 0) {
+     break
+    }
+    
+    // Check if we now have a matching item
+    if (checkForDateMatch()) {
+     break
+    }
+   } catch (error) {
+    // Remove loading notification in case of error
+    loadingNotification.style.opacity = '0'
+    setTimeout(() => {
+     document.body.removeChild(loadingNotification)
+    }, 500)
+    console.error('Error loading more content:', error)
+    break
+   }
+  }
+  
+  // If we still haven't found a matching item after loading more content
+  if (!foundMatchingItem) {
+   // Show a notification that no items were found for the selected date
+   const notification = elem({
+    tagName: 'div',
+    classes: ['date-search-notification', 'date-search-error'],
+    textContent: `No activity found on or before ${targetDate.toLocaleDateString()}.`,
+   })
+   
+   document.body.appendChild(notification)
+   
+   // Remove the notification after a few seconds
+   setTimeout(() => {
+    notification.style.opacity = '0'
+    setTimeout(() => {
+     document.body.removeChild(notification)
+    }, 500)
+   }, 3000)
+   
+   // Scroll to the oldest content we have
+   if (element.firstChild) {
+    element.firstChild.scrollIntoView({ behavior: 'smooth', block: 'start' })
+   }
+  }
+ }
 
  async function show() {
   lastScrollPosition = window.scrollY
@@ -1581,6 +1736,7 @@ function displayActivity() {
   hide,
   toggle,
   loadMore,
+  scrollToDate,
  }
 }
 
