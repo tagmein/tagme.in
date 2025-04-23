@@ -270,13 +270,17 @@
   width: 280px;
   max-height: 350px;
   overflow-y: auto;
+  padding-top: 20px;
 }
 
 .chat-list-header {
   padding: 12px 15px;
+  padding-top: 0;
+  margin-bottom: 20px;
   border-bottom: 1px solid var(--color-border-dark);
   font-weight: bold;
   color: var(--color-text-primary);
+  text-align: center;
 }
 
 .chat-history-item {

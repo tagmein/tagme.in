@@ -203,10 +203,56 @@ const activityDatePicker = elem({
   'data-tour': 'Select a date to jump to in the activity log.',
   type: 'date',
   placeholder: 'Select date',
+  max: new Date().toISOString().split('T')[0], // Set max date to today
  },
  classes: ['activity-date-picker'],
+ events: {
+  // Add input validation
+  change(e) {
+   // Ensure date is not in the future
+   const selectedDate = new Date(e.target.value);
+   const today = new Date();
+   today.setHours(0, 0, 0, 0);
+   
+   if (selectedDate > today) {
+    const notification = elem({
+     tagName: 'div',
+     classes: ['date-search-notification', 'date-search-error'],
+     textContent: 'Cannot select future dates. Please select today or earlier.',
+    });
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+     notification.style.opacity = '0';
+     setTimeout(() => {
+      if (notification.parentNode) {
+       document.body.removeChild(notification);
+      }
+     }, 500);
+    }, 3000);
+    
+    // Reset to today's date
+    e.target.value = today.toISOString().split('T')[0];
+   }
+  },
+  focus() {
+   // On mobile devices, this will show the native date picker, 
+   // which is easier to use than HTML date input
+   if ('ontouchstart' in window) {
+    try {
+     // Try to show date picker in a more mobile-friendly way
+     activityDatePicker.click();
+    } catch (error) {
+     console.error('Error showing date picker:', error);
+    }
+   }
+  }
+ },
  tagName: 'input',
 })
+
+// Set initial date to today
+activityDatePicker.value = new Date().toISOString().split('T')[0];
 
 // Create GO button for date picker
 const activityDateGoButton = elem({
@@ -224,7 +270,126 @@ const activityDateGoButton = elem({
   click() {
    const selectedDate = activityDatePicker.value;
    if (selectedDate) {
-    activityContainer.scrollToDate(new Date(selectedDate));
+    try {
+      // Show loading notification
+      const loadingNotification = elem({
+        tagName: 'div',
+        classes: ['date-search-notification', 'date-search-loading'],
+        textContent: 'Finding activity...',
+      });
+      document.body.appendChild(loadingNotification);
+      
+      // Create a more robust date parsing approach
+      let dateObj;
+      
+      // First try standard date constructor (works in most modern browsers)
+      dateObj = new Date(selectedDate);
+      
+      // If that fails, try manual parsing
+      if (isNaN(dateObj.getTime())) {
+        // Handle different date formats (yyyy-mm-dd, mm/dd/yyyy, etc.)
+        const dateParts = selectedDate.split(/[-\/]/);
+        
+        if (dateParts.length === 3) {
+          // If format appears to be yyyy-mm-dd (ISO format)
+          if (selectedDate.includes('-') && dateParts[0].length === 4) {
+            dateObj = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
+          } 
+          // If format appears to be mm/dd/yyyy (US format)
+          else if (selectedDate.includes('/')) {
+            dateObj = new Date(parseInt(dateParts[2]), parseInt(dateParts[0]) - 1, parseInt(dateParts[1]));
+          }
+        }
+      }
+      
+      // Additional fallback for mobile browsers
+      if (isNaN(dateObj.getTime()) && typeof selectedDate === 'string') {
+        // Try to normalize the date string format
+        const normalizedDate = selectedDate.replace(/[^\d]/g, '/');
+        dateObj = new Date(normalizedDate);
+      }
+      
+      // Verify we have a valid date before proceeding
+      if (isNaN(dateObj.getTime())) {
+        console.error('Invalid date format:', selectedDate);
+        
+        // Remove loading notification
+        document.body.removeChild(loadingNotification);
+        
+        // Show error notification
+        const errorNotification = elem({
+          tagName: 'div',
+          classes: ['date-search-notification', 'date-search-error'],
+          textContent: 'Invalid date format. Please select a valid date.',
+        });
+        document.body.appendChild(errorNotification);
+        
+        setTimeout(() => {
+          errorNotification.style.opacity = '0';
+          setTimeout(() => {
+            if (errorNotification.parentNode) {
+              document.body.removeChild(errorNotification);
+            }
+          }, 500);
+        }, 3000);
+        return;
+      }
+      
+      // Log for debugging
+      console.log('Selected date:', selectedDate);
+      console.log('Processed date object:', dateObj);
+      console.log('Date string:', dateObj.toString());
+      
+      // Ensure date is at the start of the day for consistent comparison
+      dateObj.setHours(0, 0, 0, 0);
+      
+      // Remove loading notification as scrollToDate will handle its own notifications
+      setTimeout(() => {
+        if (loadingNotification.parentNode) {
+          document.body.removeChild(loadingNotification);
+        }
+      }, 1000);
+      
+      // Call the scroll function with the validated date
+      activityContainer.scrollToDate(dateObj);
+      
+    } catch (error) {
+      console.error('Error processing date selection:', error);
+      
+      // Show error notification with more detailed message
+      const errorNotification = elem({
+        tagName: 'div',
+        classes: ['date-search-notification', 'date-search-error'],
+        textContent: 'Error processing date. Please try a different format (YYYY-MM-DD).',
+      });
+      document.body.appendChild(errorNotification);
+      
+      setTimeout(() => {
+        errorNotification.style.opacity = '0';
+        setTimeout(() => {
+          if (errorNotification.parentNode) {
+            document.body.removeChild(errorNotification);
+          }
+        }, 500);
+      }, 3000);
+    }
+   } else {
+     // Handle empty date input
+     const errorNotification = elem({
+       tagName: 'div',
+       classes: ['date-search-notification', 'date-search-error'],
+       textContent: 'Please select a date before clicking GO.',
+     });
+     document.body.appendChild(errorNotification);
+     
+     setTimeout(() => {
+       errorNotification.style.opacity = '0';
+       setTimeout(() => {
+         if (errorNotification.parentNode) {
+           document.body.removeChild(errorNotification);
+         }
+       }, 500);
+     }, 3000);
    }
   },
  },
