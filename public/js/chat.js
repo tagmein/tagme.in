@@ -301,14 +301,18 @@ class ChatInterface {
 
         // Add initial system message if this is a new chat
         if (!this.messageHistory[this.currentChat] || this.messageHistory[this.currentChat].length === 0) {
-            let initialMessage = this.userName && this.userName !== 'Guest' 
-                ? `Welcome to the ${this.HOME_CHANNEL} channel, ${this.userName}! How can I help you today?` 
-                : `Welcome to the ${this.HOME_CHANNEL} channel! How can I help you today?`;
-                
+            // Determine the display channel name
+            let displayChannel = (this.currentChannel === '' || this.currentChannel === 'default')
+                ? this.HOME_CHANNEL
+                : this.currentChannel;
+            let initialMessage = this.userName && this.userName !== 'Guest'
+                ? `Welcome to the "${displayChannel}" channel, ${this.userName}! How can I help you today?`
+                : `Welcome to the "${displayChannel}" channel! How can I help you today?`;
             if (context.message) {
-                initialMessage = `You wanted to chat about: "${context.message}"\nHow can I help you with this?`;
+                initialMessage = `You wanted to chat about: "${context.message}"
+How can I help you with this?`;
             }
-            this.addMessage(initialMessage, "Tagmein");
+            this.addMessage(initialMessage, "Tag Me In AI");
         }
 
         // If there's a context message, send it to the AI
@@ -588,6 +592,10 @@ class ChatInterface {
     createMessageElement(text, sender, timestamp) {
         const message = document.createElement('div');
         message.className = `message ${sender.toLowerCase()}-message`;
+        // Add user-message class if this is the current user's message
+        if (sender === this.userName) {
+            message.classList.add('user-message');
+        }
         
         const senderElement = document.createElement('div');
         senderElement.className = 'message-sender';
@@ -614,7 +622,7 @@ class ChatInterface {
         const messageInput = this.inputArea.querySelector('.message-input');
         const message = messageInput.value.trim();
         if (message) {
-            this.addMessage(message, 'You');
+            // this.addMessage(message, 'You'); // Removed to prevent duplicate user messages
             this.sendMessage({ channel: this.currentChannel, message });
             messageInput.value = '';
         }
@@ -1041,24 +1049,6 @@ class ChatInterface {
         this.inputArea.querySelector('.message-input').value = '';
 
         try {
-            // First, send to /send endpoint for storage
-            const response = await fetch('/send', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(backendMessage)
-            });
-
-            if (!response.ok) {
-                let errorMsg = 'Failed to send message';
-                try {
-                    const errorData = await response.text();
-                    errorMsg = `Failed to send message: ${response.status} - ${errorData || response.statusText}`;
-                } catch (e) {
-                    // Ignore if reading response body fails
-                }
-                throw new Error(errorMsg);
-            }
-
             // Now, get AI response from /chat
             const aiResponse = await fetch('/chat', {
                 method: 'POST',
@@ -1433,7 +1423,7 @@ class ChatInterface {
                         let initialMessage = this.userName && this.userName !== 'Guest'
                             ? `Welcome to the ${displayChannel} channel, ${this.userName}! How can I help you today?`
                             : `Welcome to the ${displayChannel} channel! How can I help you today?`;
-                        this.addMessage(initialMessage, 'Tagmein');
+                        this.addMessage(initialMessage, 'Tag Me In AI');
                         alert('Current chat deleted.');
                     }
                 }},
@@ -3576,6 +3566,58 @@ class ChatInterface {
 
                 .menu-content .menu-button:hover {
                     background-color: #f0f0f0;
+                }
+
+                .messages-area {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    padding: 16px;
+                    overflow-y: auto;
+                    flex: 1;
+                }
+
+                .message {
+                    align-self: flex-start;
+                    background: #f1f1f1;
+                    color: #222;
+                    border-radius: 16px 16px 16px 4px;
+                    margin-right: 40px;
+                    margin-left: 0;
+                    text-align: left;
+                    max-width: 75%;
+                    padding: 10px 14px 6px 14px;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+                    position: relative;
+                }
+
+                /* User messages (right side) */
+                .user-message {
+                    align-self: flex-end;
+                    background: #7d5fff;
+                    color: #fff;
+                    border-radius: 16px 16px 4px 16px;
+                    margin-left: 40px;
+                    margin-right: 0;
+                    text-align: right;
+                }
+
+                .message-sender {
+                    font-weight: bold;
+                    font-size: 13px;
+                    margin-bottom: 2px;
+                }
+                .user-message .message-sender {
+                    color: #fff;
+                }
+                .message-time {
+                    font-size: 11px;
+                    color: #888;
+                    margin-top: 4px;
+                    text-align: right;
+                }
+                .user-message .message-time {
+                    color: #e0e0ff;
                 }
 
                 .dark-mode .chat-container {

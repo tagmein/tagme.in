@@ -8,11 +8,27 @@ import type {
    interface ChatRequest {
     message: string
     channel: string
+    userName?: string
     history?: Array<{
      text: string | any
      sender: string
      timestamp?: string
     }>
+   }
+   
+   // Helper to fetch channel messages from /seek
+   async function fetchChannelMessages(channel: string, request: Request): Promise<any[]> {
+     const url = `/seek?channel=${encodeURIComponent(channel)}&hour=999999999`;
+     // Use the same origin as the incoming request
+     const base = new URL(request.url).origin;
+     const seekUrl = base + url;
+     const resp = await fetch(seekUrl, { headers: { 'Accept': 'application/json' } });
+     if (!resp.ok) return [];
+     const data: any = await resp.json();
+     // Assume data.messages is an array or object of messages
+     if (Array.isArray(data.messages)) return data.messages;
+     if (typeof data.messages === 'object') return Object.values(data.messages);
+     return [];
    }
    
    export const onRequestPost: PagesFunction<
@@ -68,11 +84,33 @@ import type {
       apiKey: GEMINI_API_KEY,
      })
    
+     // Fetch channel messages for Gemini context
+     const channelMessages = await fetchChannelMessages(data.channel, request);
+   
      // Prepare chat history for the new API format
      const history = data.history || []
    
      // Convert history to content parts format for Gemini
      const messages = []
+   
+     // Add a system prompt to instruct the AI
+     let systemPrompt = "You are a helpful assistant. Do not repeat the user's message back to them. Answer helpfully and conversationally.";
+     if ((data as any).userName && (data as any).userName.trim() !== '') {
+       systemPrompt += ` The user's name is ${(data as any).userName}. Please address them as ${(data as any).userName} in your responses and be friendly and personal.`;
+     }
+     messages.push({
+       role: 'system',
+       parts: [{ text: systemPrompt }],
+     });
+   
+     // Add channel messages as context (as user/assistant turns)
+     for (const msg of channelMessages) {
+       if (!msg || !msg.text) continue;
+       let sender = msg.sender || '';
+       let text = typeof msg.text === 'string' ? msg.text : (msg.text.text || JSON.stringify(msg.text));
+       let role = sender === 'You' ? 'user' : 'assistant';
+       messages.push({ role, parts: [{ text }] });
+     }
    
      // Add previous messages
      for (let i = 0; i < history.length; i++) {
@@ -112,11 +150,22 @@ import type {
       })
      }
    
-     // Add current user message
-     messages.push({
-      role: 'user',
-      parts: [{ text: data.message }],
-     })
+     // Prevent duplication: Only add the current user message if it's not already the last message in history
+     const lastHistory = history[history.length - 1]
+     let lastMessageText = ''
+     if (lastHistory && lastHistory.sender === 'You') {
+      if (typeof lastHistory.text === 'string') {
+        lastMessageText = lastHistory.text
+      } else if (lastHistory.text && typeof lastHistory.text.text === 'string') {
+        lastMessageText = lastHistory.text.text
+      }
+     }
+     if (!lastHistory || lastHistory.sender !== 'You' || lastMessageText !== data.message) {
+      messages.push({
+        role: 'user',
+        parts: [{ text: data.message }],
+      })
+     }
    
      console.log(
       'Sending to Gemini:',
@@ -136,7 +185,7 @@ import type {
       return new Response(
        JSON.stringify({
         message: text,
-        sender: 'Tagmein AI',
+        sender: 'Tag Me In AI',
         channel: data.channel,
        }),
        {
