@@ -1,7 +1,7 @@
 let realms = []
 
 let secondMostRecentRealm
-
+//test
 const allLabels = globalThis.STATUS_LABELS
 
 const LABEL_PREFIX = 'labels@'
@@ -315,6 +315,18 @@ function displayChannelHome(
       : 's'
     }`,
    }),
+   // Add Chat Button
+   elem({
+    tagName: 'button',
+    textContent: '🗨️ Chat',
+    classes: ['btn-chat'],
+    events: {
+     click() {
+      console.log('Chat button clicked')
+      chatInterface.openChat({ channel }) // Pass channel context
+     },
+    },
+   }),
   ],
  })
  channelHeader.appendChild(descriptionElement)
@@ -411,9 +423,7 @@ function displayChannelMessage(
 
      elem({
       attributes: {
-       href: `/#/${encodeURIComponent(
-        channel
-       )}`,
+       href: `/#/${encodeURIComponent(channel)}`,
       },
       tagName: 'a',
       textContent: `#${
@@ -601,8 +611,8 @@ function attachMessage(
     message.text.startsWith('reaction')
     ? message.text.substring(8)
     : messageContentFormatter
-    ? messageContentFormatter(message.text)
-    : message.text
+      ? messageContentFormatter(message.text)
+      : message.text
   )
   addYouTubeEmbed(content, message.text)
   addImageEmbed(content, message.text)
@@ -745,9 +755,24 @@ function attachMessage(
   classes: ['article-tool-buttons'],
   children: [agreeButton, disagreeButton],
  })
+ const chatButton = elem({
+  tagName: 'button',
+  textContent: '🗨️ Chat',
+  classes: ['btn-chat'],
+  events: {
+   click() {
+    console.log('Chat button clicked')
+    chatInterface.openChat({ channel, message }) // Pass message context
+   },
+  },
+ })
  const articleTools = elem({
   classes: ['article-tools'],
-  children: [score, articleToolButtons],
+  children: [
+   score,
+   articleToolButtons,
+   chatButton,
+  ], // Add Chat Button
  })
  articleTools.appendChild(
   elem({
@@ -1925,3 +1950,32 @@ function attachNewsMessage(
   }
  }
 }
+
+document.addEventListener(
+ 'DOMContentLoaded',
+ () => {
+  const fullscreenButton =
+   document.querySelector('.fullscreen-icon')
+  if (fullscreenButton) {
+   const chatButton =
+    document.createElement('button')
+   chatButton.textContent = '🗨️'
+   chatButton.className = 'btn-chat-global'
+   chatButton.onclick = () => {
+    if (window.chatInterface) {
+     window.chatInterface.openChat({
+      channel: 'default',
+     })
+    } else {
+     console.error(
+      'ChatInterface is not initialized.'
+     )
+    }
+   }
+   fullscreenButton.parentNode.insertBefore(
+    chatButton,
+    fullscreenButton
+   )
+  }
+ }
+)

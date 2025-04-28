@@ -57,6 +57,12 @@
     color: #000;
    }
   </style>
+    <!-- Include Chat CSS -->
+    <link
+    rel="stylesheet"
+    type="text/css"
+    href="./css/chat.css"
+   />
   <link
    rel="stylesheet"
    type="text/css"
@@ -167,6 +173,23 @@
    type="text/javascript"
    src="./js/realm/schedule.js?bh"
   ></script>
+   <!-- Include Chat JavaScript -->
+   <script
+   type="text/javascript"
+   src="./js/chat.js"
+  ></script>
+  <div class="realm-tab-header">
+   <!-- The chat button will be dynamically added here -->
+  </div>
+  <div id="chat-interface" class="hidden">
+   <!-- Chat interface content will be dynamically added here -->
+  </div>
+  <div
+   id="chat-container"
+   style="display: none;"
+  >
+   <!-- Chat interface will be dynamically rendered here -->
+  </div>
   <footer id="footer">
    <h1>
     <a target="_blank" href="/">Tag Me In</a>
@@ -308,6 +331,11 @@
   <script
    type="text/javascript"
    src="./js/main.js?bh"
-  ></script>
+  ></script>  }
+   body.light-mode {
+    background-color: #fff;
+    color: #000;
+   }
+  </style>
  </body>
 </html>
