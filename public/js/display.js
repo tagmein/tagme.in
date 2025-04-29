@@ -318,7 +318,7 @@ function displayChannelHome(
    // Add Chat Button
    elem({
     tagName: 'button',
-    textContent: '   🗨️  Chat',
+    textContent: '🗨️ Chat',
     classes: ['btn-chat'],
     events: {
      click() {
@@ -423,7 +423,9 @@ function displayChannelMessage(
 
      elem({
       attributes: {
-       href: `/#/${encodeURIComponent(channel)}`,
+       href: `/#/${encodeURIComponent(
+        channel
+       )}`,
       },
       tagName: 'a',
       textContent: `#${
@@ -611,8 +613,8 @@ function attachMessage(
     message.text.startsWith('reaction')
     ? message.text.substring(8)
     : messageContentFormatter
-      ? messageContentFormatter(message.text)
-      : message.text
+    ? messageContentFormatter(message.text)
+    : message.text
   )
   addYouTubeEmbed(content, message.text)
   addImageEmbed(content, message.text)
@@ -751,10 +753,6 @@ function attachMessage(
    new Date(message.data.seen)
   ),
  })
- const articleToolButtons = elem({
-  classes: ['article-tool-buttons'],
-  children: [agreeButton, disagreeButton],
- })
  const chatButton = elem({
   tagName: 'button',
   textContent: '🗨️ Chat',
@@ -766,17 +764,23 @@ function attachMessage(
    },
   },
  })
+ const articleToolButtons = elem({
+  classes: ['article-tool-buttons'],
+  children: [agreeButton, disagreeButton],
+ })
  const articleTools = elem({
   classes: ['article-tools'],
-  children: [
-   score,
-   articleToolButtons,
-   chatButton,
-  ], // Add Chat Button
+  children: [score, articleToolButtons],
  })
  articleTools.appendChild(
   elem({
-   style: { flexGrow: 1 },
+   style: {
+    flexGrow: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    display: 'flex',
+   },
+   children: [chatButton],
   })
  )
  if (includeReactions) {
