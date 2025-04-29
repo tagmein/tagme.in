@@ -1,4 +1,5 @@
 {
+ "$schema": "https://json.schemastore.org/package",
  "devDependencies": {
   "@cloudflare/workers-types": "^4.20250129.0",
   "@types/express": "^5.0.0",
@@ -8,6 +9,7 @@
  },
  "type": "module",
  "dependencies": {
+  "@google/genai": "^0.10.0",
   "dotenv": "^16.4.7"
  }
 }

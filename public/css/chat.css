@@ -184,9 +184,24 @@
 
 .chat-menu-btn {
   margin-left: auto;
+  background: var(--color-bg-secondary);
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  padding: 5px 10px;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  border-radius: 8px;
+  margin: 0 2px;
 }
 
-.chat-menu-btn:hover, .chat-close-btn:hover, .chat-list-btn:hover {
+.chat-menu-btn:hover {
   background-color: var(--color-bg-secondary-hover);
   transform: scale(1.05);
 }
@@ -241,22 +256,6 @@
   border-top: 1px solid #eee;
   margin-top: 5px;
   padding-top: 15px;
-}
-
-/* Update menu button style */
-.chat-menu-btn {
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.chat-menu-btn:hover {
-  background-color: #f0f0f0;
 }
 
 .chat-history-list {
@@ -540,14 +539,22 @@
  box-sizing: border-box !important;
  width: fit-content !important;
  align-self: flex-start !important;
+ background: var(--color-bg-medium-light) !important;
+ border: 1px solid rgba(0, 0, 0, 0.1) !important;
 }
 
 .you-message {
  align-self: flex-end !important;
  margin-left: auto !important;
- background: var(--color-bg-medium) !important;
+ background: var(--color-bg-medium-light) !important;
  color: var(--color-text-primary) !important;
  border-bottom-right-radius: 4px !important;
+ border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.you-message .message-sender,
+.you-message .message-time {
+ color: var(--color-text-primary) !important;
 }
 
 .system-message {
@@ -604,12 +611,18 @@
 @keyframes pulse {
   0% {
     transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    opacity: 1;
   }
   50% {
     transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    opacity: 0.7;
   }
   100% {
     transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    opacity: 1;
   }
 }
 
@@ -653,13 +666,19 @@
 
 @keyframes pulse {
   0% {
+    transform: scale(1);
     box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    opacity: 1;
   }
-  70% {
+  50% {
+    transform: scale(1.1);
     box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    opacity: 0.7;
   }
   100% {
+    transform: scale(1);
     box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    opacity: 1;
   }
 }
 
@@ -697,11 +716,20 @@
 .cancel-recording-btn {
   background-color: #f44336;
   color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  margin-top: 8px;
+  margin-right: 8px;
 }
 
 .cancel-recording-btn:hover {
   background-color: #d32f2f;
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .manual-transcription-container {
@@ -743,23 +771,6 @@
 
 .direct-send-btn:hover {
   background-color: #3e8e41;
-  transform: scale(1.02);
-}
-
-.cancel-recording-btn {
-  background-color: #f44336;
-  color: white;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.cancel-recording-btn:hover {
-  background-color: #d32f2f;
   transform: scale(1.02);
 }
 

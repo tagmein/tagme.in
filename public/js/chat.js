@@ -1529,7 +1529,7 @@ How can I help you with this?`;
                 
                 const channelEl = document.createElement('div');
                 channelEl.className = 'chat-history-channel';
-                channelEl.textContent = `#${conv.channel || 'default'}`;
+                channelEl.textContent = `#${conv.channel === 'default' ? '⌂' : conv.channel}`;
                 
                 const timeEl = document.createElement('div');
                 timeEl.className = 'chat-history-time';
