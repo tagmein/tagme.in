@@ -562,7 +562,7 @@ How can I help you with this?`;
                         const displayChannel = channel === 'default' ? this.HOME_CHANNEL : channel;
                         chats.push({
                             id: chatId,
-                            name: `Channel #${displayChannel} has ${chatHistory[chatId].length} messages`
+                            name: `Channel #${displayChannel} has ${chatHistory[chatId].length} messages   `
                         });
                     }
                 }

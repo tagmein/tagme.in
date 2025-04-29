@@ -318,7 +318,7 @@ function displayChannelHome(
    // Add Chat Button
    elem({
     tagName: 'button',
-    textContent: '🗨️ Chat',
+    textContent: '   🗨️  Chat',
     classes: ['btn-chat'],
     events: {
      click() {

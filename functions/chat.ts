@@ -2,20 +2,20 @@ import type {
     PagesFunction,
     Response as ResponseType,
    } from '@cloudflare/workers-types'
-import { GoogleGenAI } from '@google/genai'
-import { Env } from './lib/env.js'
-
-interface ChatRequest {
+   import { GoogleGenAI } from '@google/genai'
+   import { Env } from './lib/env.js'
+   
+   interface ChatRequest {
     message: string
     channel: string
     userName?: string
     history?: Array<{
-        text: string | any
-        sender: string
-        timestamp?: string
+     text: string | any
+     sender: string
+     timestamp?: string
     }>
-}
-
+   }
+   
 // Helper to fetch channel messages from /seek
 async function fetchChannelMessages(channel: string, request: Request): Promise<any[]> {
     const url = `/seek?channel=${encodeURIComponent(channel)}&hour=999999999`;
@@ -31,43 +31,43 @@ async function fetchChannelMessages(channel: string, request: Request): Promise<
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
-        const request = context.request
-        const data: ChatRequest = await request.json()
-
-        if (!data.message) {
-            return new Response(
-                JSON.stringify({
-                    error: 'Message is required',
-                }),
-                {
-                    status: 400,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            ) as unknown as ResponseType
-        }
-
+     const request = context.request
+     const data: ChatRequest = await request.json()
+   
+     if (!data.message) {
+      return new Response(
+       JSON.stringify({
+        error: 'Message is required',
+       }),
+       {
+        status: 400,
+        headers: {
+         'Content-Type': 'application/json',
+        },
+       }
+      ) as unknown as ResponseType
+     }
+   
         const GEMINI_API_KEY = context.env.GEMINI_API_KEY
 
         if (!GEMINI_API_KEY || GEMINI_API_KEY.trim() === '') {
             console.error('Chat error: GEMINI_API_KEY is missing or empty')
-            return new Response(
-                JSON.stringify({
-                    error: 'API key configuration error',
+      return new Response(
+       JSON.stringify({
+        error: 'API key configuration error',
                     details: 'GEMINI_API_KEY is not configured properly',
-                }),
-                {
-                    status: 500,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            ) as unknown as ResponseType
-        }
-
+       }),
+       {
+        status: 500,
+        headers: {
+         'Content-Type': 'application/json',
+        },
+       }
+      ) as unknown as ResponseType
+     }
+   
         // Initialize Google Gen AI
-        const ai = new GoogleGenAI({
+     const ai = new GoogleGenAI({
             apiKey: GEMINI_API_KEY
         });
 
@@ -80,7 +80,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
         // Add channel context
         const channelMessages = await fetchChannelMessages(data.channel, request);
+        console.log('Channel messages for', data.channel, ':', channelMessages);
         if (channelMessages.length > 0) {
+            prompt += `\nHere are recent messages from the channel #${data.channel}. Use these to answer questions about the channel.\n`;
             for (const msg of channelMessages) {
                 if (!msg || !msg.text) continue;
                 const text = typeof msg.text === 'string' ? msg.text : (msg.text.text || JSON.stringify(msg.text));
@@ -107,74 +109,92 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 parts: [{ text: prompt }]
             }];
 
-            // Get response from Gemini using the structured content format
+      // Get response from Gemini using the structured content format
             const response = await ai.models.generateContent({
-                model: 'gemini-2.0-flash-001',
-                contents: messages,
+        model: 'gemini-2.0-flash-001',
+        contents: messages,
             });
 
             const text = response.text;
-
+   
             if (!text) {
                 throw new Error('No response generated');
             }
 
-            return new Response(
-                JSON.stringify({
-                    message: text,
-                    sender: 'Tag Me In AI',
-                    channel: data.channel,
-                }),
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+            // Extract suggested replies (bullet points or key facts)
+            let suggestedReplies: string[] = [];
+            // 1. Bullet points (lines starting with -, *, or •)
+            const bulletRegex = /^\s*[-*•]\s+(.*)$/gm;
+            let match;
+            while ((match = bulletRegex.exec(text)) !== null) {
+                if (match[1] && match[1].trim().length > 0) {
+                    suggestedReplies.push(match[1].trim());
                 }
+            }
+            // 2. If no bullets, try to extract short factual sentences (optional, fallback)
+            if (suggestedReplies.length === 0) {
+                // Split into sentences and pick those under 120 chars
+                const sentences = text.split(/(?<=[.!?])\s+/);
+                suggestedReplies = sentences.filter(s => s.length > 0 && s.length < 120).slice(0, 3);
+            }
+   
+      return new Response(
+       JSON.stringify({
+        message: text,
+        sender: 'Tag Me In AI',
+        channel: data.channel,
+        suggestedReplies,
+       }),
+       {
+        headers: {
+         'Content-Type': 'application/json',
+        },
+       }
             ) as unknown as ResponseType;
-        } catch (apiError) {
+     } catch (apiError) {
             console.error('Gemini API error:', apiError);
 
             if (apiError.message && apiError.message.includes('403')) {
-                return new Response(
-                    JSON.stringify({
+       return new Response(
+        JSON.stringify({
                         error: 'Authentication error with Gemini API',
                         details: 'API key may be invalid or missing permissions',
-                    }),
-                    {
-                        status: 403,
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                ) as unknown as ResponseType;
-            }
-
-            return new Response(
-                JSON.stringify({
-                    error: 'Error calling Gemini API',
-                    details: apiError.message,
-                }),
-                {
-                    status: 500,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                }
-            ) as unknown as ResponseType;
+        }),
+        {
+         status: 403,
+         headers: {
+          'Content-Type': 'application/json',
+         },
         }
+                ) as unknown as ResponseType;
+      }
+   
+      return new Response(
+       JSON.stringify({
+        error: 'Error calling Gemini API',
+        details: apiError.message,
+       }),
+       {
+        status: 500,
+        headers: {
+         'Content-Type': 'application/json',
+        },
+       }
+            ) as unknown as ResponseType;
+     }
     } catch (error) {
         console.error('Chat error:', error);
-        return new Response(
-            JSON.stringify({
-                error: 'Failed to process chat message',
-                details: error.message,
-            }),
-            {
-                status: 500,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
+     return new Response(
+      JSON.stringify({
+       error: 'Failed to process chat message',
+       details: error.message,
+      }),
+      {
+       status: 500,
+       headers: {
+        'Content-Type': 'application/json',
+       },
+      }
         ) as unknown as ResponseType;
     }
-}
+   }
