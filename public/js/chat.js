@@ -412,17 +412,17 @@ How can I help you with this?`;
         const header = document.createElement('div');
         header.className = 'chat-header';
 
-        // Add conversations list button on left with new icon
+        // Add conversations list button on left
         const listButton = document.createElement('button');
         listButton.className = 'chat-list-btn';
-        listButton.innerHTML = '⛬';  // Changed from 📋 to ⛬
+        listButton.innerHTML = '⛬';
         listButton.onclick = () => this.toggleChatList();
         header.appendChild(listButton);
 
         // Add centered title with channel name
         const titleContainer = document.createElement('div');
         titleContainer.className = 'title-container';
-        
+
         const title = document.createElement('h3');
         title.textContent = 'Chat';
         titleContainer.appendChild(title);
@@ -436,26 +436,26 @@ How can I help you with this?`;
         titleContainer.appendChild(channelName);
 
         header.appendChild(titleContainer);
-        
+
         // Add buttons container for right side
-        const buttonsContainer = document.createElement('div');
-        buttonsContainer.className = 'header-buttons';
-        
-        // Add menu button on right
+        const headerButtons = document.createElement('div');
+        headerButtons.className = 'header-buttons';
+
+        // Add menu button
         const menuButton = document.createElement('button');
         menuButton.className = 'chat-menu-btn';
         menuButton.innerHTML = '☰';
         menuButton.onclick = () => this.toggleMenu();
-        buttonsContainer.appendChild(menuButton);
+        headerButtons.appendChild(menuButton);
 
-        // Add close button on far right
+        // Add close button
         const closeButton = document.createElement('button');
         closeButton.className = 'chat-close-btn';
         closeButton.innerHTML = '✖';
         closeButton.onclick = () => this.closeChat();
-        buttonsContainer.appendChild(closeButton);
-        
-        header.appendChild(buttonsContainer);
+        headerButtons.appendChild(closeButton);
+
+        header.appendChild(headerButtons);
 
         return header;
     }
@@ -3650,6 +3650,322 @@ How can I help you with this?`;
             `;
             document.head.appendChild(styles);
         }
+    }
+
+    async updateChannelMetadata(channel, metadata) {
+        try {
+            const response = await fetch('/channel-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    channel,
+                    metadata
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update channel metadata');
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating channel metadata:', error);
+            throw error;
+        }
+    }
+
+    async getChannelMetadata(channel) {
+        try {
+            const response = await fetch(`/channel-info?channel=${encodeURIComponent(channel)}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch channel metadata');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching channel metadata:', error);
+            throw error;
+        }
+    }
+
+    // Add this to the createHeader method
+    createHeader() {
+        const header = document.createElement('div');
+        header.className = 'chat-header';
+
+        // Add conversations list button on left
+        const listButton = document.createElement('button');
+        listButton.className = 'chat-list-btn';
+        listButton.innerHTML = '⛬';
+        listButton.onclick = () => this.toggleChatList();
+        header.appendChild(listButton);
+
+        // Add centered title with channel name
+        const titleContainer = document.createElement('div');
+        titleContainer.className = 'title-container';
+
+        const title = document.createElement('h3');
+        title.textContent = 'Chat';
+        titleContainer.appendChild(title);
+
+        // Always show the actual channel name
+        const channelName = document.createElement('span');
+        channelName.className = 'channel-name';
+        // Use the home symbol for the default channel
+        const displayChannel = this.currentChannel === 'default' ? this.HOME_CHANNEL : this.currentChannel;
+        channelName.textContent = ` #${displayChannel}`;
+        titleContainer.appendChild(channelName);
+
+        header.appendChild(titleContainer);
+
+        // Add buttons container for right side
+        const headerButtons = document.createElement('div');
+        headerButtons.className = 'header-buttons';
+
+        // Add menu button
+        const menuButton = document.createElement('button');
+        menuButton.className = 'chat-menu-btn';
+        menuButton.innerHTML = '☰';
+        menuButton.onclick = () => this.toggleMenu();
+        headerButtons.appendChild(menuButton);
+
+        // Add close button
+        const closeButton = document.createElement('button');
+        closeButton.className = 'chat-close-btn';
+        closeButton.innerHTML = '✖';
+        closeButton.onclick = () => this.closeChat();
+        headerButtons.appendChild(closeButton);
+
+        header.appendChild(headerButtons);
+
+        return header;
+    }
+
+    async showChannelEditDialog() {
+        try {
+            const channel = this.currentChannel || 'default';
+            let metadata = await this.getChannelMetadata(channel);
+            
+            if (!metadata) {
+                metadata = {
+                    description: '',
+                    purpose: '',
+                    tags: []
+                };
+            }
+
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'chat-overlay';
+            
+            // Create dialog
+            const dialog = document.createElement('div');
+            dialog.className = 'channel-edit-dialog';
+            dialog.innerHTML = `
+                <h3>Edit Channel Information</h3>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="channel-description" placeholder="Channel description...">${metadata.description || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Purpose:</label>
+                    <input type="text" id="channel-purpose" value="${metadata.purpose || ''}" placeholder="Channel purpose...">
+                </div>
+                <div class="form-group">
+                    <label>Tags (comma-separated):</label>
+                    <input type="text" id="channel-tags" value="${(metadata.tags || []).join(', ')}" placeholder="general, discussion, etc...">
+                </div>
+                <div class="dialog-buttons">
+                    <button class="save-btn">Save</button>
+                    <button class="cancel-btn">Cancel</button>
+                </div>
+            `;
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            // Handle save
+            const saveBtn = dialog.querySelector('.save-btn');
+            saveBtn.onclick = async () => {
+                try {
+                    const updatedMetadata = {
+                        description: dialog.querySelector('#channel-description').value.trim(),
+                        purpose: dialog.querySelector('#channel-purpose').value.trim(),
+                        tags: dialog.querySelector('#channel-tags').value
+                            .split(',')
+                            .map(tag => tag.trim())
+                            .filter(tag => tag),
+                        created: metadata.created || new Date().toISOString()
+                    };
+                    
+                    await this.updateChannelMetadata(channel, updatedMetadata);
+                    document.body.removeChild(overlay);
+                } catch (error) {
+                    console.error('Failed to update channel metadata:', error);
+                    alert('Failed to update channel information. Please try again.');
+                }
+            };
+            
+            // Handle cancel
+            const cancelBtn = dialog.querySelector('.cancel-btn');
+            cancelBtn.onclick = () => {
+                document.body.removeChild(overlay);
+            };
+            
+            // Handle click outside
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+        } catch (error) {
+            console.error('Error showing channel edit dialog:', error);
+            alert('Failed to load channel information. Please try again.');
+        }
+    }
+
+    // Add these methods if they don't exist
+    async getChannelMetadata(channel) {
+        try {
+            const response = await fetch(`/channel-info?channel=${encodeURIComponent(channel)}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch channel metadata');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching channel metadata:', error);
+            return null;
+        }
+    }
+
+    async updateChannelMetadata(channel, metadata) {
+        try {
+            const response = await fetch('/channel-info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    channel,
+                    metadata
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update channel metadata');
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating channel metadata:', error);
+            throw error;
+        }
+    }
+
+    // Add the styles if they don't exist
+    addStyles() {
+        // ... existing styles ...
+        
+        const channelEditStyles = `
+            .chat-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            }
+            
+            .channel-edit-dialog {
+                background: var(--color-bg-medium);
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                width: 400px;
+                max-width: 90vw;
+            }
+            
+            .channel-edit-dialog h3 {
+                margin-top: 0;
+                margin-bottom: 20px;
+                color: var(--color-text-primary);
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: var(--color-text-primary);
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid var(--color-border-dark);
+                border-radius: 4px;
+                background: var(--color-bg-light);
+                color: var(--color-text-primary);
+            }
+            
+            .form-group textarea {
+                height: 100px;
+                resize: vertical;
+            }
+            
+            .dialog-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            
+            .dialog-buttons button {
+                padding: 8px 16px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            
+            .dialog-buttons .save-btn {
+                background: var(--color-bg-accent);
+                color: white;
+            }
+            
+            .dialog-buttons .cancel-btn {
+                background: var(--color-bg-secondary);
+                color: var(--color-text-primary);
+            }
+            
+            .edit-channel-btn {
+                background: transparent !important;
+                border: none !important;
+                font-size: 16px !important;
+                cursor: pointer !important;
+                padding: 8px !important;
+                border-radius: 4px !important;
+                color: var(--color-text-primary) !important;
+                margin-right: 5px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            
+            .edit-channel-btn:hover {
+                background: var(--color-bg-secondary) !important;
+            }
+        `;
+        
+        this.addStylesToHead(channelEditStyles);
     }
 }
 

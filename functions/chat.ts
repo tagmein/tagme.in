@@ -29,6 +29,21 @@ async function fetchChannelMessages(channel: string, request: Request): Promise<
     return [];
 }
 
+// Helper to fetch channel metadata from /channel-info
+async function fetchChannelMetadata(channel: string, request: Request): Promise<any> {
+    const url = `/channel-info?channel=${encodeURIComponent(channel)}`;
+    const base = new URL(request.url).origin;
+    const metadataUrl = base + url;
+    try {
+        const resp = await fetch(metadataUrl, { headers: { 'Accept': 'application/json' } });
+        if (!resp.ok) return null;
+        return await resp.json();
+    } catch (error) {
+        console.error('Error fetching channel metadata:', error);
+        return null;
+    }
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
     try {
      const request = context.request
@@ -78,16 +93,31 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
         prompt += "Please be conversational and helpful in your responses.\n\n";
 
-        // Add channel context
+        // Add channel metadata context
+        const channelMetadata = await fetchChannelMetadata(data.channel, request);
+        if (channelMetadata) {
+            prompt += `\nChannel Information for #${data.channel}:\n`;
+            prompt += `Description: ${channelMetadata.description || 'No description available'}\n`;
+            prompt += `Purpose: ${channelMetadata.purpose || 'General discussion'}\n`;
+            prompt += `Created: ${channelMetadata.created || 'Unknown'}\n`;
+            if (channelMetadata.tags && channelMetadata.tags.length > 0) {
+                prompt += `Tags: ${channelMetadata.tags.join(', ')}\n`;
+            }
+            prompt += '\n';
+        }
+
+        // Add channel messages context
         const channelMessages = await fetchChannelMessages(data.channel, request);
-        console.log('Channel messages for', data.channel, ':', channelMessages);
         if (channelMessages.length > 0) {
-            prompt += `\nHere are recent messages from the channel #${data.channel}. Use these to answer questions about the channel.\n`;
-            for (const msg of channelMessages) {
+            prompt += `\nRecent messages from channel #${data.channel}. Use these to understand the context and ongoing discussions:\n`;
+            // Limit to last 10 messages for context
+            const recentMessages = channelMessages.slice(-10);
+            for (const msg of recentMessages) {
                 if (!msg || !msg.text) continue;
                 const text = typeof msg.text === 'string' ? msg.text : (msg.text.text || JSON.stringify(msg.text));
                 prompt += `${msg.sender}: ${text}\n`;
             }
+            prompt += '\n';
         }
 
         // Add recent conversation history
