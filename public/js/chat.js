@@ -5330,25 +5330,12 @@ How can I help you with this?`
 document.addEventListener(
  'DOMContentLoaded',
  function () {
-  // Make sure the chat container is not visible on page load
+  // Remove the chat container from the DOM on page load if it exists
   const chatContainer = document.getElementById(
    'chat-container'
   )
   if (chatContainer) {
-   chatContainer.style.display = 'none'
-
-   // Remove any inline styles that might cause visibility issues
-   const style =
-    chatContainer.getAttribute('style')
-   if (style) {
-    chatContainer.setAttribute(
-     'style',
-     'display: none;'
-    )
-   }
-
-   // Also ensure no children elements are visible
-   chatContainer.innerHTML = ''
+   chatContainer.remove()
   }
 
   // Initialize the chat interface
