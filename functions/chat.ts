@@ -166,11 +166,18 @@ export const onRequestPost: PagesFunction<
     channelMessages.slice(-10)
    for (const msg of recentMessages) {
     if (!msg || !msg.text) continue
-    const text =
-     typeof msg.text === 'string'
-      ? msg.text
-      : msg.text.text ||
-        JSON.stringify(msg.text)
+    let text = ''
+    if (typeof msg.text === 'string') {
+     text = msg.text
+    } else if (msg.text.content) {
+     text = msg.text.content
+    } else if (msg.text.text) {
+     text = msg.text.text
+    } else if (msg.text.title) {
+     text = msg.text.title
+    } else {
+     text = JSON.stringify(msg.text)
+    }
     prompt += `${msg.sender}: ${text}\n`
    }
    prompt += '\n'
