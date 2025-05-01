@@ -96,7 +96,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         // Add channel metadata context
         const channelMetadata = await fetchChannelMetadata(data.channel, request);
         if (channelMetadata) {
-            prompt += `\nChannel Information for #${data.channel}:\n`;
+            prompt += `\nCHANNEL PROFILE for #${data.channel}:\n`;
             prompt += `Description: ${channelMetadata.description || 'No description available'}\n`;
             prompt += `Purpose: ${channelMetadata.purpose || 'General discussion'}\n`;
             prompt += `Created: ${channelMetadata.created || 'Unknown'}\n`;
@@ -104,6 +104,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 prompt += `Tags: ${channelMetadata.tags.join(', ')}\n`;
             }
             prompt += '\n';
+            prompt += 'Always use the above CHANNEL PROFILE to answer any questions about this channel, and reference it for context. If a user asks about the channel, summarize or quote this information.\n';
         }
 
         // Add channel messages context
