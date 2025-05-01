@@ -1,7 +1,11 @@
 class ChatInterface {
  constructor() {
+  this.chatContainerOuter =
+   document.getElementById(
+    'chat-container-outer'
+   )
   // Always use Gemini 1.5 Flash as the default
-  this.chatURL = '/gemini'
+  this.chatURL = '/api/chat'
   localStorage.setItem('chatURL', this.chatURL)
   localStorage.setItem(
    'geminiModel',
@@ -77,13 +81,15 @@ class ChatInterface {
    createProgressBar(taskElement) {
     const progressContainer =
      document.createElement('div')
-    progressContainer.className = 'progress'
+    progressContainer.classList.add('progress')
     progressContainer.style.cssText =
      'height: 5px; margin-top: 5px; background: #e9ecef; border-radius: 3px;'
 
     const progressBar =
      document.createElement('div')
-    progressBar.className = 'task-progress-bar'
+    progressBar.classList.add(
+     'task-progress-bar'
+    )
     progressBar.style.cssText =
      'height: 100%; background: #7d5fff; border-radius: 3px; transition: width 0.3s ease;'
     progressBar.setAttribute(
@@ -316,7 +322,9 @@ class ChatInterface {
    this.chatContainer =
     document.createElement('div')
    this.chatContainer.id = 'chat-container'
-   document.body.appendChild(this.chatContainer)
+   this.chatContainerOuter.appendChild(
+    this.chatContainer
+   )
   }
 
   // Generate a unique chat ID based on channel and timestamp
@@ -383,7 +391,7 @@ class ChatInterface {
   this.chatContainer.appendChild(header)
 
   const chatArea = document.createElement('div')
-  chatArea.className = 'chat-area'
+  chatArea.classList.add('chat-area')
   this.chatContainer.appendChild(chatArea)
 
   // Sidebar is optional, uncomment if you want it
@@ -391,21 +399,23 @@ class ChatInterface {
   // chatArea.appendChild(sidebar);
 
   const mainChat = document.createElement('div')
-  mainChat.className = 'main-chat'
+  mainChat.classList.add('main-chat')
   chatArea.appendChild(mainChat)
 
   this.messagesArea =
    document.createElement('div')
-  this.messagesArea.className = 'messages-area'
+  this.messagesArea.classList.add(
+   'messages-area'
+  )
   mainChat.appendChild(this.messagesArea)
 
   this.inputArea = document.createElement('div')
-  this.inputArea.className = 'input-area'
+  this.inputArea.classList.add('input-area')
   mainChat.appendChild(this.inputArea)
 
   const messageInput =
    document.createElement('textarea')
-  messageInput.className = 'message-input'
+  messageInput.classList.add('message-input')
   messageInput.placeholder =
    'Type your message...'
   messageInput.addEventListener(
@@ -421,21 +431,27 @@ class ChatInterface {
 
   const buttonArea =
    document.createElement('div')
-  buttonArea.className = 'button-area'
+  buttonArea.classList.add('button-area')
   this.inputArea.appendChild(buttonArea)
 
   const voiceButton =
    document.createElement('button')
-  voiceButton.className = 'voice-button'
-  voiceButton.innerHTML = '🎤'
+  voiceButton.setAttribute(
+   'title',
+   'Transcribe voice message'
+  )
+  voiceButton.classList.add('voice-button')
+  voiceButton.innerHTML = '⏺️'
   voiceButton.onclick = () =>
    this.toggleVoiceRecording()
   buttonArea.appendChild(voiceButton)
 
-  const sendButton =
-   document.createElement('button')
-  sendButton.className = 'send-button'
-  sendButton.innerHTML = '➤'
+  const sendButton = icon('plane')
+  sendButton.setAttribute(
+   'title',
+   'Send chat message'
+  )
+  sendButton.classList.add('send-button')
   sendButton.onclick = () =>
    this.handleSendMessage()
   buttonArea.appendChild(sendButton)
@@ -510,10 +526,10 @@ How can I help you with this?`
  async askForUserName() {
   return new Promise((resolve) => {
    const overlay = document.createElement('div')
-   overlay.className = 'chat-overlay'
+   overlay.classList.add('chat-overlay')
 
    const popup = document.createElement('div')
-   popup.className = 'name-popup'
+   popup.classList.add('name-popup')
 
    const title = document.createElement('h3')
    title.textContent =
@@ -557,7 +573,7 @@ How can I help you with this?`
    const skipButton =
     document.createElement('button')
    skipButton.textContent = 'Skip'
-   skipButton.className = 'name-skip-btn'
+   skipButton.classList.add('name-skip-btn')
    skipButton.onclick = () => {
     this.userName = 'Guest'
     localStorage.setItem(
@@ -592,12 +608,12 @@ How can I help you with this?`
 
  createHeader() {
   const header = document.createElement('div')
-  header.className = 'chat-header'
+  header.classList.add('chat-header')
 
   // Add conversations list button on left
   const listButton =
    document.createElement('button')
-  listButton.className = 'chat-list-btn'
+  listButton.classList.add('chat-list-btn')
   listButton.innerHTML = '⛬'
   listButton.onclick = () =>
    this.toggleChatList()
@@ -606,7 +622,9 @@ How can I help you with this?`
   // Add centered title with channel name
   const titleContainer =
    document.createElement('div')
-  titleContainer.className = 'title-container'
+  titleContainer.classList.add(
+   'title-container'
+  )
 
   const title = document.createElement('h3')
   title.textContent = 'Chat'
@@ -615,7 +633,7 @@ How can I help you with this?`
   // Always show the actual channel name
   const channelName =
    document.createElement('span')
-  channelName.className = 'channel-name'
+  channelName.classList.add('channel-name')
   // Use the home symbol for the default channel
   const displayChannel =
    this.currentChannel === 'default'
@@ -629,12 +647,12 @@ How can I help you with this?`
   // Add buttons container for right side
   const headerButtons =
    document.createElement('div')
-  headerButtons.className = 'header-buttons'
+  headerButtons.classList.add('header-buttons')
 
   // Add menu button
   const menuButton =
    document.createElement('button')
-  menuButton.className = 'chat-menu-btn'
+  menuButton.classList.add('chat-menu-btn')
   menuButton.innerHTML = '☰'
   menuButton.onclick = () => this.toggleMenu()
   headerButtons.appendChild(menuButton)
@@ -642,7 +660,7 @@ How can I help you with this?`
   // Add close button
   const closeButton =
    document.createElement('button')
-  closeButton.className = 'chat-close-btn'
+  closeButton.classList.add('chat-close-btn')
   closeButton.innerHTML = '✖'
   closeButton.onclick = () => this.closeChat()
   headerButtons.appendChild(closeButton)
@@ -668,7 +686,7 @@ How can I help you with this?`
 
   const menuContent =
    document.createElement('div')
-  menuContent.className = 'menu-content'
+  menuContent.classList.add('menu-content')
 
   const menuItems = [
    {
@@ -696,7 +714,7 @@ How can I help you with this?`
   menuItems.forEach((item) => {
    const button =
     document.createElement('button')
-   button.className = 'menu-button'
+   button.classList.add('menu-button')
    button.innerHTML = `${item.icon} ${item.text}`
    button.onclick = () => {
     item.action()
@@ -718,10 +736,10 @@ How can I help you with this?`
 
  createSidebar() {
   const sidebar = document.createElement('div')
-  sidebar.className = 'chat-sidebar'
+  sidebar.classList.add('chat-sidebar')
 
   const chatList = document.createElement('div')
-  chatList.className = 'chat-list'
+  chatList.classList.add('chat-list')
   sidebar.appendChild(chatList)
 
   const toggleButton =
@@ -742,13 +760,13 @@ How can I help you with this?`
   chats.forEach((chat) => {
    const chatItem =
     document.createElement('div')
-   chatItem.className = 'chat-history-item'
+   chatItem.classList.add('chat-history-item')
    if (chat.id === this.currentChat) {
     chatItem.classList.add('active')
    }
 
    const nameEl = document.createElement('div')
-   nameEl.className = 'chat-history-name'
+   nameEl.classList.add('chat-history-name')
    nameEl.textContent = chat.name
    chatItem.appendChild(nameEl)
 
@@ -833,21 +851,23 @@ How can I help you with this?`
 
  createMessageElement(text, sender, timestamp) {
   const message = document.createElement('div')
-  message.className = `message ${sender.toLowerCase()}-message`
+  message.classList.add('message')
   // Add user-message class if this is the current user's message
   if (sender === this.userName) {
    message.classList.add('user-message')
+  } else {
+   message.classList.add('ai-message')
   }
 
   const senderElement =
    document.createElement('div')
-  senderElement.className = 'message-sender'
+  senderElement.classList.add('message-sender')
   senderElement.textContent = sender
   message.appendChild(senderElement)
 
   const textElement =
    document.createElement('div')
-  textElement.className = 'message-text'
+  textElement.classList.add('message-text')
   textElement.innerHTML =
    this.formatMessage(text)
   message.appendChild(textElement)
@@ -855,7 +875,7 @@ How can I help you with this?`
   // Add timestamp
   const timeElement =
    document.createElement('div')
-  timeElement.className = 'message-time'
+  timeElement.classList.add('message-time')
   timeElement.textContent = new Date(
    timestamp
   ).toLocaleTimeString([], {
@@ -1085,7 +1105,7 @@ How can I help you with this?`
     voiceButton.style.backgroundColor =
      '#ff4a4a'
    } else {
-    voiceButton.innerHTML = '🎤' // Mic icon
+    voiceButton.innerHTML = '⏺️' // Record icon
     voiceButton.classList.remove('recording')
     voiceButton.style.backgroundColor = ''
    }
@@ -1226,7 +1246,7 @@ How can I help you with this?`
 
   const audioInfo =
    document.createElement('div')
-  audioInfo.className = 'audio-label'
+  audioInfo.classList.add('audio-label')
   audioInfo.innerHTML =
    '<strong>Your recording is ready!</strong> <span style="font-size: 11px;">(Note: We can\'t actually hear your voice, but we\'ll start a conversation about this channel)</span>'
   audioContainer.appendChild(audioInfo)
@@ -1236,7 +1256,7 @@ How can I help you with this?`
   audioElement.src = audioURL
   audioElement.controls = true
   audioElement.autoplay = false
-  audioElement.className = 'recorded-audio'
+  audioElement.classList.add('recorded-audio')
   audioContainer.appendChild(audioElement)
 
   // Add button container
@@ -1249,7 +1269,7 @@ How can I help you with this?`
   // Add direct send button (primary action)
   const directSendBtn =
    document.createElement('button')
-  directSendBtn.className = 'direct-send-btn'
+  directSendBtn.classList.add('direct-send-btn')
   directSendBtn.textContent =
    '✓ Send Recording Directly'
   directSendBtn.onclick = async () => {
@@ -1298,7 +1318,9 @@ How can I help you with this?`
   // Add cancel button
   const cancelBtn =
    document.createElement('button')
-  cancelBtn.className = 'cancel-recording-btn'
+  cancelBtn.classList.add(
+   'cancel-recording-btn'
+  )
   cancelBtn.textContent = '✕ Cancel'
   cancelBtn.onclick = () => {
    if (audioContainer.parentNode) {
@@ -1540,7 +1562,7 @@ How can I help you with this?`
 
   // Create a header that looks like a message sender
   const header = document.createElement('div')
-  header.className = 'message-sender'
+  header.classList.add('message-sender')
   header.textContent = 'Suggested Replies'
   suggestionsContainer.appendChild(header)
 
@@ -1572,7 +1594,7 @@ How can I help you with this?`
   // Add timestamp
   const timeElement =
    document.createElement('div')
-  timeElement.className = 'message-time'
+  timeElement.classList.add('message-time')
   timeElement.textContent =
    new Date().toLocaleTimeString([], {
     hour: '2-digit',
@@ -1635,7 +1657,7 @@ How can I help you with this?`
    channel.classList.add('has-chat-button')
    const chatButton =
     document.createElement('button')
-   chatButton.className = 'chat-button'
+   chatButton.classList.add('chat-button')
    chatButton.innerHTML = '🗨️ Chat'
    chatButton.onclick = (e) => {
     e.stopPropagation()
@@ -1663,7 +1685,7 @@ How can I help you with this?`
    message.classList.add('has-chat-button')
    const chatButton =
     document.createElement('button')
-   chatButton.className = 'chat-button'
+   chatButton.classList.add('chat-button')
    chatButton.innerHTML = '🗨️ Chat'
    chatButton.onclick = (e) => {
     e.stopPropagation()
@@ -1863,7 +1885,7 @@ How can I help you with this?`
    this.menuVisible = false
   } else {
    menu = document.createElement('div')
-   menu.className = 'chat-menu'
+   menu.classList.add('chat-menu')
    // Add dark/light mode class
    if (
     document.body.classList.contains(
@@ -2063,10 +2085,10 @@ How can I help you with this?`
   }
 
   chatList = document.createElement('div')
-  chatList.className = 'chat-history-list'
+  chatList.classList.add('chat-history-list')
 
   const header = document.createElement('div')
-  header.className = 'chat-list-header'
+  header.classList.add('chat-list-header')
   header.style.cssText = `
             text-align: center;
             font-weight: bold;
@@ -2083,7 +2105,7 @@ How can I help you with this?`
   if (conversations.length === 0) {
    const emptyMsg =
     document.createElement('div')
-   emptyMsg.className = 'empty-history'
+   emptyMsg.classList.add('empty-history')
    emptyMsg.textContent =
     'No previous conversations found'
    chatList.appendChild(emptyMsg)
@@ -2091,18 +2113,20 @@ How can I help you with this?`
    // Create a list of conversations
    conversations.forEach((conv) => {
     const item = document.createElement('div')
-    item.className = 'chat-history-item'
+    item.classList.add('chat-history-item')
     if (conv.id === this.currentChat) {
      item.classList.add('active')
     }
 
     const nameEl = document.createElement('div')
-    nameEl.className = 'chat-history-name'
+    nameEl.classList.add('chat-history-name')
     nameEl.textContent = conv.name
 
     const channelEl =
      document.createElement('div')
-    channelEl.className = 'chat-history-channel'
+    channelEl.classList.add(
+     'chat-history-channel'
+    )
     channelEl.textContent = `#${
      conv.channel === 'default'
       ? '⌂'
@@ -2110,7 +2134,7 @@ How can I help you with this?`
     }`
 
     const timeEl = document.createElement('div')
-    timeEl.className = 'chat-history-time'
+    timeEl.classList.add('chat-history-time')
     timeEl.textContent = this.formatDate(
      new Date(conv.lastMessage)
     )
@@ -2316,7 +2340,7 @@ How can I help you with this?`
   )
   if (directSendBtn) {
    directSendBtn.classList.remove('recording')
-   directSendBtn.textContent = '🎙️' // Mic icon
+   directSendBtn.textContent = '⏺️' // Record icon
   }
 
   // Add a user message showing what would be the voice request
@@ -2782,14 +2806,14 @@ How can I help you with this?`
   // Add form header
   const formHeader =
    document.createElement('div')
-  formHeader.className = 'task-form-header'
+  formHeader.classList.add('task-form-header')
   formHeader.innerHTML =
    '<h3>📋 Task Management</h3>'
   formContainer.appendChild(formHeader)
 
   // Create main form
   const form = document.createElement('div')
-  form.className = 'task-form'
+  form.classList.add('task-form')
 
   // Task name field
   const nameField = this.createFormField(
@@ -2803,13 +2827,13 @@ How can I help you with this?`
   // Category dropdown
   const categoryField =
    document.createElement('div')
-  categoryField.className = 'form-field'
+  categoryField.classList.add('form-field')
   const categoryLabel =
    document.createElement('label')
   categoryLabel.textContent = 'Category'
   const categorySelect =
    document.createElement('select')
-  categorySelect.className = 'task-category'
+  categorySelect.classList.add('task-category')
   this.taskManager.categories.forEach(
    (category) => {
     const option =
@@ -2843,13 +2867,13 @@ How can I help you with this?`
   // Priority dropdown
   const priorityField =
    document.createElement('div')
-  priorityField.className = 'form-field'
+  priorityField.classList.add('form-field')
   const priorityLabel =
    document.createElement('label')
   priorityLabel.textContent = 'Priority'
   const prioritySelect =
    document.createElement('select')
-  prioritySelect.className = 'task-priority'
+  prioritySelect.classList.add('task-priority')
   ;['High', 'Medium', 'Low'].forEach(
    (priority) => {
     const option =
@@ -2875,17 +2899,17 @@ How can I help you with this?`
   // Subtasks field
   const subtasksField =
    document.createElement('div')
-  subtasksField.className = 'form-field'
+  subtasksField.classList.add('form-field')
   const subtasksLabel =
    document.createElement('label')
   subtasksLabel.textContent =
    'Subtasks (optional)'
   const subtasksList =
    document.createElement('div')
-  subtasksList.className = 'subtasks-list'
+  subtasksList.classList.add('subtasks-list')
   const addSubtaskBtn =
    document.createElement('button')
-  addSubtaskBtn.className = 'add-subtask-btn'
+  addSubtaskBtn.classList.add('add-subtask-btn')
   addSubtaskBtn.textContent = '+ Add Subtask'
   addSubtaskBtn.onclick = () =>
    this.addSubtaskField(subtasksList)
@@ -2897,18 +2921,20 @@ How can I help you with this?`
   // Form buttons
   const buttonContainer =
    document.createElement('div')
-  buttonContainer.className = 'form-buttons'
+  buttonContainer.classList.add('form-buttons')
 
   const saveButton =
    document.createElement('button')
-  saveButton.className = 'save-task-btn'
+  saveButton.classList.add('save-task-btn')
   saveButton.textContent = 'Save Task'
   saveButton.onclick = () =>
    this.saveTaskFromForm(form)
 
   const viewTasksButton =
    document.createElement('button')
-  viewTasksButton.className = 'view-tasks-btn'
+  viewTasksButton.classList.add(
+   'view-tasks-btn'
+  )
   viewTasksButton.textContent = 'View Tasks'
   viewTasksButton.onclick = () =>
    this.showTasksList()
@@ -2928,7 +2954,7 @@ How can I help you with this?`
   placeholder = ''
  ) {
   const field = document.createElement('div')
-  field.className = 'form-field'
+  field.classList.add('form-field')
 
   const label = document.createElement('label')
   label.textContent = labelText
@@ -2947,16 +2973,16 @@ How can I help you with this?`
  addSubtaskField(subtasksList) {
   const subtaskField =
    document.createElement('div')
-  subtaskField.className = 'subtask-field'
+  subtaskField.classList.add('subtask-field')
 
   const input = document.createElement('input')
   input.type = 'text'
-  input.className = 'subtask-input'
+  input.classList.add('subtask-input')
   input.placeholder = 'Enter subtask'
 
   const removeBtn =
    document.createElement('button')
-  removeBtn.className = 'remove-subtask-btn'
+  removeBtn.classList.add('remove-subtask-btn')
   removeBtn.textContent = '✕'
   removeBtn.onclick = () =>
    subtaskField.remove()
@@ -3023,12 +3049,12 @@ How can I help you with this?`
    'tasks-list-container'
 
   const header = document.createElement('div')
-  header.className = 'tasks-list-header'
+  header.classList.add('tasks-list-header')
   header.innerHTML = '<h3>📋 Your Tasks</h3>'
 
   const backButton =
    document.createElement('button')
-  backButton.className = 'back-to-form-btn'
+  backButton.classList.add('back-to-form-btn')
   backButton.textContent = '+ New Task'
   backButton.onclick = () => {
    tasksContainer.remove()
@@ -3150,7 +3176,9 @@ How can I help you with this?`
       const deleteButton =
        document.createElement('button')
       deleteButton.textContent = 'Delete'
-      deleteButton.className = 'delete-task-btn'
+      deleteButton.classList.add(
+       'delete-task-btn'
+      )
       deleteButton.onclick = () =>
        this.deleteTask(task.id)
       actionButtons.appendChild(deleteButton)
@@ -3577,17 +3605,17 @@ How can I help you with this?`
 
   const menuHeader =
    document.createElement('div')
-  menuHeader.className = 'menu-header'
+  menuHeader.classList.add('menu-header')
   menuHeader.innerHTML = '<h3>📋 Menu</h3>'
 
   const menuContent =
    document.createElement('div')
-  menuContent.className = 'menu-content'
+  menuContent.classList.add('menu-content')
 
   menuItems.forEach((item) => {
    const button =
     document.createElement('button')
-   button.className = 'menu-button'
+   button.classList.add('menu-button')
    button.innerHTML = `<span class="menu-icon">${item.icon}</span>${item.text}`
    button.onclick = item.action
    menuContent.appendChild(button)
@@ -3598,586 +3626,63 @@ How can I help you with this?`
 
   // Add styles for the menu
   const menuStyles = `
-            .main-menu-container {
-                background: white;
-                border-radius: 8px;
-                padding: 15px;
-                margin: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
+   .main-menu-container {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+   }
 
-            .menu-header {
-                margin-bottom: 15px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
+   .menu-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #7d5fff;
+   }
 
-            .menu-header h3 {
-                margin: 0;
-                color: #333;
-                font-size: 1.2em;
-            }
+   .menu-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+   }
 
-            .menu-content {
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
+   .menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+   }
 
-            .menu-button {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 12px;
-                border: none;
-                border-radius: 6px;
-                background: #f8f9fa;
-                color: #333;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                text-align: left;
-                font-size: 1em;
-            }
+   .menu-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: #f8f9fa;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+    font-size: 1em;
+   }
 
-            .menu-button:hover {
-                background: #7d5fff;
-                color: white;
-            }
+   .menu-button:hover {
+    background: #7d5fff;
+    color: white;
+   }
 
-            .menu-icon {
-                font-size: 1.2em;
-                min-width: 24px;
-            }
-        `
+   .menu-icon {
+    font-size: 1.2em;
+    min-width: 24px;
+   }
+  `
 
   const style = document.createElement('style')
   style.textContent = menuStyles
   document.head.appendChild(style)
 
   return menuContainer
- }
-
- // Add method to show task form
- showTaskForm() {
-  // Add the styles if not already added
-  if (
-   !document.querySelector(
-    'style[data-task-styles]'
-   )
-  ) {
-   this.addTaskManagementStyles()
-  }
-
-  const formContainer =
-   this.createTaskManagementForm()
-
-  // Remove existing form or list if present
-  const existingForm =
-   this.messagesArea.querySelector(
-    '.task-form-container'
-   )
-  if (existingForm) existingForm.remove()
-  const existingList =
-   this.messagesArea.querySelector(
-    '.tasks-list-container'
-   )
-  if (existingList) existingList.remove()
-
-  this.messagesArea.appendChild(formContainer)
-  this.messagesArea.scrollTop =
-   this.messagesArea.scrollHeight
- }
-
- // Add method to show daily schedule
- showDailySchedule() {
-  const scheduleContainer =
-   document.createElement('div')
-  scheduleContainer.className =
-   'schedule-container'
-
-  const today = new Date()
-   .toISOString()
-   .split('T')[0]
-  const todaysTasks =
-   this.taskManager.tasks.filter(
-    (task) =>
-     task.dueDate &&
-     task.dueDate.startsWith(today)
-   )
-
-  if (todaysTasks.length === 0) {
-   scheduleContainer.innerHTML = `
-                <div class="schedule-header">
-                    <h3>📅 Today's Schedule</h3>
-                </div>
-                <p>No tasks scheduled for today.</p>
-                <button class="add-task-btn" onclick="window.chatInterface.showTaskForm()">Add New Task</button>
-            `
-  } else {
-   // Sort tasks by due time
-   todaysTasks.sort(
-    (a, b) =>
-     new Date(a.dueDate) - new Date(b.dueDate)
-   )
-
-   scheduleContainer.innerHTML = `
-                <div class="schedule-header">
-                    <h3>📅 Today's Schedule</h3>
-                </div>
-                <div class="schedule-list">
-                    ${todaysTasks
-                     .map(
-                      (task) => `
-                        <div class="schedule-item ${
-                         task.priority
-                        }-priority">
-                            <div class="schedule-time">${new Date(
-                             task.dueDate
-                            ).toLocaleTimeString(
-                             [],
-                             {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                             }
-                            )}</div>
-                            <div class="schedule-details">
-                                <h4>${
-                                 task.name
-                                }</h4>
-                                <span class="task-category">${
-                                 task.category
-                                }</span>
-                                <p>⏱️ ${
-                                 task.estimatedDuration
-                                } minutes</p>
-                                ${
-                                 task.location
-                                  ? `<p>📍 ${task.location.name}</p>`
-                                  : ''
-                                }
-                            </div>
-                        </div>
-                    `
-                     )
-                     .join('')}
-                </div>
-            `
-  }
-
-  // Remove existing containers
-  const existingContainers =
-   this.messagesArea.querySelectorAll(
-    '.task-form-container, .tasks-list-container, .schedule-container'
-   )
-  existingContainers.forEach((container) =>
-   container.remove()
-  )
-
-  this.messagesArea.appendChild(
-   scheduleContainer
-  )
-  this.messagesArea.scrollTop =
-   this.messagesArea.scrollHeight
- }
-
- // Add method to show reminders
- showReminders() {
-  const reminderContainer =
-   document.createElement('div')
-  reminderContainer.className =
-   'reminder-container'
-
-  reminderContainer.innerHTML = `
-            <div class="reminder-header">
-                <h3>⏰ Reminders</h3>
-            </div>
-            <div class="reminder-options">
-                <button onclick="window.chatInterface.setTaskReminder()">Set Task Reminder</button>
-                <button onclick="window.chatInterface.createNewReminder()">Create New Reminder</button>
-                <button onclick="window.chatInterface.viewAllReminders()">View All Reminders</button>
-            </div>
-        `
-
-  // Remove existing containers
-  const existingContainers =
-   this.messagesArea.querySelectorAll(
-    '.task-form-container, .tasks-list-container, .schedule-container, .reminder-container'
-   )
-  existingContainers.forEach((container) =>
-   container.remove()
-  )
-
-  this.messagesArea.appendChild(
-   reminderContainer
-  )
-  this.messagesArea.scrollTop =
-   this.messagesArea.scrollHeight
- }
-
- // Add method to show reports
- showReports() {
-  const reportsContainer =
-   document.createElement('div')
-  reportsContainer.className =
-   'reports-container'
-
-  const today = new Date()
-   .toISOString()
-   .split('T')[0]
-  const stats = this.taskManager.taskStats
-   .dailyStats?.[today] || {
-   totalTasks: 0,
-   completedTasks: 0,
-   timeSpentByCategory: {},
-   productivityScore: 0,
-  }
-
-  reportsContainer.innerHTML = `
-            <div class="reports-header">
-                <h3>📊 Performance Reports</h3>
-            </div>
-            <div class="reports-content">
-                <div class="daily-summary">
-                    <h4>Today's Summary</h4>
-                    <p>Tasks Completed: ${
-                     stats.completedTasks
-                    }/${stats.totalTasks}</p>
-                    <p>Productivity Score: ${Math.round(
-                     stats.productivityScore
-                    )}%</p>
-                    
-                    <h4>Time Spent by Category</h4>
-                    <div class="category-stats">
-                        ${
-                         Object.entries(
-                          stats.timeSpentByCategory
-                         )
-                          .map(
-                           ([
-                            category,
-                            minutes,
-                           ]) => `
-                            <div class="category-stat">
-                                <span class="category-name">${category}</span>
-                                <span class="category-time">${Math.round(
-                                 minutes
-                                )} minutes</span>
-                            </div>
-                        `
-                          )
-                          .join('') ||
-                         '<p>No time tracked today</p>'
-                        }
-                    </div>
-                </div>
-            </div>
-        `
-
-  // Remove existing containers
-  const existingContainers =
-   this.messagesArea.querySelectorAll(
-    '.task-form-container, .tasks-list-container, .schedule-container, .reminder-container, .reports-container'
-   )
-  existingContainers.forEach((container) =>
-   container.remove()
-  )
-
-  this.messagesArea.appendChild(
-   reportsContainer
-  )
-  this.messagesArea.scrollTop =
-   this.messagesArea.scrollHeight
- }
-
- // Add additional styles for new components
- addTaskManagementStyles() {
-  const existingStyles = document.querySelector(
-   'style[data-task-styles]'
-  )
-  if (existingStyles) {
-   existingStyles.remove()
-  }
-
-  const style = document.createElement('style')
-  style.setAttribute('data-task-styles', '')
-  style.textContent = `
-            ${this.getBaseStyles()}
-            ${this.getMenuStyles()}
-            ${this.getScheduleStyles()}
-            ${this.getReminderStyles()}
-            ${this.getReportStyles()}
-            ${this.getScriptStyles()}
-        `
-  document.head.appendChild(style)
- }
-
- getBaseStyles() {
-  return `
-            .main-menu-container {
-                background: white;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            .menu-header {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
-
-            .menu-button {
-                display: block;
-                width: 100%;
-                padding: 12px;
-                margin-bottom: 10px;
-                border: none;
-                border-radius: 4px;
-                background: #f0f0f0;
-                color: #333;
-                font-size: 14px;
-                cursor: pointer;
-                transition: background 0.3s;
-            }
-
-            .menu-button:hover {
-                background: #7d5fff;
-                color: white;
-            }
-        `
- }
-
- getMenuStyles() {
-  return `
-            .menu-container {
-                position: fixed;
-                top: 0;
-                right: 0;
-                width: 300px;
-                height: 100%;
-                background: white;
-                box-shadow: -2px 0 4px rgba(0,0,0,0.1);
-                z-index: 1000;
-                transform: translateX(100%);
-                transition: transform 0.3s;
-            }
-
-            .menu-container.open {
-                transform: translateX(0);
-            }
-        `
- }
-
- getScheduleStyles() {
-  return `
-            .schedule-container {
-                background: white;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            .schedule-header {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
-
-            .schedule-item {
-                display: flex;
-                padding: 15px;
-                margin-bottom: 10px;
-                border-radius: 8px;
-                background: #f8f9fa;
-                border-left: 4px solid;
-            }
-
-            .schedule-time {
-                font-size: 18px;
-                font-weight: bold;
-                margin-right: 15px;
-                color: #7d5fff;
-            }
-
-            .schedule-details {
-                flex: 1;
-            }
-        `
- }
-
- getReminderStyles() {
-  return `
-            .reminder-container {
-                background: white;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            .reminder-header {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
-
-            .reminder-options {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .reminder-options button {
-                padding: 12px;
-                border: none;
-                border-radius: 4px;
-                background: #7d5fff;
-                color: white;
-                cursor: pointer;
-                transition: background 0.3s;
-            }
-
-            .reminder-options button:hover {
-                background: #6a4ddb;
-            }
-        `
- }
-
- getReportStyles() {
-  return `
-            .reports-container {
-                background: white;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 10px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-
-            .reports-header {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
-
-            .daily-summary {
-                margin-bottom: 20px;
-            }
-
-            .category-stats {
-                margin-top: 10px;
-            }
-
-            .category-stat {
-                display: flex;
-                justify-content: space-between;
-                padding: 8px;
-                background: #f8f9fa;
-                border-radius: 4px;
-                margin-bottom: 5px;
-            }
-
-            .category-name {
-                font-weight: bold;
-                color: #7d5fff;
-            }
-
-            .category-time {
-                color: #666;
-            }
-        `
- }
-
- getScriptStyles() {
-  return `
-            .scripts-container {
-                background: #1a1a1a;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 10px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                color: #ffffff;
-            }
-
-            .scripts-header {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
-
-            .scripts-header h3 {
-                color: #ffffff;
-                margin: 0;
-            }
-
-            .scripts-header p {
-                color: #cccccc;
-                margin-top: 5px;
-            }
-
-            .scripts-actions {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            .scripts-actions button {
-                flex: 1;
-                padding: 12px;
-                border: none;
-                border-radius: 4px;
-                background: #2d2d2d;
-                color: #ffffff;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-weight: 500;
-            }
-
-            .scripts-actions button:hover {
-                background: #7d5fff;
-                transform: translateY(-2px);
-            }
-
-            .scripts-help {
-                background: #2d2d2d;
-                padding: 15px;
-                border-radius: 4px;
-                margin-top: 20px;
-            }
-
-            .scripts-help h4 {
-                color: #ffffff;
-                margin-top: 0;
-                margin-bottom: 10px;
-            }
-
-            .scripts-help ul {
-                margin: 0;
-                padding-left: 20px;
-                list-style-type: none;
-            }
-
-            .scripts-help li {
-                margin-bottom: 8px;
-                color: #cccccc;
-                position: relative;
-                padding-left: 15px;
-            }
-
-            .scripts-help li:before {
-                content: "•";
-                position: absolute;
-                left: 0;
-                color: #7d5fff;
-            }
-
-            .scripts-examples {
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px solid #3d3d3d;
-            }
-        `
  }
 
  initializeChatInterface() {
@@ -4187,41 +3692,10 @@ How can I help you with this?`
   this.chatContainer.className =
    'chat-container'
 
-  // Create chat button if it doesn't exist
-  if (!document.querySelector('.chat-button')) {
-   const chatButton =
-    document.createElement('button')
-   chatButton.className = 'chat-button'
-   chatButton.innerHTML = '💬'
-   chatButton.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #7d5fff;
-                border: none;
-                color: white;
-                font-size: 24px;
-                cursor: pointer;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                z-index: 999;
-                display: none;
-                align-items: center;
-                justify-content: center;
-            `
-   chatButton.onclick = () => this.openChat()
-   document.body.appendChild(chatButton)
-
-   // Show chat button when chat is closed
-   this.chatButton = chatButton
-  }
-
   // Create menu button
   const menuButton =
    document.createElement('button')
-  menuButton.className = 'menu-button'
+  menuButton.classList.add('menu-button')
   menuButton.innerHTML = '☰'
   menuButton.onclick = () =>
    this.toggleMainMenu()
@@ -4230,14 +3704,16 @@ How can I help you with this?`
   // Create messages area
   this.messagesArea =
    document.createElement('div')
-  this.messagesArea.className = 'messages-area'
+  this.messagesArea.classList.add(
+   'messages-area'
+  )
   this.chatContainer.appendChild(
    this.messagesArea
   )
 
   // Create input area
   this.inputArea = document.createElement('div')
-  this.inputArea.className = 'input-area'
+  this.inputArea.classList.add('input-area')
 
   // ... rest of the existing initialization code ...
  }
@@ -4428,334 +3904,7 @@ How can I help you with this?`
   )
  }
 
- async generateScriptWithGemini(prompt) {
-  try {
-   this.addMessage(
-    `Generating script for: "${prompt}"...`,
-    'System'
-   )
-
-   // Create a basic script template based on the prompt
-   const defaultScript = {
-    id: Date.now().toString(),
-    name:
-     prompt.slice(0, 30) +
-     (prompt.length > 30 ? '...' : ''),
-    code:
-     `// Generated script for: ${prompt}\n` +
-     `function run${prompt.replace(
-      /[^a-zA-Z0-9]/g,
-      ''
-     )}() {\n` +
-     `    // Create container for the script\n` +
-     `    const container = document.createElement('div');\n` +
-     `    container.className = 'script-container';\n` +
-     `    container.style.cssText = 'padding: 15px; background: #f5f5f5; border-radius: 8px; margin: 10px 0;';\n\n` +
-     `    // Add title\n` +
-     `    const title = document.createElement('h3');\n` +
-     `    title.textContent = '${prompt}';\n` +
-     `    container.appendChild(title);\n\n` +
-     `    // Add content area\n` +
-     `    const content = document.createElement('div');\n` +
-     `    content.className = 'script-content';\n` +
-     `    container.appendChild(content);\n\n` +
-     `    // Add the container to the messages area\n` +
-     `    const messagesArea = document.querySelector('.messages-area');\n` +
-     `    if (messagesArea) {\n` +
-     `        messagesArea.appendChild(container);\n` +
-     `        messagesArea.scrollTop = messagesArea.scrollHeight;\n` +
-     `    }\n` +
-     `}\n\n` +
-     `// Execute the script\n` +
-     `run${prompt.replace(
-      /[^a-zA-Z0-9]/g,
-      ''
-     )}();`,
-    createdAt: new Date().toISOString(),
-   }
-
-   try {
-    // Try to send the request through the chat interface
-    const response = await fetch('/api/chat', {
-     method: 'POST',
-     headers: {
-      'Content-Type': 'application/json',
-     },
-     body: JSON.stringify({
-      message: `Generate a JavaScript script for: ${prompt}. The script should be self-contained and ready to run in the chat environment.`,
-      type: 'script_generation',
-      channelId:
-       this.currentChannel?.id || 'default',
-     }),
-    })
-
-    if (!response.ok) {
-     throw new Error(
-      `HTTP error! status: ${response.status}`
-     )
-    }
-
-    const data = await response.json()
-
-    if (data && data.content) {
-     // Update the script code with the AI-generated content
-     defaultScript.code = data.content.trim()
-    }
-   } catch (error) {
-    console.warn(
-     'Failed to get AI-generated script, using default template:',
-     error
-    )
-    // Continue with the default script
-   }
-
-   // Save to channel scripts
-   const channelId =
-    this.currentChannel?.id || 'default'
-   const channelScripts = JSON.parse(
-    localStorage.getItem(
-     `channel_${channelId}_scripts`
-    ) || '[]'
-   )
-   channelScripts.push(defaultScript)
-   localStorage.setItem(
-    `channel_${channelId}_scripts`,
-    JSON.stringify(channelScripts)
-   )
-
-   this.addMessage(
-    `✨ Script generated and installed in channel!\n\n📜 Name: ${defaultScript.name}\n🔑 ID: ${defaultScript.id}\n\n💻 Generated Code:\n\`\`\`javascript\n${defaultScript.code}\n\`\`\`\n\nCommands:\n- Run: \`run script: ${defaultScript.id}\`\n- Delete: \`delete script: ${defaultScript.id}\``,
-    'System'
-   )
-
-   // Try to run the script immediately
-   try {
-    eval(defaultScript.code)
-   } catch (error) {
-    console.error(
-     'Error running script:',
-     error
-    )
-    this.addMessage(
-     `⚠️ Note: The script was saved but encountered an error when running: ${error.message}`,
-     'System'
-    )
-   }
-  } catch (error) {
-   this.addMessage(
-    `❌ Error handling script generation: ${error.message}`,
-    'System'
-   )
-   console.error(
-    'Script generation error:',
-    error
-   )
-  }
- }
-
- initializeGemini() {
-  // Check for API key in localStorage first
-  this.apiKey = localStorage.getItem(
-   'gemini_api_key'
-  )
-
-  if (!this.apiKey) {
-   // Prompt user for API key
-   const apiKey = prompt(
-    'Please enter your Gemini API key to enable script generation:'
-   )
-   if (apiKey) {
-    this.apiKey = apiKey
-    localStorage.setItem(
-     'gemini_api_key',
-     apiKey
-    )
-   }
-  }
- }
-
- showScriptsManager() {
-  const messagesArea =
-   this.chatContainer.querySelector(
-    '.messages-area'
-   )
-  const existingContainer =
-   messagesArea.querySelector(
-    '.scripts-container'
-   )
-  if (existingContainer) {
-   existingContainer.remove()
-  }
-
-  const scriptsContainer =
-   document.createElement('div')
-  scriptsContainer.className =
-   'scripts-container'
-
-  // Header
-  const header = document.createElement('div')
-  header.className = 'scripts-header'
-  header.innerHTML = `
-            <h3>Scripts Manager</h3>
-            <p>Create interactive scripts powered by Gemini AI</p>
-        `
-  scriptsContainer.appendChild(header)
-
-  // Actions
-  const actions = document.createElement('div')
-  actions.className = 'scripts-actions'
-
-  const generateButton =
-   document.createElement('button')
-  generateButton.textContent =
-   '✨ Generate with AI'
-  generateButton.onclick = () => {
-   const scriptPrompt = window.prompt(
-    'Describe the script you want to create:'
-   )
-   if (scriptPrompt) {
-    this.handleScriptRequest(
-     `generate script: ${scriptPrompt}`
-    )
-   }
-  }
-
-  const listButton =
-   document.createElement('button')
-  listButton.textContent =
-   '📋 Installed Scripts'
-  listButton.onclick = () => {
-   this.handleScriptRequest('list scripts')
-  }
-
-  actions.appendChild(generateButton)
-  actions.appendChild(listButton)
-  scriptsContainer.appendChild(actions)
-
-  // Help section
-  const help = document.createElement('div')
-  help.className = 'scripts-help'
-  help.innerHTML = `
-            <h4>Available Commands</h4>
-            <ul>
-                <li>generate script: description - Create a new script using AI</li>
-                <li>list scripts - Show installed scripts</li>
-                <li>run script: ID - Execute a script</li>
-                <li>delete script: ID - Remove script</li>
-            </ul>
-            <div class="scripts-examples">
-                <h4>Example Prompts</h4>
-                <ul>
-                    <li>Create a poll system for voting</li>
-                    <li>Make a simple quiz game</li>
-                    <li>Create a countdown timer</li>
-                </ul>
-            </div>
-        `
-  scriptsContainer.appendChild(help)
-
-  // Add styles
-  const styles = document.createElement('style')
-  styles.textContent = this.getScriptStyles()
-  document.head.appendChild(styles)
-
-  messagesArea.appendChild(scriptsContainer)
-  messagesArea.scrollTop =
-   messagesArea.scrollHeight
- }
-
- getScriptStyles() {
-  return `
-            .scripts-container {
-                background: #1a1a1a;
-                border-radius: 8px;
-                padding: 20px;
-                margin: 10px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                color: #ffffff;
-            }
-
-            .scripts-header {
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #7d5fff;
-            }
-
-            .scripts-header h3 {
-                color: #ffffff;
-                margin: 0;
-            }
-
-            .scripts-header p {
-                color: #cccccc;
-                margin-top: 5px;
-            }
-
-            .scripts-actions {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            .scripts-actions button {
-                flex: 1;
-                padding: 12px;
-                border: none;
-                border-radius: 4px;
-                background: #2d2d2d;
-                color: #ffffff;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                font-weight: 500;
-            }
-
-            .scripts-actions button:hover {
-                background: #7d5fff;
-                transform: translateY(-2px);
-            }
-
-            .scripts-help {
-                background: #2d2d2d;
-                padding: 15px;
-                border-radius: 4px;
-                margin-top: 20px;
-            }
-
-            .scripts-help h4 {
-                color: #ffffff;
-                margin-top: 0;
-                margin-bottom: 10px;
-            }
-
-            .scripts-help ul {
-                margin: 0;
-                padding-left: 20px;
-                list-style-type: none;
-            }
-
-            .scripts-help li {
-                margin-bottom: 8px;
-                color: #cccccc;
-                position: relative;
-                padding-left: 15px;
-            }
-
-            .scripts-help li:before {
-                content: "•";
-                position: absolute;
-                left: 0;
-                color: #7d5fff;
-            }
-
-            .scripts-examples {
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px solid #3d3d3d;
-            }
-        `
- }
-
- addStyles() {
+ ____addStyles() {
   if (!document.getElementById('chat-styles')) {
    const styles =
     document.createElement('style')
@@ -4986,12 +4135,12 @@ How can I help you with this?`
  // Add this to the createHeader method
  createHeader() {
   const header = document.createElement('div')
-  header.className = 'chat-header'
+  header.classList.add('chat-header')
 
   // Add conversations list button on left
   const listButton =
    document.createElement('button')
-  listButton.className = 'chat-list-btn'
+  listButton.classList.add('chat-list-btn')
   listButton.innerHTML = '⛬'
   listButton.onclick = () =>
    this.toggleChatList()
@@ -5000,7 +4149,9 @@ How can I help you with this?`
   // Add centered title with channel name
   const titleContainer =
    document.createElement('div')
-  titleContainer.className = 'title-container'
+  titleContainer.classList.add(
+   'title-container'
+  )
 
   const title = document.createElement('h3')
   title.textContent = 'Chat'
@@ -5009,7 +4160,7 @@ How can I help you with this?`
   // Always show the actual channel name
   const channelName =
    document.createElement('span')
-  channelName.className = 'channel-name'
+  channelName.classList.add('channel-name')
   // Use the home symbol for the default channel
   const displayChannel =
    this.currentChannel === 'default'
@@ -5023,12 +4174,12 @@ How can I help you with this?`
   // Add buttons container for right side
   const headerButtons =
    document.createElement('div')
-  headerButtons.className = 'header-buttons'
+  headerButtons.classList.add('header-buttons')
 
   // Add menu button
   const menuButton =
    document.createElement('button')
-  menuButton.className = 'chat-menu-btn'
+  menuButton.classList.add('chat-menu-btn')
   menuButton.innerHTML = '☰'
   menuButton.onclick = () => this.toggleMenu()
   headerButtons.appendChild(menuButton)
@@ -5036,7 +4187,7 @@ How can I help you with this?`
   // Add close button
   const closeButton =
    document.createElement('button')
-  closeButton.className = 'chat-close-btn'
+  closeButton.classList.add('chat-close-btn')
   closeButton.innerHTML = '✖'
   closeButton.onclick = () => this.closeChat()
   headerButtons.appendChild(closeButton)
@@ -5064,11 +4215,11 @@ How can I help you with this?`
 
    // Create overlay
    const overlay = document.createElement('div')
-   overlay.className = 'chat-overlay'
+   overlay.classList.add('chat-overlay')
 
    // Create dialog
    const dialog = document.createElement('div')
-   dialog.className = 'channel-edit-dialog'
+   dialog.classList.add('channel-edit-dialog')
    dialog.innerHTML = `
                 <h3>Edit Channel Information</h3>
                 <div class="form-group">
@@ -5220,111 +4371,6 @@ How can I help you with this?`
    throw error
   }
  }
-
- // Add the styles if they don't exist
- addStyles() {
-  // ... existing styles ...
-
-  const channelEditStyles = `
-            .chat-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 10000;
-            }
-            
-            .channel-edit-dialog {
-                background: var(--color-bg-medium);
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-                width: 400px;
-                max-width: 90vw;
-            }
-            
-            .channel-edit-dialog h3 {
-                margin-top: 0;
-                margin-bottom: 20px;
-                color: var(--color-text-primary);
-            }
-            
-            .form-group {
-                margin-bottom: 15px;
-            }
-            
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                color: var(--color-text-primary);
-            }
-            
-            .form-group input,
-            .form-group textarea {
-                width: 100%;
-                padding: 8px;
-                border: 1px solid var(--color-border-dark);
-                border-radius: 4px;
-                background: var(--color-bg-light);
-                color: var(--color-text-primary);
-            }
-            
-            .form-group textarea {
-                height: 100px;
-                resize: vertical;
-            }
-            
-            .dialog-buttons {
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-                margin-top: 20px;
-            }
-            
-            .dialog-buttons button {
-                padding: 8px 16px;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-weight: bold;
-            }
-            
-            .dialog-buttons .save-btn {
-                background: var(--color-bg-accent);
-                color: white;
-            }
-            
-            .dialog-buttons .cancel-btn {
-                background: var(--color-bg-secondary);
-                color: var(--color-text-primary);
-            }
-            
-            .edit-channel-btn {
-                background: transparent !important;
-                border: none !important;
-                font-size: 16px !important;
-                cursor: pointer !important;
-                padding: 8px !important;
-                border-radius: 4px !important;
-                color: var(--color-text-primary) !important;
-                margin-right: 5px !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-            }
-            
-            .edit-channel-btn:hover {
-                background: var(--color-bg-secondary) !important;
-            }
-        `
-
-  this.addStylesToHead(channelEditStyles)
- }
 }
 
 document.addEventListener(
@@ -5365,7 +4411,7 @@ document.addEventListener(
    const chatButton =
     document.createElement('button')
    chatButton.textContent = '🗨️'
-   chatButton.className = 'btn-chat-global'
+   chatButton.classList.add('btn-chat-global')
    chatButton.onclick = () => {
     // Check current page URL for channel context
     const urlParams = new URLSearchParams(
