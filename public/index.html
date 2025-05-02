@@ -57,6 +57,12 @@
     color: #000;
    }
   </style>
+  <!-- Include Chat CSS -->
+  <link
+   rel="stylesheet"
+   type="text/css"
+   href="./css/chat.css"
+  />
   <link
    rel="stylesheet"
    type="text/css"
@@ -167,6 +173,16 @@
    type="text/javascript"
    src="./js/realm/schedule.js?bh"
   ></script>
+  <script
+   type="text/javascript"
+   src="./js/chat.js?bh"
+  ></script>
+  <div id="chat-container-outer">
+   <div
+    id="chat-container"
+    style="display: none"
+   ></div>
+  </div>
   <footer id="footer">
    <h1>
     <a target="_blank" href="/">Tag Me In</a>
@@ -240,7 +256,11 @@
      and Gemini AI (the theme selector pallete
      icon, and the message label icon).
     </p>
-    <p id="stats">Written in 511 lines of HTML, 2609 lines of TypeScript, 6284 lines of JavaScript, and 2564 lines of CSS</p>
+    <p id="stats">
+     Written in 511 lines of HTML, 2609 lines of
+     TypeScript, 6284 lines of JavaScript, and
+     2564 lines of CSS
+    </p>
     <p>
      All data is stored on Cloudflare via
      <a
