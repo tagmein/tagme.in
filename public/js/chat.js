@@ -851,23 +851,41 @@ How can I help you with this?`
 
  createMessageElement(text, sender, timestamp) {
   const message = document.createElement('div')
-  message.classList.add('message')
-  // Add user-message class if this is the current user's message
+  message.className = 'message'
+
+  // Add appropriate message class
   if (sender === this.userName) {
    message.classList.add('user-message')
-  } else {
+  } else if (
+   sender === 'Tag Me In AI' ||
+   sender === 'Tagmein AI'
+  ) {
    message.classList.add('ai-message')
+  } else if (sender === 'System') {
+   message.classList.add('system-message')
   }
 
-  const senderElement =
-   document.createElement('div')
-  senderElement.classList.add('message-sender')
-  senderElement.textContent = sender
-  message.appendChild(senderElement)
+  // Only add sender label for AI and system messages, and remove "Tag Me In AI:" prefix from AI messages
+  if (sender && sender !== this.userName) {
+   const senderElement =
+    document.createElement('div')
+   senderElement.className = 'message-sender'
+   senderElement.textContent = sender
+   message.appendChild(senderElement)
+
+   // Remove the "Tag Me In AI:" prefix from the message text if it exists
+   if (
+    (sender === 'Tag Me In AI' ||
+     sender === 'Tagmein AI') &&
+    text.startsWith(sender + ': ')
+   ) {
+    text = text.substring(sender.length + 2) // +2 for ': '
+   }
+  }
 
   const textElement =
    document.createElement('div')
-  textElement.classList.add('message-text')
+  textElement.className = 'message-text'
   textElement.innerHTML =
    this.formatMessage(text)
   message.appendChild(textElement)
@@ -875,7 +893,7 @@ How can I help you with this?`
   // Add timestamp
   const timeElement =
    document.createElement('div')
-  timeElement.classList.add('message-time')
+  timeElement.className = 'message-time'
   timeElement.textContent = new Date(
    timestamp
   ).toLocaleTimeString([], {
@@ -1963,41 +1981,58 @@ How can I help you with this?`
     {
      text: 'Delete Chat',
      action: () => {
-      // Get the current chat history
-      const chatHistory = JSON.parse(
-       localStorage.getItem('chatHistory') ||
-        '{}'
-      )
-      // Delete only the current chat
       if (
-       this.currentChat &&
-       chatHistory[this.currentChat]
+       confirm(
+        'Are you sure you want to delete this chat?'
+       )
       ) {
-       delete chatHistory[this.currentChat]
+       // Only delete the current channel's messages
+       if (
+        this.currentChannel in
+        this.messageHistory
+       ) {
+        delete this.messageHistory[
+         this.currentChannel
+        ]
+       }
+
+       // Update localStorage to persist the change
        localStorage.setItem(
         'chatHistory',
-        JSON.stringify(chatHistory)
+        JSON.stringify(this.messageHistory)
        )
-       // Clear only the current chat messages from the UI
-       this.chatContainer.querySelector(
-        '.messages-area'
-       ).innerHTML = ''
-       // Add the original welcome message after deletion
-       let displayChannel =
+
+       // Clear the messages area
+       const messagesArea =
+        this.chatContainer.querySelector(
+         '.messages-area'
+        )
+       if (messagesArea) {
+        messagesArea.innerHTML = ''
+       }
+
+       // Show welcome message for current channel
+       const displayChannel =
         this.currentChannel === '' ||
         this.currentChannel === 'default'
          ? this.HOME_CHANNEL
          : this.currentChannel
-       let initialMessage =
+
+       const initialMessage =
         this.userName &&
         this.userName !== 'Guest'
-         ? `Welcome to the ${displayChannel} channel, ${this.userName}! How can I help you today?`
-         : `Welcome to the ${displayChannel} channel! How can I help you today?`
+         ? `Welcome to the "${displayChannel}" channel, ${this.userName}! How can I help you today?`
+         : `Welcome to the "${displayChannel}" channel! How can I help you today?`
+
        this.addMessage(
         initialMessage,
         'Tag Me In AI'
        )
-       alert('Current chat deleted.')
+
+       // Update the chat list to reflect the changes
+       this.listChats()
+
+       alert('Chat has been deleted.')
       }
      },
     },
@@ -2009,11 +2044,37 @@ How can I help you with this?`
         'Are you sure you want to delete all chat history? This cannot be undone.'
        )
       ) {
+       // Clear message history and local storage
        this.messageHistory = {}
        localStorage.removeItem('chatHistory')
-       this.chatContainer.querySelector(
-        '.messages-area'
-       ).innerHTML = ''
+
+       // Clear the messages area
+       const messagesArea =
+        this.chatContainer.querySelector(
+         '.messages-area'
+        )
+       if (messagesArea) {
+        messagesArea.innerHTML = ''
+       }
+
+       // Show welcome message for current channel
+       const displayChannel =
+        this.currentChannel === '' ||
+        this.currentChannel === 'default'
+         ? this.HOME_CHANNEL
+         : this.currentChannel
+
+       const initialMessage =
+        this.userName &&
+        this.userName !== 'Guest'
+         ? `Welcome to the "${displayChannel}" channel, ${this.userName}! How can I help you today?`
+         : `Welcome to the "${displayChannel}" channel! How can I help you today?`
+
+       this.addMessage(
+        initialMessage,
+        'Tag Me In AI'
+       )
+
        alert(
         'All chat history has been deleted.'
        )
