@@ -1443,7 +1443,6 @@ function displayActivity() {
     'Invalid date provided to scrollToDate:',
     targetDate
    )
-
    // Show error notification
    const notification = elem({
     tagName: 'div',
@@ -1453,10 +1452,7 @@ function displayActivity() {
     ],
     textContent: `Invalid date format. Please try again with a valid date.`,
    })
-
    document.body.appendChild(notification)
-
-   // Remove the notification after a few seconds
    setTimeout(() => {
     notification.style.opacity = '0'
     setTimeout(() => {
@@ -1465,7 +1461,6 @@ function displayActivity() {
      }
     }, 500)
    }, 3000)
-
    return
   }
 
@@ -1477,10 +1472,18 @@ function displayActivity() {
    targetDateStart
   )
 
-  // First, check if we need to load more content
   let foundMatchingItem = false
   let attempts = 0
-  const MAX_LOAD_ATTEMPTS = 20 // Increased to allow more loading attempts
+  const MAX_LOAD_ATTEMPTS = 20
+
+  // Helper to compare only Y/M/D
+  function sameDay(d1, d2) {
+   return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+   )
+  }
 
   // Function to check if we've found a message on or before the target date
   function checkForDateMatch() {
@@ -1492,30 +1495,23 @@ function displayActivity() {
     newsItems.length
    )
 
+   let exactMatchItem = null
    let closestItem = null
    let closestDate = null
    let allDates = []
    let latestDateFound = null
    let earliestDateFound = null
 
-   // First pass: find the closest date on or before the target date
    for (const newsItem of newsItems) {
     const dateElement =
      newsItem.querySelector('.news-date')
     if (dateElement) {
-     // Extract date from the title attribute which contains the full date string
      const dateStr =
       dateElement.getAttribute('title') ||
       dateElement.textContent
      if (dateStr) {
       try {
-       // Try multiple parsing strategies
-       let itemDate
-
-       // First try standard date constructor
-       itemDate = new Date(dateStr)
-
-       // If that fails, try manual parsing
+       let itemDate = new Date(dateStr)
        if (
         isNaN(itemDate.getTime()) &&
         dateStr.includes(' ')
@@ -1529,7 +1525,6 @@ function displayActivity() {
           ''
          )
          const yearStr = parts[2]
-
          const months = {
           January: 0,
           February: 1,
@@ -1556,7 +1551,6 @@ function displayActivity() {
           Nov: 10,
           Dec: 11,
          }
-
          if (
           months[monthStr] !== undefined &&
           !isNaN(parseInt(dayStr)) &&
@@ -1570,31 +1564,31 @@ function displayActivity() {
          }
         }
        }
-
-       // Ensure we have a valid date
        if (!isNaN(itemDate.getTime())) {
-        // Track earliest and latest dates for better error messages
+        // Normalize to midnight
+        itemDate.setHours(0, 0, 0, 0)
         if (
          !earliestDateFound ||
          itemDate < earliestDateFound
-        ) {
+        )
          earliestDateFound = itemDate
-        }
         if (
          !latestDateFound ||
          itemDate > latestDateFound
-        ) {
+        )
          latestDateFound = itemDate
-        }
-
-        // Log each date we're checking for debugging
         allDates.push({
-         dateStr: dateStr,
-         itemDate: itemDate,
+         dateStr,
+         itemDate,
          valid: !isNaN(itemDate.getTime()),
         })
-
-        // If this item is on or before the target date and is closer than our current closest
+        // Prefer exact match
+        if (
+         sameDay(itemDate, targetDateStart)
+        ) {
+         exactMatchItem = newsItem
+        }
+        // Otherwise, keep closest before
         if (
          itemDate <= targetDateStart &&
          (!closestDate ||
@@ -1614,29 +1608,51 @@ function displayActivity() {
      }
     }
    }
-
    console.log('All dates found:', allDates)
-   console.log(
-    'Closest date found:',
-    closestDate
-   )
-   console.log(
-    'Earliest date found:',
-    earliestDateFound
-   )
-   console.log(
-    'Latest date found:',
-    latestDateFound
-   )
-
-   // If we found a matching item, scroll to it
+   if (exactMatchItem) {
+    foundMatchingItem = true
+    exactMatchItem.classList.add(
+     'date-match-highlight'
+    )
+    setTimeout(() => {
+     exactMatchItem.classList.remove(
+      'date-match-highlight'
+     )
+    }, 3000)
+    exactMatchItem.scrollIntoView({
+     behavior: 'smooth',
+     block: 'start',
+    })
+    const formattedFoundDate =
+     targetDateStart.toLocaleDateString(
+      undefined,
+      {
+       year: 'numeric',
+       month: 'long',
+       day: 'numeric',
+      }
+     )
+    const notification = elem({
+     tagName: 'div',
+     classes: [
+      'date-search-notification',
+      'date-search-success',
+     ],
+     textContent: `Found activity from ${formattedFoundDate}.`,
+    })
+    document.body.appendChild(notification)
+    setTimeout(() => {
+     notification.style.opacity = '0'
+     setTimeout(() => {
+      if (notification.parentNode) {
+       document.body.removeChild(notification)
+      }
+     }, 500)
+    }, 5000)
+    return true
+   }
    if (closestItem) {
     foundMatchingItem = true
-    console.log(
-     'Found matching item, scrolling to it'
-    )
-
-    // Highlight the item briefly to make it more noticeable
     closestItem.classList.add(
      'date-match-highlight'
     )
@@ -1645,21 +1661,16 @@ function displayActivity() {
       'date-match-highlight'
      )
     }, 3000)
-
-    // Scroll this item into view
     closestItem.scrollIntoView({
      behavior: 'smooth',
      block: 'start',
     })
-
-    // Format dates for display
     const formattedFoundDate =
      closestDate.toLocaleDateString(undefined, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
      })
-
     const formattedTargetDate =
      targetDateStart.toLocaleDateString(
       undefined,
@@ -1669,24 +1680,15 @@ function displayActivity() {
        day: 'numeric',
       }
      )
-
-    // Show a success notification
     const notification = elem({
      tagName: 'div',
      classes: [
       'date-search-notification',
       'date-search-success',
      ],
-     textContent:
-      closestDate.getTime() ===
-      targetDateStart.getTime()
-       ? `Found activity from ${formattedFoundDate}.`
-       : `Found activity from ${formattedFoundDate} (closest to ${formattedTargetDate}).`,
+     textContent: `Found activity from ${formattedFoundDate} (closest to ${formattedTargetDate}).`,
     })
-
     document.body.appendChild(notification)
-
-    // Remove the notification after a few seconds
     setTimeout(() => {
      notification.style.opacity = '0'
      setTimeout(() => {
@@ -1695,21 +1697,14 @@ function displayActivity() {
       }
      }, 500)
     }, 5000)
-
     return true
    }
-
    return false
   }
 
-  // First check if we already have matching content loaded
   if (checkForDateMatch()) {
    return
   }
-
-  console.log(
-   'No matching date found in current content, loading more...'
-  )
 
   // If not found, load more content and check again
   while (
@@ -1717,11 +1712,6 @@ function displayActivity() {
    attempts < MAX_LOAD_ATTEMPTS
   ) {
    attempts++
-   console.log(
-    `Loading attempt ${attempts}/${MAX_LOAD_ATTEMPTS}`
-   )
-
-   // Show loading indicator
    const loadingNotification = elem({
     tagName: 'div',
     classes: [
@@ -1730,21 +1720,11 @@ function displayActivity() {
     ],
     textContent: `Loading more activity (attempt ${attempts}/${MAX_LOAD_ATTEMPTS})...`,
    })
-
    document.body.appendChild(
     loadingNotification
    )
-
    try {
-    // Load more content
-    console.log('Calling loadMore...')
     const nextChunkResult = await loadMore()
-    console.log(
-     'loadMore result:',
-     nextChunkResult
-    )
-
-    // Remove loading notification
     loadingNotification.style.opacity = '0'
     setTimeout(() => {
      if (loadingNotification.parentNode) {
@@ -1753,27 +1733,16 @@ function displayActivity() {
       )
      }
     }, 500)
-
-    // If we've reached the end of content or there's no more to load
     if (
      nextChunkResult === undefined ||
      nextChunkResult < 0
     ) {
-     console.log(
-      'Reached end of content, breaking loop'
-     )
      break
     }
-
-    // Check if we now have a matching item
     if (checkForDateMatch()) {
-     console.log(
-      'Found matching date after loading more content'
-     )
      break
     }
    } catch (error) {
-    // Remove loading notification in case of error
     loadingNotification.style.opacity = '0'
     setTimeout(() => {
      if (loadingNotification.parentNode) {
@@ -1790,25 +1759,19 @@ function displayActivity() {
    }
   }
 
-  // If we still haven't found a matching item after loading more content
   if (!foundMatchingItem) {
-   console.log(
-    'Could not find any matching date after multiple attempts'
-   )
-
-   // Check if we have any content at all
    const newsItems =
     element.querySelectorAll('.news')
    const earliest =
     element.querySelector('.news-date')
    let earliestDate = null
-
    if (earliest) {
     try {
      const dateStr =
       earliest.getAttribute('title') ||
       earliest.textContent
      earliestDate = new Date(dateStr)
+     earliestDate.setHours(0, 0, 0, 0)
     } catch (e) {
      console.error(
       'Error parsing earliest date:',
@@ -1816,17 +1779,13 @@ function displayActivity() {
      )
     }
    }
-
    let notificationText = ''
-
    if (newsItems.length === 0) {
-    // No content found at all
     notificationText = `No activity found in the system. Please try a different date.`
    } else if (
     earliestDate &&
     targetDateStart < earliestDate
    ) {
-    // Target date is before earliest available date
     const formattedEarliestDate =
      earliestDate.toLocaleDateString(
       undefined,
@@ -1836,10 +1795,8 @@ function displayActivity() {
        day: 'numeric',
       }
      )
-
     notificationText = `No activity found before ${formattedEarliestDate}. Please try a more recent date.`
    } else {
-    // Show a notification that no items were found for the selected date
     const formattedTargetDate =
      targetDateStart.toLocaleDateString(
       undefined,
@@ -1849,10 +1806,8 @@ function displayActivity() {
        day: 'numeric',
       }
      )
-
     notificationText = `No activity found on or before ${formattedTargetDate}. Please try a different date.`
    }
-
    const notification = elem({
     tagName: 'div',
     classes: [
@@ -1861,10 +1816,7 @@ function displayActivity() {
     ],
     textContent: notificationText,
    })
-
    document.body.appendChild(notification)
-
-   // Remove the notification after a few seconds
    setTimeout(() => {
     const notifications =
      document.querySelectorAll(
