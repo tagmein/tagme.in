@@ -499,6 +499,27 @@ const activityToolbar = elem({
  ],
 })
 
+// Create a separate container for the date picker that will be positioned below the search bar
+const activityToolbarExtended = elem({
+ classes: ['toolbar-extended', 'mode-activity'],
+ children: [activityDatePickerContainer],
+})
+
+// Add the extended toolbar to the app header
+document.addEventListener(
+ 'DOMContentLoaded',
+ () => {
+  const appHeader = document.querySelector(
+   '.app-header'
+  )
+  if (appHeader) {
+   appHeader.appendChild(
+    activityToolbarExtended
+   )
+  }
+ }
+)
+
 const tabStripContainer = elem({
  classes: ['tab-strip-container'],
 })
