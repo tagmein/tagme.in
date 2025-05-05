@@ -1,333 +1,177 @@
 <!DOCTYPE html>
 <html>
- <head>
-  <meta charset="utf-8" />
-  <meta
-   id="meta:viewport"
-   name="viewport"
-   content="width=device-width, initial-scale=1"
-  />
-  <script>
-   const metaViewport = document.getElementById(
-    'meta:viewport'
-   )
-   globalThis.setZoom = (
-    level /*: number*/ = 1
-   ) => {
-    localStorage.setItem('zoom', level)
-    metaViewport.setAttribute(
-     'content',
-     `width=device-width, initial-scale=${level}`
-    )
-   }
-   const lastSetZoom =
-    localStorage.getItem('zoom')
-   if (lastSetZoom !== null) {
-    globalThis.setZoom(parseFloat(lastSetZoom))
-   }
-  </script>
-  <link
-   id="favicon"
-   rel="shortcut icon"
-   type="image/png"
-   href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///8AAABVwtN+AAAAK0lEQVQI12P4/5/h/0eG/79B6O9thj+zGf5IM/wNZGC9z3AXjO7/R6D//wGWfRuJudGK0QAAAABJRU5ErkJggg=="
-  />
-  <link rel="manifest" href="manifest.json" />
-  <script>
-   globalThis.env = {
-    // TAGMEIN_API_BASEURL:
-    //  'https://tagme.in',
-    //  'http://localhost:8787',
-   }
-  </script>
-  <title>Tag Me In</title>
-  <style>
-   html {
-    overflow: hidden;
-   }
-   body {
-    background-color: #000;
-    color: #fff;
-    height: 100%;
-    max-height: 100dvh;
-    overflow: auto;
-   }
-   body.light-mode {
-    background-color: #fff;
-    color: #000;
-   }
-  </style>
-  <!-- Include Chat CSS -->
-  <link
-   rel="stylesheet"
-   type="text/css"
-   href="./css/chat.css"
-  />
-  <link
-   rel="stylesheet"
-   type="text/css"
-   href="./theme.css?bh"
-  />
-  <link
-   rel="stylesheet"
-   type="text/css"
-   href="./labels.css?bh"
-  />
-  <link
-   rel="stylesheet"
-   type="text/css"
-   href="./scripts.css?bh"
-  />
-  <link
-   rel="stylesheet"
-   type="text/css"
-   href="./explorer.css?bh"
-  />
- </head>
 
- <body
-  class="scroll-zero"
-  data-starting
-  data-theme-bg
- >
-  <!-- 1st, load lib js file -->
-  <script
-   type="text/javascript"
-   src="./js/lib.js?bh"
-  ></script>
-  <!-- load basic js files 2nd -->
-  <script
-   type="text/javascript"
-   src="./js/formula.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/network-store.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/reactions.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/labels.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/scripts.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/display.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/components.js?bh"
-  ></script>
-  <!-- 3rd, load main application elements -->
-  <script
-   type="text/javascript"
-   src="./js/appHeader.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/explorer/explorer.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/explorer/explorer-item.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/explorer/explorer-toolbar.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/tour.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm/discussion.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm/documents.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm/members.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm/patterns.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm/realms.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/realm/schedule.js?bh"
-  ></script>
-  <script
-   type="text/javascript"
-   src="./js/chat.js?bh"
-  ></script>
-  <div id="chat-container-outer">
-   <div
-    id="chat-container"
-    style="display: none"
-   ></div>
-  </div>
-  <footer id="footer">
-   <h1>
-    <a target="_blank" href="/">Tag Me In</a>
-   </h1>
-   <p>
-    The micro social network anticipating
-    animal-human communication
-   </p>
-   <details>
-    <summary>Read</summary>
-    <p class="send-consent-granted">
-     To submit content to Tag Me In, you
-     consented for your messages to be analyzed
-     by artificial intelligence. You have the
-     right to remove that consent at any time:
-     <a id="remove-consent"
-      >Click here to remove previously-granted
-      consent to participate in Tag Me In</a
-     >
-    </p>
-    <p>
-     Privacy policy
-     <a
-      href="https://tagme.in/privacy"
-      target="_blank"
-      >https://tagme.in/privacy</a
-     >
-    </p>
-    <p>
-     Robots welcome
-     <a
-      href="https://tagme.in/robots"
-      target="_blank"
-      >https://tagme.in/robots</a
-     >
-    </p>
-    <p>
-     Terms of service
-     <a
-      href="https://www.cloudflare.com/terms/"
-      target="_blank"
-      >https://www.cloudflare.com/terms/</a
-     >
-    </p>
-    <p>
-     Email
-     <a href="mailto:nate@tagme.in"
-      >nate@tagme.in</a
-     >
-     for support
-    </p>
-    <p>
-     Built in collaboration with
-     <a target="_blank" href="https://claude.ai"
-      >https://claude.ai</a
-     >
-     and
-     <a
-      target="_blank"
-      href="https://gemini.google.com"
-      >https://gemini.google.com</a
-     >
-    </p>
-    <p>
-     Icon design by
-     <a
-      target="_blank"
-      href="https://github.com/dilekbaykara"
-      >Dee</a
-     >
-     and Gemini AI (the theme selector pallete
-     icon, and the message label icon).
-    </p>
-    <p id="stats">
-     Written in 511 lines of HTML, 2609 lines of
-     TypeScript, 6284 lines of JavaScript, and
-     2564 lines of CSS
-    </p>
-    <p>
-     All data is stored on Cloudflare via
-     <a
-      target="_blank"
-      href="https://www.npmjs.com/package/@tagmein/civil-memory"
-      >@tagmein/civil-memory</a
-     >
-    </p>
-    <p>
-     Tag Me In is open source software and the
-     source code is available at
-     <a
-      target="_blank"
-      href="https://github.com/tagmein/tagme.in"
-      >https://github.com/tagmein/tagme.in</a
-     >
-    </p>
-    <p>
-     Follow Tag Me In on social media:
-     <a
-      target="_blank"
-      href="https://www.facebook.com/TagMeIn"
-      >Facebook</a
-     >
-     &bull;
-     <a
-      target="_blank"
-      href="https://www.linkedin.com/company/tagmein/"
-      >LinkedIn</a
-     >
-     &bull;
-     <a
-      target="_blank"
-      href="https://twitter.com/TagMeInApp"
-      >X / Twitter</a
-     >
-    </p>
-    <p>
-     With kindness and hope in heart and mind,
-    </p>
-    <p>Nate</p>
-   </details>
-   <details>
-    <summary>Tools</summary>
-    <p>
-     Mobile only zoom level
-     <a onclick="setZoom(0.25)">¼</a>
-     •<a onclick="setZoom(1/3)">⅓</a> •<a
-      onclick="setZoom(0.5)"
-      >½</a
-     >
-     •<a onclick="setZoom(2/3)">⅔</a> •<a
-      onclick="setZoom(0.75)"
-      >¾</a
-     >
-     •<a onclick="setZoom(1)">1</a> •<a
-      onclick="setZoom(1.5)"
-      >1½</a
-     >
-     •<a onclick="setZoom(2)">2</a>
-    </p>
-   </details>
-  </footer>
-  <noscript>JavaScript is required</noscript>
-  <script
-   type="text/javascript"
-   src="./js/main.js?bh"
-  ></script>
- </body>
+<head>
+    <meta charset="utf-8" />
+    <meta id="meta:viewport" name="viewport" content="width=device-width, initial-scale=1" />
+    <script>
+        const metaViewport = document.getElementById(
+            'meta:viewport'
+        )
+        globalThis.setZoom = (
+            level /*: number*/ = 1
+        ) => {
+            localStorage.setItem('zoom', level)
+            metaViewport.setAttribute(
+                'content',
+                `width=device-width, initial-scale=${level}`
+            )
+        }
+        const lastSetZoom =
+            localStorage.getItem('zoom')
+        if (lastSetZoom !== null) {
+            globalThis.setZoom(parseFloat(lastSetZoom))
+        }
+    </script>
+    <link id="favicon" rel="shortcut icon" type="image/png"
+        href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEX///8AAABVwtN+AAAAK0lEQVQI12P4/5/h/0eG/79B6O9thj+zGf5IM/wNZGC9z3AXjO7/R6D//wGWfRuJudGK0QAAAABJRU5ErkJggg==" />
+    <link rel="manifest" href="manifest.json" />
+    <script>
+        globalThis.env = {
+            // TAGMEIN_API_BASEURL:
+            //  'https://tagme.in',
+            //  'http://localhost:8787',
+        }
+    </script>
+    <title>Tag Me In</title>
+    <style>
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            background-color: #000;
+            color: #fff;
+            height: 100%;
+            max-height: 100dvh;
+            overflow: auto;
+        }
+
+        body.light-mode {
+            background-color: #fff;
+            color: #000;
+        }
+    </style>
+    <!-- Include Chat CSS -->
+    <link rel="stylesheet" type="text/css" href="./css/chat.css" />
+    <link rel="stylesheet" type="text/css" href="./theme.css?bh" />
+    <link rel="stylesheet" type="text/css" href="./labels.css?bh" />
+    <link rel="stylesheet" type="text/css" href="./scripts.css?bh" />
+    <link rel="stylesheet" type="text/css" href="./explorer.css?bh" />
+</head>
+
+<body class="scroll-zero" data-starting data-theme-bg>
+    <!-- 1st, load lib js file -->
+    <script type="text/javascript" src="./js/lib.js?bh"></script>
+    <!-- load basic js files 2nd -->
+    <script type="text/javascript" src="./js/formula.js?bh"></script>
+    <script type="text/javascript" src="./js/network-store.js?bh"></script>
+    <script type="text/javascript" src="./js/reactions.js?bh"></script>
+    <script type="text/javascript" src="./js/labels.js?bh"></script>
+    <script type="text/javascript" src="./js/scripts.js?bh"></script>
+    <script type="text/javascript" src="./js/display.js?bh"></script>
+    <script type="text/javascript" src="./js/components.js?bh"></script>
+    <!-- 3rd, load main application elements -->
+    <script type="text/javascript" src="./js/appHeader.js?bh"></script>
+    <script type="text/javascript" src="./js/explorer/explorer.js?bh"></script>
+    <script type="text/javascript" src="./js/explorer/explorer-item.js?bh"></script>
+    <script type="text/javascript" src="./js/explorer/explorer-toolbar.js?bh"></script>
+    <script type="text/javascript" src="./js/realm.js?bh"></script>
+    <script type="text/javascript" src="./js/tour.js?bh"></script>
+    <script type="text/javascript" src="./js/realm/discussion.js?bh"></script>
+    <script type="text/javascript" src="./js/realm/documents.js?bh"></script>
+    <script type="text/javascript" src="./js/realm/members.js?bh"></script>
+    <script type="text/javascript" src="./js/realm/patterns.js?bh"></script>
+    <script type="text/javascript" src="./js/realm/realms.js?bh"></script>
+    <script type="text/javascript" src="./js/realm/schedule.js?bh"></script>
+    <footer id="footer">
+        <h1>
+            <a target="_blank" href="/">Tag Me In</a>
+        </h1>
+        <p>
+            The micro social network anticipating
+            animal-human communication
+        </p>
+        <details>
+            <summary>Read</summary>
+            <p class="send-consent-granted">
+                To submit content to Tag Me In, you
+                consented for your messages to be analyzed
+                by artificial intelligence. You have the
+                right to remove that consent at any time:
+                <a id="remove-consent">Click here to remove previously-granted
+                    consent to participate in Tag Me In</a>
+            </p>
+            <p>
+                Privacy policy
+                <a href="https://tagme.in/privacy" target="_blank">https://tagme.in/privacy</a>
+            </p>
+            <p>
+                Robots welcome
+                <a href="https://tagme.in/robots" target="_blank">https://tagme.in/robots</a>
+            </p>
+            <p>
+                Terms of service
+                <a href="https://www.cloudflare.com/terms/" target="_blank">https://www.cloudflare.com/terms/</a>
+            </p>
+            <p>
+                Email
+                <a href="mailto:nate@tagme.in">nate@tagme.in</a>
+                for support
+            </p>
+            <p>
+                Built in collaboration with
+                <a target="_blank" href="https://claude.ai">https://claude.ai</a>
+                and
+                <a target="_blank" href="https://gemini.google.com">https://gemini.google.com</a>
+            </p>
+            <p>
+                Icon design by
+                <a target="_blank" href="https://github.com/dilekbaykara">Dee</a>
+                and Gemini AI (the theme selector pallete
+                icon, and the message label icon).
+            </p>
+            <p id="stats">
+                Written in 511 lines of HTML, 2609 lines of
+                TypeScript, 6284 lines of JavaScript, and
+                2564 lines of CSS
+            </p>
+            <p>
+                All data is stored on Cloudflare via
+                <a target="_blank" href="https://www.npmjs.com/package/@tagmein/civil-memory">@tagmein/civil-memory</a>
+            </p>
+            <p>
+                Tag Me In is open source software and the
+                source code is available at
+                <a target="_blank" href="https://github.com/tagmein/tagme.in">https://github.com/tagmein/tagme.in</a>
+            </p>
+            <p>
+                Follow Tag Me In on social media:
+                <a target="_blank" href="https://www.facebook.com/TagMeIn">Facebook</a>
+                &bull;
+                <a target="_blank" href="https://www.linkedin.com/company/tagmein/">LinkedIn</a>
+                &bull;
+                <a target="_blank" href="https://twitter.com/TagMeInApp">X / Twitter</a>
+            </p>
+            <p>
+                With kindness and hope in heart and mind,
+            </p>
+            <p>Nate</p>
+        </details>
+        <details>
+            <summary>Tools</summary>
+            <p>
+                Mobile only zoom level
+                <a onclick="setZoom(0.25)">¼</a>
+                •<a onclick="setZoom(1/3)">⅓</a> •<a onclick="setZoom(0.5)">½</a>
+                •<a onclick="setZoom(2/3)">⅔</a> •<a onclick="setZoom(0.75)">¾</a>
+                •<a onclick="setZoom(1)">1</a> •<a onclick="setZoom(1.5)">1½</a>
+                •<a onclick="setZoom(2)">2</a>
+            </p>
+        </details>
+    </footer>
+    <noscript>JavaScript is required</noscript>
+    <script type="text/javascript" src="./js/main.js?bh"></script>
+</body>
+
 </html>
