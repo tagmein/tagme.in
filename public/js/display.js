@@ -1,7 +1,89 @@
+// Chat interface helper function
+function openChatSafely(context) {
+  console.log('Opening chat with context:', context);
+  
+  // If chat interface is already available, use it directly
+  if (window.chatInterface && typeof window.chatInterface.openChat === 'function') {
+    try {
+      // Make sure the chat container exists and is visible
+      const chatContainer = document.getElementById('chat-container');
+      if (chatContainer) {
+        chatContainer.style.display = 'flex';
+        chatContainer.style.visibility = 'visible';
+        chatContainer.classList.remove('hidden');
+      }
+      
+      window.chatInterface.openChat(context);
+      return;
+    } catch (err) {
+      console.error('Error opening chat with existing interface:', err);
+    }
+  }
+  
+  // If not available or failed, set up a retry mechanism
+  console.log('Chat interface not yet loaded or failed, will retry...');
+  
+  // Create a queue for pending chat open requests if it doesn't exist
+  if (!window.pendingChatRequests) {
+    window.pendingChatRequests = [];
+    
+    // Set up a function to process the queue when chat is ready
+    window.processChatQueue = function() {
+      if (!window.pendingChatRequests || !window.chatInterface) return;
+      
+      console.log(`Processing ${window.pendingChatRequests.length} pending chat requests`);
+      
+      // Process all pending requests
+      while (window.pendingChatRequests.length > 0) {
+        const pendingContext = window.pendingChatRequests.shift();
+        try {
+          // Make sure the chat container exists and is visible
+          const chatContainer = document.getElementById('chat-container');
+          if (chatContainer) {
+            chatContainer.style.display = 'flex';
+            chatContainer.style.visibility = 'visible';
+            chatContainer.classList.remove('hidden');
+          }
+          
+          window.chatInterface.openChat(pendingContext);
+        } catch (err) {
+          console.error('Error opening chat from queue:', err);
+        }
+      }
+    };
+    
+    // Set up a watcher to check when chat interface becomes available
+    const checkInterval = setInterval(function() {
+      if (window.chatInterface && typeof window.chatInterface.openChat === 'function') {
+        console.log('Chat interface is now available');
+        window.processChatQueue();
+        clearInterval(checkInterval);
+      }
+    }, 100); // Check every 100ms
+  }
+  
+  // Add this request to the queue
+  window.pendingChatRequests.push(context);
+  
+  // Try to load chat.js if it's not already loaded
+  if (!document.querySelector('script[src*="chat.js"]')) {
+    console.log('Attempting to load chat.js dynamically');
+    const script = document.createElement('script');
+    script.src = './js/chat.js';
+    script.onload = function() {
+      console.log('chat.js loaded dynamically');
+      if (window.processChatQueue) {
+        window.processChatQueue();
+      }
+    };
+    document.head.appendChild(script);
+  }
+}
+
 let realms = []
 
 let secondMostRecentRealm
-//test
+
 const allLabels = globalThis.STATUS_LABELS
 
 const LABEL_PREFIX = 'labels@'
@@ -323,7 +405,8 @@ function displayChannelHome(
     events: {
      click() {
       console.log('Chat button clicked')
-      chatInterface.openChat({ channel }) // Pass channel context
+      // Use a function that will safely open the chat when it's available
+      openChatSafely({ channel })
      },
     },
    }),
@@ -762,7 +845,8 @@ function attachMessage(
   events: {
    click() {
     console.log('Chat button clicked')
-    chatInterface.openChat({ channel, message }) // Pass message context
+    // Use a function that will safely open the chat when it's available
+    openChatSafely({ channel, message })
    },
   },
  })
