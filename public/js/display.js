@@ -315,18 +315,6 @@ function displayChannelHome(
       : 's'
     }`,
    }),
-   // Add Chat Button
-   elem({
-    tagName: 'button',
-    textContent: '🗨️ Chat',
-    classes: ['btn-chat'],
-    events: {
-     click() {
-      console.log('Chat button clicked')
-      chatInterface.openChat({ channel }) // Pass channel context
-     },
-    },
-   }),
   ],
  })
  channelHeader.appendChild(descriptionElement)
@@ -434,15 +422,6 @@ function displayChannelMessage(
      }),
     ],
    })
-  )
-  attachMessage(
-   channel,
-   messageContent,
-   message,
-   true,
-   undefined,
-   true,
-   true
   )
  } else {
   messageContent.innerHTML =
@@ -755,23 +734,11 @@ function attachMessage(
   classes: ['article-tool-buttons'],
   children: [agreeButton, disagreeButton],
  })
- const chatButton = elem({
-  tagName: 'button',
-  textContent: '🗨️ Chat',
-  classes: ['btn-chat'],
-  events: {
-   click() {
-    console.log('Chat button clicked')
-    chatInterface.openChat({ channel, message }) // Pass message context
-   },
-  },
- })
  const articleTools = elem({
   classes: ['article-tools'],
   children: [
    score,
    articleToolButtons,
-   chatButton,
   ], // Add Chat Button
  })
  articleTools.appendChild(
