@@ -1434,7 +1434,6 @@ function displayActivity() {
    await show()
   }
 
-  // Make sure targetDate is a Date object
   if (
    !(targetDate instanceof Date) ||
    isNaN(targetDate.getTime())
@@ -1443,7 +1442,6 @@ function displayActivity() {
     'Invalid date provided to scrollToDate:',
     targetDate
    )
-   // Show error notification
    const notification = elem({
     tagName: 'div',
     classes: [
@@ -1464,7 +1462,6 @@ function displayActivity() {
    return
   }
 
-  // Set time to beginning of day for consistent comparison
   const targetDateStart = new Date(targetDate)
   targetDateStart.setHours(0, 0, 0, 0)
   console.log(
@@ -1472,11 +1469,13 @@ function displayActivity() {
    targetDateStart
   )
 
-  let foundMatchingItem = false
+  let foundExactMatch = false
+  let foundClosest = false
+  let closestItem = null
+  let closestDate = null
   let attempts = 0
-  const MAX_LOAD_ATTEMPTS = 20
+  const MAX_LOAD_ATTEMPTS = 50
 
-  // Helper to compare only Y/M/D
   function sameDay(d1, d2) {
    return (
     d1.getFullYear() === d2.getFullYear() &&
@@ -1485,23 +1484,12 @@ function displayActivity() {
    )
   }
 
-  // Function to check if we've found a message on or before the target date
   function checkForDateMatch() {
-   console.log('Checking for date match...')
    const newsItems =
     element.querySelectorAll('.news')
-   console.log(
-    'Found news items:',
-    newsItems.length
-   )
-
    let exactMatchItem = null
-   let closestItem = null
-   let closestDate = null
-   let allDates = []
-   let latestDateFound = null
-   let earliestDateFound = null
-
+   closestItem = null
+   closestDate = null
    for (const newsItem of newsItems) {
     const dateElement =
      newsItem.querySelector('.news-date')
@@ -1516,7 +1504,6 @@ function displayActivity() {
         isNaN(itemDate.getTime()) &&
         dateStr.includes(' ')
        ) {
-        // Try to parse common date format "Month Day, Year"
         const parts = dateStr.split(' ')
         if (parts.length >= 3) {
          const monthStr = parts[0]
@@ -1565,30 +1552,12 @@ function displayActivity() {
         }
        }
        if (!isNaN(itemDate.getTime())) {
-        // Normalize to midnight
         itemDate.setHours(0, 0, 0, 0)
-        if (
-         !earliestDateFound ||
-         itemDate < earliestDateFound
-        )
-         earliestDateFound = itemDate
-        if (
-         !latestDateFound ||
-         itemDate > latestDateFound
-        )
-         latestDateFound = itemDate
-        allDates.push({
-         dateStr,
-         itemDate,
-         valid: !isNaN(itemDate.getTime()),
-        })
-        // Prefer exact match
         if (
          sameDay(itemDate, targetDateStart)
         ) {
          exactMatchItem = newsItem
         }
-        // Otherwise, keep closest before
         if (
          itemDate <= targetDateStart &&
          (!closestDate ||
@@ -1608,9 +1577,8 @@ function displayActivity() {
      }
     }
    }
-   console.log('All dates found:', allDates)
    if (exactMatchItem) {
-    foundMatchingItem = true
+    foundExactMatch = true
     exactMatchItem.classList.add(
      'date-match-highlight'
     )
@@ -1651,66 +1619,14 @@ function displayActivity() {
     }, 5000)
     return true
    }
-   if (closestItem) {
-    foundMatchingItem = true
-    closestItem.classList.add(
-     'date-match-highlight'
-    )
-    setTimeout(() => {
-     closestItem.classList.remove(
-      'date-match-highlight'
-     )
-    }, 3000)
-    closestItem.scrollIntoView({
-     behavior: 'smooth',
-     block: 'start',
-    })
-    const formattedFoundDate =
-     closestDate.toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-     })
-    const formattedTargetDate =
-     targetDateStart.toLocaleDateString(
-      undefined,
-      {
-       year: 'numeric',
-       month: 'long',
-       day: 'numeric',
-      }
-     )
-    const notification = elem({
-     tagName: 'div',
-     classes: [
-      'date-search-notification',
-      'date-search-success',
-     ],
-     textContent: `Found activity from ${formattedFoundDate} (closest to ${formattedTargetDate}).`,
-    })
-    document.body.appendChild(notification)
-    setTimeout(() => {
-     notification.style.opacity = '0'
-     setTimeout(() => {
-      if (notification.parentNode) {
-       document.body.removeChild(notification)
-      }
-     }, 500)
-    }, 5000)
-    return true
-   }
    return false
   }
 
-  if (checkForDateMatch()) {
-   return
-  }
-
-  // If not found, load more content and check again
-  while (
-   !foundMatchingItem &&
-   attempts < MAX_LOAD_ATTEMPTS
-  ) {
+  // Keep loading until we find an exact match or run out of content
+  while (attempts < MAX_LOAD_ATTEMPTS) {
+   if (checkForDateMatch()) {
+    return
+   }
    attempts++
    const loadingNotification = elem({
     tagName: 'div',
@@ -1739,9 +1655,6 @@ function displayActivity() {
     ) {
      break
     }
-    if (checkForDateMatch()) {
-     break
-    }
    } catch (error) {
     loadingNotification.style.opacity = '0'
     setTimeout(() => {
@@ -1759,7 +1672,58 @@ function displayActivity() {
    }
   }
 
-  if (!foundMatchingItem) {
+  // If we never found an exact match, scroll to the closest before
+  if (!foundExactMatch && closestItem) {
+   foundClosest = true
+   closestItem.classList.add(
+    'date-match-highlight'
+   )
+   setTimeout(() => {
+    closestItem.classList.remove(
+     'date-match-highlight'
+    )
+   }, 3000)
+   closestItem.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+   })
+   const formattedFoundDate =
+    closestDate.toLocaleDateString(undefined, {
+     year: 'numeric',
+     month: 'long',
+     day: 'numeric',
+    })
+   const formattedTargetDate =
+    targetDateStart.toLocaleDateString(
+     undefined,
+     {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+     }
+    )
+   const notification = elem({
+    tagName: 'div',
+    classes: [
+     'date-search-notification',
+     'date-search-success',
+    ],
+    textContent: `Found activity from ${formattedFoundDate} (closest to ${formattedTargetDate}).`,
+   })
+   document.body.appendChild(notification)
+   setTimeout(() => {
+    notification.style.opacity = '0'
+    setTimeout(() => {
+     if (notification.parentNode) {
+      document.body.removeChild(notification)
+     }
+    }, 500)
+   }, 5000)
+   return
+  }
+
+  // If nothing found at all
+  if (!foundExactMatch && !foundClosest) {
    const newsItems =
     element.querySelectorAll('.news')
    const earliest =
