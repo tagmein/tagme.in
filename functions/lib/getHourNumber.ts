@@ -4,6 +4,9 @@ const begin2024 = new Date(
 const ONE_HOUR_MS = 60 * 60 * 1000
 
 export function getHourNumber(): number {
+ const begin2024 = new Date(
+  'January 1, 2024 00:00:00 GMT'
+ )
  const now = new Date()
  return Math.floor(
   (now.getTime() - begin2024.getTime()) /

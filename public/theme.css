@@ -209,7 +209,8 @@ body.scroll-zero .app-header {
  background-color: var(--color-bg-medium-dark);
  border-bottom: 1px solid
   var(--color-border-dark);
- box-shadow: inset 0 -13px 0px var(--color-border-dark);
+ box-shadow: inset 0 -13px 0px
+  var(--color-border-dark);
  display: flex;
  flex-direction: row;
  height: 65px;
@@ -614,7 +615,8 @@ a {
  text-decoration-color: var(
   --color-text-secondary
  );
- transition: 0.2s color ease,
+ transition:
+  0.2s color ease,
   0.2s text-decoration-color ease;
 }
 
@@ -703,7 +705,8 @@ footer {
  opacity: 0.85;
  padding: 15px;
  position: relative;
- transition: 0.5s opacity ease,
+ transition:
+  0.5s opacity ease,
   0.5s background-color ease;
  width: 100%;
 }
@@ -743,7 +746,8 @@ footer {
  position: absolute;
  right: 25px;
  text-align: center;
- transition: 0.5s opacity ease,
+ transition:
+  0.5s opacity ease,
   0.2s background-color ease;
  width: 78px;
 }
@@ -815,8 +819,8 @@ article > div code {
 }
 
 a.channel {
- box-shadow: inset 2px 2px 4px
-   var(--color-shadow-light),
+ box-shadow:
+  inset 2px 2px 4px var(--color-shadow-light),
   inset -2px -2px 4px var(--color-shadow-dark);
  background-color: var(--color-bg-accent);
 }
@@ -1637,8 +1641,8 @@ details[open] > summary::before {
  background-size: cover;
  border: 4px solid var(--color-border-medium);
  border-radius: 100%;
- box-shadow: inset 0 0 8px
-   var(--color-shadow-dark),
+ box-shadow:
+  inset 0 0 8px var(--color-shadow-dark),
   inset 0 0 4px var(--color-shadow-dark),
   inset 0 0 2px var(--color-shadow-dark);
  height: 96px;
@@ -1660,7 +1664,8 @@ details[open] > summary::before {
 
 button.brand {
  background-color: var(--color-bg-medium-dark);
- background-image: url(./images/brand.png),
+ background-image:
+  url(./images/brand.png),
   linear-gradient(
    to bottom,
    #ffffff80,
@@ -1674,7 +1679,8 @@ button.brand {
 }
 
 button.brand:hover {
- background-image: url(./images/brand.png),
+ background-image:
+  url(./images/brand.png),
   linear-gradient(
    to bottom,
    #00000040,
@@ -1700,7 +1706,8 @@ body.light-mode button.brand {
  background-color: var(--color-bg-transparent);
  border: 2px solid #0080f0;
  border-radius: 2px;
- box-shadow: 0 0 8px var(--color-shadow-dark),
+ box-shadow:
+  0 0 8px var(--color-shadow-dark),
   inset 0 0 50px #0080f040,
   inset 0 0 10px #0080f080;
  box-sizing: border-box;
@@ -2287,7 +2294,8 @@ body.light-mode[data-theme='black']
 }
 
 .app-header button {
- box-shadow: inset 1px 1px 1px 1px #00000020,
+ box-shadow:
+  inset 1px 1px 1px 1px #00000020,
   inset -1px -1px 1px 1px #aaaaaa40;
  box-sizing: border-box;
  margin: 3px;
@@ -2314,7 +2322,8 @@ body.light-mode[data-theme='black']
  margin-bottom: 10px;
  opacity: 0.85;
  text-align: center;
- text-shadow: 1px 1px 1px #00000020,
+ text-shadow:
+  1px 1px 1px #00000020,
   -1px -1px 1px #aaaaaa40;
  text-transform: uppercase;
 }
@@ -2416,7 +2425,8 @@ body[data-starting] {
  border-radius: 8px;
  border: 1px solid var(--border);
  bottom: 114px;
- box-shadow: inset 1px 1px 1px 1px #aaaaaa40,
+ box-shadow:
+  inset 1px 1px 1px 1px #aaaaaa40,
   inset -1px -1px 1px 1px #00000020,
   0 0 10px 1px #00000020;
  display: grid;
@@ -2474,9 +2484,11 @@ body[data-starting] {
  overflow: hidden;
  padding: 10px;
  text-align: center;
- text-shadow: 1px 1px 1px #000000ff,
+ text-shadow:
+  1px 1px 1px #000000ff,
   -1px -1px 1px #000000ff,
-  -1px 1px 1px #000000ff, 1px -1px 1px #000000ff,
+  -1px 1px 1px #000000ff,
+  1px -1px 1px #000000ff,
   1px 1px 11px #ffffff80,
   -1px -1px 11px #ffffff80,
   -1px 1px 11px #ffffff80,

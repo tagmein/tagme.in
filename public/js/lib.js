@@ -953,7 +953,7 @@ function getUrlData() {
  const messageChannel =
   typeof message === 'string'
    ? messageReplyChannel(channel, message)
-   : channel ?? ''
+   : (channel ?? '')
  return {
   control,
   channel: channel ?? '',
