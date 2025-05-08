@@ -103,6 +103,10 @@ function safeDecodeURI(uri) {
  return uri
 }
 
+function trimSpaces(text) {
+  return text.replace(/[^\S\r\n]{2,}/, ' ')
+}
+
 function addTextWithLinks(container, text) {
  const parts = text.split(/(https?:\/\/[^\s]+)/)
  let isAfterLink = false
@@ -215,6 +219,8 @@ function addTextWithCodeBlocks(
  let codeContent = ''
  let isEscape = false
  let textContent = ''
+
+ text = trimSpaces(text)
 
  for (let i = 0; i < text.length; i++) {
   const char = text[i]
