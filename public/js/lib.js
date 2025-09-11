@@ -359,6 +359,265 @@ function restoreScrollPosition() {
  document.body.style.overflow = 'auto'
 }
 
+// Global image gallery state
+let imageGallery = {
+ images: [],
+ currentIndex: 0,
+ isOpen: false,
+}
+
+function collectAllImages() {
+ const allImages = []
+ const imageContainers =
+  document.querySelectorAll(
+   '.image-container img'
+  )
+
+ imageContainers.forEach((img, index) => {
+  // Only include images that are actually visible and loaded
+  if (img.complete && img.naturalWidth > 0) {
+   allImages.push({
+    src: img.src,
+    container: img.closest('.image-container'),
+    index: index,
+   })
+  }
+ })
+
+ return allImages
+}
+
+function openImageGallery(
+ clickedImageContainer
+) {
+ const allImages = collectAllImages()
+ if (allImages.length === 0) return
+
+ // Find the index of the clicked image
+ const clickedImg =
+  clickedImageContainer.querySelector('img')
+ const currentIndex = allImages.findIndex(
+  (img) => img.src === clickedImg.src
+ )
+
+ if (currentIndex === -1) return
+
+ imageGallery.images = allImages
+ imageGallery.currentIndex = currentIndex
+ imageGallery.isOpen = true
+
+ showImageGallery()
+}
+
+function showImageGallery() {
+ if (
+  !imageGallery.isOpen ||
+  imageGallery.images.length === 0
+ )
+  return
+
+ const currentImage =
+  imageGallery.images[imageGallery.currentIndex]
+
+ // Create gallery overlay
+ const galleryOverlay = elem({
+  classes: ['image-gallery-overlay'],
+  events: {
+   click(e) {
+    if (e.target === galleryOverlay) {
+     closeImageGallery()
+    }
+   },
+  },
+ })
+
+ // Create gallery container
+ const galleryContainer = elem({
+  classes: ['image-gallery-container'],
+ })
+
+ // Create image element
+ const galleryImage = elem({
+  attributes: {
+   src: currentImage.src,
+   alt: 'Gallery image',
+  },
+  classes: ['gallery-image'],
+  tagName: 'img',
+ })
+
+ // Add loading state
+ galleryImage.addEventListener('load', () => {
+  galleryImage.style.opacity = '1'
+ })
+
+ galleryImage.addEventListener('error', () => {
+  galleryImage.style.opacity = '0.5'
+  galleryImage.alt = 'Failed to load image'
+ })
+
+ // Set initial loading state
+ galleryImage.style.opacity = '0.7'
+
+ // Create navigation buttons
+ const prevButton = elem({
+  classes: ['gallery-nav', 'gallery-prev'],
+  children: [icon('triangle-left')],
+  events: {
+   click(e) {
+    e.stopPropagation()
+    navigateGallery(-1)
+   },
+  },
+  tagName: 'button',
+ })
+
+ const nextButton = elem({
+  classes: ['gallery-nav', 'gallery-next'],
+  children: [icon('triangle-right')],
+  events: {
+   click(e) {
+    e.stopPropagation()
+    navigateGallery(1)
+   },
+  },
+  tagName: 'button',
+ })
+
+ // Create counter
+ const counter = elem({
+  classes: ['gallery-counter'],
+  textContent: `${
+   imageGallery.currentIndex + 1
+  } / ${imageGallery.images.length}`,
+ })
+
+ // Create close button
+ const closeButton = elem({
+  classes: ['gallery-close'],
+  children: [icon('close')],
+  events: {
+   click(e) {
+    e.stopPropagation()
+    closeImageGallery()
+   },
+  },
+  tagName: 'button',
+ })
+
+ // Assemble gallery
+ galleryContainer.appendChild(prevButton)
+ galleryContainer.appendChild(galleryImage)
+ galleryContainer.appendChild(nextButton)
+ galleryContainer.appendChild(counter)
+ galleryContainer.appendChild(closeButton)
+ galleryOverlay.appendChild(galleryContainer)
+
+ // Add to body
+ document.body.appendChild(galleryOverlay)
+
+ // Hide navigation buttons if only one image
+ if (imageGallery.images.length === 1) {
+  prevButton.style.display = 'none'
+  nextButton.style.display = 'none'
+  counter.style.display = 'none'
+ }
+
+ // Capture scroll position
+ captureScrollPosition()
+}
+
+function navigateGallery(direction) {
+ if (!imageGallery.isOpen) return
+
+ const newIndex =
+  imageGallery.currentIndex + direction
+ const maxIndex = imageGallery.images.length - 1
+
+ // Handle wrapping
+ if (newIndex < 0) {
+  imageGallery.currentIndex = maxIndex
+ } else if (newIndex > maxIndex) {
+  imageGallery.currentIndex = 0
+ } else {
+  imageGallery.currentIndex = newIndex
+ }
+
+ // Update the gallery display
+ const galleryOverlay = document.querySelector(
+  '.image-gallery-overlay'
+ )
+ if (galleryOverlay) {
+  galleryOverlay.remove()
+ }
+ showImageGallery()
+}
+
+function closeImageGallery() {
+ const galleryOverlay = document.querySelector(
+  '.image-gallery-overlay'
+ )
+ if (galleryOverlay) {
+  galleryOverlay.remove()
+ }
+
+ imageGallery.isOpen = false
+ imageGallery.images = []
+ imageGallery.currentIndex = 0
+
+ restoreScrollPosition()
+}
+
+// Add keyboard navigation
+document.addEventListener('keydown', (e) => {
+ if (!imageGallery.isOpen) return
+
+ switch (e.key) {
+  case 'ArrowLeft':
+   e.preventDefault()
+   navigateGallery(-1)
+   break
+  case 'ArrowRight':
+   e.preventDefault()
+   navigateGallery(1)
+   break
+  case 'Escape':
+   e.preventDefault()
+   closeImageGallery()
+   break
+ }
+})
+
+// Add touch/swipe support for mobile
+let touchStartX = 0
+let touchEndX = 0
+
+document.addEventListener('touchstart', (e) => {
+ if (!imageGallery.isOpen) return
+ touchStartX = e.changedTouches[0].screenX
+})
+
+document.addEventListener('touchend', (e) => {
+ if (!imageGallery.isOpen) return
+ touchEndX = e.changedTouches[0].screenX
+ handleSwipe()
+})
+
+function handleSwipe() {
+ const swipeThreshold = 50
+ const diff = touchStartX - touchEndX
+
+ if (Math.abs(diff) > swipeThreshold) {
+  if (diff > 0) {
+   // Swipe left - next image
+   navigateGallery(1)
+  } else {
+   // Swipe right - previous image
+   navigateGallery(-1)
+  }
+ }
+}
+
 function addImageByUrl(
  container,
  imgSrc,
@@ -391,10 +650,8 @@ function addImageByUrl(
      restoreScrollPosition()
      expandedElement = undefined
     } else {
-     captureScrollPosition()
-     imageContainer.classList.add('expanded')
-     expandedElement = imageContainer
-     document.body.appendChild(imageContainer)
+     // Open image gallery instead of individual expansion
+     openImageGallery(imageContainer)
     }
    },
   },
