@@ -659,7 +659,7 @@ body.light-mode .gallery-nav:hover {
 
 .gallery-counter {
  position: absolute;
- top: 20px;
+ bottom: 20px;
  left: 50%;
  transform: translateX(-50%);
  background-color: rgba(0, 0, 0, 0.7);
@@ -721,7 +721,9 @@ body.light-mode .gallery-close:hover {
  }
 
  .gallery-counter {
-  top: 10px;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 12px;
   padding: 6px 12px;
  }

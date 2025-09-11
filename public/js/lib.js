@@ -489,7 +489,7 @@ function showImageGallery() {
   classes: ['gallery-counter'],
   textContent: `${
    imageGallery.currentIndex + 1
-  } / ${imageGallery.images.length}`,
+  } of ${imageGallery.images.length}`,
  })
 
  // Create close button
