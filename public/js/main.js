@@ -41,18 +41,18 @@ async function updateComposeTextarea(
   isReply
    ? COMPOSE_PLACEHOLDER_REPLY
    : channel === 'reactions'
-     ? ADD_REACTION_PLACEHOLDER_MESSAGE
-     : channel === SCRIPT_CHANNEL
-       ? 'Write script code (up to 100000 characters)'
-       : COMPOSE_PLACEHOLDER_MESSAGE
+   ? ADD_REACTION_PLACEHOLDER_MESSAGE
+   : channel === SCRIPT_CHANNEL
+   ? 'Write script code (up to 100000 characters)'
+   : COMPOSE_PLACEHOLDER_MESSAGE
  )
  composeTextarea.setAttribute(
   'maxlength',
   channel === 'reactions'
    ? 25
    : channel === SCRIPT_CHANNEL
-     ? 100000
-     : 175
+   ? 100000
+   : 175
  )
 }
 
@@ -475,6 +475,22 @@ async function route() {
   'Discussion',
   { switchTo() {} },
   switchToMode('main')
+ )
+ tabs.add(
+  'workbench',
+  'Workbench',
+  {
+   switchTo() {
+    renderWorkbench(
+     Object.entries(sessionStorage)
+      .filter(([key]) =>
+       key.startsWith('workbench:')
+      )
+      .map(([key, value]) => JSON.parse(value))
+    )
+   },
+  },
+  switchToMode('workbench')
  )
  tabStripContainer.innerHTML = ''
  await tabs.activate()

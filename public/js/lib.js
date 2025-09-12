@@ -673,20 +673,20 @@ function calculateScore(data, hourToEvaluate) {
    ? getHourTimestamp(hourToEvaluate)
    : Date.now()
 
- console.log(
-  `Calcuated score for ${
-   hourToEvaluate ?? 'now'
-  }`,
-  {
-   position: data.position,
-   velocity: data.velocity,
-   timestamp: data.timestamp,
-   score:
-    data.position +
-    (data.velocity * (now - data.timestamp)) /
-     ONE_HOUR_MS,
-  }
- )
+ //  console.log(
+ //   `Calcuated score for ${
+ //    hourToEvaluate ?? 'now'
+ //   }`,
+ //   {
+ //    position: data.position,
+ //    velocity: data.velocity,
+ //    timestamp: data.timestamp,
+ //    score:
+ //     data.position +
+ //     (data.velocity * (now - data.timestamp)) /
+ //      ONE_HOUR_MS,
+ //   }
+ //  )
  return (
   data.position +
   (data.velocity * (now - data.timestamp)) /
