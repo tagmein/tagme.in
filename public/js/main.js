@@ -9,6 +9,16 @@ const autocompleteChannels =
 
 addEventListener('keydown', ({ key }) => {
  if (key === 'Escape') {
+  // Check if image gallery is open first
+  if (
+   typeof imageGallery !== 'undefined' &&
+   imageGallery.isOpen
+  ) {
+   closeImageGallery()
+   return
+  }
+
+  
   if (expandedElement === undefined) {
    if (channelInputFocused) {
     cancelChannelInput()
@@ -41,18 +51,18 @@ async function updateComposeTextarea(
   isReply
    ? COMPOSE_PLACEHOLDER_REPLY
    : channel === 'reactions'
-     ? ADD_REACTION_PLACEHOLDER_MESSAGE
-     : channel === SCRIPT_CHANNEL
-       ? 'Write script code (up to 100000 characters)'
-       : COMPOSE_PLACEHOLDER_MESSAGE
+   ? ADD_REACTION_PLACEHOLDER_MESSAGE
+   : channel === SCRIPT_CHANNEL
+   ? 'Write script code (up to 100000 characters)'
+   : COMPOSE_PLACEHOLDER_MESSAGE
  )
  composeTextarea.setAttribute(
   'maxlength',
   channel === 'reactions'
    ? 25
    : channel === SCRIPT_CHANNEL
-     ? 100000
-     : 175
+   ? 100000
+   : 175
  )
 }
 
