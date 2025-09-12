@@ -581,10 +581,6 @@ document.addEventListener('keydown', (e) => {
    e.preventDefault()
    navigateGallery(1)
    break
-  case 'Escape':
-   e.preventDefault()
-   closeImageGallery()
-   break
  }
 })
 
