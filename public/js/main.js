@@ -18,7 +18,7 @@ addEventListener('keydown', ({ key }) => {
    return
   }
 
-  // Only handle channel input focus when gallery is closed
+  
   if (expandedElement === undefined) {
    if (channelInputFocused) {
     cancelChannelInput()
