@@ -423,16 +423,56 @@ function displayChannelMessage(
    }),
   ]
 
-  // Add Next link when there is a next message in this channel
+  //will Add Prev/Next links when available in this channel
   const currentIndex =
    formattedMessageData.findIndex(
     (x) => x.text === messageText
    )
+  const hasPrev =
+   typeof currentIndex === 'number' &&
+   currentIndex > 0
   const hasNext =
    typeof currentIndex === 'number' &&
    currentIndex > -1 &&
    currentIndex + 1 <
     formattedMessageData.length
+
+  if (hasPrev || hasNext) {
+   // leading separator before navigation links
+   headerChildren.push(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+  }
+
+  if (hasPrev) {
+   const prevMessage =
+    formattedMessageData[currentIndex - 1]
+   const prevHref = `/#/${encodeURIComponent(
+    channel
+   )}/${btoa(
+    encodeURIComponent(prevMessage.text)
+   )}`
+   headerChildren.push(
+    elem({
+     attributes: { href: prevHref },
+     tagName: 'a',
+     textContent: '⯇ Prev',
+    })
+   )
+  }
+
+  if (hasPrev && hasNext) {
+   headerChildren.push(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+  }
+
   if (hasNext) {
    const nextMessage =
     formattedMessageData[currentIndex + 1]
@@ -442,10 +482,6 @@ function displayChannelMessage(
     encodeURIComponent(nextMessage.text)
    )}`
    headerChildren.push(
-    elem({
-     tagName: 'span',
-     textContent: ' • ',
-    }),
     elem({
      attributes: { href: nextHref },
      tagName: 'a',
