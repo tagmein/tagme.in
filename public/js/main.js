@@ -18,7 +18,6 @@ addEventListener('keydown', ({ key }) => {
    return
   }
 
-  
   if (expandedElement === undefined) {
    if (channelInputFocused) {
     cancelChannelInput()
@@ -42,6 +41,14 @@ const COMPOSE_PLACEHOLDER_MESSAGE =
 const COMPOSE_PLACEHOLDER_REPLY =
  'Write a reply (up to 175 characters)'
 
+function getChannelMaxLength(channel) {
+ return channel === 'reactions'
+  ? 25
+  : channel === SCRIPT_CHANNEL
+  ? 100000
+  : 175
+}
+
 async function updateComposeTextarea(
  channel,
  isReply
@@ -56,21 +63,14 @@ async function updateComposeTextarea(
    ? 'Write script code (up to 100000 characters)'
    : COMPOSE_PLACEHOLDER_MESSAGE
  )
- composeTextarea.setAttribute(
-  'maxlength',
-  channel === 'reactions'
-   ? 25
-   : channel === SCRIPT_CHANNEL
-   ? 100000
-   : 175
- )
+ // Do not enforce maxlength: we allow typing past limit and disable send instead
+ updateComposeQuota(channel)
 }
 
 const composeTextarea = elem({
  attributes: {
   'data-tour':
    'Compose your own message to send to the current channel.',
-  maxlength: '175',
   required: 'required',
  },
  events: {
@@ -113,9 +113,21 @@ const composeTextarea = elem({
     },
     text
    )
+   // Update quota after sanitization
+   try {
+    const { channel } = getUrlData()
+    updateComposeQuota(channel)
+   } catch {}
   },
  },
  tagName: 'textarea',
+})
+
+// Quota counter next to send icon
+const composeQuota = elem({
+ classes: ['char-quota'],
+ tagName: 'span',
+ textContent: '0/175',
 })
 
 // --- Resize Observer for SCRIPT_CHANNEL textarea height persistence ---
@@ -168,6 +180,13 @@ composeTextarea.addEventListener(
     messageChannel === 'reactions'
      ? `reaction${composeTextarea.value}`
      : composeTextarea.value
+   // block send if over limit
+   const max = getChannelMaxLength(
+    messageChannel
+   )
+   if (messageText.length > max) {
+    return
+   }
 
    // Call your existing send message logic
    if (messageText) {
@@ -193,26 +212,46 @@ composeTextarea.addEventListener(
  }
 )
 
+function updateComposeQuota(channel) {
+ const max = getChannelMaxLength(channel)
+ const length = composeTextarea.value.length
+ composeQuota.textContent = `${length}/${max}`
+ if (length > max) {
+  composeQuota.classList.add('over')
+  submitButton.setAttribute(
+   'disabled',
+   'disabled'
+  )
+ } else {
+  composeQuota.classList.remove('over')
+  submitButton.removeAttribute('disabled')
+ }
+}
+
 const realmControlContainer = elem({
  classes: ['realm-control', 'mode-other'],
+})
+
+// Keep a reference to the submit button for enabling/disabling
+const submitButton = elem({
+ attributes: {
+  title: 'Send message now',
+ },
+ children: [icon('plane')],
+ classes: ['submit'],
+ events: {
+  mousedown(e) {
+   e.preventDefault()
+  },
+ },
+ tagName: 'button',
 })
 
 const compose = elem({
  children: [
   composeTextarea,
-  elem({
-   attributes: {
-    title: 'Send message now',
-   },
-   children: [icon('plane')],
-   classes: ['submit'],
-   events: {
-    mousedown(e) {
-     e.preventDefault()
-    },
-   },
-   tagName: 'button',
-  }),
+  composeQuota,
+  submitButton,
  ],
  classes: [
   'compose',
@@ -227,6 +266,11 @@ const compose = elem({
     messageChannel === 'reactions'
      ? `reaction${composeTextarea.value}`
      : composeTextarea.value
+   // guard if over limit
+   const max = getChannelMaxLength(
+    messageChannel
+   )
+   if (messageText.length > max) return
    if (
     (await withLoading(
      networkMessageSend(

@@ -950,6 +950,20 @@ footer {
  );
 }
 
+/* Character quota */
+.compose .char-quota {
+ position: absolute;
+ right: 115px;
+ bottom: 60px;
+ opacity: 0.75;
+ font-weight: bold;
+ font-size: 14px;
+}
+
+.compose .char-quota.over {
+ color: var(--color-bg-no-active);
+}
+
 .compose + .mode-main {
  margin-top: 15px;
 }
