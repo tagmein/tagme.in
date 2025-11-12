@@ -916,8 +916,19 @@ footer {
  width: 78px;
 }
 
+.compose .char-quota {
+ bottom: 55px;
+ font-size: 14px;
+ font-weight: bold;
+ opacity: 0;
+ position: absolute;
+ right: 112px;
+}
+
 .compose.active:hover button.submit,
-.compose.active textarea:focus + button.submit {
+.compose.active textarea:focus + button.submit,
+.compose.active:hover .char-quota,
+.compose.active textarea:focus + .char-quota {
  opacity: 1;
 }
 
@@ -948,16 +959,6 @@ footer {
  background-color: var(
   --color-bg-secondary-hover
  );
-}
-
-/* Character quota */
-.compose .char-quota {
- position: absolute;
- right: 115px;
- bottom: 60px;
- opacity: 0.75;
- font-weight: bold;
- font-size: 14px;
 }
 
 .compose .char-quota.over {
