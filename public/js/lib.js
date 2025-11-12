@@ -694,47 +694,61 @@ async function addOpenGraphLink(
   if (!tagResponse.ok) {
    throw new Error(tagResponse.statusText)
   }
-  const tags = await tagResponse.json()
-  if (tags.image) {
-   addImageByUrl(container, tags.image, [
-    'image-article',
-   ])
-  }
-  if (tags.title) {
-   const titleElem = elem({ tagName: 'h1' })
-   addTextWithCodeBlocks(titleElem, tags.title)
-   container.appendChild(titleElem)
-  }
-  if (tags.description) {
-   const descriptionElem = elem({
-    tagName: 'p',
-   })
-   addTextWithCodeBlocks(
-    descriptionElem,
-    tags.description
+  const tagsText = await tagResponse.text()
+  try {
+   const tags = JSON.parse(tagsText)
+   if (tags.image) {
+    addImageByUrl(container, tags.image, [
+     'image-article',
+    ])
+   }
+   if (tags.title) {
+    const titleElem = elem({ tagName: 'h1' })
+    addTextWithCodeBlocks(titleElem, tags.title)
+    container.appendChild(titleElem)
+   }
+   if (tags.description) {
+    const descriptionElem = elem({
+     tagName: 'p',
+    })
+    addTextWithCodeBlocks(
+     descriptionElem,
+     tags.description
+    )
+    container.appendChild(descriptionElem)
+   }
+   const siteName = htmlEntities(
+    tags.site_name ?? urlMatch[0].split('/')[2]
    )
-   container.appendChild(descriptionElem)
+   container.appendChild(
+    elem({
+     attributes: {
+      href: tags.url ?? urlMatch[0],
+      target: '_blank',
+     },
+     classes: ['external-link'],
+     tagName: 'a',
+     textContent:
+      tags.type === 'website'
+       ? siteName
+       : `Open ${
+          tags.type ?? 'page'
+         } on ${siteName}`,
+    })
+   )
+  } catch (e) {
+   console.warn(
+    'Error during open graph processing for item ' +
+     text
+   )
+   console.log('tagsText: ' + tagsText)
+   console.warn(e)
   }
-  const siteName = htmlEntities(
-   tags.site_name ?? urlMatch[0].split('/')[2]
-  )
-  container.appendChild(
-   elem({
-    attributes: {
-     href: tags.url ?? urlMatch[0],
-     target: '_blank',
-    },
-    classes: ['external-link'],
-    tagName: 'a',
-    textContent:
-     tags.type === 'website'
-      ? siteName
-      : `Open ${
-         tags.type ?? 'page'
-        } on ${siteName}`,
-   })
-  )
  } catch (e) {
+  console.warn(
+   'Error during open graph request for item ' +
+    text
+  )
   console.warn(e)
  }
 }

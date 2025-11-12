@@ -131,6 +131,7 @@ textarea {
 body,
 html {
  margin: 0;
+ overflow-x: hidden;
 }
 
 .app-header {
