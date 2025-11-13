@@ -26,7 +26,7 @@ Tag Me In features include:
 - Highly customizeable color scheme with light and dark mode and 15 tint hues
 - Only the top 1,000 messages are retained per channel
 - Only the top 1,000 channels are displayed in the 'Popular channels' section
-- Messages must be 3 - 175 characters long
+- Messages must be 3 - 250 characters long
 - YouTube video links embed a video player
 - Simple code formulas in messages are evaluated, like `= 5 * 3` would render as `15`
 
