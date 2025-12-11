@@ -276,7 +276,7 @@ function addTextWithCodeBlocks(
 }
 
 const isYouTubeUrl =
- /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]{11}).*/
+ /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]{7,11}).*/m
 
 function addYouTubeEmbed(container, text) {
  const match = text.match(isYouTubeUrl)
@@ -926,20 +926,20 @@ function calculateScore(data, hourToEvaluate) {
    ? getHourTimestamp(hourToEvaluate)
    : Date.now()
 
- console.log(
-  `Calcuated score for ${
-   hourToEvaluate ?? 'now'
-  }`,
-  {
-   position: data.position,
-   velocity: data.velocity,
-   timestamp: data.timestamp,
-   score:
-    data.position +
-    (data.velocity * (now - data.timestamp)) /
-     ONE_HOUR_MS,
-  }
- )
+ //  console.log(
+ //   `Calcuated score for ${
+ //    hourToEvaluate ?? 'now'
+ //   }`,
+ //   {
+ //    position: data.position,
+ //    velocity: data.velocity,
+ //    timestamp: data.timestamp,
+ //    score:
+ //     data.position +
+ //     (data.velocity * (now - data.timestamp)) /
+ //      ONE_HOUR_MS,
+ //   }
+ //  )
  return (
   data.position +
   (data.velocity * (now - data.timestamp)) /
