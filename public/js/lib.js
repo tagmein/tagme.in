@@ -629,6 +629,11 @@ function addImageByUrl(
      src: imgSrc,
     },
     tagName: 'img',
+    events: {
+     error() {
+      imageContainer.style.display = 'none'
+     },
+    },
    }),
   ],
   events: {
