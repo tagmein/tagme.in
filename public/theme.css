@@ -1421,17 +1421,19 @@ body.scroll-up .activity-container {
  top: 147px;
 }
 
-.activity-container,
-.mode-activity,
-.mode-other,
-.mode-main {
+body .activity-container,
+body .mode-activity,
+body .mode-other,
+body .mode-main ,
+body .mode-documents {
  display: none;
 }
 
 body[data-mode='activity'] .activity-container,
 body[data-mode='activity'] .mode-activity,
 body[data-mode='other'] .mode-other,
-body[data-mode='main'] .mode-main {
+body[data-mode='main'] .mode-main,
+body[data-mode='documents'] .mode-documents {
  display: inherit;
 }
 

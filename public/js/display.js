@@ -1933,7 +1933,7 @@ function displayActivity() {
  }
 
  function hide() {
-  restoreLastKnownMode(-1)
+  switchToMode('main')()
   isVisible = false
   nextChunk = undefined
   scrollToTop(lastScrollPosition)

@@ -308,7 +308,7 @@ const mainContent = elem({
 
 const scriptOutputReelContainer = elem({
  id: 'script-output-reel-container', // Give it an ID for potential styling/reference
- classes: ['script-output-reel'], // Keep the reel class for flex layout
+ classes: ['script-output-reel', 'mode-main'], // Keep the reel class for flex layout
  // This container will be cleared and populated by displayInstalledScripts
 })
 
@@ -330,10 +330,13 @@ const consentPrompt = elem({
   'Tap here to learn about contributing to Tag Me In',
 })
 
+const documentsContainer = documentsArea()
+
 const { body } = document
 body.appendChild(themeSelector)
 body.appendChild(appHeader)
 body.appendChild(activityContainer.element)
+body.appendChild(documentsContainer.element)
 body.appendChild(realmControlContainer)
 body.appendChild(messageContent)
 body.appendChild(scriptOutputReelContainer)
@@ -521,7 +524,10 @@ async function route() {
  }
 
  const tabs = tabStrip(
-  'discussion',
+  document.body.getAttribute('data-mode') ===
+   'documents'
+   ? 'documents'
+   : 'discussion',
   () => void 0
  )
  tabs.add(
@@ -529,6 +535,12 @@ async function route() {
   'Discussion',
   { switchTo() {} },
   switchToMode('main')
+ )
+ tabs.add(
+  'documents',
+  'Documents',
+  { switchTo() {} },
+  switchToMode('documents')
  )
  tabStripContainer.innerHTML = ''
  await tabs.activate()
