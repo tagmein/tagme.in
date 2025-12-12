@@ -192,10 +192,10 @@ async function labelMessage(
    message.data.labels,
    999999999999
   )
- console.log(
-  message.statusLabel,
-  message.eventualStatusLabel
- )
+ //  console.log(
+ //   message.statusLabel,
+ //   message.eventualStatusLabel
+ //  )
  const messageStatusLabel =
   document.createElement('span')
  messageStatusLabel.dataset.value =
