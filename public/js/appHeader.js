@@ -574,7 +574,14 @@ const appHeader = elem({
        'Switch between public and private realms.',
      },
      classes: ['app-accounts-container'],
-     children: [appAccounts.element],
+     children: [
+      elem({
+       children: [appAccounts.element],
+       classes: [
+        'app-accounts-container-inner',
+       ],
+      }),
+     ],
     }),
     lightDarkModeButton,
     themeSelectorButton,
