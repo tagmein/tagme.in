@@ -35,6 +35,7 @@
   <link rel="manifest" href="manifest.json" />
   <script>
    globalThis.env = {
+    TAGMEIN_API_BASEURL: 'https://tagme.in',
     // TAGMEIN_API_BASEURL:
     //  'https://tagme.in',
     //  'http://localhost:8787',
@@ -109,10 +110,6 @@
   ></script>
   <script
    type="text/javascript"
-   src="./js/documents.js?bj"
-  ></script>
-  <script
-   type="text/javascript"
    src="./js/labels.js?bj"
   ></script>
   <script
@@ -131,6 +128,10 @@
   <script
    type="text/javascript"
    src="./js/appHeader.js?bj"
+  ></script>
+  <script
+   type="text/javascript"
+   src="./js/documents.js?bj"
   ></script>
   <script
    type="text/javascript"
@@ -249,7 +250,11 @@
      and Gemini AI (the theme selector pallete
      icon, and the message label icon).
     </p>
-    <p id="stats">Written in 516 lines of HTML, 2606 lines of TypeScript, 7447 lines of JavaScript, and 2032 lines of CSS</p>
+    <p id="stats">
+     Written in 516 lines of HTML, 2606 lines of
+     TypeScript, 7447 lines of JavaScript, and
+     2032 lines of CSS
+    </p>
     <p>
      All data is stored on Cloudflare via
      <a

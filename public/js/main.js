@@ -539,7 +539,11 @@ async function route() {
  tabs.add(
   'documents',
   'Documents',
-  { switchTo() {} },
+  {
+   switchTo() {
+    withLoading(loadDocuments())
+   },
+  },
   switchToMode('documents')
  )
  tabStripContainer.innerHTML = ''

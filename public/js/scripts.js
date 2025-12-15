@@ -385,15 +385,6 @@ async function displayInstalledScripts(
    if (fullScriptText) {
     const outputCard = elem({
      classes: ['script-output-card'],
-     style: {
-      width: '360px',
-      height: '240px',
-      padding: '10px',
-      borderRadius: '10px',
-      border: '2px solid #80808080',
-      margin: '5px', // Add some margin for spacing in the reel
-      overflow: 'auto', // Add scroll for overflow
-     },
     })
 
     try {

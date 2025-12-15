@@ -948,7 +948,8 @@ footer {
 }
 
 .compose textarea::placeholder {
- color: #aaaaaaaa;
+ color: inherit !important;
+ opacity: 0.64;
 }
 
 .compose.active {
@@ -1876,6 +1877,7 @@ button.brand {
  background-size: 42px;
  border-radius: 0;
  image-rendering: pixelated;
+ opacity: 0.64;
 }
 
 button.brand:hover {
@@ -2116,56 +2118,54 @@ body[data-mode='theme-selector'] .app-header {
 .theme-selector
  > .theme-selector-theme-list
  > button {
- box-sizing: border-box;
  background-color: var(--color-bg-medium);
- color: var(--color-text-primary);
  border-radius: 15px;
- padding: 0 12px;
- line-height: 31px;
+ box-sizing: border-box;
+ color: var(--color-text-primary);
  display: inline-block;
+ line-height: 31px;
  margin: 10px;
- width: 160px;
+ padding: 0 12px;
  padding: 40px;
+ width: 160px;
 }
 
 :root {
- --theme-light--color-bg: #cccccc;
- --theme-dark--color-bg: #000000;
- --theme-blue--color-bg: #0000cc;
- --theme-red--color-bg: #cc0000;
- --theme-green--color-bg: #00cc00;
- --theme-yellow--color-bg: #cccc00;
- --theme-gray--color-bg: #808080;
- --theme-cyan--color-bg: #00cccc;
- --theme-magenta--color-bg: #cc00cc;
- --theme-darkred--color-bg: #400000;
- --theme-purple--color-bg: #800080;
- --theme-orange--color-bg: #962e04;
- --theme-pink--color-bg: #c72bbf;
- --theme-brown--color-bg: #97451e;
- --theme-gray--color-bg: #808080;
- --theme-white--color-bg: #cccccc;
  --theme-black--color-bg: #000000;
+ --theme-blue--color-bg: #0000cc;
+ --theme-brown--color-bg: #97451e;
+ --theme-cyan--color-bg: #00cccc;
+ --theme-dark--color-bg: #000000;
+ --theme-darkred--color-bg: #400000;
+ --theme-gray--color-bg: #606060;
+ --theme-green--color-bg: #00cc00;
+ --theme-light--color-bg: #cccccc;
+ --theme-magenta--color-bg: #d000a0;
+ --theme-orange--color-bg: #962e04;
+ --theme-pink--color-bg: #cd41c6;
+ --theme-purple--color-bg: #8000c0;
+ --theme-red--color-bg: #cc0000;
+ --theme-white--color-bg: #cccccc;
+ --theme-yellow--color-bg: #cccc00;
 }
 
 :root body.light-mode {
- --theme-light--color-bg: #cccccc;
- --theme-dark--color-bg: #666666;
- --theme-blue--color-bg: #6666cc;
- --theme-red--color-bg: #cc6666;
- --theme-green--color-bg: #66cc66;
- --theme-yellow--color-bg: #cccc66;
- --theme-gray--color-bg: #d6d6d6;
+ --theme-black--color-bg: #000000;
+ --theme-blue--color-bg: #ccccff;
+ --theme-brown--color-bg: #97651e;
  --theme-cyan--color-bg: #66cccc;
+ --theme-dark--color-bg: #666666;
+ --theme-darkred--color-bg: #b75555;
+ --theme-gray--color-bg: #d6d6d6;
+ --theme-green--color-bg: #9cf96c;
+ --theme-light--color-bg: #cccccc;
  --theme-magenta--color-bg: #cc66cc;
- --theme-darkred--color-bg: #800000;
- --theme-purple--color-bg: #d666d6;
  --theme-orange--color-bg: #ee7f36;
  --theme-pink--color-bg: #d6abd4;
- --theme-brown--color-bg: #97651e;
- --theme-gray--color-bg: #d6d6d6;
+ --theme-purple--color-bg: #b080ff;
+ --theme-red--color-bg: #ff4a4a;
  --theme-white--color-bg: #ffffff;
- --theme-black--color-bg: #000000;
+ --theme-yellow--color-bg: #cccc66;
 }
 
 :root button[data-theme='blue'] {
