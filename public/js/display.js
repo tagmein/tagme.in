@@ -11,11 +11,19 @@ const REACTION_PREFIX =
 
 // --- Helper functions for message expiration ---
 function calculateExpirationDate(message) {
- // For negative scores, calculate when the message will expire
- // A message expires when it reaches 0 score, which takes |score| hours at -1/hr velocity
- const hoursToExpire = Math.abs(message.score)
+ // Only show expiry for positive scores with negative velocity
+ const currentScore = message.score || 0
+ const velocity = message.data?.velocity || 0
+  
+ // Strict check: score > 0 AND velocity < 0
+ if (currentScore <= 0 || velocity >= 0) {
+  return null
+ }
+  
+ // Calculate hours until expiry: score / abs(velocity)
+ const hoursUntilExpiry = currentScore / Math.abs(velocity)
  const expirationDate = new Date()
- expirationDate.setHours(expirationDate.getHours() + hoursToExpire)
+ expirationDate.setHours(expirationDate.getHours() + hoursUntilExpiry)
  return expirationDate
 }
 
@@ -648,24 +656,24 @@ function attachMessage(
 ) {
  const content = elem()
 
- // --- Add expiration warning for negative scores ---
- if (message.score < 0) {
+ // --- Add expiration warning for positive scores with negative velocity ---
+ if (message.score > 0 && message.data?.velocity < 0) {
   const expirationDate = calculateExpirationDate(message)
-  const expirationText = formatExpirationDate(expirationDate)
-  
-  const expirationWarning = elem({
-   tagName: 'p',
-   textContent: `Expires on ${expirationText}`,
-   style: {
-    fontWeight: 'bold',
-    fontSize: '85%',
-    color: 'var(--color-bg-no-active)',
-    textShadow: '0 0 2px black',
-    margin: '0 0 8px 0',
-    padding: '2px 0'
-   }
-  })
-  content.appendChild(expirationWarning)
+  if (expirationDate) {
+   const expirationText = formatExpirationDate(expirationDate)
+   
+   const expirationWarning = elem({
+    tagName: 'p',
+    textContent: `Expires on ${expirationText}`,
+    style: {
+     fontWeight: 'bold',
+     fontSize: '85%',
+     color: 'var(--color-bg-no-active)',
+     textShadow: '0 0 2px black'
+    }
+   })
+   content.prepend(expirationWarning)
+  }
  }
 
  // --- Special rendering for SCRIPT_CHANNEL messages ---
