@@ -41,6 +41,25 @@ function formatExpirationDate(date) {
  return `${month}/${day}/${year} ${hours}:${formattedMinutes}${ampm}`
 }
 
+function addExpirationWarning(message, contentElement) {
+ const expirationDate = calculateExpirationDate(message)
+ if (expirationDate) {
+  const expirationText = formatExpirationDate(expirationDate)
+  
+  const expirationWarning = elem({
+   tagName: 'p',
+   textContent: `Expires on ${expirationText}`,
+   style: {
+    fontWeight: 'bold',
+    fontSize: '85%',
+    color: 'var(--color-bg-no-active)',
+    textShadow: '0 0 2px black'
+   }
+  })
+  contentElement.prepend(expirationWarning)
+ }
+}
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -657,24 +676,7 @@ function attachMessage(
  const content = elem()
 
  // --- Add expiration warning for positive scores with negative velocity ---
- if (message.score > 0 && message.data?.velocity < 0) {
-  const expirationDate = calculateExpirationDate(message)
-  if (expirationDate) {
-   const expirationText = formatExpirationDate(expirationDate)
-   
-   const expirationWarning = elem({
-    tagName: 'p',
-    textContent: `Expires on ${expirationText}`,
-    style: {
-     fontWeight: 'bold',
-     fontSize: '85%',
-     color: 'var(--color-bg-no-active)',
-     textShadow: '0 0 2px black'
-    }
-   })
-   content.prepend(expirationWarning)
-  }
- }
+ addExpirationWarning(message, content)
 
  // --- Special rendering for SCRIPT_CHANNEL messages ---
  if (channel === SCRIPT_CHANNEL) {
