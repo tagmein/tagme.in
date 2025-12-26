@@ -35,8 +35,7 @@ function formatExpirationDate(date) {
  let hours = date.getHours()
  const minutes = date.getMinutes()
  const ampm = hours >= 12 ? 'PM' : 'AM'
- hours = hours % 12
- hours = hours || 12 // Convert 0 to 12
+ hours = hours % 12 || 12 // Convert 0 to 12
  const formattedMinutes = minutes.toString().padStart(2, '0')
  return `${month}/${day}/${year} ${hours}:${formattedMinutes}${ampm}`
 }
