@@ -9,6 +9,30 @@ const MESSAGE_PERSIST_THRESHOLD = 5
 const REACTION_PREFIX =
  'reactions:message-channel-message-'
 
+// --- Helper functions for message expiration ---
+function calculateExpirationDate(message) {
+ // For negative scores, calculate when the message will expire
+ // A message expires when it reaches 0 score, which takes |score| hours at -1/hr velocity
+ const hoursToExpire = Math.abs(message.score)
+ const expirationDate = new Date()
+ expirationDate.setHours(expirationDate.getHours() + hoursToExpire)
+ return expirationDate
+}
+
+function formatExpirationDate(date) {
+ // Format as M/D/YYYY HH:MM AM/PM
+ const month = date.getMonth() + 1
+ const day = date.getDate()
+ const year = date.getFullYear()
+ let hours = date.getHours()
+ const minutes = date.getMinutes()
+ const ampm = hours >= 12 ? 'PM' : 'AM'
+ hours = hours % 12
+ hours = hours || 12 // Convert 0 to 12
+ const formattedMinutes = minutes.toString().padStart(2, '0')
+ return `${month}/${day}/${year} ${hours}:${formattedMinutes}${ampm}`
+}
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -623,6 +647,26 @@ function attachMessage(
  messageContentFormatter = undefined
 ) {
  const content = elem()
+
+ // --- Add expiration warning for negative scores ---
+ if (message.score < 0) {
+  const expirationDate = calculateExpirationDate(message)
+  const expirationText = formatExpirationDate(expirationDate)
+  
+  const expirationWarning = elem({
+   tagName: 'p',
+   textContent: `Expires on ${expirationText}`,
+   style: {
+    fontWeight: 'bold',
+    fontSize: '85%',
+    color: 'var(--color-bg-no-active)',
+    textShadow: '0 0 2px black',
+    margin: '0 0 8px 0',
+    padding: '2px 0'
+   }
+  })
+  content.appendChild(expirationWarning)
+ }
 
  // --- Special rendering for SCRIPT_CHANNEL messages ---
  if (channel === SCRIPT_CHANNEL) {
