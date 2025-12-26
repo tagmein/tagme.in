@@ -26,8 +26,7 @@
     globalThis.setZoom(parseFloat(lastSetZoom))
    }
   </script>
-  <linkfile:///home/thunder/Desktop/tagmein-official/public/index.html
-  
+  <link
    id="favicon"
    rel="shortcut icon"
    type="image/png"
@@ -35,7 +34,12 @@
   />
   <link rel="manifest" href="manifest.json" />
   <script>
-   </script>
+   globalThis.env = {
+    // TAGMEIN_API_BASEURL:
+    //  'https://tagme.in',
+    //  'http://localhost:8787',
+   }
+  </script>
   <title>Tag Me In</title>
   <style>
    html {
