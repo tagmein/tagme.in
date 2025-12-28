@@ -3035,3 +3035,10 @@ body[data-mode='activity']
   background-color: transparent;
  }
 }
+
+.expiration-warning {
+ color: var(--color-bg-no-active);
+ font-size: 85%;
+ font-weight: bold;
+ text-shadow: 0 0 2px black;
+}

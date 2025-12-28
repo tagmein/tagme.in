@@ -18,7 +18,7 @@ function renderDocuments(documents) {
  for (const document of documents) {
   const docElement = elem({
    classes: ['doc-tile'],
-   textContent: 'Hello',
+   textContent: 'Documents feature is under construction.',
   })
   documentsElement.appendChild(docElement)
  }

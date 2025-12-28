@@ -8,10 +8,6 @@ export const onRequestGet: PagesFunction<
 > = async (context) => {
  const documents = [
   { id: 1 },
-  { id: 2 },
-  { id: 3 },
-  { id: 4 },
-  { id: 5 },
  ]
  return new Response(
   JSON.stringify({
