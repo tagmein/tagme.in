@@ -9,6 +9,56 @@ const MESSAGE_PERSIST_THRESHOLD = 5
 const REACTION_PREFIX =
  'reactions:message-channel-message-'
 
+// --- Helper functions for message expiration ---
+function calculateExpirationDate(message) {
+ // Only show expiry for positive scores with negative velocity
+ const currentScore = message.score || 0
+ const velocity = message.data?.velocity || 0
+  
+ // Strict check: score > 0 AND velocity < 0
+ if (currentScore <= 0 || velocity >= 0) {
+  return null
+ }
+  
+ // Calculate hours until expiry: score / abs(velocity)
+ const hoursUntilExpiry = currentScore / Math.abs(velocity)
+ const expirationDate = new Date()
+ expirationDate.setHours(expirationDate.getHours() + hoursUntilExpiry)
+ return expirationDate
+}
+
+function formatExpirationDate(date) {
+ // Format as M/D/YYYY HH:MM AM/PM
+ const month = date.getMonth() + 1
+ const day = date.getDate()
+ const year = date.getFullYear()
+ const hours = date.getHours()
+ const minutes = date.getMinutes()
+ const ampm = hours >= 12 ? 'PM' : 'AM'
+ const displayHours = hours % 12 || 12 // Convert 0 to 12
+ const formattedMinutes = minutes.toString().padStart(2, '0')
+ return `${month}/${day}/${year} ${displayHours}:${formattedMinutes}${ampm}`
+}
+
+function addExpirationWarning(message, contentElement) {
+ const expirationDate = calculateExpirationDate(message)
+ if (expirationDate) {
+  const expirationText = formatExpirationDate(expirationDate)
+  
+  const expirationWarning = elem({
+   tagName: 'p',
+   textContent: `Expires on ${expirationText}`,
+   style: {
+    fontWeight: 'bold',
+    fontSize: '85%',
+    color: 'var(--color-bg-no-active)',
+    textShadow: '0 0 2px black'
+   }
+  })
+  contentElement.prepend(expirationWarning)
+ }
+}
+
 function displayAppAccounts() {
  const globalRealmTab = elem({
   classes: ['realm'],
@@ -623,6 +673,9 @@ function attachMessage(
  messageContentFormatter = undefined
 ) {
  const content = elem()
+
+ // --- Add expiration warning for positive scores with negative velocity ---
+ addExpirationWarning(message, content)
 
  // --- Special rendering for SCRIPT_CHANNEL messages ---
  if (channel === SCRIPT_CHANNEL) {
