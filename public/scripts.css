@@ -10,10 +10,17 @@ body[data-theme-bg] article[data-theme-bg] {
 }
 
 .script-output-card {
- flex-shrink: 0; /* Prevent cards from shrinking */
  background-color: var(--bg-alt);
- color: var(--text);
+ border-radius: 8px;
+ border: 2px solid #80808080;
  box-shadow: 0 1px 3px #80808080;
+ color: var(--text);
+ flex-shrink: 0; /* Prevent cards from shrinking */
+ height: 240px;
+ margin: 5px; 
+ overflow: auto;
+ padding: 10px;
+ width: 360px;
 }
 
 /* Special '𝓢' channel styling */

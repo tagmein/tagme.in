@@ -14,16 +14,19 @@ function calculateExpirationDate(message) {
  // Only show expiry for positive scores with negative velocity
  const currentScore = message.score || 0
  const velocity = message.data?.velocity || 0
-  
+
  // Strict check: score > 0 AND velocity < 0
  if (currentScore <= 0 || velocity >= 0) {
   return null
  }
-  
+
  // Calculate hours until expiry: score / abs(velocity)
- const hoursUntilExpiry = currentScore / Math.abs(velocity)
+ const hoursUntilExpiry =
+  currentScore / Math.abs(velocity)
  const expirationDate = new Date()
- expirationDate.setHours(expirationDate.getHours() + hoursUntilExpiry)
+ expirationDate.setHours(
+  expirationDate.getHours() + hoursUntilExpiry
+ )
  return expirationDate
 }
 
@@ -36,26 +39,39 @@ function formatExpirationDate(date) {
  const minutes = date.getMinutes()
  const ampm = hours >= 12 ? 'PM' : 'AM'
  const displayHours = hours % 12 || 12 // Convert 0 to 12
- const formattedMinutes = minutes.toString().padStart(2, '0')
+ const formattedMinutes = minutes
+  .toString()
+  .padStart(2, '0')
  return `${month}/${day}/${year} ${displayHours}:${formattedMinutes}${ampm}`
 }
 
-function addExpirationWarning(message, contentElement) {
- const expirationDate = calculateExpirationDate(message)
+function addExpirationWarning(
+ message,
+ contentElement
+) {
+ const expirationDate =
+  calculateExpirationDate(message)
+  const existingExpirationWarning =
+   contentElement.querySelector(
+    '.expiration-warning'
+   )
  if (expirationDate) {
-  const expirationText = formatExpirationDate(expirationDate)
-  
+  const expirationText = formatExpirationDate(
+   expirationDate
+  )
+  if (existingExpirationWarning) {
+   existingExpirationWarning.textContent = `Expires on ${expirationText}`
+   return
+  }
   const expirationWarning = elem({
    tagName: 'p',
    textContent: `Expires on ${expirationText}`,
-   style: {
-    fontWeight: 'bold',
-    fontSize: '85%',
-    color: 'var(--color-bg-no-active)',
-    textShadow: '0 0 2px black'
-   }
+   classes: ['expiration-warning'],
   })
   contentElement.prepend(expirationWarning)
+ }
+ else if (existingExpirationWarning) {
+  existingExpirationWarning.remove()
  }
 }
 
@@ -674,9 +690,6 @@ function attachMessage(
 ) {
  const content = elem()
 
- // --- Add expiration warning for positive scores with negative velocity ---
- addExpirationWarning(message, content)
-
  // --- Special rendering for SCRIPT_CHANNEL messages ---
  if (channel === SCRIPT_CHANNEL) {
   const scriptTextarea = elem({
@@ -724,8 +737,8 @@ function attachMessage(
     message.text.startsWith('reaction')
     ? message.text.substring(8)
     : messageContentFormatter
-    ? messageContentFormatter(message.text)
-    : message.text
+      ? messageContentFormatter(message.text)
+      : message.text
   )
   addYouTubeEmbed(content, message.text)
   addImageEmbed(content, message.text)
@@ -818,7 +831,10 @@ function attachMessage(
   score.appendChild(
    elem({
     attributes: {
-     title: message.score.toPrecision(3),
+     title:
+      message.score < 1e5
+       ? message.score
+       : message.score.toPrecision(3),
     },
     textContent: `${messageScoreText}`,
    })
@@ -829,6 +845,7 @@ function attachMessage(
     textContent: velocityText,
    })
   )
+  addExpirationWarning(message, content)
  }
  const score = elem({
   classes: ['score'],
@@ -1933,7 +1950,7 @@ function displayActivity() {
  }
 
  function hide() {
-  restoreLastKnownMode(-1)
+  switchToMode('main')()
   isVisible = false
   nextChunk = undefined
   scrollToTop(lastScrollPosition)
