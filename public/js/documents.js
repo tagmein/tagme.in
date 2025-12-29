@@ -599,6 +599,16 @@ function renderDocumentView(doc) {
   children: [
    elem({
     tagName: 'button',
+    textContent: '🔙 Back to List',
+    events: {
+     click(e) {
+      e.preventDefault()
+      loadDocuments()
+     },
+    },
+   }),
+   elem({
+    tagName: 'button',
     textContent: 'Preview',
     events: {
      click(e) {
@@ -692,6 +702,16 @@ function renderDocumentPreview(doc) {
   tagName: 'div',
   classes: ['documents-view-actions'],
   children: [
+   elem({
+    tagName: 'button',
+    textContent: '🔙 Back to List',
+    events: {
+     click(e) {
+      e.preventDefault()
+      loadDocuments()
+     },
+    },
+   }),
    elem({
     tagName: 'button',
     textContent: 'Copy Share Link',
