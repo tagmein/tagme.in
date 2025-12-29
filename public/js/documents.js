@@ -393,6 +393,8 @@ function renderEmptyState() {
 function createDocumentCard(doc) {
  const statusMessage = safeText(computeDocumentStatusMessage(doc))
  const topTags = Array.isArray(doc.topTags) ? doc.topTags : []
+ const allTags = Array.isArray(doc.tags) ? doc.tags : []
+ const displayTags = topTags.length > 0 ? topTags : allTags
  const tile = elem({
   classes: ['doc-tile'],
   children: [
@@ -415,7 +417,7 @@ function createDocumentCard(doc) {
    }),
    elem({
     tagName: 'div',
-    textContent: `Tags: ${topTags.length > 0 ? topTags.join(', ') : ''}`,
+    textContent: `Tags: ${displayTags.length > 0 ? displayTags.join(', ') : ''}`,
    }),
    ...(statusMessage ? [elem({ tagName: 'div', textContent: statusMessage })] : []),
    elem({
