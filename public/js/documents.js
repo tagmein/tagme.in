@@ -705,6 +705,110 @@ function renderDocumentView(doc) {
  documentsElement.appendChild(wrap)
 }
 
+function renderDocumentEditor(doc, isCreate) {
+ documentsState.view = 'edit'
+ clearDocumentsUI()
+
+ const titleInput = elem({
+  tagName: 'input',
+  classes: ['documents-editor-input'],
+  attributes: {
+   placeholder: 'Title',
+   value: safeText(doc?.title ?? ''),
+  },
+ })
+
+ const tagsInput = elem({
+  tagName: 'input',
+  classes: ['documents-editor-input'],
+  attributes: {
+   placeholder: 'Tags (comma-separated)',
+   value: Array.isArray(doc?.tags) ? doc.tags.join(', ') : '',
+  },
+ })
+
+ const bodyArea = elem({
+  tagName: 'textarea',
+  classes: ['documents-editor-body'],
+  textContent: safeText(doc?.body ?? ''),
+ })
+
+ const saveBtn = elem({
+  tagName: 'button',
+  textContent: 'Save',
+  events: {
+   async click(e) {
+    e.preventDefault()
+    const payload = isCreate
+     ? {
+        action: 'create',
+        title: titleInput.value,
+        body: bodyArea.value,
+        tags: parseTagInput(tagsInput.value),
+       }
+     : {
+        action: 'save',
+        id: safeText(doc?.id ?? ''),
+        ifRev: doc?.rev,
+        title: titleInput.value,
+        body: bodyArea.value,
+        tags: parseTagInput(tagsInput.value),
+       }
+    try {
+     const data = await postDocuments(payload)
+     const updated = data?.response?.document
+     if (updated) {
+      documentsState.openDocument = updated
+      documentsState.openDocumentRev = updated.rev
+      renderToolbar({})
+      renderDocumentView(updated)
+      return
+     }
+     alert('Unable to save document')
+    } catch (err) {
+     alert(err?.message ?? err)
+    }
+   },
+  },
+ })
+
+ const downloadBtn = elem({
+  tagName: 'button',
+  textContent: 'Download',
+  events: {
+   click(e) {
+    e.preventDefault()
+    downloadMarkdown(titleInput.value || 'document', bodyArea.value)
+   },
+  },
+ })
+
+ const formWrap = elem({
+  tagName: 'div',
+  classes: ['documents-editor'],
+  children: [
+   elem({
+    tagName: 'h2',
+    classes: ['documents-editor-title'],
+    textContent: isCreate ? 'New Document' : 'Edit Document',
+   }),
+   elem({
+    tagName: 'div',
+    classes: ['documents-editor-fields'],
+    children: [titleInput, tagsInput],
+   }),
+   bodyArea,
+   elem({
+    tagName: 'div',
+    classes: ['documents-editor-actions'],
+    children: [saveBtn, downloadBtn],
+   }),
+  ],
+ })
+
+ documentsElement.appendChild(formWrap)
+}
+
 async function showView(id) {
  const data = await fetchDocument(id)
  const doc = data?.response?.document
