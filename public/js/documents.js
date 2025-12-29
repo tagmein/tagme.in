@@ -27,40 +27,6 @@ const documentsToolbar = elem({
 
 appHeader.appendChild(documentsToolbar)
 
-function ensureDocumentsInlineStyle() {
- const id = 'tmi-documents-inline-style'
- if (document.getElementById(id)) return
- const style = document.createElement('style')
- style.id = id
- style.textContent = `
-  .mode-documents.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;box-sizing:border-box;border-bottom:1px solid var(--color-border-dark)}
-  .mode-documents.toolbar input,.mode-documents.toolbar select{height:34px;border-radius:8px;border:1px solid var(--color-border-dark);background:var(--color-bg-medium);color:var(--color-text);padding:6px 10px;box-sizing:border-box}
-  .mode-documents.toolbar input{min-width:240px;flex:1}
-  .mode-documents.toolbar button{height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.08);color:var(--color-text);padding:0 12px;cursor:pointer;white-space:nowrap}
-  .mode-documents.toolbar button:hover{background:rgba(255,255,255,.12)}
-  .documents-area{padding:16px;box-sizing:border-box;min-height:100dvh}
-  .doc-tile{max-width:920px;width:min(920px,calc(100% - 24px));padding:16px;margin:12px auto;border-radius:10px;border:1px solid var(--color-border-dark);background:var(--color-bg-medium);text-align:left;box-sizing:border-box}
-  .doc-tile h3{margin:0 0 8px 0}
-  .doc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .documents-view{max-width:920px;width:min(920px,100%);margin:12px auto 0 auto;text-align:left}
-  .documents-view-header{padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04)}
-  .documents-view-meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:13px;opacity:.92}
-  @media(max-width:700px){.documents-view-meta{grid-template-columns:1fr}}
-  .documents-view-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-  .documents-view-actions button{height:32px}
-  .documents-area article{margin:12px auto 0 auto;max-width:920px;width:min(920px,100%);padding:14px;border-radius:10px;border:1px solid var(--color-border-dark);background:rgba(0,0,0,.25);box-sizing:border-box}
-  .documents-area article pre{overflow:auto;padding:10px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
-  .documents-editor{max-width:920px;width:min(920px,100%);margin:16px auto 0 auto;padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);box-sizing:border-box;text-align:left}
-  .documents-editor-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  @media(max-width:700px){.documents-editor-fields{grid-template-columns:1fr}}
-  .documents-editor-input,.documents-editor-body{width:100%;box-sizing:border-box;border-radius:8px;border:1px solid var(--color-border-dark);background:var(--color-bg-medium);color:var(--color-text);padding:10px}
-  .documents-editor-input{height:36px}
-  .documents-editor-body{min-height:260px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;line-height:1.35;margin-top:10px}
-  .documents-editor-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
- `
- document.head.appendChild(style)
-}
-
 let documentsState = {
  view: 'list',
  selectedTags: [],
@@ -205,6 +171,42 @@ function getDocumentStatusText(doc) {
  const velocity = typeof doc.velocity === 'number' ? doc.velocity : 0
  const velocityText = velocity !== 0 ? ` (${velocity > 0 ? '+' : ''}${velocity}/hr)` : ''
  return `${draft}${velocityText}`
+}
+
+function computeDocumentStatusMessage(doc, now = Date.now()) {
+ const isDraft = !!doc?.isDraft
+ const velocity = typeof doc?.velocity === 'number' ? doc.velocity : 0
+ const score = typeof doc?.score === 'number' ? doc.score : 0
+ const charCount = typeof doc?.charCount === 'number' ? doc.charCount : 0
+ if (velocity === 0) return ''
+
+ if (!isDraft && velocity < 0) {
+  const delta = score - charCount
+  if (delta <= 0) return ''
+  const hours = delta / Math.abs(velocity)
+  const unpublishesAt = new Date(now + hours * 60 * 60 * 1000)
+  return `Unpublishes on ${unpublishesAt.toLocaleString()}`
+ }
+
+ if (isDraft && velocity > 0) {
+  const delta = charCount - score
+  if (delta <= 0) return ''
+  const hours = delta / velocity
+  const publishesAt = new Date(now + hours * 60 * 60 * 1000)
+  return `Publishes on ${publishesAt.toLocaleString()}`
+ }
+
+ if (isDraft && velocity < 0) {
+  if (score <= 0) {
+   const expiresAt = new Date(now)
+   return `Draft expires on ${expiresAt.toLocaleString()}`
+  }
+  const hours = score / Math.abs(velocity)
+  const expiresAt = new Date(now + hours * 60 * 60 * 1000)
+  return `Draft expires on ${expiresAt.toLocaleString()}`
+ }
+
+ return ''
 }
 
 function downloadMarkdown(filename, content) {
@@ -389,7 +391,7 @@ function renderEmptyState() {
 }
 
 function createDocumentCard(doc) {
- const statusMessage = safeText(doc.statusMessage)
+ const statusMessage = safeText(computeDocumentStatusMessage(doc))
  const topTags = Array.isArray(doc.topTags) ? doc.topTags : []
  const tile = elem({
   classes: ['doc-tile'],
@@ -571,7 +573,7 @@ function renderTagVotes(doc) {
 function renderDocumentView(doc) {
  documentsState.view = 'view'
  clearDocumentsUI()
- const statusMessage = safeText(doc.statusMessage)
+ const statusMessage = safeText(computeDocumentStatusMessage(doc))
  const header = elem({
   tagName: 'header',
   classes: ['documents-view-header'],
@@ -673,7 +675,7 @@ function renderDocumentView(doc) {
 function renderDocumentPreview(doc) {
  documentsState.view = 'preview'
  clearDocumentsUI()
- const statusMessage = safeText(doc.statusMessage)
+ const statusMessage = safeText(computeDocumentStatusMessage(doc))
  const header = elem({
   tagName: 'header',
   classes: ['documents-view-header'],
@@ -904,7 +906,6 @@ function showCreate() {
 }
 
 async function loadDocuments() {
- ensureDocumentsInlineStyle()
  const shared = getShareParams()
  if (shared?.id) {
   // Allow opening a document directly via share link.

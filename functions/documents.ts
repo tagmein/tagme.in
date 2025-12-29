@@ -1,6 +1,7 @@
 import { type PagesFunction } from '@cloudflare/workers-types'
 import { Env } from './lib/env.js'
 import { getKV } from './lib/getKV.js'
+import { store } from './lib/store.js'
 
 const ONE_HOUR_MS = 60 * 60 * 1000
 const DOCUMENTS_COLLECTION = 'documents'
@@ -39,7 +40,6 @@ interface DocumentComputed {
  velocity: number
  charCount: number
  isDraft: boolean
- statusMessage?: string
  tagScores?: Record<string, number>
  tagVelocities?: Record<string, number>
 }
@@ -81,40 +81,6 @@ function updateVelocity(v: VoteData, delta: number, now = Date.now()): VoteData 
  }
 }
 
-function computeStatusMessage(
- computed: Pick<DocumentComputed, 'isDraft' | 'velocity' | 'score' | 'charCount'>,
- now = Date.now()
-) {
- const { isDraft, velocity, score, charCount } = computed
- if (velocity === 0) return
-
- if (!isDraft && velocity < 0) {
-  const delta = score - charCount
-  if (delta <= 0) return
-  const hours = delta / Math.abs(velocity)
-  const unpublishesAt = new Date(now + hours * ONE_HOUR_MS)
-  return `Unpublishes on ${unpublishesAt.toLocaleString()}`
- }
-
- if (isDraft && velocity > 0) {
-  const delta = charCount - score
-  if (delta <= 0) return
-  const hours = delta / velocity
-  const publishesAt = new Date(now + hours * ONE_HOUR_MS)
-  return `Publishes on ${publishesAt.toLocaleString()}`
- }
-
- if (isDraft && velocity < 0) {
-  if (score <= 0) {
-   const expiresAt = new Date(now)
-   return `Draft expires on ${expiresAt.toLocaleString()}`
-  }
-  const hours = score / Math.abs(velocity)
-  const expiresAt = new Date(now + hours * ONE_HOUR_MS)
-  return `Draft expires on ${expiresAt.toLocaleString()}`
- }
-}
-
 function toComputed(
  doc: StoredDocument,
  includeBody: boolean,
@@ -149,7 +115,6 @@ function toComputed(
   velocity,
   charCount,
   isDraft,
-  statusMessage: computeStatusMessage({ isDraft, velocity, score, charCount }, now),
  }
 
  // In list mode, expose only the top tags (net score > 1) per spec.
@@ -191,33 +156,28 @@ function errorText(message: string, status = 400) {
 }
 
 async function listAllDocs(kv: any): Promise<StoredDocument[]> {
- const { store } = await import('./lib/store.js')
  const s = store(kv)
  const items = await s.list(DOCUMENTS_COLLECTION)
  return items as StoredDocument[]
 }
 
 async function getDoc(kv: any, id: string): Promise<StoredDocument | null> {
- const { store } = await import('./lib/store.js')
  const s = store(kv)
  const item = await s.get(DOCUMENTS_COLLECTION, id)
  return (item as StoredDocument) ?? null
 }
 
 async function insertDoc(kv: any, doc: StoredDocument) {
- const { store } = await import('./lib/store.js')
  const s = store(kv)
  await s.insert(DOCUMENTS_COLLECTION, doc.id, doc as any)
 }
 
 async function patchDoc(kv: any, id: string, patch: Partial<StoredDocument>) {
- const { store } = await import('./lib/store.js')
  const s = store(kv)
  await s.patch(DOCUMENTS_COLLECTION, id, patch as any)
 }
 
 async function deleteDoc(kv: any, id: string) {
- const { store } = await import('./lib/store.js')
  const s = store(kv)
  await s.delete(DOCUMENTS_COLLECTION, id)
 }
@@ -226,7 +186,6 @@ function shouldHideExpiredDraft(doc: StoredDocument, now = Date.now()) {
  const score = calculateScore(doc.vote, now)
  const isDraft = score < doc.body.length
  if (!isDraft) return false
- if (doc.vote.velocity >= 0) return false
  return score <= 0
 }
 
@@ -342,6 +301,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const docBody = typeof body?.body === 'string' ? body.body : ''
   const tags = normalizeTags(asStringArray(body?.tags))
   if (title.length === 0) return errorText('missing title', 400)
+  if (docBody.length === 0) return errorText('missing body', 400)
+
+  const initialVotePosition =
+   docBody.length > 0
+    ? Math.min(1, docBody.length - 0.0001)
+    : 0
 
   const id = safeId()
   const tagVotes: Record<string, VoteData> = {}
@@ -356,7 +321,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
    created: now,
    modified: now,
    rev: 1,
-   vote: { position: 0, velocity: 0, timestamp: now },
+   vote: { position: initialVotePosition, velocity: 0, timestamp: now },
    tagVotes,
   }
   await insertDoc(kv, doc)
@@ -381,11 +346,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const score = calculateScore(existing.vote, now)
   const charCount = existing.body.length
   if (score >= charCount) {
-   return errorText('document is locked', 400)
+   return errorText('document is locked', 403)
   }
 
   const title = typeof body?.title === 'string' ? body.title.trim() : existing.title
   const docBody = typeof body?.body === 'string' ? body.body : existing.body
+  if (typeof body?.body === 'string' && docBody.length === 0) {
+   return errorText('missing body', 400)
+  }
   const tags = normalizeTags(asStringArray(body?.tags))
   const nextRev = existing.rev + 1
 
