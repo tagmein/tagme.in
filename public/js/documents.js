@@ -40,6 +40,16 @@ function networkRootUrl() {
   return globalThis.env?.TAGMEIN_API_BASEURL ?? ''
  }
 
+function documentPreviewUrl(id) {
+ const base = networkRootUrl()
+ const encoded = encodeURIComponent(id)
+ return `${base}/documents?id=${encoded}&format=html`
+}
+
+function openDocumentPreview(id) {
+ window.open(documentPreviewUrl(id), '_blank', 'noopener')
+}
+
 function safeText(text) {
  return (text ?? '').toString()
 }
@@ -442,7 +452,7 @@ function createDocumentCard(doc) {
        click(e) {
         e.preventDefault()
         e.stopPropagation()
-        withLoading(showPreview(doc.id))
+        openDocumentPreview(doc.id)
        },
       },
      }),
@@ -617,7 +627,28 @@ function renderDocumentView(doc) {
     events: {
      click(e) {
       e.preventDefault()
-      renderDocumentPreview(doc)
+      openDocumentPreview(doc.id)
+     },
+    },
+   }),
+   elem({
+    tagName: 'button',
+    textContent: 'Copy Preview Link',
+    events: {
+     async click(e) {
+      e.preventDefault()
+      const shareUrl = documentPreviewUrl(doc.id)
+      try {
+       await navigator.clipboard.writeText(shareUrl)
+      } catch {
+       const ta = document.createElement('textarea')
+       ta.value = shareUrl
+       document.body.appendChild(ta)
+       ta.select()
+       document.execCommand('copy')
+       ta.remove()
+      }
+      alert('Preview link copied')
      },
     },
    }),
@@ -674,194 +705,6 @@ function renderDocumentView(doc) {
  documentsElement.appendChild(wrap)
 }
 
-function renderDocumentPreview(doc) {
- documentsState.view = 'preview'
- clearDocumentsUI()
- const statusMessage = safeText(computeDocumentStatusMessage(doc))
- const header = elem({
-  tagName: 'header',
-  classes: ['documents-view-header'],
-  children: [
-   elem({ tagName: 'h2', classes: ['documents-view-title'], textContent: safeText(doc.title) }),
-   elem({
-    tagName: 'div',
-    classes: ['documents-view-meta'],
-    children: [
-     elem({ tagName: 'div', textContent: getDocumentStatusText(doc) }),
-     ...(statusMessage ? [elem({ tagName: 'div', textContent: statusMessage })] : []),
-     elem({
-      tagName: 'div',
-      classes: ['documents-view-tags'],
-      textContent: `Tags: ${Array.isArray(doc.tags) ? doc.tags.join(', ') : ''}`,
-     }),
-    ],
-   }),
-  ],
- })
-
- const article = elem({ tagName: 'article' })
- article.innerHTML = renderMarkdown(doc.body)
-
- const buttons = elem({
-  tagName: 'div',
-  classes: ['documents-view-actions'],
-  children: [
-   elem({
-    tagName: 'button',
-    textContent: '🔙 Back to List',
-    events: {
-     click(e) {
-      e.preventDefault()
-      loadDocuments()
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Copy Share Link',
-    events: {
-     async click(e) {
-      e.preventDefault()
-      const shareUrl = `${window.location.origin}${window.location.pathname}?doc=${encodeURIComponent(doc.id)}&view=preview`
-      try {
-       await navigator.clipboard.writeText(shareUrl)
-      } catch {
-       // fallback
-       const ta = document.createElement('textarea')
-       ta.value = shareUrl
-       document.body.appendChild(ta)
-       ta.select()
-       document.execCommand('copy')
-       ta.remove()
-      }
-      alert('Share link copied')
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Back to View',
-    events: {
-     click(e) {
-      e.preventDefault()
-      renderDocumentView(doc)
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Download',
-    events: {
-     click(e) {
-      e.preventDefault()
-      downloadMarkdown(doc.title, doc.body)
-     },
-    },
-   }),
-  ],
- })
-
- const wrap = elem({
-  tagName: 'div',
-  classes: ['documents-view'],
-  children: [
-   header,
-   renderVoteRow(doc),
-   buttons,
-   article,
-  ],
- })
-
- documentsElement.appendChild(wrap)
-}
-
-function renderDocumentEditor(doc, isCreate) {
- documentsState.view = 'edit'
- clearDocumentsUI()
-
- const titleInput = elem({
-  tagName: 'input',
-  classes: ['documents-editor-input'],
-  attributes: { value: safeText(doc?.title ?? ''), placeholder: 'Title' },
- })
- const tagsInput = elem({
-  tagName: 'input',
-  classes: ['documents-editor-input'],
-  attributes: { value: Array.isArray(doc?.tags) ? doc.tags.join(', ') : '', placeholder: 'Tags (comma-separated)' },
- })
- const bodyArea = elem({
-  tagName: 'textarea',
-  classes: ['documents-editor-body'],
-  attributes: { placeholder: 'Markdown body' },
- })
- bodyArea.value = safeText(doc?.body ?? '')
-
- const saveBtn = elem({
-  tagName: 'button',
-  textContent: 'Save',
-  events: {
-   async click(e) {
-    e.preventDefault()
-    const payload = {
-     action: isCreate ? 'create' : 'save',
-     id: doc?.id,
-     ifRev: documentsState.openDocumentRev,
-     title: titleInput.value,
-     body: bodyArea.value,
-     tags: parseTagInput(tagsInput.value),
-    }
-    try {
-     const data = await postDocuments(payload)
-     const updated = data?.response?.document
-     if (updated) {
-      documentsState.openDocument = updated
-      documentsState.openDocumentRev = updated.rev
-      renderDocumentView(updated)
-     }
-    } catch (err) {
-     alert(err?.message ?? err)
-    }
-   },
-  },
- })
-
- const downloadBtn = elem({
-  tagName: 'button',
-  textContent: 'Download',
-  events: {
-   click(e) {
-    e.preventDefault()
-    downloadMarkdown(titleInput.value || 'document', bodyArea.value)
-   },
-  },
- })
-
- const formWrap = elem({
-  tagName: 'div',
-  classes: ['documents-editor'],
-  children: [
-   elem({
-    tagName: 'h2',
-    classes: ['documents-editor-title'],
-    textContent: isCreate ? 'New Document' : 'Edit Document',
-   }),
-   elem({
-    tagName: 'div',
-    classes: ['documents-editor-fields'],
-    children: [titleInput, tagsInput],
-   }),
-   bodyArea,
-   elem({
-    tagName: 'div',
-    classes: ['documents-editor-actions'],
-    children: [saveBtn, downloadBtn],
-   }),
-  ],
- })
-
- documentsElement.appendChild(formWrap)
-}
-
 async function showView(id) {
  const data = await fetchDocument(id)
  const doc = data?.response?.document
@@ -870,17 +713,6 @@ async function showView(id) {
   documentsState.openDocumentRev = doc.rev
   renderToolbar(data)
   renderDocumentView(doc)
- }
-}
-
-async function showPreview(id) {
- const data = await fetchDocument(id)
- const doc = data?.response?.document
- if (doc) {
-  documentsState.openDocument = doc
-  documentsState.openDocumentRev = doc.rev
-  renderToolbar(data)
-  renderDocumentPreview(doc)
  }
 }
 
@@ -912,7 +744,8 @@ async function loadDocuments() {
  if (shared?.id) {
   // Allow opening a document directly via share link.
   if (shared.view === 'preview') {
-   await showPreview(shared.id)
+   window.location.href = documentPreviewUrl(shared.id)
+   return
   } else {
    await showView(shared.id)
   }

@@ -2,8 +2,8 @@
  background-color: var(--color-bg-dark);
  box-sizing: border-box;
  min-height: 100dvh;
- padding: 16px;
- text-align: center;
+ padding: 0 15px;
+ text-align: left;
 }
 
 .doc-tile {
@@ -11,12 +11,18 @@
  border-radius: 10px;
  border: 1px solid var(--color-border-dark);
  box-sizing: border-box;
- display: inline-block;
- margin: 12px auto;
+ display: block;
+ margin: 0 auto 12px auto;
  max-width: 920px;
- padding: 16px;
+ padding: 3px 15px;
  text-align: left;
  width: min(920px, calc(100% - 24px));
+ opacity: 0.8;
+ transition: opacity 0.5s ease;
+}
+
+.doc-tile:hover {
+ opacity: 1;
 }
 
 .doc-tile h3 {
@@ -28,6 +34,18 @@
  flex-wrap: wrap;
  gap: 8px;
  margin-top: 10px;
+}
+
+.doc-actions button {
+ background-color: var(--color-bg-medium-dark);
+ border-radius: 5px;
+ border: 1px solid var(--color-border-dark);
+ cursor: pointer;
+ padding: 6px 10px;
+}
+
+.doc-actions button:hover {
+ background-color: var(--color-bg-medium-light);
 }
 
 .mode-documents.toolbar {
@@ -43,10 +61,10 @@
 .mode-documents.toolbar input,
 .mode-documents.toolbar select {
  height: 34px;
- border-radius: 8px;
+ border-radius: 5px;
  border: 1px solid var(--color-border-dark);
- background: var(--color-bg-medium);
- color: var(--color-text);
+ background: var(--color-bg-medium-dark);
+ color: var(--color-text-primary);
  padding: 6px 10px;
  box-sizing: border-box;
 }
@@ -58,17 +76,17 @@
 
 .mode-documents.toolbar button {
  height: 34px;
- border-radius: 10px;
- border: 1px solid rgba(255, 255, 255, 0.16);
- background: rgba(255, 255, 255, 0.08);
- color: var(--color-text);
+ border-radius: 5px;
+ border: 1px solid var(--color-border-dark);
+ background: var(--color-bg-medium-dark);
+ color: var(--color-text-primary);
  padding: 0 12px;
  cursor: pointer;
  white-space: nowrap;
 }
 
 .mode-documents.toolbar button:hover {
- background: rgba(255, 255, 255, 0.12);
+ background: var(--color-bg-medium-light);
 }
 
 .documents-view {
@@ -107,7 +125,15 @@
 }
 
 .documents-view-actions button {
- height: 32px;
+ background-color: var(--color-bg-medium-dark);
+ border-radius: 5px;
+ border: 1px solid var(--color-border-dark);
+ cursor: pointer;
+ padding: 6px 10px;
+}
+
+.documents-view-actions button:hover {
+ background-color: var(--color-bg-medium-light);
 }
 
 .documents-area article {
@@ -183,4 +209,16 @@
  flex-wrap: wrap;
  gap: 8px;
  margin-top: 12px;
+}
+
+.documents-editor-actions button {
+ background-color: var(--color-bg-medium-dark);
+ border-radius: 5px;
+ border: 1px solid var(--color-border-dark);
+ cursor: pointer;
+ padding: 6px 10px;
+}
+
+.documents-editor-actions button:hover {
+ background-color: var(--color-bg-medium-light);
 }

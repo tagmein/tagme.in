@@ -151,6 +151,134 @@ function json(data: unknown, status = 200) {
  })
 }
 
+function html(text: string, status = 200) {
+ return new Response(text, {
+  status,
+  headers: {
+   'Content-Type': 'text/html; charset=utf-8',
+  },
+ })
+}
+
+function escapeHtml(s: string) {
+ return s
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#39;')
+}
+
+function renderMarkdown(md: string) {
+ const lines = md.replaceAll('\r\n', '\n').split('\n')
+ let out = ''
+ let inCode = false
+ let codeLang = ''
+ let listOpen = false
+
+ function closeList() {
+  if (listOpen) {
+   out += '</ul>'
+   listOpen = false
+  }
+ }
+
+ function inline(s: string) {
+  let html = escapeHtml(s)
+  html = html.replaceAll(/`([^`]+)`/g, '<code>$1</code>')
+  html = html.replaceAll(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+  html = html.replaceAll(/\*([^*]+)\*/g, '<em>$1</em>')
+  html = html.replaceAll(/\[([^\]]+)\]\(([^)]+)\)/g, '<a target="_blank" rel="noopener" href="$2">$1</a>')
+  return html
+ }
+
+ for (const rawLine of lines) {
+  const line = rawLine
+  if (line.startsWith('```')) {
+   if (!inCode) {
+    closeList()
+    inCode = true
+    codeLang = line.slice(3).trim()
+    out += `<pre><code data-lang="${escapeHtml(codeLang)}">`
+   } else {
+    inCode = false
+    codeLang = ''
+    out += '</code></pre>'
+   }
+   continue
+  }
+
+  if (inCode) {
+   out += `${escapeHtml(line)}\n`
+   continue
+  }
+
+  const trimmed = line.trim()
+  if (trimmed.length === 0) {
+   closeList()
+   out += '<br />'
+   continue
+  }
+
+  if (trimmed.startsWith('#')) {
+   closeList()
+   const level = Math.min(trimmed.match(/^#+/)?.[0]?.length ?? 1, 6)
+   const content = trimmed.replace(/^#+\s*/, '')
+   out += `<h${level}>${inline(content)}</h${level}>`
+   continue
+  }
+
+  const bullet = trimmed.match(/^[-*]\s+(.*)$/)
+  if (bullet) {
+   if (!listOpen) {
+    out += '<ul>'
+    listOpen = true
+   }
+   out += `<li>${inline(bullet[1])}</li>`
+   continue
+  }
+
+  closeList()
+  out += `<p>${inline(trimmed)}</p>`
+ }
+
+ if (inCode) {
+  out += '</code></pre>'
+ }
+ if (listOpen) {
+  out += '</ul>'
+ }
+ return out
+}
+
+function renderPreviewPage(doc: StoredDocument) {
+ const safeTitle = escapeHtml(doc.title)
+ const bodyHtml = renderMarkdown(doc.body)
+ return `<!doctype html>
+<html>
+ <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>${safeTitle}</title>
+  <style>
+   body { margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; line-height: 1.55; color: #111; background: #fff; }
+   main { max-width: 920px; margin: 0 auto; }
+   h1 { margin: 0 0 16px 0; }
+   pre { overflow: auto; padding: 12px; border-radius: 8px; background: #f6f8fa; }
+   code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+   a { color: #0645ad; }
+   blockquote { margin-left: 0; padding-left: 12px; border-left: 4px solid #ddd; color: #444; }
+  </style>
+ </head>
+ <body>
+  <main>
+   <h1>${safeTitle}</h1>
+   ${bodyHtml}
+  </main>
+ </body>
+</html>`
+}
+
 function errorText(message: string, status = 400) {
  return new Response(message, { status })
 }
@@ -216,6 +344,7 @@ export const onRequestGet: PagesFunction<
 
  const id = url.searchParams.get('id')
  if (typeof id === 'string' && id.length > 0) {
+  const format = url.searchParams.get('format')
   const doc = await getDoc(kv, id)
   if (!doc) {
    return errorText('document not found', 404)
@@ -224,6 +353,9 @@ export const onRequestGet: PagesFunction<
   if (shouldHideExpiredDraft(doc, now)) {
    await deleteDoc(kv, id)
    return errorText('document not found', 404)
+  }
+  if (format === 'html') {
+   return html(renderPreviewPage(doc))
   }
   return json({ success: true, response: { document: toComputed(doc, true, now) } })
  }
