@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
  <head>
   <meta charset="utf-8" />
@@ -37,7 +37,7 @@
    globalThis.env = {
     // TAGMEIN_API_BASEURL:
     //  'https://tagme.in',
-    //  'http://localhost:8787',
+    // 'http://localhost:8787',
    }
   </script>
   <title>Tag Me In</title>
@@ -179,6 +179,21 @@
   <footer id="footer">
    <h1>
     <a target="_blank" href="/">Tag Me In</a>
+    <span
+     id="footer-message"
+     onclick="
+      navigator.clipboard
+       .writeText(this.textContent)
+       .then(() => {
+        this.classList.add('copied')
+        setTimeout(
+         () => this.classList.remove('copied'),
+         1000
+        )
+       })
+     "
+    >
+    </span>
    </h1>
    <p>
     The micro social network anticipating
@@ -249,7 +264,7 @@
      and Gemini AI (the theme selector pallete
      icon, and the message label icon).
     </p>
-    <p id="stats">Written in 516 lines of HTML, 2630 lines of TypeScript, 7524 lines of JavaScript, and 2047 lines of CSS</p>
+    <p id="stats">Written in 516 lines of HTML, 2637 lines of TypeScript, 7472 lines of JavaScript, and 2062 lines of CSS</p>
     <p>
      All data is stored on Cloudflare via
      <a
@@ -297,11 +312,11 @@
     <p>
      Mobile only zoom level
      <a onclick="setZoom(0.25)">¼</a>
-     •<a onclick="setZoom(1/3)">⅓</a> •<a
+     •<a onclick="setZoom(1 / 3)">⅓</a> •<a
       onclick="setZoom(0.5)"
       >½</a
      >
-     •<a onclick="setZoom(2/3)">⅔</a> •<a
+     •<a onclick="setZoom(2 / 3)">⅔</a> •<a
       onclick="setZoom(0.75)"
       >¾</a
      >

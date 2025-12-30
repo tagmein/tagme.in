@@ -93,9 +93,9 @@ var __generator =
         op[0] & 2
          ? y['return']
          : op[0]
-         ? y['throw'] ||
-           ((t = y['return']) && t.call(y), 0)
-         : y.next) &&
+           ? y['throw'] ||
+             ((t = y['return']) && t.call(y), 0)
+           : y.next) &&
        !(t = t.call(y, op[1])).done)
      )
       return t
@@ -164,6 +164,7 @@ var __generator =
  }
 export function httpKV(_a) {
  var baseUrl = _a.baseUrl
+ var headers = _a.headers
  return {
   get: function (key) {
    return __awaiter(
@@ -180,7 +181,9 @@ export function httpKV(_a) {
         finalUrl = url.toString()
         return [
          4 /*yield*/,
-         fetch(finalUrl),
+         fetch(finalUrl, {
+          headers,
+         }),
          // treat not found as null
         ]
        case 1:
@@ -228,8 +231,9 @@ export function httpKV(_a) {
         return [
          4 /*yield*/,
          fetch(finalUrl, {
-          method: method,
+          method,
           body: value,
+          headers,
          }),
         ]
        case 1:
@@ -273,7 +277,10 @@ export function httpKV(_a) {
         method = 'DELETE'
         return [
          4 /*yield*/,
-         fetch(finalUrl, { method: method }),
+         fetch(finalUrl, {
+          method,
+          headers,
+         }),
         ]
        case 1:
         resp = _a.sent()

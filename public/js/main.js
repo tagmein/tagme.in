@@ -45,8 +45,8 @@ function getChannelMaxLength(channel) {
  return channel === 'reactions'
   ? 25
   : channel === SCRIPT_CHANNEL
-  ? 100000
-  : 250
+    ? 100000
+    : 250
 }
 
 async function updateComposeTextarea(
@@ -58,10 +58,10 @@ async function updateComposeTextarea(
   isReply
    ? COMPOSE_PLACEHOLDER_REPLY
    : channel === 'reactions'
-   ? ADD_REACTION_PLACEHOLDER_MESSAGE
-   : channel === SCRIPT_CHANNEL
-   ? 'Write script code (up to 100000 characters)'
-   : COMPOSE_PLACEHOLDER_MESSAGE
+     ? ADD_REACTION_PLACEHOLDER_MESSAGE
+     : channel === SCRIPT_CHANNEL
+       ? 'Write script code (up to 100000 characters)'
+       : COMPOSE_PLACEHOLDER_MESSAGE
  )
  // Do not enforce maxlength: we allow typing past limit and disable send instead
  updateComposeQuota(channel)
@@ -433,6 +433,12 @@ async function route() {
   messageChannel,
   message: messageText,
  } = getUrlData()
+ const s = getActiveSession()
+ document.getElementById(
+  'footer-message'
+ ).textContent = s
+  ? (s.apiKey?.substring(0, 10) ?? '?')
+  : 'Public'
  autocompleteChannels.visit(channel)
  document.title = [channel, 'Tag Me In']
   .filter((v) => v !== '')

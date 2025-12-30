@@ -51,10 +51,10 @@ function addExpirationWarning(
 ) {
  const expirationDate =
   calculateExpirationDate(message)
-  const existingExpirationWarning =
-   contentElement.querySelector(
-    '.expiration-warning'
-   )
+ const existingExpirationWarning =
+  contentElement.querySelector(
+   '.expiration-warning'
+  )
  if (expirationDate) {
   const expirationText = formatExpirationDate(
    expirationDate
@@ -69,8 +69,7 @@ function addExpirationWarning(
    classes: ['expiration-warning'],
   })
   contentElement.prepend(expirationWarning)
- }
- else if (existingExpirationWarning) {
+ } else if (existingExpirationWarning) {
   existingExpirationWarning.remove()
  }
 }
@@ -114,15 +113,16 @@ function displayAppAccounts() {
  })
 
  function addAccount(session) {
+  const title = new URL(
+   session.url
+  ).host.replace(/^.*\/\//)
   const realmTabLabel = elem({
    attributes: {
-    title: session.url,
+    title,
    },
    tagName: 'span',
    textContent:
-    session.name ??
-    new URL(session.url).origin ??
-    'Error',
+    session.name ?? title ?? 'Unknown',
   })
   function switchTo() {
    const sessionId = getActiveSessionId()
@@ -245,6 +245,7 @@ function displayAppAccounts() {
  setTimeout(function () {
   activeRealmTab.scrollIntoView({
    behavior: 'instant',
+   block: 'nearest',
    inline: 'center',
   })
  })

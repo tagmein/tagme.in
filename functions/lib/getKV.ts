@@ -19,12 +19,18 @@ export async function getKV(
  allowPublic: boolean = true,
  overrideKVUrl?: string
 ): Promise<CivilMemoryKV | undefined> {
+ const headers = {}
+ if (request.headers.has('x-api-key')) {
+  headers['X-Api-Key'] =
+   request.headers.get('x-api-key')
+ }
  if (
   typeof overrideKVUrl === 'string' &&
   overrideKVUrl.length > 0
  ) {
   return civilMemoryKV.http({
    baseUrl: overrideKVUrl,
+   headers,
   })
  }
  const authorization = request.headers.get(
@@ -44,9 +50,8 @@ export async function getKV(
        binding: env.TAGMEIN_AUTH_KV,
       })
   const sessionKey = `session.accessToken#${authorization}`
-  const sessionString = await authKV.get(
-   sessionKey
-  )
+  const sessionString =
+   await authKV.get(sessionKey)
   if (typeof sessionString !== 'string') {
    return
   }
@@ -65,6 +70,7 @@ export async function getKV(
         'string'
          ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-private`
          : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-private',
+       headers,
       })
     : civilMemoryKV.cloudflare({
        binding: env.TAGMEIN_PRIVATE_KV,
@@ -89,6 +95,7 @@ export async function getKV(
        'string'
         ? `${env.TAGMEIN_LOCAL_KV_BASEURL}?mode=disk&modeOptions.disk.basePath=./.kv-public`
         : 'http://localhost:3333?mode=disk&modeOptions.disk.basePath=./.kv-public',
+      headers,
      })
    : civilMemoryKV.cloudflare({
       binding: env.TAGMEIN_KV,
