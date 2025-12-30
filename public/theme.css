@@ -30,7 +30,7 @@ body {
  );
  --color-bg-transparent: transparent;
  --color-modal-backdrop: #000000e0;
- --color-bg-loader: #80808080;
+ --color-bg-loader: #101010e0;
  --color-bg-code-formula: #583800;
  --color-bg-dropdown-item-hover: #fff;
 
@@ -158,6 +158,7 @@ body.scroll-zero .app-header {
 }
 
 .realm {
+ border-left: 1px solid var(--color-border-dark);
  border-right: 1px solid
   var(--color-border-dark);
  border-top-left-radius: 10px;
@@ -165,10 +166,10 @@ body.scroll-zero .app-header {
  box-sizing: border-box;
  cursor: pointer;
  font-size: 18px;
- height: 46px;
- margin: 0 2px;
+ height: 50px;
+ margin: 0 1px;
  overflow: hidden;
- padding: 12px 12px 0;
+ padding: 12px 12px 4px;
  user-select: none;
  white-space: pre;
 }
@@ -205,7 +206,8 @@ body.scroll-zero .app-header {
 
 .app-accounts-container {
  background-color: var(--color-bg-medium-dark);
- box-shadow: inset 0 -1px 0px var(--color-border-dark);
+ box-shadow: inset 0 -1px 0px
+  var(--color-border-dark);
  flex-grow: 1;
  flex-shrink: 1;
  overflow: hidden;
@@ -214,12 +216,12 @@ body.scroll-zero .app-header {
 
 .app-accounts-container-inner {
  display: block;
- height: 47px;
+ height: 50px;
  left: 0;
  overflow: hidden;
  position: absolute;
  right: 0;
- top: 3px;
+ top: 0;
  width: 100%;
 }
 
@@ -798,7 +800,8 @@ a {
  text-decoration-color: var(
   --color-text-secondary
  );
- transition: 0.2s color ease,
+ transition:
+  0.2s color ease,
   0.2s text-decoration-color ease;
 }
 
@@ -818,10 +821,6 @@ textarea {
 
 button:active {
  background-color: var(--color-bg-light);
-}
-
-.toolbar:first-of-type {
- border-top: 1px solid var(--color-border-dark);
 }
 
 .toolbar {
@@ -887,7 +886,8 @@ footer {
  opacity: 0.85;
  padding: 15px;
  position: relative;
- transition: 0.5s opacity ease,
+ transition:
+  0.5s opacity ease,
   0.5s background-color ease;
  width: 100%;
 }
@@ -927,7 +927,8 @@ footer {
  position: absolute;
  right: 25px;
  text-align: center;
- transition: 0.5s opacity ease,
+ transition:
+  0.5s opacity ease,
   0.2s background-color ease;
  width: 78px;
 }
@@ -1015,8 +1016,8 @@ article > div code {
 }
 
 a.channel {
- box-shadow: inset 2px 2px 4px
-   var(--color-shadow-light),
+ box-shadow:
+  inset 2px 2px 4px var(--color-shadow-light),
   inset -2px -2px 4px var(--color-shadow-dark);
  background-color: var(--color-bg-accent);
 }
@@ -1441,7 +1442,7 @@ body.scroll-up .activity-container {
 body .activity-container,
 body .mode-activity,
 body .mode-other,
-body .mode-main ,
+body .mode-main,
 body .mode-documents {
  display: none;
 }
@@ -1662,6 +1663,7 @@ a.external-link::after {
  flex-direction: column;
  justify-content: center;
  left: 0;
+ min-height: 100%;
  overflow: hidden;
  position: fixed;
  right: 0;
@@ -1709,6 +1711,11 @@ a.external-link::after {
  cursor: pointer;
  margin: 30px 30px 0 0;
  padding: 10px 15px;
+}
+
+.alert-container
+ input[type='submit']:last-child {
+ margin-right: 0;
 }
 
 .alert-container button:disabled,
@@ -1849,8 +1856,8 @@ details[open] > summary::before {
  background-size: cover;
  border: 4px solid var(--color-border-medium);
  border-radius: 100%;
- box-shadow: inset 0 0 8px
-   var(--color-shadow-dark),
+ box-shadow:
+  inset 0 0 8px var(--color-shadow-dark),
   inset 0 0 4px var(--color-shadow-dark),
   inset 0 0 2px var(--color-shadow-dark);
  height: 96px;
@@ -1903,7 +1910,8 @@ body.light-mode button.brand {
  background-color: var(--color-bg-transparent);
  border: 2px solid #0080f0;
  border-radius: 2px;
- box-shadow: 0 0 8px var(--color-shadow-dark),
+ box-shadow:
+  0 0 8px var(--color-shadow-dark),
   inset 0 0 50px #0080f040,
   inset 0 0 10px #0080f080;
  box-sizing: border-box;
@@ -2495,8 +2503,10 @@ body.light-mode[data-theme='black']
  width: 34px;
 }
 
-.app-header input, .app-header button {
- box-shadow: inset 1px 1px 1px #00000040,
+.app-header input,
+.app-header button {
+ box-shadow:
+  inset 1px 1px 1px #00000040,
   inset -1px -1px 1px #aaaaaa20;
 }
 
@@ -2519,7 +2529,8 @@ body.light-mode[data-theme='black']
  margin-bottom: 10px;
  opacity: 0.85;
  text-align: center;
- text-shadow: 1px 1px 1px #00000020,
+ text-shadow:
+  1px 1px 1px #00000020,
   -1px -1px 1px #aaaaaa40;
  text-transform: uppercase;
 }
@@ -2621,7 +2632,8 @@ body[data-starting] {
  border-radius: 8px;
  border: 1px solid var(--border);
  bottom: 114px;
- box-shadow: inset 1px 1px 1px 1px #aaaaaa40,
+ box-shadow:
+  inset 1px 1px 1px 1px #aaaaaa40,
   inset -1px -1px 1px 1px #00000020,
   0 0 10px 1px #00000020;
  display: grid;
@@ -2679,9 +2691,11 @@ body[data-starting] {
  overflow: hidden;
  padding: 10px;
  text-align: center;
- text-shadow: 1px 1px 1px #000000ff,
+ text-shadow:
+  1px 1px 1px #000000ff,
   -1px -1px 1px #000000ff,
-  -1px 1px 1px #000000ff, 1px -1px 1px #000000ff,
+  -1px 1px 1px #000000ff,
+  1px -1px 1px #000000ff,
   1px 1px 11px #ffffff80,
   -1px -1px 11px #ffffff80,
   -1px 1px 11px #ffffff80,
@@ -3042,4 +3056,46 @@ body[data-mode='activity']
  font-size: 85%;
  font-weight: bold;
  text-shadow: 0 0 2px black;
+}
+
+#footer-message {
+ position: relative; /* Establishes a convenient anchor for the ::after */
+ cursor: pointer; /* visual clue that it is clickable */
+}
+
+/* The popup message style */
+#footer-message.copied::after {
+ content: 'Copied!';
+
+ /* Positioning */
+ position: absolute;
+ top: -25px; /* Adjusts distance above the text */
+ left: 50%; /* Centers it relative to the parent */
+ transform: translateX(-50%);
+
+ /* Appearance */
+ background-color: #e6fffa; /* Light green background */
+ color: #059669; /* Darker green text */
+ padding: 4px 8px;
+ border-radius: 4px;
+ font-size: 0.8rem;
+ font-weight: bold;
+ white-space: nowrap; /* Prevents wrapping */
+ box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+ /* Animation (Optional) */
+ animation: fadeOut 1s forwards;
+}
+
+/* Optional: Smooth fade out */
+@keyframes fadeOut {
+ 0% {
+  opacity: 1;
+ }
+ 70% {
+  opacity: 1;
+ }
+ 100% {
+  opacity: 0;
+ }
 }

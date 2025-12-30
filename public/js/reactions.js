@@ -74,6 +74,10 @@ async function fetchReactions() {
 
  try {
   const activeSession = getActiveSession()
+  const headers = {}
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
+  }
   const response = await fetch(
    `${networkRootUrl(env)}/reactions${
     activeSession?.url
@@ -87,6 +91,7 @@ async function fetchReactions() {
     headers: {
      'Content-Type': 'application/json',
      Accept: 'application/json',
+     ...headers,
     },
     body: JSON.stringify({
      getForMessageIds: uncachedMessageIds,
@@ -215,6 +220,10 @@ async function addReaction(
 ) {
  try {
   const activeSession = getActiveSession()
+  const headers = {}
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
+  }
   const response = await fetch(
    `${networkRootUrl(env)}/reactions${
     activeSession?.url
@@ -228,6 +237,7 @@ async function addReaction(
     headers: {
      Accept: 'application/json',
      'Content-Type': 'application/json',
+     ...headers,
     },
     body: JSON.stringify({
      createForMessageId: messageId,

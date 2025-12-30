@@ -681,7 +681,10 @@ async function addOpenGraphLink(
  }
 
  const activeSession = getActiveSession()
-
+ const headers = {}
+ if (activeSession.apiKey) {
+  headers['X-Api-Key'] = activeSession.apiKey
+ }
  try {
   const tagResponse = await fetch(
    `${networkRootUrl(
@@ -694,7 +697,8 @@ async function addOpenGraphLink(
         activeSession?.url
        )}`
      : ''
-   }`
+   }`,
+   { headers }
   )
   if (!tagResponse.ok) {
    throw new Error(tagResponse.statusText)
@@ -1211,7 +1215,7 @@ function getUrlData() {
  const messageChannel =
   typeof message === 'string'
    ? messageReplyChannel(channel, message)
-   : channel ?? ''
+   : (channel ?? '')
  return {
   control,
   channel: channel ?? '',
@@ -1249,6 +1253,9 @@ async function networkChannelSeek(
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
+  }
   if (activeSession.realm) {
    headers['X-Realm'] = activeSession.realm
   }
@@ -1303,6 +1310,9 @@ async function networkMessageSend(
   if (activeSession.realm) {
    headers['X-Realm'] = activeSession.realm
   }
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
+  }
  }
  const resp = await fetch(
   `${networkRootUrl(env)}/send${
@@ -1352,6 +1362,9 @@ async function networkMessageUnsend(
    activeSession.accessToken
   if (activeSession.realm) {
    headers['X-Realm'] = activeSession.realm
+  }
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
   }
  }
  const resp = await fetch(
@@ -1510,247 +1523,160 @@ function getActiveSessionId() {
 }
 
 function createSession() {
- let waitingMessage
- let continueButton
- const code = [0, 0, 0, 0]
-  .map(() =>
-   (
-    Math.round(100 * Math.random()) % 10
-   ).toString(10)
-  )
-  .join('')
  const verifyButton = elem({
   attributes: {
    type: 'submit',
-   value: 'Verify',
+   value: 'Connect',
+  },
+  style: {
+   backgroundColor: 'var(--color-theme-bg)',
   },
   tagName: 'input',
  })
  function closeModal() {
   loginDialog.close()
  }
+ const serverUrlInput = elem({
+  attributes: {
+   autofocus: true,
+   name: 'url',
+   placeholder: 'Enter server URL',
+   required: true,
+   type: 'text',
+  },
+  style: {
+   flexGrow: 1,
+  },
+  tagName: 'input',
+ })
  const loginDialog = dialog(
   elem({
+   style: {
+    marginBottom: '1em',
+   },
    tagName: 'h2',
-   textContent: 'Sign in',
+   textContent: 'Connect to realm',
   }),
   elem({
-   tagName: 'h4',
-   textContent: 'Verify your kv server:',
+   tagName: 'form',
+   style: {
+    display: 'flex',
+   },
+   children: [serverUrlInput, verifyButton],
+   events: {
+    async submit(e) {
+     const finalUrl = (function (u) {
+      if (/^\d+$/.test(u)) {
+       return `http://localhost:${u}`
+      }
+      if (!u.includes('/')) {
+       return `https://${u}`
+      }
+      return u
+     })(serverUrlInput.value)
+     e.preventDefault()
+     serverUrlInput.setAttribute(
+      'disabled',
+      'disabled'
+     )
+     verifyButton.setAttribute(
+      'disabled',
+      'disabled'
+     )
+     try {
+      const authUrl = new URL(finalUrl)
+      authUrl.searchParams.append('auth', '')
+      const response = await fetch(
+       authUrl.toString(),
+       { method: 'POST' }
+      )
+      const apiKey = (
+       await response.text()
+      ).trim()
+      if (apiKey.includes(' ')) {
+       throw new Error('invalid api key')
+      }
+      closeModal()
+      createSessionWithServer(finalUrl, apiKey)
+     } catch (e) {
+      console.error(e)
+      serverUrlInput.removeAttribute('disabled')
+      verifyButton.removeAttribute('disabled')
+     }
+    },
+   },
   }),
   elem({
    tagName: 'p',
-   textContent: `➊ Enter compatible kv server url and verify ownership`,
+   textContent:
+    'Enter a port number for localhost, a domain name, or a full URL',
   }),
   elem({
-   tagName: 'h5',
-   textContent: `KV Server Specification`,
-  }),
-  elem({
-   tagName: 'code',
-   textContent: `
+   tagName: 'details',
+   style: {
+    marginTop: '1em',
+   },
+   children: [
+    elem({
+     tagName: 'summary',
+     children: [
+      elem({
+       tagName: 'span',
+       children: [
+        elem({
+         tagName: 'strong',
+         textContent: `Server Specification`,
+        }),
+        elem({
+         tagName: 'span',
+         textContent: ' Read',
+        }),
+       ],
+      }),
+     ],
+    }),
+    elem({
+     style: {
+      display: 'block',
+      lineHeight: '1.65',
+      padding: '1em',
+     },
+     tagName: 'code',
+     textContent: `
+Authenticate:   POST <url>?auth
+                must return an API key
+                to be sent as X-Api-Key header
+                with all subsequent requests
 Read a value:   GET <url>?key=<key>
 Delete a value: DELETE <url>?key=<key>
 Set a value:    POST <url>?key=<key>
                 with value as request body
-`.trim(),
-  }),
-  elem({
-   tagName: 'p',
-   textContent: `➋ Set the key "code" to ${JSON.stringify(
-    code
-   )}`,
-  }),
-  elem({
-   tagName: 'p',
-   textContent: `➌ Press Verify`,
-  }),
-  elem({
-   tagName: 'form',
-   children: [
-    elem({
-     attributes: {
-      autofocus: true,
-      name: 'url',
-      placeholder: 'Enter kv server URL',
-      required: true,
-      type: 'text',
-     },
-     tagName: 'input',
+  `.trim(),
     }),
-    verifyButton,
    ],
-   events: {
-    async submit(e) {
-     e.preventDefault()
-     if (!waitingMessage) {
-      waitingMessage = elem({
-       tagName: 'p',
-       textContent:
-        'Please wait, checking kv server...',
-      })
-     }
-     try {
-      if (continueButton?.parentElement) {
-       continueButton.parentElement.removeChild(
-        continueButton
-       )
-      }
-      const serverUrl = new URL(
-       e.target.url.value
-      )
-      serverUrl.searchParams.set('key', 'code')
-      serverUrl.searchParams.set('mode', 'disk')
-      serverUrl.searchParams.set(
-       'modeOptions.disk.basePath',
-       './.kv-public'
-      )
-      const serverUrlString =
-       serverUrl.toString()
-      e.target.url.disabled = true
-      verifyButton.disabled = true
-      e.target.appendChild(waitingMessage)
-      waitingMessage.textContent =
-       'Please wait, giving you time to set the login value on your kv server...'
-      let result = await createSessionWithKVUrl(
-       serverUrlString,
-       code
-      )
-      console.log({ result })
-      if (result.success) {
-       await new Promise((x) =>
-        setTimeout(x, 500)
-       )
-       waitingMessage.textContent =
-        '✅ Connected'
-       closeModal()
-       return
-      }
-      await new Promise((x) =>
-       setTimeout(x, 3000)
-      )
-      async function reCheckNow() {
-       if (continueButton?.parentElement) {
-        continueButton.parentElement.removeChild(
-         continueButton
-        )
-       }
-
-       waitingMessage.textContent = `Please wait, checking kv server now at ${e.target.url.value}...`
-       result = await createSessionWithKVUrl(
-        serverUrlString,
-        code
-       )
-       await new Promise((x) =>
-        setTimeout(x, 500)
-       )
-       if (result.success) {
-        waitingMessage.textContent =
-         '✅ Connected'
-        await new Promise((x) =>
-         setTimeout(x, 500)
-        )
-        closeModal()
-        return
-       }
-       waitingMessage.textContent =
-        result.error ?? 'Unknown error'
-       // check here, then allow continue if still not found / not correct code
-       continueButton = elem({
-        tagName: 'button',
-        textContent: 'Continue',
-        events: {
-         async click(e) {
-          e.preventDefault()
-          reCheckNow()
-         },
-        },
-       })
-       e.target.appendChild(continueButton)
-      }
-      await reCheckNow()
-     } catch (e) {
-      alert(
-       e.message ??
-        'Something went wrong, please try again'
-      )
-      e.target.removeChild(waitingMessage)
-     } finally {
-      e.target.url.disabled = false
-      verifyButton.disabled = false
-     }
-    },
-   },
   })
  )
 }
 
-async function createSessionWithKVUrl(
+async function createSessionWithServer(
  url,
- expectedCode
+ apiKey
 ) {
- console.log({
-  message: 'now checking url: ' + url,
- })
- const response = await fetch(url)
- if (!response.ok) {
-  return {
-   success: false,
-   error: `Got response code ${response.status}} ${response.statusText}`,
-  }
- }
- const responseText = await response.text()
- if (expectedCode !== responseText) {
-  return {
-   success: false,
-   error: `Expected ${JSON.stringify(
-    responseText
-   )} to be ${JSON.stringify(expectedCode)}`,
-  }
- }
  const sessionId = randomId()
  const newSession = {
+  apiKey,
+  hash: location.hash,
   id: sessionId,
   url,
-  hash: location.hash,
  }
  writeSessions([...listSessions(), newSession])
  const createdAppAccount =
   appAccounts.add(newSession)
- await registerSessionWithUrl(sessionId, url)
  createdAppAccount.switchTo()
  return {
   success: true,
   data: newSession,
  }
-}
-
-async function registerSessionWithUrl(
- sessionId,
- url
-) {
- const session = readSession(sessionId)
- const realm = realms.find(
-  (x) => x.session.id === sessionId
- )
- realm.realmTabLabel.textContent = session.url
- location.hash = session.hash
- return true
-}
-
-async function registerSession(
- sessionId,
- control
-) {
- const session = readSession(sessionId)
- const realm = realms.find(
-  (x) => x.session.id === sessionId
- )
- realm.realmTabLabel.textContent = new URL(
-  session.url
- ).host
- location.hash = session.hash
- return true
 }
 
 function scrollToTop(top = 0) {
