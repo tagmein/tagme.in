@@ -682,7 +682,7 @@ async function addOpenGraphLink(
 
  const activeSession = getActiveSession()
  const headers = {}
- if (activeSession.apiKey) {
+ if (activeSession?.apiKey) {
   headers['X-Api-Key'] = activeSession.apiKey
  }
  try {

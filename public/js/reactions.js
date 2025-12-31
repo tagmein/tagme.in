@@ -75,7 +75,7 @@ async function fetchReactions() {
  try {
   const activeSession = getActiveSession()
   const headers = {}
-  if (activeSession.apiKey) {
+  if (activeSession?.apiKey) {
    headers['X-Api-Key'] = activeSession.apiKey
   }
   const response = await fetch(
@@ -221,7 +221,7 @@ async function addReaction(
  try {
   const activeSession = getActiveSession()
   const headers = {}
-  if (activeSession.apiKey) {
+  if (activeSession?.apiKey) {
    headers['X-Api-Key'] = activeSession.apiKey
   }
   const response = await fetch(
