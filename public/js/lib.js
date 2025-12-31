@@ -1253,11 +1253,11 @@ async function networkChannelSeek(
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
-  if (activeSession.apiKey) {
-   headers['X-Api-Key'] = activeSession.apiKey
-  }
   if (activeSession.realm) {
    headers['X-Realm'] = activeSession.realm
+  }
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
   }
  }
  const response = await fetch(
@@ -1399,6 +1399,9 @@ async function getNews(chunk, callback) {
  if (activeSession) {
   headers.Authorization =
    activeSession.accessToken
+  if (activeSession.apiKey) {
+   headers['X-Api-Key'] = activeSession.apiKey
+  }
   if (activeSession.realm) {
    headers['X-Realm'] = activeSession.realm
   }
