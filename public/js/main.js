@@ -36,17 +36,17 @@ const ADD_REACTION_PLACEHOLDER_MESSAGE =
  'Add a reaction (up to 25 characters)'
 
 const COMPOSE_PLACEHOLDER_MESSAGE =
- 'Write a message (up to 500 characters)'
+ 'Write a message (up to 750 characters)'
 
 const COMPOSE_PLACEHOLDER_REPLY =
- 'Write a reply (up to 500 characters)'
+ 'Write a reply (up to 750 characters)'
 
 function getChannelMaxLength(channel) {
  return channel === 'reactions'
   ? 25
   : channel === SCRIPT_CHANNEL
     ? 100000
-    : 500
+    : 750
 }
 
 async function updateComposeTextarea(
@@ -127,7 +127,7 @@ const composeTextarea = elem({
 const composeQuota = elem({
  classes: ['char-quota'],
  tagName: 'span',
- textContent: '0/500',
+ textContent: '0/750',
 })
 
 // --- Resize Observer for SCRIPT_CHANNEL textarea height persistence ---
