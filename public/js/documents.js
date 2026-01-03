@@ -168,17 +168,32 @@ function parseTagInput(text) {
  )
 }
 
+function toFiniteNumber(value) {
+ const n =
+  typeof value === 'number'
+   ? value
+   : typeof value === 'string' && value.trim().length > 0
+    ? Number(value)
+    : NaN
+ return Number.isFinite(n) ? n : null
+}
+
+function formatScore(value) {
+ const n = toFiniteNumber(value)
+ if (n == null) return '—'
+ return `${Math.round(n * 10) / 10}`
+}
+
 function localDateTime(msOrIso) {
- const d =
-  typeof msOrIso === 'number'
-   ? new Date(msOrIso)
-   : new Date(msOrIso)
+ if (msOrIso == null || msOrIso === '') return '—'
+ const d = new Date(msOrIso)
+ if (Number.isNaN(d.getTime())) return '—'
  return d.toLocaleString()
 }
 
 function getDocumentStatusText(doc) {
  const draft = doc.isDraft ? 'Draft' : 'Published'
- const velocity = typeof doc.velocity === 'number' ? doc.velocity : 0
+ const velocity = toFiniteNumber(doc?.velocity) ?? 0
  const velocityText = velocity !== 0 ? ` (${velocity > 0 ? '+' : ''}${velocity}/hr)` : ''
  return `${draft}${velocityText}`
 }
@@ -380,7 +395,7 @@ function renderToolbar(listData) {
        },
       },
      })
-     btn.setAttribute('title', `Score ${Math.round(score * 10) / 10}`)
+     btn.setAttribute('title', `Score ${formatScore(score)}`)
      return btn
     }),
    })
@@ -411,7 +426,7 @@ function createDocumentCard(doc) {
    elem({ tagName: 'h3', textContent: safeText(doc.title) }),
    elem({
     tagName: 'div',
-    textContent: `Score: ${Math.round(doc.score * 10) / 10}`,
+    textContent: `Score: ${formatScore(doc?.score)}`,
    }),
    elem({
     tagName: 'div',
@@ -543,7 +558,7 @@ function renderTagVotes(doc) {
    const row = elem({
     tagName: 'div',
     children: [
-     elem({ tagName: 'span', textContent: `${t}${typeof score === 'number' ? ` (${Math.round(score * 10) / 10})` : ''}` }),
+     elem({ tagName: 'span', textContent: `${t}${typeof score === 'number' && Number.isFinite(score) ? ` (${Math.round(score * 10) / 10})` : ''}` }),
      elem({
       tagName: 'button',
       textContent: '✅',
@@ -595,7 +610,7 @@ function renderDocumentView(doc) {
     tagName: 'div',
     classes: ['documents-view-meta'],
     children: [
-     elem({ tagName: 'div', textContent: `Score: ${Math.round(doc.score * 10) / 10}` }),
+     elem({ tagName: 'div', textContent: `Score: ${formatScore(doc?.score)}` }),
      elem({ tagName: 'div', textContent: getDocumentStatusText(doc) }),
      ...(statusMessage ? [elem({ tagName: 'div', textContent: statusMessage })] : []),
      elem({ tagName: 'div', textContent: `Created: ${localDateTime(doc.created)}` }),
