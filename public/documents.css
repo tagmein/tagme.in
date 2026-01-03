@@ -29,11 +29,11 @@
  }
 
 .documents-new-input {
- flex: 1;
+ width: 100%;
  height: 36px;
  border-radius: 8px;
  border: 1px solid var(--color-border-dark);
- background: var(--color-bg-light);
+ background: var(--color-theme-bg, var(--color-bg-medium));
  color: var(--color-text);
  padding: 0 12px;
  font-size: 14px;
@@ -51,7 +51,7 @@
  height: 36px;
  border-radius: 8px;
  border: 1px solid var(--color-border-dark);
- background: var(--color-bg-light);
+ background: var(--color-theme-bg, var(--color-bg-medium));
  color: var(--color-text);
  padding: 0 12px;
  font-size: 14px;
@@ -66,36 +66,35 @@
 
 .documents-new-compose {
  position: relative;
- display: flex;
- justify-content: flex-end;
  margin-top: 8px;
 }
 
 .documents-new-submit {
- display: flex;
- align-items: center;
- gap: 6px;
- height: 32px;
- border-radius: 16px;
- border: 1px solid var(--color-border-dark);
- background: var(--color-bg-medium-dark);
- color: var(--color-text-primary);
- padding: 0 12px;
+ background-color: transparent;
+ border-radius: 7px;
+ bottom: 29px;
+ box-sizing: border-box;
  cursor: pointer;
- font-size: 13px;
- font-weight: 500;
- white-space: nowrap;
- transition: all 0.2s ease;
+ height: 70px;
+ line-height: 22px;
+ opacity: 0.7;
+ padding: 10px;
+ position: absolute;
+ right: 20px;
+ text-align: center;
+ transition: 0.2s background-color ease, 0.3s opacity ease;
+ width: 70px;
+ z-index: 1;
 }
 
 .documents-new-submit:hover {
- background: var(--color-bg-dark);
- border-color: var(--color-border-light);
+ background-color: var(--color-bg-secondary-hover);
+ opacity: 1;
 }
 
 .documents-new-submit .icon-plane {
- width: 12px;
- height: 12px;
+ width: 32px;
+ height: 32px;
  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>') no-repeat center;
  background-size: contain;
 }
@@ -122,9 +121,9 @@
   resize: vertical;
   border-radius: 8px;
   border: 1px solid var(--color-border-dark);
-  background: var(--color-bg-medium);
+  background: var(--color-theme-bg, var(--color-bg-medium));
   color: var(--color-text);
-  padding: 10px 12px;
+  padding: 10px 60px 10px 12px;
   font-size: 14px;
   box-sizing: border-box;
   outline: none;
@@ -134,7 +133,7 @@
  }
 
 .documents-empty {
- background-color: white;
+ background-color: transparent;
  border: none;
  border-radius: 10px;
  box-sizing: border-box;
@@ -347,7 +346,8 @@ body[data-mode='documents'] .mode-documents.toolbar button.documents-tag-pill:ho
 
 .documents-view-links a {
  color: var(--color-text-secondary);
- text-decoration: none;
+ text-decoration: underline;
+ text-decoration-style: dotted;
 }
 
 .documents-view-links a:hover {
