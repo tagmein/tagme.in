@@ -216,6 +216,7 @@ body[data-mode='documents'] .mode-documents.toolbar {
  flex-wrap: wrap;
  padding: 0;
  box-sizing: border-box;
+ border-top: 1px solid var(--color-border-dark);
  border-bottom: 1px solid var(--color-border-dark);
 }
 
@@ -224,11 +225,15 @@ body[data-mode='documents'] .mode-documents.toolbar select {
  height: 100%;
  border-radius: 0;
  border: none !important;
- border-right: none !important;
+ border-right: 1px solid var(--color-border-dark);
  background: transparent !important;
  color: inherit;
  padding: 2px 15px 1px;
  box-sizing: border-box;
+}
+
+body[data-mode='documents'] .mode-documents.toolbar select:last-child {
+ border-right: none;
 }
 
 body[data-mode='documents'] .mode-documents.toolbar input::placeholder {
