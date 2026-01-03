@@ -36,6 +36,16 @@ let documentsState = {
  openDocumentRev: null,
 }
 
+const DOCUMENTS_STATUS_STORAGE_KEY = 'tagme.documents.status'
+try {
+ const savedStatus = localStorage.getItem(DOCUMENTS_STATUS_STORAGE_KEY)
+ if (savedStatus === 'published' || savedStatus === 'draft' || savedStatus === 'all') {
+  documentsState.status = savedStatus
+ }
+} catch {
+ // ignore
+}
+
 function networkRootUrl() {
   return globalThis.env?.TAGMEIN_API_BASEURL ?? ''
  }
@@ -296,6 +306,24 @@ function clearDocumentsUI() {
 function renderToolbar(listData) {
  documentsToolbar.innerHTML = ''
 
+ const backBtn = elem({
+  tagName: 'button',
+  classes: ['documents-toolbar-back'],
+  attributes: { title: 'Back' },
+  children: [elem({ tagName: 'span', classes: ['icon', 'icon-back', 'icon-sm'] })],
+ })
+ backBtn.addEventListener('click', () => {
+  documentsState.view = 'list'
+  documentsState.openDocument = null
+  documentsState.openDocumentRev = null
+  withLoading(loadDocuments())
+ })
+
+ if (documentsState.view !== 'list') {
+  documentsToolbar.appendChild(backBtn)
+  return
+ }
+
  const tagInput = elem({
   tagName: 'input',
   attributes: {
@@ -333,6 +361,7 @@ function renderToolbar(listData) {
 
  const statusSelect = elem({
   tagName: 'select',
+  classes: ['status-select'],
   children: [
    elem({ tagName: 'option', attributes: { value: 'published' }, textContent: 'Published' }),
    elem({ tagName: 'option', attributes: { value: 'draft' }, textContent: 'Drafts' }),
@@ -343,47 +372,30 @@ function renderToolbar(listData) {
  statusSelect.addEventListener('change', () => {
   const v = statusSelect.value
   documentsState.status = v === 'draft' ? 'draft' : v === 'all' ? 'all' : 'published'
+  try {
+   localStorage.setItem(DOCUMENTS_STATUS_STORAGE_KEY, documentsState.status)
+  } catch {
+   // ignore
+  }
   withLoading(loadDocuments())
  })
-
- const newBtn = elem({
-  tagName: 'button',
-  textContent: 'New',
- })
- newBtn.addEventListener('click', () => {
-  showCreate()
- })
-
- const backBtn = elem({
-  tagName: 'button',
-  textContent: 'Back',
- })
- backBtn.addEventListener('click', () => {
-  documentsState.view = 'list'
-  documentsState.openDocument = null
-  documentsState.openDocumentRev = null
-  withLoading(loadDocuments())
- })
-
- if (documentsState.view !== 'list') {
-  documentsToolbar.appendChild(backBtn)
- }
 
  documentsToolbar.appendChild(tagInput)
  documentsToolbar.appendChild(tagModeSelect)
  documentsToolbar.appendChild(statusSelect)
- documentsToolbar.appendChild(newBtn)
 
  if (documentsState.view === 'list') {
   const tags = listData?.response?.tags
   if (Array.isArray(tags) && tags.length > 0) {
    const tagRow = elem({
     tagName: 'div',
+    classes: ['documents-tag-row'],
     children: tags.map((t) => {
      const name = t?.name
      const score = t?.score
      const btn = elem({
       tagName: 'button',
+      classes: ['documents-tag-pill'],
       textContent: `${name}`,
       events: {
        click() {
@@ -411,7 +423,7 @@ function renderEmptyState() {
    ? `No documents found for tags ${documentsState.selectedTags.join(', ')}`
    : 'No documents found'
  documentsElement.appendChild(
-  elem({ classes: ['doc-tile'], textContent: msg })
+  elem({ classes: ['documents-empty'], textContent: msg })
  )
 }
 
@@ -431,14 +443,6 @@ function createDocumentCard(doc) {
    elem({
     tagName: 'div',
     textContent: getDocumentStatusText(doc),
-   }),
-   elem({
-    tagName: 'div',
-    textContent: `Created: ${localDateTime(doc.created)}`,
-   }),
-   elem({
-    tagName: 'div',
-    textContent: `Edited: ${localDateTime(doc.modified)}`,
    }),
    elem({
     tagName: 'div',
@@ -491,7 +495,7 @@ function createDocumentCard(doc) {
   ],
   events: {
    click() {
-    withLoading(showView(doc.id))
+    openDocumentPreview(doc.id)
    },
   },
  })
@@ -500,14 +504,118 @@ function createDocumentCard(doc) {
 
 function renderDocumentsList(listData) {
  clearDocumentsUI()
+ 
+ const newDocForm = elem({
+  tagName: 'div',
+  classes: ['documents-new-form'],
+  children: [
+   elem({
+    tagName: 'div',
+    classes: ['documents-new-row'],
+    children: [
+     elem({
+      tagName: 'input',
+      classes: ['documents-new-input'],
+      attributes: {
+       placeholder: 'Document title...',
+       type: 'text',
+      },
+     }),
+     elem({
+      tagName: 'input',
+      classes: ['documents-new-tags'],
+      attributes: {
+       placeholder: 'Tags (comma-separated)...',
+       type: 'text',
+      },
+     }),
+    ],
+   }),
+   elem({
+    tagName: 'textarea',
+    classes: ['documents-new-body'],
+    attributes: {
+     placeholder: 'Document body...',
+    },
+   }),
+   elem({
+    tagName: 'div',
+    classes: ['documents-new-compose'],
+    children: [
+     elem({
+      tagName: 'button',
+      classes: ['documents-new-submit'],
+      attributes: {
+       title: 'Create',
+      },
+      events: {
+       async click(e) {
+        e.preventDefault()
+        const titleInput = newDocForm.querySelector('.documents-new-input')
+        const tagsInput = newDocForm.querySelector('.documents-new-tags')
+        const bodyInput = newDocForm.querySelector('.documents-new-body')
+
+        const title = titleInput?.value?.trim() ?? ''
+        const body = bodyInput?.value ?? ''
+        const tags = parseTagInput(tagsInput?.value ?? '')
+
+        if (!title) {
+         alert('missing title')
+         return
+        }
+        if (!body || body.trim().length === 0) {
+         alert('missing body')
+         return
+        }
+
+        const payload = {
+         action: 'create',
+         title,
+         body,
+         tags,
+        }
+
+        try {
+         const data = await postDocuments(payload)
+         if (data?.response?.document) {
+          titleInput.value = ''
+          tagsInput.value = ''
+          bodyInput.value = ''
+          withLoading(loadDocuments())
+         }
+        } catch (err) {
+         alert(err?.message ?? err)
+        }
+       },
+      },
+      children: [
+       elem({ tagName: 'span', classes: ['icon', 'icon-plane'] }),
+      ],
+     }),
+    ],
+   }),
+  ],
+ })
+ 
+ documentsElement.appendChild(newDocForm)
+ 
  const documents = listData?.response?.documents
  if (!Array.isArray(documents) || documents.length === 0) {
-  renderEmptyState()
+  const msg =
+   documentsState.selectedTags.length > 0
+    ? `No documents found for tags ${documentsState.selectedTags.join(', ')}`
+    : 'No documents found'
+  documentsElement.appendChild(
+   elem({ classes: ['documents-empty'], textContent: msg })
+  )
   return
  }
+
+ const grid = elem({ tagName: 'div', classes: ['documents-grid'] })
  for (const doc of documents) {
-  documentsElement.appendChild(createDocumentCard(doc))
+  grid.appendChild(createDocumentCard(doc))
  }
+ documentsElement.appendChild(grid)
 }
 
 function renderVoteRow(doc) {
@@ -622,76 +730,50 @@ function renderDocumentView(doc) {
  const article = elem({ tagName: 'article' })
  article.innerHTML = renderMarkdown(doc.body)
 
+ const sep = () => elem({ tagName: 'span', classes: ['documents-view-sep'], textContent: ' • ' })
+ const link = (text, onClick) =>
+  elem({
+   tagName: 'a',
+   textContent: text,
+   attributes: { href: '#' },
+   events: {
+    click(e) {
+     e.preventDefault()
+     onClick()
+    },
+   },
+  })
+
+ const actions = [
+  link('Preview', () => openDocumentPreview(doc.id)),
+  sep(),
+  link('copy preview link', async () => {
+   const shareUrl = documentPreviewUrl(doc.id)
+   try {
+    await navigator.clipboard.writeText(shareUrl)
+   } catch {
+    const ta = document.createElement('textarea')
+    ta.value = shareUrl
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    ta.remove()
+   }
+   alert('Preview link copied')
+  }),
+  sep(),
+  link('download', () => downloadMarkdown(doc.title, doc.body)),
+ ]
+
+ if (doc.isDraft) {
+  actions.push(sep())
+  actions.push(link('edit', () => withLoading(showEdit(doc.id))))
+ }
+
  const buttons = elem({
   tagName: 'div',
-  classes: ['documents-view-actions'],
-  children: [
-   elem({
-    tagName: 'button',
-    textContent: '🔙 Back to List',
-    events: {
-     click(e) {
-      e.preventDefault()
-      loadDocuments()
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Preview',
-    events: {
-     click(e) {
-      e.preventDefault()
-      openDocumentPreview(doc.id)
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Copy Preview Link',
-    events: {
-     async click(e) {
-      e.preventDefault()
-      const shareUrl = documentPreviewUrl(doc.id)
-      try {
-       await navigator.clipboard.writeText(shareUrl)
-      } catch {
-       const ta = document.createElement('textarea')
-       ta.value = shareUrl
-       document.body.appendChild(ta)
-       ta.select()
-       document.execCommand('copy')
-       ta.remove()
-      }
-      alert('Preview link copied')
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: 'Download',
-    events: {
-     click(e) {
-      e.preventDefault()
-      downloadMarkdown(doc.title, doc.body)
-     },
-    },
-   }),
-   ...(doc.isDraft
-    ? [
-       elem({
-        tagName: 'button',
-        textContent: 'Edit',
-        events: {
-         click(e) {
-          e.preventDefault()
-          withLoading(showEdit(doc.id))
-         },
-        },
-       }),
-      ]
-    : []),
-  ],
+  classes: ['documents-view-links'],
+  children: actions,
  })
 
  const wrap = elem({
@@ -748,55 +830,81 @@ function renderDocumentEditor(doc, isCreate) {
   textContent: safeText(doc?.body ?? ''),
  })
 
- const saveBtn = elem({
+ async function submitDocument() {
+  const payload = isCreate
+   ? {
+      action: 'create',
+      title: titleInput.value,
+      body: bodyArea.value,
+      tags: parseTagInput(tagsInput.value),
+     }
+   : {
+      action: 'save',
+      id: safeText(doc?.id ?? ''),
+      ifRev: doc?.rev,
+      title: titleInput.value,
+      body: bodyArea.value,
+      tags: parseTagInput(tagsInput.value),
+     }
+  try {
+   const data = await postDocuments(payload)
+   const updated = data?.response?.document
+   if (updated) {
+    documentsState.openDocument = updated
+    documentsState.openDocumentRev = updated.rev
+    renderToolbar({})
+    renderDocumentView(updated)
+    return
+   }
+   alert('Unable to save document')
+  } catch (err) {
+   alert(err?.message ?? err)
+  }
+ }
+
+ bodyArea.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+   e.preventDefault()
+   submitDocument()
+  }
+ })
+
+ const sendBtn = elem({
   tagName: 'button',
-  textContent: 'Save',
+  classes: ['documents-editor-submit'],
+  attributes: {
+   title: isCreate ? 'Create' : 'Save',
+  },
   events: {
    async click(e) {
     e.preventDefault()
-    const payload = isCreate
-     ? {
-        action: 'create',
-        title: titleInput.value,
-        body: bodyArea.value,
-        tags: parseTagInput(tagsInput.value),
-       }
-     : {
-        action: 'save',
-        id: safeText(doc?.id ?? ''),
-        ifRev: doc?.rev,
-        title: titleInput.value,
-        body: bodyArea.value,
-        tags: parseTagInput(tagsInput.value),
-       }
-    try {
-     const data = await postDocuments(payload)
-     const updated = data?.response?.document
-     if (updated) {
-      documentsState.openDocument = updated
-      documentsState.openDocumentRev = updated.rev
-      renderToolbar({})
-      renderDocumentView(updated)
-      return
-     }
-     alert('Unable to save document')
-    } catch (err) {
-     alert(err?.message ?? err)
-    }
+    await submitDocument()
    },
   },
+  children: [
+   elem({ tagName: 'span', classes: ['icon', 'icon-plane'] }),
+  ],
  })
 
- const downloadBtn = elem({
-  tagName: 'button',
-  textContent: 'Download',
-  events: {
-   click(e) {
-    e.preventDefault()
-    downloadMarkdown(titleInput.value || 'document', bodyArea.value)
-   },
-  },
+ const compose = elem({
+  tagName: 'div',
+  classes: ['documents-editor-compose'],
+  children: [bodyArea, sendBtn],
  })
+
+ const downloadBtn =
+  !isCreate
+   ? elem({
+      tagName: 'button',
+      textContent: 'Download',
+      events: {
+       click(e) {
+        e.preventDefault()
+        downloadMarkdown(titleInput.value || 'document', bodyArea.value)
+       },
+      },
+     })
+   : null
 
  const formWrap = elem({
   tagName: 'div',
@@ -812,18 +920,21 @@ function renderDocumentEditor(doc, isCreate) {
     classes: ['documents-editor-fields'],
     children: [titleInput, tagsInput],
    }),
-   bodyArea,
-   elem({
-    tagName: 'div',
-    classes: ['documents-editor-actions'],
-    children: [saveBtn, downloadBtn],
-   }),
+   compose,
+   ...(downloadBtn
+    ? [
+       elem({
+        tagName: 'div',
+        classes: ['documents-editor-actions'],
+        children: [downloadBtn],
+       }),
+      ]
+    : []),
   ],
  })
 
  documentsElement.appendChild(formWrap)
 }
-
 async function showView(id) {
  const data = await fetchDocument(id)
  const doc = data?.response?.document
