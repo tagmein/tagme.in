@@ -449,53 +449,10 @@ function createDocumentCard(doc) {
     textContent: `Tags: ${displayTags.length > 0 ? displayTags.join(', ') : ''}`,
    }),
    ...(statusMessage ? [elem({ tagName: 'div', textContent: statusMessage })] : []),
-   elem({
-    tagName: 'div',
-    classes: ['doc-actions'],
-    children: [
-     elem({
-      tagName: 'button',
-      textContent: 'Open',
-      events: {
-       click(e) {
-        e.preventDefault()
-        e.stopPropagation()
-        withLoading(showView(doc.id))
-       },
-      },
-     }),
-     elem({
-      tagName: 'button',
-      textContent: 'Preview',
-      events: {
-       click(e) {
-        e.preventDefault()
-        e.stopPropagation()
-        openDocumentPreview(doc.id)
-       },
-      },
-     }),
-     ...(doc.isDraft
-      ? [
-         elem({
-          tagName: 'button',
-          textContent: 'Edit',
-          events: {
-           click(e) {
-            e.preventDefault()
-            e.stopPropagation()
-            withLoading(showEdit(doc.id))
-           },
-          },
-         }),
-        ]
-      : []),
-    ],
-   }),
   ],
   events: {
    click() {
-    openDocumentPreview(doc.id)
+    withLoading(showView(doc.id))
    },
   },
  })
@@ -619,42 +576,47 @@ function renderDocumentsList(listData) {
 }
 
 function renderVoteRow(doc) {
- const voteRow = elem({
-  tagName: 'div',
-  children: [
-   elem({
-    tagName: 'button',
-    textContent: '✅',
-    events: {
-     async click(e) {
-      e.preventDefault()
-      const data = await postDocuments({ action: 'vote', id: doc.id, delta: 1 })
-      if (data?.response?.document) {
-       documentsState.openDocument = data.response.document
-       documentsState.openDocumentRev = data.response.document.rev
-       renderDocumentView(data.response.document)
-      }
-     },
-    },
-   }),
-   elem({
-    tagName: 'button',
-    textContent: '❎',
-    events: {
-     async click(e) {
-      e.preventDefault()
-      const data = await postDocuments({ action: 'vote', id: doc.id, delta: -1 })
-      if (data?.response?.document) {
-       documentsState.openDocument = data.response.document
-       documentsState.openDocumentRev = data.response.document.rev
-       renderDocumentView(data.response.document)
-      }
-     },
-    },
-   }),
-  ],
+ const agreeButton = elem({
+  tagName: 'button',
+  classes: ['agree'],
+  children: [icon('yes')],
+  attributes: { title: 'I agree with this' },
+  events: {
+   async click(e) {
+    e.preventDefault()
+    const data = await postDocuments({ action: 'vote', id: doc.id, delta: 1 })
+    if (data?.response?.document) {
+     documentsState.openDocument = data.response.document
+     documentsState.openDocumentRev = data.response.document.rev
+     renderDocumentView(data.response.document)
+    }
+   },
+  },
  })
- return voteRow
+
+ const disagreeButton = elem({
+  tagName: 'button',
+  classes: ['disagree'],
+  children: [icon('no')],
+  attributes: { title: 'I disagree with this' },
+  events: {
+   async click(e) {
+    e.preventDefault()
+    const data = await postDocuments({ action: 'vote', id: doc.id, delta: -1 })
+    if (data?.response?.document) {
+     documentsState.openDocument = data.response.document
+     documentsState.openDocumentRev = data.response.document.rev
+     renderDocumentView(data.response.document)
+    }
+   },
+  },
+ })
+
+ return elem({
+  tagName: 'div',
+  classes: ['article-tool-buttons'],
+  children: [agreeButton, disagreeButton],
+ })
 }
 
 function renderTagVotes(doc) {
@@ -663,43 +625,57 @@ function renderTagVotes(doc) {
   tagName: 'div',
   children: (Array.isArray(doc.tags) ? doc.tags : []).map((t) => {
    const score = tagScores[t]
-   const row = elem({
+
+   const agreeButton = elem({
+    tagName: 'button',
+    classes: ['agree'],
+    children: [icon('yes')],
+    attributes: { title: 'I agree with this' },
+    events: {
+     async click(e) {
+      e.preventDefault()
+      const data = await postDocuments({ action: 'tagVote', id: doc.id, tag: t, delta: 1 })
+      if (data?.response?.document) {
+       documentsState.openDocument = data.response.document
+       documentsState.openDocumentRev = data.response.document.rev
+       renderDocumentView(data.response.document)
+      }
+     },
+    },
+   })
+
+   const disagreeButton = elem({
+    tagName: 'button',
+    classes: ['disagree'],
+    children: [icon('no')],
+    attributes: { title: 'I disagree with this' },
+    events: {
+     async click(e) {
+      e.preventDefault()
+      const data = await postDocuments({ action: 'tagVote', id: doc.id, tag: t, delta: -1 })
+      if (data?.response?.document) {
+       documentsState.openDocument = data.response.document
+       documentsState.openDocumentRev = data.response.document.rev
+       renderDocumentView(data.response.document)
+      }
+     },
+    },
+   })
+
+   const buttons = elem({
     tagName: 'div',
+    classes: ['article-tool-buttons'],
+    children: [agreeButton, disagreeButton],
+   })
+
+   return elem({
+    tagName: 'div',
+    classes: ['documents-tag-vote-row'],
     children: [
      elem({ tagName: 'span', textContent: `${t}${typeof score === 'number' && Number.isFinite(score) ? ` (${Math.round(score * 10) / 10})` : ''}` }),
-     elem({
-      tagName: 'button',
-      textContent: '✅',
-      events: {
-       async click(e) {
-        e.preventDefault()
-        const data = await postDocuments({ action: 'tagVote', id: doc.id, tag: t, delta: 1 })
-        if (data?.response?.document) {
-         documentsState.openDocument = data.response.document
-         documentsState.openDocumentRev = data.response.document.rev
-         renderDocumentView(data.response.document)
-        }
-       },
-      },
-     }),
-     elem({
-      tagName: 'button',
-      textContent: '❎',
-      events: {
-       async click(e) {
-        e.preventDefault()
-        const data = await postDocuments({ action: 'tagVote', id: doc.id, tag: t, delta: -1 })
-        if (data?.response?.document) {
-         documentsState.openDocument = data.response.document
-         documentsState.openDocumentRev = data.response.document.rev
-         renderDocumentView(data.response.document)
-        }
-       },
-      },
-     }),
+     buttons,
     ],
    })
-   return row
   }),
  })
  return wrap

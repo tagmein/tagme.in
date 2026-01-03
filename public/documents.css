@@ -232,7 +232,7 @@ body[data-mode='documents'] .mode-documents.toolbar select {
  box-sizing: border-box;
 }
 
-body[data-mode='documents'] .mode-documents.toolbar select:last-child {
+body[data-mode='documents'] .mode-documents.toolbar select:last-of-type {
  border-right: none;
 }
 
@@ -294,7 +294,6 @@ body[data-mode='documents'] .mode-documents.toolbar .documents-tag-row {
  padding: 10px 12px;
  width: 100%;
  box-sizing: border-box;
- border-top: 1px solid var(--color-border-dark);
 }
 
 body[data-mode='documents'] .mode-documents.toolbar button.documents-tag-pill {
@@ -359,6 +358,33 @@ body[data-mode='documents'] .mode-documents.toolbar button.documents-tag-pill:ho
 
 .documents-view-sep {
  opacity: 0.6;
+}
+
+.documents-view-votes .article-tool-buttons {
+ display: flex;
+ width: 145px;
+}
+
+.documents-view-votes .article-tool-buttons > button {
+ align-items: center;
+ display: grid;
+ flex-grow: 0;
+ flex-shrink: 0;
+ justify-content: center;
+ max-height: 44px;
+ min-width: 44px;
+ width: 50%;
+ border-radius: 50px;
+ box-sizing: border-box;
+ line-height: 22px;
+ padding: 4px 3px 5px 4px;
+}
+
+.documents-tag-vote-row {
+ display: flex;
+ align-items: center;
+ justify-content: space-between;
+ gap: 12px;
 }
 
 .documents-area article {
