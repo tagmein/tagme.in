@@ -226,9 +226,14 @@ body[data-mode='documents'] .mode-documents.toolbar select {
  border: none !important;
  border-right: none !important;
  background: transparent !important;
- color: var(--color-text-primary);
+ color: inherit;
  padding: 2px 15px 1px;
  box-sizing: border-box;
+}
+
+body[data-mode='documents'] .mode-documents.toolbar input::placeholder {
+ color: inherit;
+ opacity: 0.54;
 }
 
 body[data-mode='documents'] .mode-documents.toolbar input {
