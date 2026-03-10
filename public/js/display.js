@@ -757,6 +757,9 @@ function attachMessage(
   tagName: 'button',
   textContent: '🗨️ Chat',
   classes: ['btn-chat'],
+  attributes: {
+   'data-tour': 'Chat with AI about this message.'
+  },
   events: {
    click() {
     console.log('Chat button clicked')
@@ -870,6 +873,7 @@ function attachMessage(
    const labelMessageLink = elem({
     attributes: {
      href,
+     'data-tour': 'Add labels to organize and categorize messages.'
     },
     events: {
      async click(e) {

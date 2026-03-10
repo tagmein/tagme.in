@@ -136,77 +136,75 @@ function tour() {
   const self =
    tourElement.getBoundingClientRect()
   const pad = 10
+  
+  // Use fixed positioning relative to viewport
+  tourElement.style.position = 'fixed'
+  
   const moreRoomAbove =
-   box.top > innerHeight / 2
-  const moreRoomLeft = box.left > innerWidth / 2
-  Object.assign(
-   tourElement.style,
-   moreRoomAbove
-    ? {
-       bottom: `${Math.max(
-        pad,
-        Math.min(
-         innerHeight -
-          self.height -
-          pad -
-          scrollY,
-         innerHeight - box.top + pad
-        )
-       )}px`,
-       top: 'auto',
-      }
-    : {
-       bottom: 'auto',
-       top: `${Math.max(
-        pad,
-        Math.min(
-         scrollY +
-          innerHeight -
-          self.height -
-          pad,
-         box.bottom + pad
-        )
-       )}px`,
-      }
-  )
-  Object.assign(
-   tourElement.style,
-   moreRoomLeft
-    ? {
-       left: 'auto',
-       right: `${Math.max(
-        pad,
-        Math.min(
-         innerWidth - self.width - pad,
-         innerWidth - box.right + pad
-        )
-       )}px`,
-      }
-    : {
-       left: `${Math.max(
-        pad,
-        Math.min(
-         innerWidth - self.width - pad,
-         box.left + pad
-        )
-       )}px`,
-       right: 'auto',
-      }
-  )
+   box.top > window.innerHeight / 2
+  const moreRoomLeft = box.left > window.innerWidth / 2
+  
+  // Calculate available space
+  const spaceAbove = box.top
+  const spaceBelow = window.innerHeight - box.bottom
+  const spaceLeft = box.left
+  const spaceRight = window.innerWidth - box.right
+  
+  // Position vertically
+  if (moreRoomAbove && spaceAbove >= self.height + pad) {
+   // Position above the element
+   tourElement.style.top = 'auto'
+   tourElement.style.bottom = `${window.innerHeight - box.top + pad}px`
+  } else if (spaceBelow >= self.height + pad) {
+   // Position below the element
+   tourElement.style.top = `${box.bottom + pad}px`
+   tourElement.style.bottom = 'auto'
+  } else {
+   // Not enough space, position where there's more room
+   if (spaceAbove > spaceBelow) {
+    tourElement.style.top = 'auto'
+    tourElement.style.bottom = `${Math.max(pad, window.innerHeight - box.top + pad)}px`
+   } else {
+    tourElement.style.top = `${Math.max(pad, box.bottom + pad)}px`
+    tourElement.style.bottom = 'auto'
+   }
+  }
+  
+  // Position horizontally
+  if (moreRoomLeft && spaceRight >= self.width + pad) {
+   // Position to the right
+   tourElement.style.left = `${box.right + pad}px`
+   tourElement.style.right = 'auto'
+  } else if (spaceLeft >= self.width + pad) {
+   // Position to the left
+   tourElement.style.left = 'auto'
+   tourElement.style.right = `${window.innerWidth - box.left + pad}px`
+  } else {
+   // Center horizontally if possible
+   const leftPos = Math.max(pad, Math.min(
+    window.innerWidth - self.width - pad,
+    box.left + pad
+   ))
+   tourElement.style.left = `${leftPos}px`
+   tourElement.style.right = 'auto'
+  }
+  
+  // Position the highlight box
   Object.assign(tourSelf.style, {
+   position: 'fixed',
    left: `${box.left}px`,
    top: `${box.top}px`,
    height: `${box.height}px`,
    width: `${box.width}px`,
   })
-  scrollX = 0
+  
+  // Prevent horizontal scroll
   document.body.scrollLeft = 0
-  setTimeout(() => {
-   scrollX = 0
-   document.body.scrollLeft = 0
-  }, 100)
+  
+  // Set the right-side shade width
   tourSelf.children[3].style.width =
    window.innerWidth - box.right + 'px'
+  
   for (const t of Array.from(
    tourSelf.children
   )) {
