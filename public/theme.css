@@ -3088,91 +3088,91 @@ body[data-mode='activity']
  animation: fadeOut 1s forwards;
 }
 
- /* Optional: Smooth fade out */
- @keyframes fadeOut {
-  0% {
-   opacity: 1;
-  }
-  70% {
-   opacity: 1;
-  }
-  100% {
-   opacity: 0;
-  }
+/* Optional: Smooth fade out */
+@keyframes fadeOut {
+ 0% {
+  opacity: 1;
  }
+ 70% {
+  opacity: 1;
+ }
+ 100% {
+  opacity: 0;
+ }
+}
 
- /* Tag Filter Bar Styles */
- .tag-filter-bar {
-  background: var(--color-bg-medium-dark);
-  border: 1px solid var(--color-border-medium);
-  border-radius: 8px;
-  padding: 8px;
-  margin-top: 10px;
-  display: none;
-  flex-wrap: wrap;
-  gap: 5px;
-  align-items: center;
-  font-size: 12px;
-  transition: all 0.2s ease;
- }
+/* Tag Filter Bar Styles */
+.tag-filter-bar {
+ background: var(--color-bg-medium-dark);
+ border: 1px solid var(--color-border-medium);
+ border-radius: 8px;
+ padding: 8px;
+ margin-top: 10px;
+ display: none;
+ flex-wrap: wrap;
+ gap: 5px;
+ align-items: center;
+ font-size: 12px;
+ transition: all 0.2s ease;
+}
 
- .tag-filter-bar.visible {
-  display: flex;
- }
+.tag-filter-bar.visible {
+ display: flex;
+}
 
- .tag-filter-bar:hover {
-  border-color: var(--color-border-light);
-  background: var(--color-bg-medium);
- }
+.tag-filter-bar:hover {
+ border-color: var(--color-border-light);
+ background: var(--color-bg-medium);
+}
 
- .tag-filter-btn {
-  background: var(--color-bg-light);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-medium);
-  padding: 4px 8px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 11px;
-  transition: all 0.2s ease;
-  font-weight: 500;
- }
+.tag-filter-btn {
+ background: var(--color-bg-light);
+ color: var(--color-text-primary);
+ border: 1px solid var(--color-border-medium);
+ padding: 4px 8px;
+ border-radius: 12px;
+ cursor: pointer;
+ font-size: 11px;
+ transition: all 0.2s ease;
+ font-weight: 500;
+}
 
- .tag-filter-btn:hover {
-  background: var(--color-bg-accent);
-  border-color: var(--color-border-light);
-  transform: translateY(-1px);
- }
+.tag-filter-btn:hover {
+ background: var(--color-bg-accent);
+ border-color: var(--color-border-light);
+ transform: translateY(-1px);
+}
 
- .tag-filter-btn.active {
-  background: var(--color-bg-primary);
-  border-color: var(--color-border-light);
-  color: white;
-  box-shadow: 0 2px 4px var(--color-shadow-dark);
- }
+.tag-filter-btn.active {
+ background: var(--color-bg-primary);
+ border-color: var(--color-border-light);
+ color: white;
+ box-shadow: 0 2px 4px var(--color-shadow-dark);
+}
 
- .tag-filter-bar span[style*="Filter by tags"] {
-  color: var(--color-text-secondary);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
- }
+.tag-filter-bar span[style*='Filter by tags'] {
+ color: var(--color-text-secondary);
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+}
 
- .tag-filter-bar button:last-child {
-  background: var(--color-bg-no-active);
-  color: white;
-  border: none;
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  transition: all 0.2s ease;
- }
+.tag-filter-bar button:last-child {
+ background: var(--color-bg-no-active);
+ color: white;
+ border: none;
+ padding: 4px 8px;
+ border-radius: 4px;
+ cursor: pointer;
+ font-size: 11px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ transition: all 0.2s ease;
+}
 
- .tag-filter-bar button:last-child:hover {
-  background: #ff0000;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px var(--color-shadow-dark);
- }
+.tag-filter-bar button:last-child:hover {
+ background: #ff0000;
+ transform: translateY(-1px);
+ box-shadow: 0 2px 4px var(--color-shadow-dark);
+}

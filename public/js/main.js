@@ -344,11 +344,13 @@ body.appendChild(consentPrompt)
 body.appendChild(compose)
 
 // Create and add tag filter bar after compose
-if (typeof window.createTagFilterBar === 'function') {
-  const bar = window.createTagFilterBar()
-  if (bar) {
-    insertAfter(compose, bar)
-  }
+if (
+ typeof window.createTagFilterBar === 'function'
+) {
+ const bar = window.createTagFilterBar()
+ if (bar) {
+  insertAfter(compose, bar)
+ }
 }
 
 body.appendChild(mainContent)
