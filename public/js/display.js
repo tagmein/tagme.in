@@ -2,6 +2,158 @@ let realms = []
 
 let secondMostRecentRealm
 
+// Tag filter functionality
+window.availableTags = new Set()
+window.activeFilters = new Set()
+window.tagFilterBar = null
+
+function extractTagsFromText(text) {
+ const tagRegex = /#(\w+)/g
+ const tags = []
+ let match
+ while (
+  (match = tagRegex.exec(text)) !== null
+ ) {
+  tags.push(match[1])
+ }
+ return tags
+}
+
+window.createTagFilterBar = function () {
+ if (window.tagFilterBar)
+  return window.tagFilterBar
+
+ window.tagFilterBar = elem({
+  classes: ['tag-filter-bar'],
+  children: [
+   elem({
+    tagName: 'span',
+    textContent: 'Filter by tags:',
+   }),
+   elem({
+    tagName: 'button',
+    textContent: 'Clear All',
+    events: {
+     click: clearAllFilters,
+    },
+   }),
+  ],
+ })
+ return window.tagFilterBar
+}
+
+window.updateAvailableTags = function () {
+ window.availableTags.clear()
+
+ // Get all visible messages (they use .news class, not .message)
+ const messages =
+  document.querySelectorAll('.news')
+ messages.forEach((message) => {
+  const linkElements =
+   message.querySelectorAll('a')
+  linkElements.forEach((linkElement) => {
+   const text = linkElement.textContent
+   if (text.startsWith('#')) {
+    window.availableTags.add(text.substring(1))
+   }
+  })
+ })
+
+ renderFilterBar()
+}
+
+function renderFilterBar() {
+ if (!window.tagFilterBar) return
+
+ // Remove existing tag buttons
+ const existingButtons =
+  window.tagFilterBar.querySelectorAll(
+   '.tag-filter-btn'
+  )
+ existingButtons.forEach((btn) => btn.remove())
+
+ // Add tag buttons
+ window.availableTags.forEach((tag) => {
+  const tagButton = elem({
+   classes: ['tag-filter-btn'],
+   textContent: `#${tag}`,
+   events: {
+    click: () => toggleTagFilter(tag),
+   },
+  })
+
+  if (window.activeFilters.has(tag)) {
+   tagButton.classList.add('active')
+  }
+
+  // Insert before clear button
+  const clearButton =
+   window.tagFilterBar.querySelector('button')
+  window.tagFilterBar.insertBefore(
+   tagButton,
+   clearButton
+  )
+ })
+
+ // Show/hide filter bar based on available tags
+ if (window.availableTags.size > 0) {
+  window.tagFilterBar.classList.add('visible')
+ } else {
+  window.tagFilterBar.classList.remove(
+   'visible'
+  )
+ }
+}
+
+function toggleTagFilter(tag) {
+ if (window.activeFilters.has(tag)) {
+  window.activeFilters.delete(tag)
+ } else {
+  window.activeFilters.add(tag)
+ }
+
+ renderFilterBar()
+ applyMessageFilters()
+}
+
+function clearAllFilters() {
+ window.activeFilters.clear()
+ renderFilterBar()
+ applyMessageFilters()
+}
+
+function applyMessageFilters() {
+ const messages =
+  document.querySelectorAll('.news')
+
+ messages.forEach((message) => {
+  const linkElements =
+   message.querySelectorAll('a')
+  let messageTags = []
+
+  linkElements.forEach((linkElement) => {
+   const text = linkElement.textContent
+   if (text.startsWith('#')) {
+    messageTags.push(text.substring(1))
+   }
+  })
+
+  if (window.activeFilters.size === 0) {
+   message.style.display = 'block'
+  } else {
+   const hasAllFilters = Array.from(
+    window.activeFilters
+   ).every((filter) =>
+    messageTags.includes(filter)
+   )
+
+   message.style.display = hasAllFilters
+    ? 'block'
+    : 'none'
+  }
+ })
+}
+
 const allLabels = globalThis.STATUS_LABELS
 
 const LABEL_PREFIX = 'labels@'
@@ -675,6 +827,9 @@ function attachMessages(
    includeReactions
   )
  }
+
+ // Update available tags for filtering
+ setTimeout(() => updateAvailableTags(), 100)
 }
 
 function attachMessage(
