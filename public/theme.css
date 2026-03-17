@@ -3147,8 +3147,8 @@ body[data-mode='activity']
 .tag-filter-btn.active {
  background: var(--color-bg-primary);
  border-color: var(--color-border-medium);
- color: white;
  box-shadow: 0 2px 4px var(--color-shadow-dark);
+ color: var(--color-text-primary);
 }
 
 .tag-filter-bar span[style*='Filter by tags'] {
