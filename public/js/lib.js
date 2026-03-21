@@ -1511,16 +1511,24 @@ let localActiveSessionId
 
 function setActiveSessionId(id) {
  localActiveSessionId = id
+ // Write to both sessionStorage (preferred) and localStorage (fallback)
+ sessionStorage.setItem('tmi:active-session', JSON.stringify(id))
  write('tmi:active-session', id)
  route()
 }
 
 function getActiveSessionId() {
  if (typeof localActiveSessionId !== 'string') {
-  localActiveSessionId = read(
-   'tmi:active-session',
-   PUBLIC_SESSION_ID
-  )
+  // Prefer sessionStorage, fall back to localStorage
+  const sessionData = sessionStorage.getItem('tmi:active-session')
+  if (sessionData !== null) {
+   localActiveSessionId = JSON.parse(sessionData)
+  } else {
+   localActiveSessionId = read(
+    'tmi:active-session',
+    PUBLIC_SESSION_ID
+   )
+  }
  }
  return localActiveSessionId
 }
