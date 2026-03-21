@@ -332,17 +332,17 @@ function addImageEmbed(container, text) {
 }
 
 function captureScrollPosition() {
- const scrollPosition = document.body.scrollTop
+ const scrollPosition = window.scrollY
  localStorage.setItem(
   'scrollPosition',
   scrollPosition
  )
- document.body.scrollTo({
+ window.scrollTo({
   behavior: 'instant',
   left: 0,
   top: 0,
  })
- document.body.style.overflow = 'hidden'
+ document.documentElement.style.overflow = 'hidden'
 }
 
 function restoreScrollPosition() {
@@ -350,13 +350,13 @@ function restoreScrollPosition() {
   'scrollPosition'
  )
  if (scrollPosition) {
-  document.body.scrollTo({
+  window.scrollTo({
    behavior: 'instant',
    left: 0,
    top: scrollPosition,
   })
  }
- document.body.style.overflow = 'auto'
+ document.documentElement.style.overflow = 'auto'
 }
 
 // Global image gallery state
@@ -1683,7 +1683,7 @@ async function createSessionWithServer(
 }
 
 function scrollToTop(top = 0) {
- document.body.scrollTo(0, top, {
+ window.scrollTo(0, top, {
   behavior: 'instant',
  })
  document.body.classList.remove('scroll-up')
