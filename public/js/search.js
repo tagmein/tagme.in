@@ -13,18 +13,18 @@ let currentSearchTerms = []
 let searchInputFocused = false
 
 const filterMessages = () => {
- const articles = mainContent.querySelectorAll('article')
- articles.forEach((article) => {
+ const newsItems = mainContent.querySelectorAll('.news')
+ newsItems.forEach((newsItem) => {
   if (currentSearchTerms.length === 0) {
-   article.style.display = ''
+   newsItem.style.display = ''
    return
   }
 
-  const text = article.textContent.toLowerCase()
+  const text = newsItem.textContent.toLowerCase()
   const matches = currentSearchTerms.every((term) =>
    text.includes(term)
   )
-  article.style.display = matches ? '' : 'none'
+  newsItem.style.display = matches ? '' : 'none'
  })
 }
 
@@ -59,13 +59,16 @@ const element = elem({
  classes: ['search-toolbar', 'mode-main'],
  children: [
   elem({
-   classes: ['search-icon'],
-   children: [icon('search')],
+   tagName: 'span',
+   textContent: 'Search:',
   }),
-  searchInput,
   elem({
-   classes: ['search-clear'],
-   children: [icon('close')],
+   classes: ['grow'],
+   children: [searchInput],
+  }),
+  elem({
+   classes: ['clear-btn'],
+   textContent: 'Clear',
    events: {
     click() {
      clearSearch()
