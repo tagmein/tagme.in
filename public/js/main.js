@@ -306,6 +306,11 @@ const mainContent = elem({
  tagName: 'main',
 })
 
+const searchToolbar =
+ typeof window.initSearchToolbar === 'function'
+  ? window.initSearchToolbar({ mainContent })
+  : undefined
+
 const scriptOutputReelContainer = elem({
  id: 'script-output-reel-container', // Give it an ID for potential styling/reference
  classes: ['script-output-reel', 'mode-main'], // Keep the reel class for flex layout
@@ -354,8 +359,8 @@ if (
 }
 
 // Add search toolbar
-if (window.searchToolbar) {
- body.appendChild(window.searchToolbar)
+if (searchToolbar?.element) {
+ body.appendChild(searchToolbar.element)
 }
 
 body.appendChild(mainContent)
@@ -463,8 +468,8 @@ async function route() {
  body.setAttribute('data-channel', channel)
 
  // Clear search when navigating
- if (typeof window.clearSearch === 'function') {
-  window.clearSearch()
+ if (typeof searchToolbar?.clearSearch === 'function') {
+  searchToolbar.clearSearch()
  }
 
  // --- Apply specific styles/behavior for SCRIPT_CHANNEL ---

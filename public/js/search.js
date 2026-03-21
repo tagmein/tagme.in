@@ -1,6 +1,32 @@
 // Message search toolbar functionality
+//
+// IMPORTANT: This file must not create DOM nodes at load time because
+// `elem` / `icon` are defined in components.js (loaded later), and the
+// `mainContent` element is created in main.js.
+
+function initSearchToolbar({ mainContent }) {
+ if (!mainContent) {
+  throw new Error('initSearchToolbar: mainContent is required')
+ }
+
 let currentSearchTerms = []
 let searchInputFocused = false
+
+const filterMessages = () => {
+ const articles = mainContent.querySelectorAll('article')
+ articles.forEach((article) => {
+  if (currentSearchTerms.length === 0) {
+   article.style.display = ''
+   return
+  }
+
+  const text = article.textContent.toLowerCase()
+  const matches = currentSearchTerms.every((term) =>
+   text.includes(term)
+  )
+  article.style.display = matches ? '' : 'none'
+ })
+}
 
 const searchInput = elem({
  attributes: {
@@ -23,7 +49,13 @@ const searchInput = elem({
  tagName: 'input',
 })
 
-const searchToolbar = elem({
+const clearSearch = () => {
+ searchInput.value = ''
+ currentSearchTerms = []
+ filterMessages()
+}
+
+const element = elem({
  classes: ['search-toolbar', 'mode-main'],
  children: [
   elem({
@@ -36,9 +68,7 @@ const searchToolbar = elem({
    children: [icon('close')],
    events: {
     click() {
-     searchInput.value = ''
-     currentSearchTerms = []
-     filterMessages()
+     clearSearch()
     },
    },
    tagName: 'button',
@@ -46,25 +76,12 @@ const searchToolbar = elem({
  ],
 })
 
-function filterMessages() {
- const articles = mainContent.querySelectorAll('article')
- articles.forEach((article) => {
-  if (currentSearchTerms.length === 0) {
-   article.style.display = ''
-   return
-  }
-  const text = article.textContent.toLowerCase()
-  const matches = currentSearchTerms.every(term => text.includes(term))
-  article.style.display = matches ? '' : 'none'
- })
+return {
+ clearSearch,
+ element,
+ filterMessages,
+ searchInputFocused,
+}
 }
 
-// Clear search on navigation
-function clearSearch() {
- searchInput.value = ''
- currentSearchTerms = []
-}
-
-// Expose searchToolbar for adding to DOM
-window.searchToolbar = searchToolbar
-window.clearSearch = clearSearch
+window.initSearchToolbar = initSearchToolbar
