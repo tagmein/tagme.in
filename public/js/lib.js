@@ -1390,7 +1390,14 @@ async function networkMessageUnsend(
 }
 
 function networkRootUrl(env) {
- return env.TAGMEIN_API_BASEURL ?? ''
+ if (typeof env?.TAGMEIN_API_BASEURL === 'string') {
+  return env.TAGMEIN_API_BASEURL
+ }
+ const host = window.location.hostname
+ if (host === 'localhost' || host === '127.0.0.1') {
+  return 'https://tagme.in'
+ }
+ return ''
 }
 
 async function getNews(chunk, callback) {
