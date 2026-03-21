@@ -353,6 +353,11 @@ if (
  }
 }
 
+// Add search toolbar
+if (window.searchToolbar) {
+ body.appendChild(window.searchToolbar)
+}
+
 body.appendChild(mainContent)
 body.appendChild(
  document.getElementById('footer')
@@ -456,6 +461,11 @@ async function route() {
   .join(' - ')
  activityContainer.clear()
  body.setAttribute('data-channel', channel)
+
+ // Clear search when navigating
+ if (typeof window.clearSearch === 'function') {
+  window.clearSearch()
+ }
 
  // --- Apply specific styles/behavior for SCRIPT_CHANNEL ---
  if (channel === SCRIPT_CHANNEL) {
