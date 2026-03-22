@@ -11,6 +11,12 @@
  align-items: center;
  justify-content: center;
  text-align: center;
+ transition: all 0.2s ease;
+}
+
+.search-toolbar:hover {
+ border-color: var(--color-border-medium);
+ background: var(--color-bg-medium);
 }
 
 .search-toolbar span {
