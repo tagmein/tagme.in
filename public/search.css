@@ -91,10 +91,10 @@
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
  .search-toolbar {
-  gap: 10px;
+  gap: 15px;
   padding: 10px;
   margin: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
  }
  
  .search-toolbar span {
@@ -102,11 +102,12 @@
  }
  
  .search-toolbar input {
-  width: 100%;
+  width: 140px;
   font-size: 11px;
  }
  
  .search-toolbar .clear-btn {
   font-size: 11px;
+  flex: 0 0 auto;
  }
 }
