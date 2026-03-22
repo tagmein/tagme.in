@@ -1,25 +1,25 @@
 /* Search toolbar styles - matching Filter by tags exactly */
 .search-toolbar {
- background: transparent;
- border: none;
- padding: 30px 15px;
- margin: 20px auto;
- max-width: 500px;
+ background: var(--color-bg-dark);
+ border: 1px solid var(--color-bg-medium-dark);
+ border-radius: 8px;
+ padding: 10px;
+ margin: 19px;
  display: flex;
  flex-wrap: nowrap;
- gap: 15px;
+ gap: 10px;
  align-items: center;
  justify-content: center;
- text-align: center;
 }
 
 .search-toolbar span {
- color: #9ca3af;
+ color: var(--color-text-secondary);
  font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
  font-size: 12px;
  line-height: 20px;
  white-space: nowrap;
- margin-right: 10px;
 }
 
 .search-toolbar .search-icon {
@@ -31,38 +31,39 @@
  border-radius: 6px;
  font-size: 12px;
  box-sizing: border-box;
- padding: 5px 10px;
- background: #374151;
- border: 1px solid #4b5563;
- color: #d1d5db;
+ padding: 4px 8px;
+ background: var(--color-bg-medium);
+ border: 1px solid var(--color-border-medium);
+ color: var(--color-text-primary);
  font-family: inherit;
  outline: none;
  line-height: 20px;
- font-weight: 400;
- width: 180px;
- flex: 0 0 auto;
- margin-right: 10px;
+ font-weight: 500;
+ width: 200px;
+ flex: 1 1 auto;
 }
 
 .search-toolbar input:focus {
- border-color: #6b7280;
- background: #374151;
+ border-color: var(--color-border-medium);
+ background: var(--color-bg-medium);
 }
 
 .search-toolbar input::placeholder {
- color: #9ca3af;
- opacity: 0.8;
+ color: var(--color-text-secondary);
+ opacity: 0.6;
 }
 
 .search-toolbar .clear-btn {
- background: #374151;
- color: #d1d5db;
- border: 1px solid #4b5563;
+ background: var(--color-bg-no-active);
+ color: white;
+ border: none;
  border-radius: 6px;
  font-size: 12px;
- font-weight: 500;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
  transition: all 0.2s ease;
- padding: 5px 10px;
+ padding: 4px 8px;
  line-height: 20px;
  cursor: pointer;
  white-space: nowrap;
@@ -70,17 +71,18 @@
 }
 
 .search-toolbar .clear-btn:hover {
- background: #4b5563;
- border-color: #6b7280;
+ background: #ff0000;
+ transform: translateY(-1px);
+ box-shadow: 0 2px 4px var(--color-shadow-dark);
 }
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
  .search-toolbar {
-  gap: 8px;
-  padding: 8px 10px;
-  margin: 8px auto;
-  max-width: none;
+  gap: 10px;
+  padding: 10px;
+  margin: 10px;
+  flex-wrap: wrap;
  }
  
  .search-toolbar span {
@@ -88,13 +90,11 @@
  }
  
  .search-toolbar input {
-  width: 150px;
+  width: 100%;
   font-size: 11px;
-  padding: 4px 8px;
  }
  
  .search-toolbar .clear-btn {
   font-size: 11px;
-  padding: 4px 8px;
  }
 }

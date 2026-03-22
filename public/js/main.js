@@ -352,8 +352,6 @@ function insertBefore(target, element) {
 if (typeof window.initSearchToolbar === 'function') {
  const searchToolbar = window.initSearchToolbar({ mainContent })
  if (searchToolbar?.element) {
-  searchToolbar.element.style.marginBottom = '50px'
-  searchToolbar.element.style.marginTop = '20px'
   insertBefore(compose, searchToolbar.element)
  }
 }
