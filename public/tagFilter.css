@@ -1,0 +1,77 @@
+/* Tag filter styles */
+.tag-filter-container {
+ background: var(--color-bg-dark);
+ border: 1px solid var(--color-bg-medium-dark);
+ border-radius: 8px;
+ padding: 10px;
+ margin: 19px;
+ display: flex;
+ flex-wrap: wrap;
+ gap: 10px;
+ align-items: center;
+ justify-content: center;
+ transition: all 0.2s ease;
+}
+
+.tag-filter-container span {
+ color: var(--color-text-secondary);
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ font-size: 12px;
+ line-height: 20px;
+}
+
+.tag-filter-buttons {
+ display: flex;
+ gap: 10px;
+ align-items: center;
+}
+
+.tag-filter-btn {
+ background: var(--color-bg-medium);
+ color: var(--color-text-primary);
+ border: 1px solid var(--color-border-medium);
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ transition: all 0.2s ease;
+ padding: 4px 8px;
+ line-height: 20px;
+ cursor: pointer;
+}
+
+.tag-filter-btn:hover {
+ background: var(--color-bg-hover);
+ border-color: var(--color-border-hover);
+}
+
+.tag-filter-btn.active {
+ background: var(--color-bg-no-active);
+ color: white;
+ border-color: var(--color-bg-no-active);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+ .tag-filter-container {
+  gap: 8px;
+  padding: 8px;
+  margin: 10px;
+ }
+ 
+ .tag-filter-container span {
+  font-size: 11px;
+ }
+ 
+ .tag-filter-buttons {
+  gap: 8px;
+ }
+ 
+ .tag-filter-btn {
+  font-size: 11px;
+  padding: 3px 6px;
+ }
+}
