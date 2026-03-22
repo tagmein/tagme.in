@@ -69,6 +69,13 @@
  cursor: pointer;
  white-space: nowrap;
  flex: 0 0 auto;
+ opacity: 0;
+ pointer-events: none;
+}
+
+.search-toolbar:hover .clear-btn {
+ opacity: 1;
+ pointer-events: auto;
 }
 
 .search-toolbar .clear-btn:hover {
