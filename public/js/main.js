@@ -306,6 +306,11 @@ const mainContent = elem({
  tagName: 'main',
 })
 
+const searchToolbar =
+ typeof window.initSearchToolbar === 'function'
+  ? window.initSearchToolbar({ mainContent })
+  : undefined
+
 const scriptOutputReelContainer = elem({
  id: 'script-output-reel-container', // Give it an ID for potential styling/reference
  classes: ['script-output-reel', 'mode-main'], // Keep the reel class for flex layout
@@ -343,13 +348,18 @@ body.appendChild(scriptOutputReelContainer)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
 
-// Create and add tag filter bar after compose
+// Add search toolbar after compose
+if (searchToolbar?.element) {
+ insertAfter(compose, searchToolbar.element)
+}
+
+// Create and add tag filter bar after search toolbar
 if (
  typeof window.createTagFilterBar === 'function'
 ) {
  const bar = window.createTagFilterBar()
  if (bar) {
-  insertAfter(compose, bar)
+  insertAfter(searchToolbar.element, bar)
  }
 }
 
@@ -456,6 +466,11 @@ async function route() {
   .join(' - ')
  activityContainer.clear()
  body.setAttribute('data-channel', channel)
+
+ // Clear search when navigating
+ if (typeof searchToolbar?.clearSearch === 'function') {
+  searchToolbar.clearSearch()
+ }
 
  // --- Apply specific styles/behavior for SCRIPT_CHANNEL ---
  if (channel === SCRIPT_CHANNEL) {
