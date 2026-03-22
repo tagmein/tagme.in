@@ -348,19 +348,19 @@ body.appendChild(scriptOutputReelContainer)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
 
-// Create and add tag filter bar after compose
+// Add search toolbar after compose
+if (searchToolbar?.element) {
+ insertAfter(compose, searchToolbar.element)
+}
+
+// Create and add tag filter bar after search toolbar
 if (
  typeof window.createTagFilterBar === 'function'
 ) {
  const bar = window.createTagFilterBar()
  if (bar) {
-  insertAfter(compose, bar)
+  insertAfter(searchToolbar.element, bar)
  }
-}
-
-// Add search toolbar
-if (searchToolbar?.element) {
- body.appendChild(searchToolbar.element)
 }
 
 body.appendChild(mainContent)
