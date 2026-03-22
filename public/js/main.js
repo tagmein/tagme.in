@@ -353,6 +353,14 @@ if (
  }
 }
 
+// Add search toolbar after tag filter bar
+if (typeof window.initSearchToolbar === 'function') {
+ const searchToolbar = window.initSearchToolbar({ mainContent })
+ if (searchToolbar?.element) {
+  document.body.appendChild(searchToolbar.element)
+ }
+}
+
 body.appendChild(mainContent)
 body.appendChild(
  document.getElementById('footer')
