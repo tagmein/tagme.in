@@ -32,25 +32,20 @@ const filterMessages = () => {
  })
 }
 
-const searchInput = elem({
- attributes: {
-  placeholder: 'Search messages...',
-  maxlength: 100,
- },
- events: {
-  blur() {
-   searchInputFocused = false
-  },
-  focus() {
-   searchInputFocused = true
-  },
-  input() {
-   const value = searchInput.value.trim().toLowerCase()
-   currentSearchTerms = value ? value.split(/\s+/) : []
-   filterMessages()
-  },
- },
- tagName: 'input',
+const searchInput = document.createElement('input')
+searchInput.type = 'text'
+searchInput.placeholder = 'Search messages...'
+searchInput.maxLength = 100
+searchInput.addEventListener('blur', () => {
+ searchInputFocused = false
+})
+searchInput.addEventListener('focus', () => {
+ searchInputFocused = true
+})
+searchInput.addEventListener('input', () => {
+ const value = searchInput.value.trim().toLowerCase()
+ currentSearchTerms = value ? value.split(/\s+/) : []
+ filterMessages()
 })
 
 const clearSearch = () => {
@@ -59,30 +54,32 @@ const clearSearch = () => {
  filterMessages()
 }
 
-const element = elem({
- classes: ['search-toolbar', 'mode-main'],
- children: [
-  elem({
-   tagName: 'span',
-   textContent: 'Search:',
-  }),
-  elem({
-   classes: ['search-icon'],
-   textContent: '🔍',
-  }),
-  searchInput,
-  elem({
-   classes: ['clear-btn'],
-   textContent: 'Clear',
-   events: {
-    click() {
-     clearSearch()
-    },
-   },
-   tagName: 'button',
-  }),
- ],
+// Create search toolbar element
+const element = document.createElement('div')
+element.className = 'search-toolbar mode-main'
+
+// Create search label
+const searchLabel = document.createElement('span')
+searchLabel.textContent = 'Search:'
+
+// Create search icon (hidden)
+const searchIcon = document.createElement('span')
+searchIcon.className = 'search-icon'
+searchIcon.textContent = '🔍'
+
+// Create clear button
+const clearBtn = document.createElement('button')
+clearBtn.className = 'clear-btn'
+clearBtn.textContent = 'Clear'
+clearBtn.addEventListener('click', () => {
+ clearSearch()
 })
+
+// Assemble the toolbar
+element.appendChild(searchLabel)
+element.appendChild(searchIcon)
+element.appendChild(searchInput)
+element.appendChild(clearBtn)
 
 return {
  clearSearch,
