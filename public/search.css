@@ -1,37 +1,32 @@
-/* Search toolbar styles - matching filter by tags */
+/* Search toolbar styles - matching Filter by tags exactly */
 .search-toolbar {
- background: var(--color-bg-dark);
- border: 1px solid var(--color-bg-medium-dark);
- border-radius: 8px;
- padding: 8px 12px;
+ background: transparent;
+ border: none;
+ padding: 10px;
  margin: 19px auto;
- max-width: 500px;
+ max-width: 600px;
  display: flex;
  flex-wrap: nowrap;
  gap: 8px;
  align-items: center;
  justify-content: center;
- transition: all 0.2s ease;
 }
 
 .search-toolbar span {
- color: var(--color-text-primary);
+ color: var(--color-text-secondary);
  font-weight: 600;
- text-transform: uppercase;
- letter-spacing: 0.5px;
  font-size: 12px;
  line-height: 20px;
  white-space: nowrap;
 }
 
 .search-toolbar .search-icon {
- font-size: 16px;
- margin: 0 5px;
+ display: none;
 }
 
 .search-toolbar input {
  appearance: none;
- border-radius: 4px;
+ border-radius: 6px;
  font-size: 12px;
  box-sizing: border-box;
  padding: 4px 8px;
@@ -40,9 +35,9 @@
  color: var(--color-text-primary);
  font-family: inherit;
  outline: none;
- line-height: 18px;
- font-weight: 400;
- width: 140px;
+ line-height: 20px;
+ font-weight: 500;
+ width: 160px;
  flex: 0 0 auto;
 }
 
@@ -57,46 +52,45 @@
 }
 
 .search-toolbar .clear-btn {
- background: #dc2626;
- color: white;
- border: none;
- border-radius: 4px;
- font-size: 11px;
- font-weight: 600;
- text-transform: uppercase;
- letter-spacing: 0.5px;
+ background: var(--color-bg-medium);
+ color: var(--color-text-primary);
+ border: 1px solid var(--color-border-medium);
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 500;
  transition: all 0.2s ease;
- padding: 3px 8px;
- line-height: 18px;
+ padding: 4px 8px;
+ line-height: 20px;
  cursor: pointer;
  white-space: nowrap;
  flex: 0 0 auto;
 }
 
 .search-toolbar .clear-btn:hover {
- background: #ef4444;
+ background: var(--color-bg-hover);
+ border-color: var(--color-border-hover);
 }
 
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
  .search-toolbar {
   gap: 6px;
-  padding: 6px 10px;
+  padding: 8px;
   margin: 10px;
   max-width: none;
  }
  
  .search-toolbar span {
-  font-size: 10px;
+  font-size: 11px;
  }
  
  .search-toolbar input {
-  width: 120px;
+  width: 140px;
   font-size: 11px;
  }
  
  .search-toolbar .clear-btn {
-  font-size: 10px;
-  padding: 2px 6px;
+  font-size: 11px;
+  padding: 3px 6px;
  }
 }
