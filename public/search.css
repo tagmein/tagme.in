@@ -19,6 +19,7 @@
  font-size: 12px;
  line-height: 20px;
  white-space: nowrap;
+ margin-right: 10px;
 }
 
 .search-toolbar .search-icon {
@@ -40,6 +41,7 @@
  font-weight: 400;
  width: 180px;
  flex: 0 0 auto;
+ margin-right: 10px;
 }
 
 .search-toolbar input:focus {
