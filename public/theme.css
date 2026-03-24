@@ -845,7 +845,7 @@ body {
   border-bottom-right-radius: 10px;
   box-shadow: 0 4px 4px var(--color-shadow-dark);
   min-height: 23px;
-  opacity: 0.85;
+  opacity: 1;
   padding: 8px;
   transition: opacity 0.5s ease;
  }
@@ -1374,7 +1374,7 @@ body {
  }
  
  .mode-main .message-footer {
-  opacity: 0.5;
+  opacity: 1;
   transition: opacity 0.5s ease;
  }
  
