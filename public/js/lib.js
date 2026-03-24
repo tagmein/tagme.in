@@ -1187,6 +1187,41 @@ function setChannel(channel) {
  )}`
 }
 
+async function forkChannel(originalChannel) {
+ try {
+  // Generate a unique fork channel name
+  const timestamp = Date.now()
+  const randomSuffix = Math.random().toString(36).substring(2, 6)
+  const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
+  
+  // Show loading indicator
+  const loadingMessage = await withLoading(
+   networkChannelSeek(originalChannel, getHourNumber())
+  )
+  
+  if (!loadingMessage?.response?.messages) {
+   throw new Error('Could not fetch messages from original channel')
+  }
+  
+  const messages = loadingMessage.response.messages
+  
+  // Copy all messages to the new fork channel
+  for (const message of messages) {
+   await networkChannelSend(forkChannelName, message.text)
+  }
+  
+  // Navigate to the new fork channel
+  setChannel(forkChannelName)
+  
+  // Show success message
+  await politeAlert(`Channel forked successfully! New channel: ${forkChannelName}`)
+  
+ } catch (error) {
+  console.error('Fork channel error:', error)
+  await politeAlert(`Failed to fork channel: ${error.message}`)
+ }
+}
+
 function randomId() {
  return '12345678'
   .split('')

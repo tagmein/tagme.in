@@ -2607,6 +2607,25 @@ body {
  .channel-scripts-button:active {
   background-color: #00000040;
  }
+
+ .channel-fork-button {
+  background-color: var(--color-bg-medium);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0.5;
+  margin-left: 5px;
+ }
+
+ .channel-fork-button:hover {
+  background-color: #4CAF5040;
+  opacity: 1;
+ }
+
+ .channel-fork-button:active {
+  background-color: #4CAF5020;
+ }
  
  .global-script-score {
   background-color: var(--color-bg-medium);

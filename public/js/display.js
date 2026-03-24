@@ -355,6 +355,24 @@ function displayChannelHome(
    },
   })
   channelHeader.appendChild(scriptsButton) // Add button to the header container
+  
+  // Add Fork Channel button
+  const forkButton = elem({
+   tagName: 'button',
+   classes: ['channel-fork-button'],
+   textContent: '🍴 fork',
+   attributes: {
+    title: 'Create a fork of this channel with all messages',
+    'data-tour': 'Fork this channel to create a copy with all messages',
+   },
+   events: {
+    click: async (e) => {
+     e.stopPropagation()
+     await forkChannel(channel)
+    },
+   },
+  })
+  channelHeader.appendChild(forkButton)
  }
 
  attachMessages(
