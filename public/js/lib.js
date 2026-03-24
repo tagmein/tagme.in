@@ -302,7 +302,29 @@ const isUrl = /https?:\/\/\S+/
 const isImageUrl =
  /https?:\/\/\S+\.(gif|jpe?g|png|webp)/
 
-function addImageEmbed(container, text) {
+async function uploadImage(imageUrl) {
+  try {
+    const response = await fetch('/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ imageUrl })
+    })
+    
+    if (!response.ok) {
+      throw new Error('Upload failed')
+    }
+    
+    const data = await response.json()
+    return data.uploadedUrl
+  } catch (error) {
+    console.error('Image upload error:', error)
+    return imageUrl // Fallback to original URL
+  }
+}
+
+async function addImageEmbed(container, text) {
  const urlMatch = text.match(isUrl)
 
  if (
@@ -319,16 +341,12 @@ function addImageEmbed(container, text) {
   return
  }
 
- const imgSrc = imageUrlMatch
-  ? imageUrlMatch[0]
-  : 'https://dropkeep.app/screenshot?' +
-    new URLSearchParams({
-     url: urlMatch[0],
-     width: 720,
-     height: 720,
-    }).toString()
+ const originalImageUrl = imageUrlMatch[0]
+ 
+ // Upload the image and get the uploaded URL
+ const uploadedImageUrl = await uploadImage(originalImageUrl)
 
- addImageByUrl(container, imgSrc)
+ addImageByUrl(container, uploadedImageUrl)
 }
 
 function captureScrollPosition() {
