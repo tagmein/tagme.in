@@ -315,18 +315,6 @@ function displayChannelHome(
       : 's'
     }`,
    }),
-   // Add Chat Button
-   elem({
-    tagName: 'button',
-    textContent: '🗨️ Chat',
-    classes: ['btn-chat'],
-    events: {
-     click() {
-      console.log('Chat button clicked')
-      chatInterface.openChat({ channel }) // Pass channel context
-     },
-    },
-   }),
   ],
  })
  channelHeader.appendChild(descriptionElement)
@@ -753,17 +741,6 @@ function attachMessage(
    new Date(message.data.seen)
   ),
  })
- const chatButton = elem({
-  tagName: 'button',
-  textContent: '🗨️ Chat',
-  classes: ['btn-chat'],
-  events: {
-   click() {
-    console.log('Chat button clicked')
-    chatInterface.openChat({ channel, message }) // Pass message context
-   },
-  },
- })
  const articleToolButtons = elem({
   classes: ['article-tool-buttons'],
   children: [agreeButton, disagreeButton],
@@ -780,7 +757,7 @@ function attachMessage(
     justifyContent: 'space-around',
     display: 'flex',
    },
-   children: [chatButton],
+   children: [],
   })
  )
  if (includeReactions) {
@@ -1960,26 +1937,5 @@ document.addEventListener(
  () => {
   const fullscreenButton =
    document.querySelector('.fullscreen-icon')
-  if (fullscreenButton) {
-   const chatButton =
-    document.createElement('button')
-   chatButton.textContent = '🗨️'
-   chatButton.className = 'btn-chat-global'
-   chatButton.onclick = () => {
-    if (window.chatInterface) {
-     window.chatInterface.openChat({
-      channel: 'default',
-     })
-    } else {
-     console.error(
-      'ChatInterface is not initialized.'
-     )
-    }
-   }
-   fullscreenButton.parentNode.insertBefore(
-    chatButton,
-    fullscreenButton
-   )
-  }
  }
 )
