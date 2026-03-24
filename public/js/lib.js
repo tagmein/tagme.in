@@ -1199,22 +1199,38 @@ async function forkChannel(originalChannel) {
    networkChannelSeek(originalChannel, getHourNumber())
   )
   
+  console.log('Fork data:', loadingMessage) // Debug log
+  
   if (!loadingMessage?.response?.messages) {
    throw new Error('Could not fetch messages from original channel')
   }
   
-  const messages = loadingMessage.response.messages
+  let messages = loadingMessage.response.messages
+  
+  // Handle different data structures
+  if (typeof messages === 'object' && !Array.isArray(messages)) {
+   // Convert object to array if it's an object with message IDs as keys
+   messages = Object.values(messages)
+  }
+  
+  if (!Array.isArray(messages)) {
+   throw new Error('Messages data is not in expected format')
+  }
+  
+  console.log(`Found ${messages.length} messages to copy`) // Debug log
   
   // Copy all messages to the new fork channel
   for (const message of messages) {
-   await networkChannelSend(forkChannelName, message.text)
+   if (message && message.text) {
+    await networkChannelSend(forkChannelName, message.text)
+   }
   }
   
   // Navigate to the new fork channel
   setChannel(forkChannelName)
   
   // Show success message
-  await politeAlert(`Channel forked successfully! New channel: ${forkChannelName}`)
+  await politeAlert(`Channel forked successfully! Copied ${messages.length} messages to: ${forkChannelName}`)
   
  } catch (error) {
   console.error('Fork channel error:', error)
