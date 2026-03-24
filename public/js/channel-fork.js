@@ -1,11 +1,15 @@
+// Channel forking functionality
+
 async function forkChannel(originalChannel) {
  try {
+  // Generate a unique fork channel name
   const timestamp = Date.now()
   const randomSuffix = Math.random().toString(36).substring(2, 6)
   const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
   
   console.log(`Starting fork from ${originalChannel} to ${forkChannelName}`)
   
+  // Show loading indicator
   const loadingMessage = await withLoading(
    networkChannelSeek(originalChannel, getHourNumber())
   )
@@ -16,6 +20,7 @@ async function forkChannel(originalChannel) {
   
   let messages = loadingMessage.response.messages
   
+  // Handle different data structures
   if (typeof messages === 'object' && !Array.isArray(messages)) {
    messages = Object.values(messages)
   }
@@ -26,23 +31,31 @@ async function forkChannel(originalChannel) {
   
   console.log(`Found ${messages.length} messages to copy`)
   
+  // Copy all messages to the new fork channel
   let sentCount = 0
   for (const message of messages) {
    if (message && message.text) {
     try {
       await networkChannelSend(forkChannelName, message.text)
       sentCount++
+      console.log(`Sent message ${sentCount}: ${message.text}`)
     } catch (sendError) {
-      console.error('Failed to send message:', sendError)
+      console.error(`Failed to send message:`, sendError)
     }
     
+    // Small delay to avoid overwhelming the system
     if (sentCount % 5 === 0) {
       await new Promise(resolve => setTimeout(resolve, 100))
     }
    }
   }
   
+  console.log(`Successfully sent ${sentCount} messages to ${forkChannelName}`)
+  
+  // Navigate to the new fork channel
   setChannel(forkChannelName)
+  
+  // Show success message
   await politeAlert(`Channel forked successfully! Copied ${sentCount} messages to: ${forkChannelName}`)
   
  } catch (error) {
