@@ -233,7 +233,7 @@ async function displayChannelMessageReplies(
    replyChannelData.response.messages
   )
 
- await attachMessages(
+ attachMessages(
   messageChannel,
   mainContent,
   formattedMessageReplyData,
@@ -241,57 +241,12 @@ async function displayChannelMessageReplies(
   'No replies. Be the first to write a reply!',
   undefined,
   true,
-) {
-  mainContent.innerHTML = ''
-  const message =
-    formattedChannelMessageData.find(
-      (x) => x.text === messageText
-    )
-  if (!message) {
-    mainContent.innerHTML =
-      '<p style="padding: 0 30px">This content is not available</p>'
-    return
-  }
-  const replyChannelData = await withLoading(
-    networkChannelSeek(
-      messageChannel,
-      getHourNumber()
-    )
-  )
-
-  if (
-    (replyChannelData &&
-      'error' in replyChannelData) ||
-    typeof replyChannelData?.response
-      ?.messages !== 'object'
-  ) {
-    throw new Error(
-      replyChannelData.error ??
-        `Error seeking reply channel: ${JSON.stringify(
-          replyChannelData
-        )}`
-    )
-  }
-
-  const formattedMessageReplyData =
-    formatMessageData(
-      replyChannelData.response.messages
-    )
-
-  await attachMessages(
-    messageChannel,
-    mainContent,
-    formattedMessageReplyData,
-    true,
-    'No replies. Be the first to write a reply!',
-    undefined,
-    true,
-    false,
-    true
-  )
+  false,
+  true
+ )
 }
 
-async function displayChannelArticle(
+function displayChannelArticle(
  articleElement,
  channel,
  message,
@@ -304,7 +259,7 @@ async function displayChannelArticle(
    ) ?? 'none'
   })`
  )
- await attachMessage(
+ attachMessage(
   channel,
   articleElement,
   message,
@@ -318,74 +273,7 @@ async function displayChannelArticle(
  )
 }
 
-function displayChannelMessage(
- channel,
- formattedMessageData,
- messageText
-) {
- const message = formattedMessageData.find(
-  (x) => x.text === messageText
- )
- messageContent.innerHTML = ''
- if (message) {
-  messageContent.appendChild(
-   elem({
-    children: [
-     ...(formattedMessageData.length === 1
-      ? [
-         elem({
-          tagName: 'span',
-          textContent:
-           'Viewing the only message on channel ',
-         }),
-        ]
-      : [
-         elem({
-          tagName: 'span',
-          textContent: 'Viewing one of ',
-         }),
-         elem({
-          tagName: 'span',
-          textContent: ` ${formattedMessageData.length} messages on channel `,
-         }),
-        ]),
-
-     elem({
-      attributes: {
-       href: `/#/${encodeURIComponent(
-        channel
-       )}`,
-      },
-      tagName: 'a',
-      textContent: `#${
-       channel.length > 0
-        ? channel
-        : HOME_CHANNEL_ICON
-      }`,
-     }),
-    ],
-   })
-  )
-  await attachMessage(
-   channel,
-   messageContent,
-   message,
-   true,
-   undefined,
-   true,
-   true
-  )
- } else {
-  messageContent.innerHTML =
-   '<h3 style="padding: 0 30px">Not found</h3>'
- }
- // Display installed scripts above the compose area
- displayInstalledScripts(channel, compose)
-}
-
-let lastAttachedChannels
-
-async function displayChannelHome(
+function displayChannelHome(
  channel,
  formattedMessageData,
  formattedChannelData
@@ -469,7 +357,7 @@ async function displayChannelHome(
   channelHeader.appendChild(scriptsButton) // Add button to the header container
  }
 
- await attachMessages(
+ attachMessages(
   channel,
   mainContent,
   formattedMessageData,
@@ -537,7 +425,7 @@ function displayChannelMessage(
     ],
    })
   )
-  await attachMessage(
+  attachMessage(
    channel,
    messageContent,
    message,
@@ -616,7 +504,7 @@ function attachChannels(container, channels) {
  )
 }
 
-async function attachMessages(
+function attachMessages(
  channel,
  container,
  messages,
@@ -638,7 +526,7 @@ async function attachMessages(
   )
  }
  for (const index in messages) {
-  await attachMessage(
+  attachMessage(
    channel,
    container,
    messages[index],
@@ -652,7 +540,7 @@ async function attachMessages(
  }
 }
 
-async function attachMessage(
+function attachMessage(
  channel,
  container,
  message,
@@ -717,7 +605,7 @@ async function attachMessage(
     : message.text
   )
   addYouTubeEmbed(content, message.text)
-  await addImageEmbed(content, message.text)
+  addImageEmbed(content, message.text).catch(console.error)
   addOpenGraphLink(content, message.text)
  }
 
@@ -1688,7 +1576,7 @@ function localDateTime(dt) {
  return dateString
 }
 
-async function attachNewsMessage(
+function attachNewsMessage(
  container,
  { message, channel, seen }
 ) {
@@ -1749,7 +1637,7 @@ async function attachNewsMessage(
   })
   addTextBlocks(labelContent, labelMessage)
   addYouTubeEmbed(labelContent, labelMessage)
-  await addImageEmbed(labelContent, labelMessage)
+  addImageEmbed(labelContent, labelMessage).catch(console.error)
   addOpenGraphLink(labelContent, labelMessage)
   const dateContainer = elem({
    attributes: {
@@ -1856,10 +1744,10 @@ async function attachNewsMessage(
    reactionContent,
    reactionMessage
   )
-  await addImageEmbed(
+  addImageEmbed(
    reactionContent,
    reactionMessage
-  )
+  ).catch(console.error)
   addOpenGraphLink(
    reactionContent,
    reactionMessage
@@ -1903,7 +1791,7 @@ async function attachNewsMessage(
 
  addTextBlocks(content, message)
  addYouTubeEmbed(content, message)
- await addImageEmbed(content, message)
+ addImageEmbed(content, message).catch(console.error)
  addOpenGraphLink(content, message)
 
  if (isReply) {
@@ -1947,7 +1835,7 @@ async function attachNewsMessage(
   })
   addTextBlocks(parentContent, parentMessage)
   addYouTubeEmbed(parentContent, parentMessage)
-  await addImageEmbed(parentContent, parentMessage)
+  addImageEmbed(parentContent, parentMessage).catch(console.error)
   addOpenGraphLink(parentContent, parentMessage)
   const dateContainer = elem({
    attributes: {

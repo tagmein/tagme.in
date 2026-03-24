@@ -17,9 +17,38 @@ export async function onRequest(context) {
     }
 
     // Fetch the image
-    const imageResponse = await fetch(imageUrl)
+    let imageResponse
+    try {
+      imageResponse = await fetch(imageUrl, {
+        headers: {
+          'User-Agent': 'TagMeIn/1.0'
+        }
+      })
+    } catch (fetchError) {
+      console.error('Fetch error:', fetchError)
+      // Fallback: return the original URL if upload fails
+      return new Response(JSON.stringify({
+        originalUrl: imageUrl,
+        uploadedUrl: imageUrl, // Fallback to original
+        filename: null
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
+    }
+    
     if (!imageResponse.ok) {
-      return new Response('Failed to fetch image', { status: 400 })
+      // Fallback: return the original URL if fetch fails
+      return new Response(JSON.stringify({
+        originalUrl: imageUrl,
+        uploadedUrl: imageUrl, // Fallback to original
+        filename: null
+      }), {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      })
     }
 
     const imageBuffer = await imageResponse.arrayBuffer()
