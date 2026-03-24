@@ -1194,12 +1194,14 @@ async function forkChannel(originalChannel) {
   const randomSuffix = Math.random().toString(36).substring(2, 6)
   const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
   
+  console.log(`Starting fork from ${originalChannel} to ${forkChannelName}`)
+  
   // Show loading indicator
   const loadingMessage = await withLoading(
    networkChannelSeek(originalChannel, getHourNumber())
   )
   
-  console.log('Fork data:', loadingMessage) // Debug log
+  console.log('Loading result:', loadingMessage)
   
   if (!loadingMessage?.response?.messages) {
    throw new Error('Could not fetch messages from original channel')
@@ -1211,26 +1213,40 @@ async function forkChannel(originalChannel) {
   if (typeof messages === 'object' && !Array.isArray(messages)) {
    // Convert object to array if it's an object with message IDs as keys
    messages = Object.values(messages)
+   console.log('Converted object to array:', messages)
   }
   
   if (!Array.isArray(messages)) {
    throw new Error('Messages data is not in expected format')
   }
   
-  console.log(`Found ${messages.length} messages to copy`) // Debug log
+  console.log(`Found ${messages.length} messages to copy`)
   
   // Copy all messages to the new fork channel
+  let sentCount = 0
   for (const message of messages) {
    if (message && message.text) {
-    await networkChannelSend(forkChannelName, message.text)
-   }
+    console.log(`Sending message ${sentCount + 1}:`, message.text)
+    try {
+      await networkChannelSend(forkChannelName, message.text)
+      sentCount++
+    } catch (sendError) {
+      console.error(`Failed to send message ${sentCount + 1}:`, sendError)
+    }
+    
+    // Small delay to avoid overwhelming the system
+    if (sentCount % 5 === 0) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
   }
+  
+  console.log(`Successfully sent ${sentCount} messages to ${forkChannelName}`)
   
   // Navigate to the new fork channel
   setChannel(forkChannelName)
   
   // Show success message
-  await politeAlert(`Channel forked successfully! Copied ${messages.length} messages to: ${forkChannelName}`)
+  await politeAlert(`Channel forked successfully! Copied ${sentCount} messages to: ${forkChannelName}`)
   
  } catch (error) {
   console.error('Fork channel error:', error)
