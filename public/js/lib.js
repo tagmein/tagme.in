@@ -459,7 +459,13 @@ async function addOpenGraphLink(
   if (!tagResponse.ok) {
    throw new Error(tagResponse.statusText)
   }
-  const tags = await tagResponse.json()
+  let tags
+  try {
+   tags = await tagResponse.json()
+  } catch (jsonError) {
+   console.error('Failed to parse JSON response:', jsonError)
+   return // Exit gracefully if JSON parsing fails
+  }
   if (tags.image) {
    addImageByUrl(container, tags.image, [
     'image-article',
