@@ -1236,7 +1236,9 @@ function displayAutocompleteChannels(
   isOpen = true
  }
  function visit(channel) {
-  channelInput.blur()
+  if (typeof channelInput !== 'undefined' && channelInput) {
+   channelInput.blur()
+  }
   closeNow()
   const history = readChannelHistory()
   if (!(channel in history)) {

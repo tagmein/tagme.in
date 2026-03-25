@@ -276,33 +276,34 @@ const consentPrompt = elem({
   'Tap here to learn about contributing to Tag Me In',
 })
 
-const { body } = document
-body.appendChild(themeSelector)
-body.appendChild(appHeader)
-body.appendChild(activityContainer.element)
-body.appendChild(realmControlContainer)
-body.appendChild(messageContent)
-body.appendChild(scriptOutputReelContainer)
-body.appendChild(consentPrompt)
-body.appendChild(compose)
-body.appendChild(mainContent)
-body.appendChild(
- document.getElementById('footer')
-)
+function initializeApp() {
+ document.body.appendChild(themeSelector)
+ document.body.appendChild(appHeader)
+ document.body.appendChild(activityContainer.element)
+ document.body.appendChild(realmControlContainer)
+ document.body.appendChild(messageContent)
+ document.body.appendChild(scriptOutputReelContainer)
+ document.body.appendChild(consentPrompt)
+ document.body.appendChild(compose)
+ document.body.appendChild(mainContent)
+ document.body.appendChild(
+  document.getElementById('footer')
+ )
+}
 
 function scrolledPastBottom(
  element,
  exemptZeroScroll = false
 ) {
  if (
-  (!exemptZeroScroll && body.scrollTop < 1) ||
+  (!exemptZeroScroll && document.body.scrollTop < 1) ||
   !element.checkVisibility()
  ) {
   return false
  }
  const bottom = Math.ceil(
   document.documentElement.scrollHeight -
-   body.scrollTop -
+   document.body.scrollTop -
    document.documentElement.clientHeight
  )
  const elementBottom = Math.ceil(
@@ -315,24 +316,24 @@ function scrolledPastBottom(
 let lastScrollY = 0
 let addTimeout
 let removeTimeout
-body.addEventListener('scroll', () => {
+document.body.addEventListener('scroll', () => {
  clearTimeout(addTimeout)
  clearTimeout(removeTimeout)
- if (body.scrollTop < lastScrollY) {
+ if (document.body.scrollTop < lastScrollY) {
   addTimeout = setTimeout(() =>
-   body.classList.add('scroll-up')
+   document.body.classList.add('scroll-up')
   )
  } else {
   removeTimeout = setTimeout(
-   () => body.classList.remove('scroll-up'),
+   () => document.body.classList.remove('scroll-up'),
    500
   )
  }
- lastScrollY = body.scrollTop
+ lastScrollY = document.body.scrollTop
  if (lastScrollY > 0) {
-  body.classList.remove('scroll-zero')
+  document.body.classList.remove('scroll-zero')
  } else {
-  body.classList.add('scroll-zero')
+  document.body.classList.add('scroll-zero')
  }
  if (
   scrolledPastBottom(
@@ -381,7 +382,7 @@ async function route() {
   .filter((v) => v !== '')
   .join(' - ')
  activityContainer.clear()
- body.setAttribute('data-channel', channel)
+ document.body.setAttribute('data-channel', channel)
 
  // --- Apply specific styles/behavior for SCRIPT_CHANNEL ---
  if (channel === SCRIPT_CHANNEL) {
@@ -403,8 +404,8 @@ async function route() {
 
  const activeSessionId = getActiveSessionId()
  if (typeof messageText === 'string') {
-  body.classList.remove('on-channel')
-  body.classList.add('on-message')
+  document.body.classList.remove('on-channel')
+  document.body.classList.add('on-message')
   composeTextarea.setAttribute(
    'placeholder',
    COMPOSE_PLACEHOLDER_REPLY
@@ -414,8 +415,8 @@ async function route() {
    return
   }
  } else {
-  body.classList.remove('on-message')
-  body.classList.add('on-channel')
+  document.body.classList.remove('on-message')
+  document.body.classList.add('on-channel')
   composeTextarea.setAttribute(
    'placeholder',
    COMPOSE_PLACEHOLDER_MESSAGE
@@ -521,10 +522,10 @@ function checkConsent() {
  if (
   localStorage.getItem(consentKey) === 'consent'
  ) {
-  body.classList.add('send-consent-granted')
+  document.body.classList.add('send-consent-granted')
  } else {
   {
-   body.classList.remove('send-consent-granted')
+   document.body.classList.remove('send-consent-granted')
   }
  }
 }
@@ -594,6 +595,6 @@ setTimeout(() => {
  }
  setTimeout(() => {
   hasCompletedStartup = true
-  body.removeAttribute('data-starting')
+  document.body.removeAttribute('data-starting')
  }, 500)
 })

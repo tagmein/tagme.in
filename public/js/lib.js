@@ -1188,546 +1188,292 @@ function setChannel(channel) {
 }
 
 async function forkChannel(originalChannel) {
- try {
-  // Generate a unique fork channel name
-  const timestamp = Date.now()
-  const randomSuffix = Math.random().toString(36).substring(2, 6)
-  const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
-  
-  console.log(`Starting fork from ${originalChannel} to ${forkChannelName}`)
-  
-  // Show loading indicator
-  const loadingMessage = await withLoading(
-   networkChannelSeek(originalChannel, getHourNumber())
-  )
-  
-  console.log('Loading result:', loadingMessage)
-  
-  if (!loadingMessage?.response?.messages) {
-   throw new Error('Could not fetch messages from original channel')
-  }
-  
-  let messages = loadingMessage.response.messages
-  
-  // Handle different data structures
-  if (typeof messages === 'object' && !Array.isArray(messages)) {
-   // Convert object to array if it's an object with message IDs as keys
-   messages = Object.values(messages)
-   console.log('Converted object to array:', messages)
-  }
-  
-  if (!Array.isArray(messages)) {
-   throw new Error('Messages data is not in expected format')
-  }
-  
-  console.log(`Found ${messages.length} messages to copy`)
-  
-  // Copy all messages to the new fork channel
-  let sentCount = 0
-  for (const message of messages) {
-   if (message && message.text) {
-    console.log(`Sending message ${sentCount + 1}:`, message.text)
-    try {
-      await networkChannelSend(forkChannelName, message.text)
-      sentCount++
-    } catch (sendError) {
-      console.error(`Failed to send message ${sentCount + 1}:`, sendError)
+  try {
+    const timestamp = Date.now()
+    const randomSuffix = Math.random().toString(36).substring(2, 6)
+    const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
+    
+    console.log(`Starting fork from ${originalChannel} to ${forkChannelName}`)
+    
+    const loadingMessage = await withLoading(
+      networkChannelSeek(originalChannel, getHourNumber())
+    )
+    
+    console.log('Loading result:', loadingMessage)
+    
+    if (!loadingMessage?.response?.messages) {
+      throw new Error('Could not fetch messages from original channel')
     }
     
-    // Small delay to avoid overwhelming the system
-    if (sentCount % 5 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100))
+    let messages = loadingMessage.response.messages
+    const extractedMessages = []
+
+    if (typeof messages === 'object' && !Array.isArray(messages)) {
+      for (const [key, value] of Object.entries(messages)) {
+        if (typeof value === 'object' && value !== null) {
+          extractedMessages.push(value.text || value.body || value.content || key)
+        } else {
+          extractedMessages.push(key)
+        }
+      }
+    } else if (Array.isArray(messages)) {
+      for (const message of messages) {
+        extractedMessages.push(typeof message === 'string' ? message : (message?.text || message?.body || message?.content || JSON.stringify(message)))
+      }
     }
+    
+    console.log(`Found ${extractedMessages.length} messages to copy`)
+    
+    let sentCount = 0
+    for (const messageText of extractedMessages) {
+      if (messageText) {
+        console.log(`Sending message ${sentCount + 1}:`, messageText)
+        try {
+          await networkMessageSend(forkChannelName, messageText)
+          sentCount++
+        } catch (sendError) {
+          console.error(`Failed to send message ${sentCount + 1}:`, sendError)
+        }
+        
+        if (sentCount % 5 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+      }
+    }
+    
+    console.log(`Successfully sent ${sentCount} messages to ${forkChannelName}`)
+    setChannel(forkChannelName)
+    await politeAlert(`Channel forked successfully! Copied ${sentCount} messages to: ${forkChannelName}`)
+    
+  } catch (error) {
+    console.error('Fork channel error:', error)
+    await politeAlert(`Failed to fork channel: ${error.message}`)
   }
-  
-  console.log(`Successfully sent ${sentCount} messages to ${forkChannelName}`)
-  
-  // Navigate to the new fork channel
-  setChannel(forkChannelName)
-  
-  // Show success message
-  await politeAlert(`Channel forked successfully! Copied ${sentCount} messages to: ${forkChannelName}`)
-  
- } catch (error) {
-  console.error('Fork channel error:', error)
-  await politeAlert(`Failed to fork channel: ${error.message}`)
- }
 }
 
 function randomId() {
- return '12345678'
-  .split('')
-  .map(() =>
-   (Math.random() * 1e6)
-    .toString(36)
-    .replace('.', '')
-    .slice(0, 4)
-  )
-  .join('')
+  return '12345678'
+    .split('')
+    .map(() =>
+      (Math.random() * 1e6)
+        .toString(36)
+        .replace('.', '')
+        .slice(0, 4)
+    )
+    .join('')
 }
 
 function read(key, defaultValue) {
- const data = localStorage.getItem(key)
- if (typeof data === 'string') {
-  return JSON.parse(data)
- }
- return defaultValue
+  const data = localStorage.getItem(key)
+  if (typeof data === 'string') {
+    return JSON.parse(data)
+  }
+  return defaultValue
 }
 
 function write(key, value) {
- localStorage.setItem(
-  key,
-  JSON.stringify(value)
- )
+  localStorage.setItem(key, JSON.stringify(value))
 }
 
 function listSessions() {
- return read('tmi:sessions', [])
+  return read('tmi:sessions', [])
 }
 
 function writeSessions(data) {
- write('tmi:sessions', data)
+  write('tmi:sessions', data)
 }
 
 function removeSession(sessionId) {
- writeSessions(
-  listSessions().filter(
-   (x) => x.id !== sessionId
-  )
- )
+  writeSessions(listSessions().filter((x) => x.id !== sessionId))
 }
 
 function readSession(sessionId) {
- return read('tmi:sessions', []).find(
-  (x) => x.id === sessionId
- )
+  return read('tmi:sessions', []).find((x) => x.id === sessionId)
 }
 
 function getActiveSession() {
- const sessionId = getActiveSessionId()
- if (sessionId === PUBLIC_SESSION_ID) {
-  return
- }
- return readSession(sessionId)
+  const sessionId = getActiveSessionId()
+  if (sessionId === PUBLIC_SESSION_ID) {
+    return
+  }
+  return readSession(sessionId)
 }
 
-function writeSession(
- sessionId,
- newSessionData
-) {
- return writeSessions(
-  listSessions().map((x) =>
-   x.id === sessionId ? newSessionData : x
+function writeSession(sessionId, newSessionData) {
+  return writeSessions(
+    listSessions().map((x) => (x.id === sessionId ? newSessionData : x))
   )
- )
 }
 
 const PUBLIC_SESSION_ID = 'public'
-
 let localActiveSessionId
 
 function setActiveSessionId(id) {
- localActiveSessionId = id
- write('tmi:active-session', id)
- route()
+  localActiveSessionId = id
+  write('tmi:active-session', id)
+  route()
 }
 
 function getActiveSessionId() {
- if (typeof localActiveSessionId !== 'string') {
-  localActiveSessionId = read(
-   'tmi:active-session',
-   PUBLIC_SESSION_ID
-  )
- }
- return localActiveSessionId
+  if (typeof localActiveSessionId !== 'string') {
+    localActiveSessionId = read('tmi:active-session', PUBLIC_SESSION_ID)
+  }
+  return localActiveSessionId
 }
 
 function createSession() {
- let waitingMessage
- let continueButton
- const code = [0, 0, 0, 0]
-  .map(() =>
-   (
-    Math.round(100 * Math.random()) % 10
-   ).toString(10)
-  )
-  .join('')
- const verifyButton = elem({
-  attributes: {
-   type: 'submit',
-   value: 'Verify',
-  },
-  tagName: 'input',
- })
- function closeModal() {
-  loginDialog.close()
- }
- const loginDialog = dialog(
-  elem({
-   tagName: 'h2',
-   textContent: 'Sign in',
-  }),
-  elem({
-   tagName: 'h4',
-   textContent: 'Verify your kv server:',
-  }),
-  elem({
-   tagName: 'p',
-   textContent: `➊ Enter compatible kv server url and verify ownership`,
-  }),
-  elem({
-   tagName: 'h5',
-   textContent: `KV Server Specification`,
-  }),
-  elem({
-   tagName: 'code',
-   textContent: `
-Read a value:   GET <url>?key=<key>
-Delete a value: DELETE <url>?key=<key>
-Set a value:    POST <url>?key=<key>
-                with value as request body
-`.trim(),
-  }),
-  elem({
-   tagName: 'p',
-   textContent: `➋ Set the key "code" to ${JSON.stringify(
-    code
-   )}`,
-  }),
-  elem({
-   tagName: 'p',
-   textContent: `➌ Press Verify`,
-  }),
-  elem({
-   tagName: 'form',
-   children: [
-    elem({
-     attributes: {
-      autofocus: true,
-      name: 'url',
-      placeholder: 'Enter kv server URL',
-      required: true,
-      type: 'text',
-     },
-     tagName: 'input',
-    }),
-    verifyButton,
-   ],
-   events: {
-    async submit(e) {
-     e.preventDefault()
-     if (!waitingMessage) {
-      waitingMessage = elem({
-       tagName: 'p',
-       textContent:
-        'Please wait, checking kv server...',
-      })
-     }
-     try {
-      if (continueButton?.parentElement) {
-       continueButton.parentElement.removeChild(
-        continueButton
-       )
-      }
-      const serverUrl = new URL(
-       e.target.url.value
-      )
-      serverUrl.searchParams.set('key', 'code')
-      serverUrl.searchParams.set('mode', 'disk')
-      serverUrl.searchParams.set(
-       'modeOptions.disk.basePath',
-       './.kv-public'
-      )
-      const serverUrlString =
-       serverUrl.toString()
-      e.target.url.disabled = true
-      verifyButton.disabled = true
-      e.target.appendChild(waitingMessage)
-      waitingMessage.textContent =
-       'Please wait, giving you time to set the login value on your kv server...'
-      let result = await createSessionWithKVUrl(
-       serverUrlString,
-       code
-      )
-      console.log({ result })
-      if (result.success) {
-       await new Promise((x) =>
-        setTimeout(x, 500)
-       )
-       waitingMessage.textContent =
-        '✅ Connected'
-       closeModal()
-       return
-      }
-      await new Promise((x) =>
-       setTimeout(x, 3000)
-      )
-      async function reCheckNow() {
-       if (continueButton?.parentElement) {
-        continueButton.parentElement.removeChild(
-         continueButton
-        )
-       }
-
-       waitingMessage.textContent = `Please wait, checking kv server now at ${e.target.url.value}...`
-       result = await createSessionWithKVUrl(
-        serverUrlString,
-        code
-       )
-       await new Promise((x) =>
-        setTimeout(x, 500)
-       )
-       if (result.success) {
-        waitingMessage.textContent =
-         '✅ Connected'
-        await new Promise((x) =>
-         setTimeout(x, 500)
-        )
-        closeModal()
-        return
-       }
-       waitingMessage.textContent =
-        result.error ?? 'Unknown error'
-       // check here, then allow continue if still not found / not correct code
-       continueButton = elem({
-        tagName: 'button',
-        textContent: 'Continue',
-        events: {
-         async click(e) {
-          e.preventDefault()
-          reCheckNow()
-         },
-        },
-       })
-       e.target.appendChild(continueButton)
-      }
-      await reCheckNow()
-     } catch (e) {
-      alert(
-       e.message ??
-        'Something went wrong, please try again'
-      )
-      e.target.removeChild(waitingMessage)
-     } finally {
-      e.target.url.disabled = false
-      verifyButton.disabled = false
-     }
-    },
-   },
+  let waitingMessage
+  let continueButton
+  const code = [0, 0, 0, 0]
+    .map(() => (Math.round(100 * Math.random()) % 10).toString(10))
+    .join('')
+  const verifyButton = elem({
+    attributes: { type: 'submit', value: 'Verify' },
+    tagName: 'input',
   })
- )
-}
-
-async function createSessionWithKVUrl(
- url,
- expectedCode
-) {
- console.log({
-  message: 'now checking url: ' + url,
- })
- const response = await fetch(url)
- if (!response.ok) {
-  return {
-   success: false,
-   error: `Got response code ${response.status}} ${response.statusText}`,
+  function closeModal() {
+    loginDialog.close()
   }
- }
- const responseText = await response.text()
- if (expectedCode !== responseText) {
-  return {
-   success: false,
-   error: `Expected ${JSON.stringify(
-    responseText
-   )} to be ${JSON.stringify(expectedCode)}`,
+  const loginDialog = dialog(
+    elem({ tagName: 'h2', textContent: 'Sign in' }),
+    elem({ tagName: 'h4', textContent: 'Verify your kv server:' }),
+    elem({ tagName: 'p', textContent: '➊ Enter compatible kv server url and verify ownership' }),
+    elem({ tagName: 'h5', textContent: 'KV Server Specification' }),
+    elem({
+      tagName: 'code',
+      textContent: `Read a value:   GET <url>?key=<key>\nDelete a value: DELETE <url>?key=<key>\nSet a value:    POST <url>?key=<key>\n                with value as request body`.trim(),
+    }),
+    elem({ tagName: 'p', textContent: `➋ Set the key "code" to ${JSON.stringify(code)}` }),
+    elem({ tagName: 'p', textContent: '➌ Press Verify' }),
+    elem({
+      tagName: 'form',
+      children: [
+        elem({
+          attributes: { autofocus: true, name: 'url', placeholder: 'Enter kv server URL', required: true, type: 'text' },
+          tagName: 'input',
+        }),
+        verifyButton,
+      ],
+      events: {
+        async submit(e) {
+          e.preventDefault()
+          if (!waitingMessage) {
+            waitingMessage = elem({ tagName: 'p', textContent: 'Please wait, checking kv server...' })
+          }
+          try {
+            if (continueButton?.parentElement) {
+              continueButton.parentElement.removeChild(continueButton)
+            }
+            const serverUrl = new URL(e.target.url.value)
+            serverUrl.searchParams.set('key', 'code')
+            serverUrl.searchParams.set('mode', 'disk')
+            serverUrl.searchParams.set('modeOptions.disk.basePath', './.kv-public')
+            const serverUrlString = serverUrl.toString()
+            e.target.url.disabled = true
+            verifyButton.disabled = true
+            e.target.appendChild(waitingMessage)
+            waitingMessage.textContent = 'Please wait, giving you time to set the login value on your kv server...'
+            let result = await createSessionWithKVUrl(serverUrlString, code)
+            if (result.success) {
+              await new Promise((x) => setTimeout(x, 500))
+              waitingMessage.textContent = '✅ Connected'
+              closeModal()
+              return
+            }
+            await new Promise((x) => setTimeout(x, 3000))
+            async function reCheckNow() {
+              if (continueButton?.parentElement) {
+                continueButton.parentElement.removeChild(continueButton)
+              }
+              waitingMessage.textContent = `Please wait, checking kv server now at ${e.target.url.value}...`
+              result = await createSessionWithKVUrl(serverUrlString, code)
+              await new Promise((x) => setTimeout(x, 500))
+              if (result.success) {
+                waitingMessage.textContent = '✅ Connected'
+                await new Promise((x) => setTimeout(x, 500))
+                closeModal()
+                return
+              }
+              waitingMessage.textContent = result.error ?? 'Unknown error'
+              continueButton = elem({
+                tagName: 'button',
+                textContent: 'Continue',
+                events: {
+                  async click(e) {
+                    e.preventDefault()
+                    reCheckNow()
+                  },
+                },
+              })
+              e.target.appendChild(continueButton)
+            }
+            await reCheckNow()
+          } catch (e) {
+            alert(e.message ?? 'Something went wrong, please try again')
+            e.target.removeChild(waitingMessage)
+          } finally {
+            e.target.url.disabled = false
+            verifyButton.disabled = false
+          }
+        },
+      },
+    })
+  )
+}
+
+async function createSessionWithKVUrl(url, expectedCode) {
+  const response = await fetch(url)
+  if (!response.ok) {
+    return { success: false, error: `Got response code ${response.status} ${response.statusText}` }
   }
- }
- const sessionId = randomId()
- const newSession = {
-  id: sessionId,
-  url,
-  hash: location.hash,
- }
- writeSessions([...listSessions(), newSession])
- const createdAppAccount =
-  appAccounts.add(newSession)
- await registerSessionWithUrl(sessionId, url)
- createdAppAccount.switchTo()
- return {
-  success: true,
-  data: newSession,
- }
+  const responseText = await response.text()
+  if (expectedCode !== responseText) {
+    return { success: false, error: `Expected ${JSON.stringify(responseText)} to be ${JSON.stringify(expectedCode)}` }
+  }
+  const sessionId = randomId()
+  const newSession = { id: sessionId, url, hash: location.hash }
+  writeSessions([...listSessions(), newSession])
+  const createdAppAccount = appAccounts.add(newSession)
+  await registerSessionWithUrl(sessionId, url)
+  createdAppAccount.switchTo()
+  return { success: true, data: newSession }
 }
 
-async function registerSessionWithUrl(
- sessionId,
- url
-) {
- const session = readSession(sessionId)
- const realm = realms.find(
-  (x) => x.session.id === sessionId
- )
- realm.realmTabLabel.textContent = session.url
- location.hash = session.hash
- return true
+async function registerSessionWithUrl(sessionId, url) {
+  const session = readSession(sessionId)
+  const realm = realms.find((x) => x.session.id === sessionId)
+  realm.realmTabLabel.textContent = session.url
+  location.hash = session.hash
+  return true
 }
 
-async function registerSession(
- sessionId,
- control
-) {
- const session = readSession(sessionId)
- const realm = realms.find(
-  (x) => x.session.id === sessionId
- )
- realm.realmTabLabel.textContent = new URL(
-  session.url
- ).host
- location.hash = session.hash
- return true
+async function registerSession(sessionId, control) {
+  const session = readSession(sessionId)
+  const realm = realms.find((x) => x.session.id === sessionId)
+  realm.realmTabLabel.textContent = new URL(session.url).host
+  location.hash = session.hash
+  return true
 }
 
 function scrollToTop(top = 0) {
- document.body.scrollTo(0, top, {
-  behavior: 'instant',
- })
- document.body.classList.remove('scroll-up')
- document.body.classList.add('scroll-zero')
+  document.body.scrollTo(0, top, { behavior: 'instant' })
+  document.body.classList.remove('scroll-up')
+  document.body.classList.add('scroll-zero')
 }
 
 function fakeScroll() {
- window.dispatchEvent(new CustomEvent('scroll'))
+  window.dispatchEvent(new CustomEvent('scroll'))
 }
 
-const themeNames = [
- 'black',
- 'blue',
- 'brown',
- 'cyan',
- 'darkred',
- 'gray',
- 'green',
- 'magenta',
- 'none',
- 'orange',
- 'pink',
- 'purple',
- 'red',
- 'white',
- 'yellow',
-]
-
-async function forkChannel(originalChannel) {
- try {
-  const timestamp = Date.now()
-  const randomSuffix = Math.random().toString(36).substring(2, 6)
-  const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
-  
-  const loadingMessage = await withLoading(
-   networkChannelSeek(originalChannel, getHourNumber())
-  )
-  
-  if (!loadingMessage?.response?.messages) {
-   throw new Error('Could not fetch messages from original channel')
-  }
-  
-  let messages = loadingMessage.response.messages
-  
-  if (typeof messages === 'object' && !Array.isArray(messages)) {
-   messages = Object.values(messages)
-  }
-  
-  if (!Array.isArray(messages)) {
-   throw new Error('Messages data is not in expected format')
-  }
-  
-  let sentCount = 0
-  for (const message of messages) {
-   if (message && message.text) {
-    try {
-      await networkChannelSend(forkChannelName, message.text)
-      sentCount++
-    } catch (sendError) {
-      console.error(`Failed to send message:`, sendError)
-    }
-    
-    if (sentCount % 5 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
-   }
-  }
-  
-  setChannel(forkChannelName)
-  await politeAlert(`Channel forked successfully! Copied ${sentCount} messages to: ${forkChannelName}`)
-  
- } catch (error) {
-  console.error('Fork channel error:', error)
-  await politeAlert(`Failed to fork channel: ${error.message}`)
- }
-}
+const themeNames = ['black', 'blue', 'brown', 'cyan', 'darkred', 'gray', 'green', 'magenta', 'none', 'orange', 'pink', 'purple', 'red', 'white', 'yellow']
 
 const setTheme = (themeName) => {
- document.body.setAttribute(
-  'data-theme',
-  themeName
- )
- currentTheme = themeName
- localStorage.setItem('theme', themeName)
+  document.body.setAttribute('data-theme', themeName)
+  currentTheme = themeName
+  localStorage.setItem('theme', themeName)
 }
 
 let currentTheme = localStorage.getItem('theme')
-
 if (currentTheme) {
- document.body.setAttribute(
-  'data-theme',
-  currentTheme
- )
-}
-
-async function forkChannel(originalChannel) {
- try {
-  const timestamp = Date.now()
-  const randomSuffix = Math.random().toString(36).substring(2, 6)
-  const forkChannelName = `${originalChannel}-fork-${timestamp}-${randomSuffix}`
-  
-  const loadingMessage = await withLoading(
-   networkChannelSeek(originalChannel, getHourNumber())
-  )
-  
-  if (!loadingMessage?.response?.messages) {
-   throw new Error("Could not fetch messages from original channel")
-  }
-  
-  let messages = loadingMessage.response.messages
-  
-  if (typeof messages === "object" && !Array.isArray(messages)) {
-   messages = Object.values(messages)
-  }
-  
-  if (!Array.isArray(messages)) {
-   throw new Error("Messages data is not in expected format")
-  }
-  
-  let sentCount = 0
-  for (const message of messages) {
-   if (message && message.text) {
-    try {
-      await networkChannelSend(forkChannelName, message.text)
-      sentCount++
-    } catch (sendError) {
-      console.error("Failed to send message:", sendError)
-    }
-    
-    if (sentCount % 5 === 0) {
-      await new Promise(resolve => setTimeout(resolve, 100))
-    }
-   }
-  }
-  
-  setChannel(forkChannelName)
-  await politeAlert(`Channel forked successfully! Copied ${sentCount} messages to: ${forkChannelName}`)
-  
- } catch (error) {
-  console.error("Fork channel error:", error)
-  await politeAlert(`Failed to fork channel: ${error.message}`)
- }
+  document.body.setAttribute('data-theme', currentTheme)
 }

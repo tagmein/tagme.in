@@ -188,38 +188,51 @@ let channelInputFocused = false
 let expandedElement = undefined
 let focusOnMessage = undefined
 let lastKnownChannelInput
+let channelInput
 
-const channelInput = elem({
- attributes: {
-  'data-tour':
-   'See recently-visited channels, and switch to any channel.',
-  maxlength: 25,
-  placeholder: 'Search channels',
- },
- events: {
-  blur() {
-   channelInputFocused = false
-   autocompleteChannels.close()
-   setChannel(channelInput.value.trim())
+let loadingIndicator
+
+function initializeComponents() {
+ channelInput = elem({
+  attributes: {
+   'data-tour':
+    'See recently-visited channels, and switch to any channel.',
+   maxlength: 25,
+   placeholder: 'Search channels',
   },
-  focus() {
-   lastKnownChannelInput = channelInput.value
-   channelInputFocused = true
-   autocompleteChannels.open()
+  events: {
+   blur() {
+    channelInputFocused = false
+    autocompleteChannels.close()
+    setChannel(channelInput.value.trim())
+   },
+   focus() {
+    lastKnownChannelInput = channelInput.value
+    channelInputFocused = true
+    autocompleteChannels.open()
+   },
+   input() {
+    autocompleteChannels.filter(
+     channelInput.value.trim()
+    )
+   },
+   keydown({ key }) {
+    if (key === 'Enter') {
+     channelInput.blur()
+    }
+   },
   },
-  input() {
-   autocompleteChannels.filter(
-    channelInput.value.trim()
-   )
+  tagName: 'input',
+ })
+
+ loadingIndicator = elem({
+  attributes: {
+   inditerminate: 'true',
   },
-  keydown({ key }) {
-   if (key === 'Enter') {
-    channelInput.blur()
-   }
-  },
- },
- tagName: 'input',
-})
+  classes: ['loader'],
+  tagName: 'progress',
+ })
+}
 
 function cancelChannelInput() {
  channelInput.value = lastKnownChannelInput
@@ -232,14 +245,6 @@ function cancelActivityFilterInput() {
  activityFilterInput.value =
   lastKnownActivityFilterInput
 }
-
-const loadingIndicator = elem({
- attributes: {
-  inditerminate: 'true',
- },
- classes: ['loader'],
- tagName: 'progress',
-})
 
 let loaderCount = 0
 

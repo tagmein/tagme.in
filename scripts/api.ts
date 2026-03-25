@@ -118,6 +118,11 @@ async function adaptCfHandler(
   // Set the HTTP status code from the Cloudflare Response.
   res.status(cfResponse.status)
 
+  // Add CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+
   // Pass along all headers from the Cloudflare Response.
   cfResponse.headers.forEach((value, key) => {
    res.setHeader(key, value)
@@ -263,6 +268,18 @@ async function loadCfFunctions() {
 async function main() {
  // Load and register all API functions.
  await loadCfFunctions()
+
+ // Add CORS headers to allow requests from frontend
+ app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization')
+  if (req.method === 'OPTIONS') {
+   res.sendStatus(200)
+  } else {
+   next()
+  }
+ })
 
  // Serve static files from the /public directory.
  const publicDir = path.join(

@@ -35,9 +35,7 @@
   <link rel="manifest" href="manifest.json" />
   <script>
    globalThis.env = {
-    // TAGMEIN_API_BASEURL:
-    //  'https://tagme.in',
-    //  'http://localhost:8787',
+    TAGMEIN_API_BASEURL: 'http://localhost:8787',
    }
   </script>
   <title>Tag Me In</title>
@@ -99,6 +97,12 @@
    type="text/javascript"
    src="./js/lib.js?bh"
   ></script>
+  <script>
+   // Wait for lib.js to be fully loaded before continuing
+   if (typeof elem !== 'function' || typeof networkChannelSeek !== 'function') {
+    console.error('lib.js not properly loaded')
+   }
+  </script>
   <!-- load basic js files 2nd -->
   <script
    type="text/javascript"
@@ -327,13 +331,29 @@
    </details>
   </footer>
   <noscript>JavaScript is required</noscript>
- <script
-  type="text/javascript"
-  src="./js/channel-fork.js?bh"
- ></script>
- <script
-  type="text/javascript"
-  src="./js/main.js?bh"
- ></script>
+  <script
+   type="text/javascript"
+   src="./js/main.js?bh"
+  ></script>
+ <script>
+  // Initialize all components after all scripts are loaded
+  try {
+   // Verify required functions are available
+   if (typeof elem !== 'function') throw new Error('elem function not available')
+   if (typeof networkChannelSeek !== 'function') throw new Error('networkChannelSeek function not available')
+   
+   console.log('All required functions are available')
+   
+   // Initialize components in order
+   if (typeof initializeComponents === 'function') initializeComponents()
+   if (typeof initializeMain === 'function') initializeMain()
+   if (typeof initializeAppHeader === 'function') initializeAppHeader()
+   if (typeof initializeApp === 'function') initializeApp()
+   
+   console.log('Initialization completed')
+  } catch (error) {
+   console.error('Initialization error:', error)
+  }
+ </script>
  </body>
 </html>
