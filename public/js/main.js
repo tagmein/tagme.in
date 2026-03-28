@@ -353,6 +353,18 @@ if (
  }
 }
 
+// Add search toolbar after compose box
+if (
+ typeof window.initSearchToolbar === 'function'
+) {
+ const searchToolbar = window.initSearchToolbar(
+  { mainContent }
+ )
+ if (searchToolbar?.element) {
+  insertAfter(compose, searchToolbar.element)
+ }
+}
+
 body.appendChild(mainContent)
 body.appendChild(
  document.getElementById('footer')

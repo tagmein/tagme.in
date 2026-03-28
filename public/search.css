@@ -1,0 +1,102 @@
+/* Search toolbar styles - matching Filter by tags exactly */
+body[data-mode='main']
+ .mode-main.search-toolbar {
+ background: var(--color-bg-dark);
+ border: 1px solid var(--color-bg-medium-dark);
+ border-radius: 8px;
+ padding: 10px;
+ margin: 19px;
+ display: flex;
+ flex-wrap: nowrap;
+ gap: 10px;
+ align-items: center;
+ justify-content: center;
+ text-align: center;
+ transition: all 0.2s ease;
+}
+
+.search-toolbar:hover {
+ border-color: var(--color-border-medium);
+ background: var(--color-bg-medium);
+}
+
+.search-toolbar .search-label {
+ color: white;
+ font-weight: 400;
+ font-size: 14px;
+ line-height: 20px;
+ white-space: nowrap;
+ margin-right: 5px;
+}
+
+.search-toolbar .search-icon {
+ display: none;
+}
+
+.search-toolbar input {
+ appearance: none;
+ border-radius: 6px;
+ font-size: 12px;
+ box-sizing: border-box;
+ padding: 4px 8px;
+ background: var(--color-bg-medium);
+ border: 1px solid var(--color-border-medium);
+ color: white;
+ font-family: inherit;
+ outline: none;
+ line-height: 20px;
+ font-weight: 500;
+ width: 220px;
+ flex: 0 0 auto;
+}
+
+.search-toolbar input:focus {
+ border-color: var(--color-border-medium);
+ background: var(--color-bg-medium);
+}
+
+.search-toolbar input::placeholder {
+ color: white;
+ opacity: 0.6;
+}
+
+.search-toolbar .clear-btn {
+ background: var(--color-bg-no-active);
+ color: white;
+ border: none;
+ border-radius: 6px;
+ font-size: 12px;
+ font-weight: 600;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
+ transition: all 0.2s ease;
+ padding: 4px 8px;
+ line-height: 20px;
+ cursor: pointer;
+ white-space: nowrap;
+ flex: 0 0 auto;
+ opacity: 0;
+ pointer-events: none;
+}
+
+.search-toolbar:hover .clear-btn {
+ opacity: 1;
+ pointer-events: auto;
+}
+
+.search-toolbar .clear-btn:hover {
+ background: #ff0000;
+ transform: translateY(-1px);
+ box-shadow: 0 2px 4px var(--color-shadow-dark);
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+ .search-toolbar input {
+  width: 140px;
+ }
+
+ .search-toolbar .clear-btn {
+  flex: 0 0 auto;
+ }
+}

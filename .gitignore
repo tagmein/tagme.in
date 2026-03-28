@@ -1,3 +1,6 @@
 .dev.vars
 node_modules
 .wrangler
+
+/.kv-public/
+*.log
