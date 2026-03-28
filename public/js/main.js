@@ -343,19 +343,6 @@ body.appendChild(scriptOutputReelContainer)
 body.appendChild(consentPrompt)
 body.appendChild(compose)
 
-// Helper function to insert before an element
-function insertBefore(target, element) {
- target.parentNode.insertBefore(element, target)
-}
-
-// Add search toolbar above compose box
-if (typeof window.initSearchToolbar === 'function') {
- const searchToolbar = window.initSearchToolbar({ mainContent })
- if (searchToolbar?.element) {
-  insertBefore(compose, searchToolbar.element)
- }
-}
-
 // Create and add tag filter bar after compose
 if (
  typeof window.createTagFilterBar === 'function'
@@ -363,6 +350,18 @@ if (
  const bar = window.createTagFilterBar()
  if (bar) {
   insertAfter(compose, bar)
+ }
+}
+
+// Add search toolbar after compose box
+if (
+ typeof window.initSearchToolbar === 'function'
+) {
+ const searchToolbar = window.initSearchToolbar(
+  { mainContent }
+ )
+ if (searchToolbar?.element) {
+  insertAfter(compose, searchToolbar.element)
  }
 }
 
