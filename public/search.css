@@ -19,14 +19,13 @@
  background: var(--color-bg-medium);
 }
 
-.search-toolbar span {
- color: var(--color-text-secondary);
- font-weight: 600;
- font-size: 12px;
+.search-toolbar .search-label {
+ color: white;
+ font-weight: 400;
+ font-size: 14px;
  line-height: 20px;
  white-space: nowrap;
- text-transform: uppercase;
- letter-spacing: 0.5px;
+ margin-right: 5px;
 }
 
 .search-toolbar .search-icon {
@@ -75,6 +74,7 @@
  cursor: pointer;
  white-space: nowrap;
  flex: 0 0 auto;
+ margin-left: 10px;
  opacity: 0;
  pointer-events: none;
 }
@@ -99,7 +99,7 @@
   flex-wrap: nowrap;
  }
  
- .search-toolbar span {
+ .search-toolbar .search-label {
   font-size: 11px;
  }
  
