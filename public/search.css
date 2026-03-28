@@ -7,7 +7,7 @@
  margin: 19px;
  display: flex;
  flex-wrap: nowrap;
- gap: 20px;
+ gap: 10px;
  align-items: center;
  justify-content: center;
  text-align: center;
@@ -20,11 +20,13 @@
 }
 
 .search-toolbar span {
- color: white;
+ color: var(--color-text-secondary);
  font-weight: 600;
  font-size: 12px;
  line-height: 20px;
  white-space: nowrap;
+ text-transform: uppercase;
+ letter-spacing: 0.5px;
 }
 
 .search-toolbar .search-icon {
@@ -91,7 +93,7 @@
 /* Mobile-specific adjustments */
 @media (max-width: 768px) {
  .search-toolbar {
-  gap: 15px;
+  gap: 10px;
   padding: 10px;
   margin: 10px;
   flex-wrap: nowrap;
