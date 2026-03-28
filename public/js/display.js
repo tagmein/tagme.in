@@ -2,12 +2,229 @@ let realms = []
 
 let secondMostRecentRealm
 
+// Tag filter functionality
+window.availableTags = new Set()
+window.activeFilters = new Set()
+window.tagFilterBar = null
+
+function extractTagsFromText(text) {
+ const tagRegex = /#(\w+)/g
+ const tags = []
+ let match
+ while (
+  (match = tagRegex.exec(text)) !== null
+ ) {
+  tags.push(match[1])
+ }
+ return tags
+}
+
+window.createTagFilterBar = function () {
+ if (window.tagFilterBar)
+  return window.tagFilterBar
+
+ window.tagFilterBar = elem({
+  classes: ['tag-filter-bar'],
+  children: [
+   elem({
+    tagName: 'span',
+    textContent: 'Filter by tags:',
+   }),
+   elem({
+    tagName: 'button',
+    textContent: 'Clear All',
+    events: {
+     click: clearAllFilters,
+    },
+   }),
+  ],
+ })
+ return window.tagFilterBar
+}
+
+window.updateAvailableTags = function () {
+ window.availableTags.clear()
+
+ // Get all visible messages (they use .news class, not .message)
+ const messages =
+  document.querySelectorAll('.news')
+ messages.forEach((message) => {
+  const linkElements =
+   message.querySelectorAll('a')
+  linkElements.forEach((linkElement) => {
+   const text = linkElement.textContent
+   if (text.startsWith('#')) {
+    window.availableTags.add(text.substring(1))
+   }
+  })
+ })
+
+ renderFilterBar()
+}
+
+function renderFilterBar() {
+ if (!window.tagFilterBar) return
+
+ // Remove existing tag buttons
+ const existingButtons =
+  window.tagFilterBar.querySelectorAll(
+   '.tag-filter-btn'
+  )
+ existingButtons.forEach((btn) => btn.remove())
+
+ // Add tag buttons
+ window.availableTags.forEach((tag) => {
+  const tagButton = elem({
+   classes: ['tag-filter-btn'],
+   textContent: `#${tag}`,
+   events: {
+    click: () => toggleTagFilter(tag),
+   },
+  })
+
+  if (window.activeFilters.has(tag)) {
+   tagButton.classList.add('active')
+  }
+
+  // Insert before clear button
+  const clearButton =
+   window.tagFilterBar.querySelector('button')
+  window.tagFilterBar.insertBefore(
+   tagButton,
+   clearButton
+  )
+ })
+
+ // Show/hide filter bar based on available tags
+ if (window.availableTags.size > 0) {
+  window.tagFilterBar.classList.add('visible')
+ } else {
+  window.tagFilterBar.classList.remove(
+   'visible'
+  )
+ }
+}
+
+function toggleTagFilter(tag) {
+ if (window.activeFilters.has(tag)) {
+  window.activeFilters.delete(tag)
+ } else {
+  window.activeFilters.add(tag)
+ }
+
+ renderFilterBar()
+ applyMessageFilters()
+}
+
+function clearAllFilters() {
+ window.activeFilters.clear()
+ renderFilterBar()
+ applyMessageFilters()
+}
+
+function applyMessageFilters() {
+ const messages =
+  document.querySelectorAll('.news')
+
+ messages.forEach((message) => {
+  const linkElements =
+   message.querySelectorAll('a')
+  let messageTags = []
+
+  linkElements.forEach((linkElement) => {
+   const text = linkElement.textContent
+   if (text.startsWith('#')) {
+    messageTags.push(text.substring(1))
+   }
+  })
+
+  if (window.activeFilters.size === 0) {
+   message.style.display = 'block'
+  } else {
+   const hasAllFilters = Array.from(
+    window.activeFilters
+   ).every((filter) =>
+    messageTags.includes(filter)
+   )
+
+   message.style.display = hasAllFilters
+    ? 'block'
+    : 'none'
+  }
+ })
+}
+
 const allLabels = globalThis.STATUS_LABELS
 
 const LABEL_PREFIX = 'labels@'
 const MESSAGE_PERSIST_THRESHOLD = 5
 const REACTION_PREFIX =
  'reactions:message-channel-message-'
+
+// --- Helper functions for message expiration ---
+function calculateExpirationDate(message) {
+ // Only show expiry for positive scores with negative velocity
+ const currentScore = message.score || 0
+ const velocity = message.data?.velocity || 0
+
+ // Strict check: score > 0 AND velocity < 0
+ if (currentScore <= 0 || velocity >= 0) {
+  return null
+ }
+
+ // Calculate hours until expiry: score / abs(velocity)
+ const hoursUntilExpiry =
+  currentScore / Math.abs(velocity)
+ const expirationDate = new Date()
+ expirationDate.setHours(
+  expirationDate.getHours() + hoursUntilExpiry
+ )
+ return expirationDate
+}
+
+function formatExpirationDate(date) {
+ // Format as M/D/YYYY HH:MM AM/PM
+ const month = date.getMonth() + 1
+ const day = date.getDate()
+ const year = date.getFullYear()
+ const hours = date.getHours()
+ const minutes = date.getMinutes()
+ const ampm = hours >= 12 ? 'PM' : 'AM'
+ const displayHours = hours % 12 || 12 // Convert 0 to 12
+ const formattedMinutes = minutes
+  .toString()
+  .padStart(2, '0')
+ return `${month}/${day}/${year} ${displayHours}:${formattedMinutes}${ampm}`
+}
+
+function addExpirationWarning(
+ message,
+ contentElement
+) {
+ const expirationDate =
+  calculateExpirationDate(message)
+ const existingExpirationWarning =
+  contentElement.querySelector(
+   '.expiration-warning'
+  )
+ if (expirationDate) {
+  const expirationText = formatExpirationDate(
+   expirationDate
+  )
+  if (existingExpirationWarning) {
+   existingExpirationWarning.textContent = `Expires on ${expirationText}`
+   return
+  }
+  const expirationWarning = elem({
+   tagName: 'p',
+   textContent: `Expires on ${expirationText}`,
+   classes: ['expiration-warning'],
+  })
+  contentElement.prepend(expirationWarning)
+ } else if (existingExpirationWarning) {
+  existingExpirationWarning.remove()
+ }
+}
 
 function displayAppAccounts() {
  const globalRealmTab = elem({
@@ -48,15 +265,16 @@ function displayAppAccounts() {
  })
 
  function addAccount(session) {
+  const title = new URL(
+   session.url
+  ).host.replace(/^.*\/\//)
   const realmTabLabel = elem({
    attributes: {
-    title: session.url,
+    title,
    },
    tagName: 'span',
    textContent:
-    session.name ??
-    new URL(session.url).origin ??
-    'Error',
+    session.name ?? title ?? 'Unknown',
   })
   function switchTo() {
    const sessionId = getActiveSessionId()
@@ -179,6 +397,7 @@ function displayAppAccounts() {
  setTimeout(function () {
   activeRealmTab.scrollIntoView({
    behavior: 'instant',
+   block: 'nearest',
    inline: 'center',
   })
  })
@@ -355,24 +574,6 @@ function displayChannelHome(
    },
   })
   channelHeader.appendChild(scriptsButton) // Add button to the header container
-  
-  // Add Fork Channel button
-  const forkButton = elem({
-   tagName: 'button',
-   classes: ['channel-fork-button'],
-   textContent: '🍴 fork',
-   attributes: {
-    title: 'Create a fork of this channel with all messages',
-    'data-tour': 'Fork this channel to create a copy with all messages',
-   },
-   events: {
-    click: async (e) => {
-     e.stopPropagation()
-     await forkChannel(channel)
-    },
-   },
-  })
-  channelHeader.appendChild(forkButton)
  }
 
  attachMessages(
@@ -403,44 +604,114 @@ function displayChannelMessage(
  const message = formattedMessageData.find(
   (x) => x.text === messageText
  )
+
+ //  will add a message here for next and prev message
  messageContent.innerHTML = ''
  if (message) {
+  // Build header with optional Next link
+  const headerChildren = [
+   ...(formattedMessageData.length === 1
+    ? [
+       elem({
+        tagName: 'span',
+        textContent:
+         'Viewing the only message on channel ',
+       }),
+      ]
+    : [
+       elem({
+        tagName: 'span',
+        textContent: 'Viewing one of ',
+       }),
+       elem({
+        tagName: 'span',
+        textContent: ` ${formattedMessageData.length} messages on channel `,
+       }),
+      ]),
+
+   elem({
+    attributes: {
+     href: `/#/${encodeURIComponent(channel)}`,
+    },
+    tagName: 'a',
+    textContent: `#${
+     channel.length > 0
+      ? channel
+      : HOME_CHANNEL_ICON
+    }`,
+   }),
+  ]
+
+  //will Add Prev/Next links when available in this channel
+  const currentIndex =
+   formattedMessageData.findIndex(
+    (x) => x.text === messageText
+   )
+  const hasPrev =
+   typeof currentIndex === 'number' &&
+   currentIndex > 0
+  const hasNext =
+   typeof currentIndex === 'number' &&
+   currentIndex > -1 &&
+   currentIndex + 1 <
+    formattedMessageData.length
+
+  if (hasPrev || hasNext) {
+   // leading separator before navigation links
+   headerChildren.push(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+  }
+
+  if (hasPrev) {
+   const prevMessage =
+    formattedMessageData[currentIndex - 1]
+   const prevHref = `/#/${encodeURIComponent(
+    channel
+   )}/${btoa(
+    encodeURIComponent(prevMessage.text)
+   )}`
+   headerChildren.push(
+    elem({
+     attributes: { href: prevHref },
+     tagName: 'a',
+     textContent: '⯇ Prev',
+    })
+   )
+  }
+
+  if (hasPrev && hasNext) {
+   headerChildren.push(
+    elem({
+     tagName: 'span',
+     textContent: ' • ',
+    })
+   )
+  }
+
+  if (hasNext) {
+   const nextMessage =
+    formattedMessageData[currentIndex + 1]
+   const nextHref = `/#/${encodeURIComponent(
+    channel
+   )}/${btoa(
+    encodeURIComponent(nextMessage.text)
+   )}`
+   headerChildren.push(
+    elem({
+     attributes: { href: nextHref },
+     tagName: 'a',
+     textContent: 'Next ▶',
+    })
+   )
+  }
+
   messageContent.appendChild(
    elem({
-    children: [
-     ...(formattedMessageData.length === 1
-      ? [
-         elem({
-          tagName: 'span',
-          textContent:
-           'Viewing the only message on channel ',
-         }),
-        ]
-      : [
-         elem({
-          tagName: 'span',
-          textContent: 'Viewing one of ',
-         }),
-         elem({
-          tagName: 'span',
-          textContent: ` ${formattedMessageData.length} messages on channel `,
-         }),
-        ]),
-
-     elem({
-      attributes: {
-       href: `/#/${encodeURIComponent(
-        channel
-       )}`,
-      },
-      tagName: 'a',
-      textContent: `#${
-       channel.length > 0
-        ? channel
-        : HOME_CHANNEL_ICON
-      }`,
-     }),
-    ],
+    children: headerChildren,
    })
   )
   attachMessage(
@@ -556,6 +827,9 @@ function attachMessages(
    includeReactions
   )
  }
+
+ // Update available tags for filtering
+ setTimeout(() => updateAvailableTags(), 100)
 }
 
 function attachMessage(
@@ -619,11 +893,11 @@ function attachMessage(
     message.text.startsWith('reaction')
     ? message.text.substring(8)
     : messageContentFormatter
-    ? messageContentFormatter(message.text)
-    : message.text
+      ? messageContentFormatter(message.text)
+      : message.text
   )
   addYouTubeEmbed(content, message.text)
-  addImageEmbed(content, message.text).catch(console.error)
+  addImageEmbed(content, message.text)
   addOpenGraphLink(content, message.text)
  }
 
@@ -713,7 +987,10 @@ function attachMessage(
   score.appendChild(
    elem({
     attributes: {
-     title: message.score.toPrecision(3),
+     title:
+      message.score < 1e5
+       ? message.score
+       : message.score.toPrecision(3),
     },
     textContent: `${messageScoreText}`,
    })
@@ -724,6 +1001,7 @@ function attachMessage(
     textContent: velocityText,
    })
   )
+  addExpirationWarning(message, content)
  }
  const score = elem({
   classes: ['score'],
@@ -769,13 +1047,7 @@ function attachMessage(
  })
  articleTools.appendChild(
   elem({
-   style: {
-    flexGrow: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-around',
-    display: 'flex',
-   },
-   children: [],
+   style: { flexGrow: 1 },
   })
  )
  if (includeReactions) {
@@ -1447,6 +1719,380 @@ function displayActivity() {
 
  let lastScrollPosition = 0
 
+ // Function to scroll to a specific date in the activity log
+ async function scrollToDate(targetDate) {
+  console.log(
+   'scrollToDate called with:',
+   targetDate
+  )
+
+  if (!isVisible) {
+   await show()
+  }
+
+  if (
+   !(targetDate instanceof Date) ||
+   isNaN(targetDate.getTime())
+  ) {
+   console.error(
+    'Invalid date provided to scrollToDate:',
+    targetDate
+   )
+   const notification = elem({
+    tagName: 'div',
+    classes: [
+     'date-search-notification',
+     'date-search-error',
+    ],
+    textContent: `Invalid date format. Please try again with a valid date.`,
+   })
+   document.body.appendChild(notification)
+   setTimeout(() => {
+    notification.style.opacity = '0'
+    setTimeout(() => {
+     if (notification.parentNode) {
+      document.body.removeChild(notification)
+     }
+    }, 500)
+   }, 3000)
+   return
+  }
+
+  const targetDateStart = new Date(targetDate)
+  targetDateStart.setHours(0, 0, 0, 0)
+  console.log(
+   'Target date (start of day):',
+   targetDateStart
+  )
+
+  let foundExactMatch = false
+  let foundAfter = false
+  let exactMatchItem = null
+  let afterItem = null
+  let afterDate = null
+  let attempts = 0
+  const MAX_LOAD_ATTEMPTS = 50
+
+  function sameDay(d1, d2) {
+   return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+   )
+  }
+
+  function checkForDateMatch() {
+   const newsItems =
+    element.querySelectorAll('.news')
+   exactMatchItem = null
+   afterItem = null
+   afterDate = null
+   for (const newsItem of newsItems) {
+    const dateElement =
+     newsItem.querySelector('.news-date')
+    if (dateElement) {
+     const dateStr =
+      dateElement.getAttribute('title') ||
+      dateElement.textContent
+     if (dateStr) {
+      try {
+       let itemDate = new Date(dateStr)
+       if (
+        isNaN(itemDate.getTime()) &&
+        dateStr.includes(' ')
+       ) {
+        const parts = dateStr.split(' ')
+        if (parts.length >= 3) {
+         const monthStr = parts[0]
+         const dayStr = parts[1].replace(
+          ',',
+          ''
+         )
+         const yearStr = parts[2]
+         const months = {
+          January: 0,
+          February: 1,
+          March: 2,
+          April: 3,
+          May: 4,
+          June: 5,
+          July: 6,
+          August: 7,
+          September: 8,
+          October: 9,
+          November: 10,
+          December: 11,
+          Jan: 0,
+          Feb: 1,
+          Mar: 2,
+          Apr: 3,
+          May: 4,
+          Jun: 5,
+          Jul: 6,
+          Aug: 7,
+          Sep: 8,
+          Oct: 9,
+          Nov: 10,
+          Dec: 11,
+         }
+         if (
+          months[monthStr] !== undefined &&
+          !isNaN(parseInt(dayStr)) &&
+          !isNaN(parseInt(yearStr))
+         ) {
+          itemDate = new Date(
+           parseInt(yearStr),
+           months[monthStr],
+           parseInt(dayStr)
+          )
+         }
+        }
+       }
+       if (!isNaN(itemDate.getTime())) {
+        itemDate.setHours(0, 0, 0, 0)
+        if (
+         !exactMatchItem &&
+         sameDay(itemDate, targetDateStart)
+        ) {
+         exactMatchItem = newsItem
+        }
+        if (
+         !afterItem &&
+         itemDate > targetDateStart
+        ) {
+         afterItem = newsItem
+         afterDate = itemDate
+        }
+       }
+      } catch (e) {
+       console.error(
+        'Error parsing date:',
+        dateStr,
+        e
+       )
+      }
+     }
+    }
+   }
+   if (exactMatchItem) {
+    foundExactMatch = true
+    exactMatchItem.classList.add(
+     'date-match-highlight'
+    )
+    setTimeout(() => {
+     exactMatchItem.classList.remove(
+      'date-match-highlight'
+     )
+    }, 3000)
+    exactMatchItem.scrollIntoView({
+     behavior: 'smooth',
+     block: 'start',
+    })
+    const formattedFoundDate =
+     targetDateStart.toLocaleDateString(
+      undefined,
+      {
+       year: 'numeric',
+       month: 'long',
+       day: 'numeric',
+      }
+     )
+    const notification = elem({
+     tagName: 'div',
+     classes: [
+      'date-search-notification',
+      'date-search-success',
+     ],
+     textContent: `Found activity from ${formattedFoundDate}.`,
+    })
+    document.body.appendChild(notification)
+    setTimeout(() => {
+     notification.style.opacity = '0'
+     setTimeout(() => {
+      if (notification.parentNode) {
+       document.body.removeChild(notification)
+      }
+     }, 500)
+    }, 5000)
+    return true
+   }
+   if (afterItem) {
+    foundAfter = true
+    afterItem.classList.add(
+     'date-match-highlight'
+    )
+    setTimeout(() => {
+     afterItem.classList.remove(
+      'date-match-highlight'
+     )
+    }, 3000)
+    afterItem.scrollIntoView({
+     behavior: 'smooth',
+     block: 'start',
+    })
+    const formattedFoundDate =
+     afterDate.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+     })
+    const formattedTargetDate =
+     targetDateStart.toLocaleDateString(
+      undefined,
+      {
+       year: 'numeric',
+       month: 'long',
+       day: 'numeric',
+      }
+     )
+    const notification = elem({
+     tagName: 'div',
+     classes: [
+      'date-search-notification',
+      'date-search-success',
+     ],
+     textContent: `No activity on ${formattedTargetDate}. Showing first activity after: ${formattedFoundDate}.`,
+    })
+    document.body.appendChild(notification)
+    setTimeout(() => {
+     notification.style.opacity = '0'
+     setTimeout(() => {
+      if (notification.parentNode) {
+       document.body.removeChild(notification)
+      }
+     }, 500)
+    }, 5000)
+    return true
+   }
+   return false
+  }
+
+  // Keep loading until we find an exact match or after-date match or run out of content
+  while (attempts < MAX_LOAD_ATTEMPTS) {
+   if (checkForDateMatch()) {
+    return
+   }
+   attempts++
+   const loadingNotification = elem({
+    tagName: 'div',
+    classes: [
+     'date-search-notification',
+     'date-search-loading',
+    ],
+    textContent: `Loading more activity (attempt ${attempts}/${MAX_LOAD_ATTEMPTS})...`,
+   })
+   document.body.appendChild(
+    loadingNotification
+   )
+   try {
+    const nextChunkResult = await loadMore()
+    loadingNotification.style.opacity = '0'
+    setTimeout(() => {
+     if (loadingNotification.parentNode) {
+      document.body.removeChild(
+       loadingNotification
+      )
+     }
+    }, 500)
+    if (
+     nextChunkResult === undefined ||
+     nextChunkResult < 0
+    ) {
+     break
+    }
+   } catch (error) {
+    loadingNotification.style.opacity = '0'
+    setTimeout(() => {
+     if (loadingNotification.parentNode) {
+      document.body.removeChild(
+       loadingNotification
+      )
+     }
+    }, 500)
+    console.error(
+     'Error loading more content:',
+     error
+    )
+    break
+   }
+  }
+
+  // If nothing found at all
+  if (!foundExactMatch && !foundAfter) {
+   const newsItems =
+    element.querySelectorAll('.news')
+   const earliest =
+    element.querySelector('.news-date')
+   let earliestDate = null
+   if (earliest) {
+    try {
+     const dateStr =
+      earliest.getAttribute('title') ||
+      earliest.textContent
+     earliestDate = new Date(dateStr)
+     earliestDate.setHours(0, 0, 0, 0)
+    } catch (e) {
+     console.error(
+      'Error parsing earliest date:',
+      e
+     )
+    }
+   }
+   let notificationText = ''
+   if (newsItems.length === 0) {
+    notificationText = `No activity found in the system. Please try a different date.`
+   } else if (
+    earliestDate &&
+    targetDateStart < earliestDate
+   ) {
+    const formattedEarliestDate =
+     earliestDate.toLocaleDateString(
+      undefined,
+      {
+       year: 'numeric',
+       month: 'long',
+       day: 'numeric',
+      }
+     )
+    notificationText = `No activity found before ${formattedEarliestDate}. Please try a more recent date.`
+   } else {
+    const formattedTargetDate =
+     targetDateStart.toLocaleDateString(
+      undefined,
+      {
+       year: 'numeric',
+       month: 'long',
+       day: 'numeric',
+      }
+     )
+    notificationText = `No activity found on or after ${formattedTargetDate}. Please try a different date.`
+   }
+   const notification = elem({
+    tagName: 'div',
+    classes: [
+     'date-search-notification',
+     'date-search-error',
+    ],
+    textContent: notificationText,
+   })
+   document.body.appendChild(notification)
+   setTimeout(() => {
+    const notifications =
+     document.querySelectorAll(
+      '.date-search-notification'
+     )
+    notifications.forEach((notif) => {
+     notif.style.opacity = '0'
+     setTimeout(() => {
+      if (notif.parentNode) {
+       notif.parentNode.removeChild(notif)
+      }
+     }, 500)
+    })
+   }, 6000)
+  }
+ }
+
  async function show() {
   lastScrollPosition = window.scrollY
   isVisible = true
@@ -1460,7 +2106,7 @@ function displayActivity() {
  }
 
  function hide() {
-  restoreLastKnownMode(-1)
+  switchToMode('main')()
   isVisible = false
   nextChunk = undefined
   scrollToTop(lastScrollPosition)
@@ -1580,6 +2226,7 @@ function displayActivity() {
   hide,
   toggle,
   loadMore,
+  scrollToDate,
  }
 }
 
@@ -1655,7 +2302,7 @@ function attachNewsMessage(
   })
   addTextBlocks(labelContent, labelMessage)
   addYouTubeEmbed(labelContent, labelMessage)
-  addImageEmbed(labelContent, labelMessage).catch(console.error)
+  addImageEmbed(labelContent, labelMessage)
   addOpenGraphLink(labelContent, labelMessage)
   const dateContainer = elem({
    attributes: {
@@ -1765,7 +2412,7 @@ function attachNewsMessage(
   addImageEmbed(
    reactionContent,
    reactionMessage
-  ).catch(console.error)
+  )
   addOpenGraphLink(
    reactionContent,
    reactionMessage
@@ -1809,7 +2456,7 @@ function attachNewsMessage(
 
  addTextBlocks(content, message)
  addYouTubeEmbed(content, message)
- addImageEmbed(content, message).catch(console.error)
+ addImageEmbed(content, message)
  addOpenGraphLink(content, message)
 
  if (isReply) {
@@ -1853,7 +2500,7 @@ function attachNewsMessage(
   })
   addTextBlocks(parentContent, parentMessage)
   addYouTubeEmbed(parentContent, parentMessage)
-  addImageEmbed(parentContent, parentMessage).catch(console.error)
+  addImageEmbed(parentContent, parentMessage)
   addOpenGraphLink(parentContent, parentMessage)
   const dateContainer = elem({
    attributes: {
@@ -1949,11 +2596,3 @@ function attachNewsMessage(
   }
  }
 }
-
-document.addEventListener(
- 'DOMContentLoaded',
- () => {
-  const fullscreenButton =
-   document.querySelector('.fullscreen-icon')
- }
-)
