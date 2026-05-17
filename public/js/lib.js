@@ -332,12 +332,12 @@ function addImageEmbed(container, text) {
 }
 
 function captureScrollPosition() {
- const scrollPosition = document.body.scrollTop
+ const scrollPosition = document.documentElement.scrollTop || window.pageYOffset
  localStorage.setItem(
   'scrollPosition',
   scrollPosition
  )
- document.body.scrollTo({
+ window.scrollTo({
   behavior: 'instant',
   left: 0,
   top: 0,
@@ -350,10 +350,10 @@ function restoreScrollPosition() {
   'scrollPosition'
  )
  if (scrollPosition) {
-  document.body.scrollTo({
+  window.scrollTo({
    behavior: 'instant',
    left: 0,
-   top: scrollPosition,
+   top: parseInt(scrollPosition),
   })
  }
  document.body.style.overflow = 'auto'
@@ -1691,8 +1691,10 @@ async function createSessionWithServer(
 }
 
 function scrollToTop(top = 0) {
- document.body.scrollTo(0, top, {
+ window.scrollTo({
   behavior: 'instant',
+  left: 0,
+  top: top,
  })
  document.body.classList.remove('scroll-up')
  document.body.classList.add('scroll-zero')

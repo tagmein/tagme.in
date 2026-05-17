@@ -374,31 +374,33 @@ function scrolledPastBottom(
  element,
  exemptZeroScroll = false
 ) {
+ const scrollTop = document.documentElement.scrollTop || window.pageYOffset
  if (
-  (!exemptZeroScroll && body.scrollTop < 1) ||
+  (!exemptZeroScroll && scrollTop < 1) ||
   !element.checkVisibility()
  ) {
   return false
  }
  const bottom = Math.ceil(
   document.documentElement.scrollHeight -
-   body.scrollTop -
+   scrollTop -
    document.documentElement.clientHeight
  )
  const elementBottom = Math.ceil(
   document.documentElement.scrollHeight -
    element.offsetTop -
-   element.offsetHeight
+   element.getBoundingClientRect().height
  )
- return bottom < elementBottom
+ return bottom <= elementBottom
 }
 let lastScrollY = 0
 let addTimeout
 let removeTimeout
-body.addEventListener('scroll', () => {
+document.addEventListener('scroll', () => {
  clearTimeout(addTimeout)
  clearTimeout(removeTimeout)
- if (body.scrollTop < lastScrollY) {
+ const scrollTop = document.documentElement.scrollTop || window.pageYOffset
+ if (scrollTop < lastScrollY) {
   addTimeout = setTimeout(() =>
    body.classList.add('scroll-up')
   )
@@ -408,7 +410,7 @@ body.addEventListener('scroll', () => {
    500
   )
  }
- lastScrollY = body.scrollTop
+ lastScrollY = scrollTop
  if (lastScrollY > 0) {
   body.classList.remove('scroll-zero')
  } else {
@@ -606,6 +608,10 @@ async function route() {
 window.addEventListener('hashchange', route)
 
 async function firstRoute() {
+ // Ensure we start in main mode
+ if (!document.body.getAttribute('data-mode')) {
+  switchToMode('main')()
+ }
  await route()
 }
 

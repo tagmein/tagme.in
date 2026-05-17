@@ -309,7 +309,6 @@ body.scroll-zero .app-header {
 main {
  box-sizing: border-box;
  line-height: 1.65;
- min-height: calc(100dvh - 79px - 78px);
 }
 
 main.mode-main {
@@ -3108,7 +3107,7 @@ body[data-mode='activity']
  border-radius: 8px;
  padding: 10px;
  margin: 19px;
- display: none;
+ display: flex;
  flex-wrap: wrap;
  gap: 10px;
  align-items: center;
