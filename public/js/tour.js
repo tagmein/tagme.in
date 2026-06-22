@@ -133,80 +133,89 @@ function tour() {
   const currentElement = elements[tourPointer]
   const box =
    currentElement.getBoundingClientRect()
+  
+  // Ensure tourElement is measured before positioning
+  tourElement.style.visibility = 'hidden'
+  tourElement.style.display = 'block'
   const self =
    tourElement.getBoundingClientRect()
+  tourElement.style.visibility = 'visible'
+
   const pad = 10
+  
+  // Get current scroll position
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+
+  // Use absolute positioning for the message box so it scrolls with the page
+  tourElement.style.position = 'absolute'
+  
   const moreRoomAbove =
-   box.top > innerHeight / 2
-  const moreRoomLeft = box.left > innerWidth / 2
-  Object.assign(
-   tourElement.style,
-   moreRoomAbove
-    ? {
-       bottom: `${Math.max(
-        pad,
-        Math.min(
-         innerHeight -
-          self.height -
-          pad -
-          scrollY,
-         innerHeight - box.top + pad
-        )
-       )}px`,
-       top: 'auto',
-      }
-    : {
-       bottom: 'auto',
-       top: `${Math.max(
-        pad,
-        Math.min(
-         scrollY +
-          innerHeight -
-          self.height -
-          pad,
-         box.bottom + pad
-        )
-       )}px`,
-      }
-  )
-  Object.assign(
-   tourElement.style,
-   moreRoomLeft
-    ? {
-       left: 'auto',
-       right: `${Math.max(
-        pad,
-        Math.min(
-         innerWidth - self.width - pad,
-         innerWidth - box.right + pad
-        )
-       )}px`,
-      }
-    : {
-       left: `${Math.max(
-        pad,
-        Math.min(
-         innerWidth - self.width - pad,
-         box.left + pad
-        )
-       )}px`,
-       right: 'auto',
-      }
-  )
+   box.top > window.innerHeight / 2
+  const moreRoomLeft = box.left > window.innerWidth / 2
+  
+  // Calculate available space in viewport
+  const spaceAbove = box.top
+  const spaceBelow = window.innerHeight - box.bottom
+  
+  // Position vertically (Relative to document)
+  if (moreRoomAbove && spaceAbove >= self.height + pad) {
+   tourElement.style.top = `${scrollTop + box.top - self.height - pad}px`
+  } else if (spaceBelow >= self.height + pad) {
+   tourElement.style.top = `${scrollTop + box.bottom + pad}px`
+  } else {
+   if (spaceAbove > spaceBelow) {
+    tourElement.style.top = `${scrollTop + Math.max(pad, box.top - self.height - pad)}px`
+   } else {
+    tourElement.style.top = `${scrollTop + Math.max(pad, box.bottom + pad)}px`
+   }
+  }
+  tourElement.style.bottom = 'auto'
+  
+  // Position horizontally (Relative to document)
+  if (moreRoomLeft && box.right - self.width >= pad) {
+   tourElement.style.left = `${scrollLeft + box.right - self.width}px`
+  } else if (box.left + self.width <= window.innerWidth - pad) {
+   tourElement.style.left = `${scrollLeft + box.left}px`
+  } else {
+   const leftPos = Math.max(pad, Math.min(
+    window.innerWidth - self.width - pad,
+    box.left
+   ))
+   tourElement.style.left = `${scrollLeft + leftPos}px`
+  }
+  tourElement.style.right = 'auto'
+  
+  // CRITICAL FIX: Position the highlight box using FIXED positioning
+  // so it uses the exact coordinates from getBoundingClientRect()
   Object.assign(tourSelf.style, {
+   position: 'fixed',
    left: `${box.left}px`,
    top: `${box.top}px`,
    height: `${box.height}px`,
    width: `${box.width}px`,
+   zIndex: '9999',
+   pointerEvents: 'none'
   })
-  scrollX = 0
+  
+  // Ensure the container itself doesn't shift
+  Object.assign(tourShade.style, {
+   position: 'fixed',
+   top: '0',
+   left: '0',
+   width: '100%',
+   height: '100%',
+   pointerEvents: 'none',
+   zIndex: '9998'
+  })
+
+  // Prevent horizontal scroll
   document.body.scrollLeft = 0
-  setTimeout(() => {
-   scrollX = 0
-   document.body.scrollLeft = 0
-  }, 100)
+  
+  // Set the right-side shade width
   tourSelf.children[3].style.width =
    window.innerWidth - box.right + 'px'
+  
   for (const t of Array.from(
    tourSelf.children
   )) {
